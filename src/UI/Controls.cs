@@ -214,6 +214,10 @@ public sealed class PillButton : Button
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool LeftAligned { get; set; }
 
+    /// <summary>Desplegable: flecha dorada a la derecha y el texto centrado en todo el botón (no junto a la flecha).</summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public bool Dropdown { get; set; }
+
     private string? _chip;
     private bool _chipOn;
 
@@ -336,6 +340,19 @@ public sealed class PillButton : Button
             chipW += pad;
         }
 
+        // Flecha del desplegable: el mismo hueco a los dos lados, para que el texto quede centrado en el botón.
+        var side = 0f;
+        if (Dropdown)
+        {
+            var arrow = Math.Max(7f, Font.Height * 0.5f);
+            var pad = Math.Max(9f, Height * 0.38f);
+            var x = Width - pad - arrow;
+            var cy = Height / 2f;
+            using var pen = new Pen(Enabled ? Theme.GoldBase : Theme.Faint, 1.6f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
+            g.DrawLines(pen, new[] { new PointF(x, cy - arrow * 0.25f), new PointF(x + arrow / 2f, cy + arrow * 0.28f), new PointF(x + arrow, cy - arrow * 0.25f) });
+            side = arrow + pad + 4f;
+        }
+
         var textSize = TextRenderer.MeasureText(g, Text, Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
         float left;
         if (LeftAligned)
@@ -344,7 +361,7 @@ public sealed class PillButton : Button
         }
         else
         {
-            left = Math.Max(4f, (Width - chipW - (lead + textSize.Width)) / 2f);
+            left = Math.Max(4f + side, (Width - chipW - (lead + textSize.Width)) / 2f);
         }
         if (iconSize > 0)
         {
@@ -356,7 +373,7 @@ public sealed class PillButton : Button
             g.FillEllipse(brush, left, (Height - dot) / 2f, dot, dot);
         }
         // Centrado: la caja justa del texto (con la de todo el ancho, el texto largo se cortaba con «…» antes de tiempo).
-        var room = Math.Max(10f, Width - chipW - left - lead - 2f);
+        var room = Math.Max(10f, Width - chipW - left - lead - 2f - side);
         var textRect = Rectangle.Round(new RectangleF(left + lead, 0, LeftAligned ? room : Math.Min(room, textSize.Width + 4f), Height));
         TextRenderer.DrawText(g, Text, Font, textRect, text, flags | TextFormatFlags.Left);
     }

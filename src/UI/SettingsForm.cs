@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Runtime.Versioning;
@@ -15,6 +14,12 @@ public sealed class SettingsForm : ThemedForm
 {
     private static readonly string[] UpdateLabels = { L.T("Preguntar", "Ask"), L.T("Automáticas", "Automatic"), L.T("Nunca", "Never") };
     private static readonly string[] UpdateModes = { "prompt", "auto", "off" };
+    private static readonly string[] UpdateHints =
+    {
+        L.T("Te avisamos cuando salga una versión nueva", "We'll tell you when a new version is out"),
+        L.T("Se instalan solas, nunca durante una partida", "They install by themselves, never during a match"),
+        L.T("No se buscan versiones nuevas", "New versions aren't checked"),
+    };
 
     // Dos columnas, como la ventana principal; la cabecera ocupa lo de arriba.
     private const int LeftX = 15, LeftW = 267, RightX = 297, RightW = 280, HeaderH = 32;
@@ -24,6 +29,7 @@ public sealed class SettingsForm : ThemedForm
     private readonly ToggleSwitch _fortnite;
     private readonly ToggleSwitch _report;
     private readonly PillButton[] _updates = new PillButton[UpdateModes.Length];
+    private readonly Label _updateHint;
     private readonly TextBox _folder;
     private readonly TextBox _initial;
     private bool _loading;
@@ -42,7 +48,7 @@ public sealed class SettingsForm : ThemedForm
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(592, 548);
+        ClientSize = new Size(592, 502);
         Icon = AppIcon.Load();
 
         // ---- Columna izquierda ---------------------------------------------------------------
@@ -123,17 +129,18 @@ public sealed class SettingsForm : ThemedForm
         cannons.CheckedChanged += (_, _) => { if (!_loading) _monitor.SetCountExtra(c => c.CountLootCannons = cannons.Checked); };
 
         // Actualizaciones: tres píldoras.
-        var updates = AddCard(RightX, 169, RightW, 94, 14);
+        var updates = AddCard(RightX, 185, RightW, 116, 14);
         CardTitle(updates, L.T("Actualizaciones", "Updates"));
         var pillW = (RightW - 26 - 2 * 6) / 3;
         for (var i = 0; i < UpdateModes.Length; i++)
         {
             var index = i;
-            var pill = new PillButton { Text = UpdateLabels[i], Location = new Point(13 + i * (pillW + 6), 41), Size = new Size(pillW, 32), Radius = 10, Font = Theme.Text(8.5f, FontStyle.Bold) };
+            var pill = new PillButton { Text = UpdateLabels[i], Location = new Point(13 + i * (pillW + 6), 36), Size = new Size(pillW, 34), Radius = 10, Font = Theme.Text(8.5f, FontStyle.Bold) };
             pill.Click += (_, _) => SelectUpdateMode(index, save: true);
             updates.Controls.Add(pill);
             _updates[i] = pill;
         }
+        _updateHint = Lbl(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 80), new Size(RightW - 26, 18), ContentAlignment.MiddleCenter);
         var mode = Array.IndexOf(UpdateModes, config.UpdateMode);
         SelectUpdateMode(mode < 0 ? 0 : mode, save: false);
 
@@ -151,10 +158,10 @@ public sealed class SettingsForm : ThemedForm
 
         // Cofres de antes del contador: la cifra editable entre − y +, y debajo el mismo botón que en la primera
         // apertura para calcularlos.
-        var initial = AddCard(RightX, 40, RightW, 120, 16);
+        var initial = AddCard(RightX, 40, RightW, 136, 16);
         CardTitle(initial, L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName), 120);
         Lbl(initial, L.T("se suman a tu total", "added to your total"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(RightW - 13 - 120, 9), new Size(120, 16), ContentAlignment.MiddleRight);
-        const int stepW = 40, rowY = 32, rowH = 40;
+        const int stepW = 42, rowY = 36, rowH = 42;
         var minus = new PillButton { Text = "−", Location = new Point(13, rowY), Size = new Size(stepW, rowH), Radius = 11, Font = Theme.Text(12f, FontStyle.Bold) };
         var plus = new PillButton { Text = "+", Location = new Point(RightW - 13 - stepW, rowY), Size = new Size(stepW, rowH), Radius = 11, Font = Theme.Text(12f, FontStyle.Bold) };
         var initialBox = new Card { Location = new Point(13 + stepW + 6, rowY), Size = new Size(RightW - 26 - 2 * (stepW + 6), rowH), Radius = 11, BackColor = Theme.Bg2, Edge = Theme.Line, Flat = true };
@@ -180,7 +187,7 @@ public sealed class SettingsForm : ThemedForm
         var estimate = new PillButton
         {
             // «Recalcular»: aquí el cálculo ya se hizo (o se puede rehacer); el diálogo se llama igual que en la primera apertura.
-            Text = L.T("Recalcular", "Recalculate"), IconSvg = Icons.Calc, Location = new Point(13, rowY + rowH + 8), Size = new Size(RightW - 26, 32),
+            Text = L.T("Recalcular", "Recalculate"), IconSvg = Icons.Calc, Location = new Point(13, rowY + rowH + 10), Size = new Size(RightW - 26, 34),
             Radius = 11, Font = Theme.Text(8.75f, FontStyle.Bold),
         };
         estimate.Click += (_, _) => EstimateEarlier();
@@ -195,15 +202,15 @@ public sealed class SettingsForm : ThemedForm
         };
 
         // OBS: dirección y estado.
-        var obsCard = AddCard(RightX, 272, RightW, 94, 14);
+        var obsCard = AddCard(RightX, 310, RightW, 128, 14);
         CardTitle(obsCard, L.T("Overlay para OBS", "Overlay for OBS"), 92);
         var obsUrl = ObsServer.Url;
         var stateCard = new Card { Location = new Point(RightW - 13 - 78, 8), Size = new Size(78, 20), Radius = 10, BackColor = obsUrl != null ? Theme.GoldSoft : Theme.Bg2, Edge = obsUrl != null ? Theme.GoldLine : Theme.Line };
         Lbl(stateCard, obsUrl != null ? L.T("● ACTIVO", "● ON") : L.T("● INACTIVO", "● OFF"), 7.0f, FontStyle.Bold,
             obsUrl != null ? Theme.GoldHi : Theme.Red, new Point(0, 0), new Size(78, 20), ContentAlignment.MiddleCenter);
         obsCard.Controls.Add(stateCard);
-        var obs = AddField(obsCard, new Point(13, 41), RightW - 26 - 72, obsUrl ?? L.T("Puerto ocupado", "Port in use"));
-        var copy = new PillButton { Text = L.T("Copiar", "Copy"), Location = new Point(RightW - 13 - 66, 41), Size = new Size(66, 30), Radius = 10, Font = Theme.Text(8.5f, FontStyle.Bold), Enabled = obsUrl != null };
+        var obs = AddField(obsCard, new Point(13, 38), RightW - 26 - 72, obsUrl ?? L.T("Puerto ocupado", "Port in use"));
+        var copy = new PillButton { Text = L.T("Copiar", "Copy"), Location = new Point(RightW - 13 - 66, 38), Size = new Size(66, 30), Radius = 10, Font = Theme.Text(8.5f, FontStyle.Bold), Enabled = obsUrl != null };
         copy.Click += (_, _) =>
         {
             try
@@ -218,20 +225,18 @@ public sealed class SettingsForm : ThemedForm
             }
         };
         obsCard.Controls.Add(copy);
-
-        // Atajos del overlay.
-        var keys = AddCard(RightX, 375, RightW, 55, 12);
-        CardTitle(keys, L.T("Atajos del overlay", "Overlay shortcuts"));
-        Lbl(keys, L.T("Ctrl+Mayús+O mostrar  ·  Ctrl+Mayús+L fijar", "Ctrl+Shift+O show  ·  Ctrl+Shift+L lock"),
-            8.0f, FontStyle.Bold, Theme.Champ, new Point(13, 30), new Size(RightW - 26, 18));
+        Lbl(obsCard, obsUrl != null
+                ? L.T("En OBS, añade una fuente «Navegador» con esta dirección. Fondo transparente.", "In OBS, add a \"Browser\" source with this address. Transparent background.")
+                : L.F("Otro programa usa el puerto; reinicia {0} para probar de nuevo.", "Another program uses the port; restart {0} to try again.", AppInfo.ShortName),
+            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 78), new Size(RightW - 26, 34));
 
         // Restablecer estadísticas: borra el historial (con confirmación y copia de seguridad).
         var reset = new PillButton
         {
             Text = L.T("Restablecer estadísticas…", "Reset statistics…"),
             Location = new Point(LeftX, 447),
-            Size = new Size(LeftW, 32),
-            Radius = 10,
+            Size = new Size(LeftW, 40),
+            Radius = 12,
             Font = Theme.Text(8.5f, FontStyle.Bold),
             ForeColor = Theme.Red,
         };
@@ -242,7 +247,7 @@ public sealed class SettingsForm : ThemedForm
         var close = new PillButton
         {
             Text = L.T("Cerrar", "Close"),
-            Location = new Point(RightX, 439),
+            Location = new Point(RightX, 447),
             Size = new Size(RightW, 40),
             Radius = 12,
             BackColor = Theme.Accent,
@@ -251,10 +256,6 @@ public sealed class SettingsForm : ThemedForm
             DialogResult = DialogResult.OK,
         };
         Controls.Add(close);
-
-        // Pie: enlace al repositorio del proyecto.
-        var footer = AddCard(LeftX, 490, RightX + RightW - LeftX, 44, 12);
-        AddSourceLink(footer, L.T("Código fuente", "Source code"), "GitHub", AppInfo.RepoUrl);
 
         // Cabecera como la de cada sección de la página: cuadro de oro con el icono, título en oro y una línea debajo.
         // Se añade al final: todo lo anterior baja para dejarle sitio.
@@ -271,7 +272,7 @@ public sealed class SettingsForm : ThemedForm
         });
         Lbl(this, L.T("Los cambios se guardan al momento", "Changes are saved right away"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(LeftX + 47, 36), new Size(230, 16));
         Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(LeftX, 60), Size = new Size(RightX + RightW - LeftX, 1) });
-        AddLanguagePicker(config.Language, new Point(RightX + RightW - 172, 19));
+        AddLanguagePicker(config.Language, new Point(RightX + RightW - 172, 17));
 
         FitTexts(this);
         AcceptButton = close;
@@ -293,10 +294,11 @@ public sealed class SettingsForm : ThemedForm
         // Botón píldora como los de la ventana; al pulsarlo, un menú oscuro con los idiomas.
         var button = new PillButton
         {
-            Text = NameOf(chosen) + "  ▾",
+            Text = NameOf(chosen),
+            Dropdown = true,
             Location = at,
-            Size = new Size(172, 26),
-            Radius = 9,
+            Size = new Size(172, 30),
+            Radius = 10,
             Font = Theme.Text(8.5f, FontStyle.Bold),
             BackColor = Theme.Card,
         };
@@ -336,7 +338,7 @@ public sealed class SettingsForm : ThemedForm
                 return;
             }
             chosen = code;
-            button.Text = NameOf(code) + "  ▾";
+            button.Text = NameOf(code);
             foreach (var item in menu.Items.OfType<ToolStripMenuItem>())
             {
                 var mine = item.Text?.TrimStart('✓', ' ') == NameOf(code);
@@ -419,6 +421,7 @@ public sealed class SettingsForm : ThemedForm
             _updates[i].ForeColor = on ? Theme.AccentInk : Theme.Ink;
             _updates[i].Invalidate();
         }
+        _updateHint.Text = UpdateHints[index];
         if (save)
         {
             var chosen = UpdateModes[index];
@@ -479,56 +482,11 @@ public sealed class SettingsForm : ThemedForm
         return card;
     }
 
-    /// <summary>Pie de Ajustes: título gris y el enlace (abre la URL en el navegador).</summary>
-    private static void AddSourceLink(Card footer, string title, string webText, string webUrl)
-    {
-        // Textos medidos y centrados en vertical: así no se tapan entre sí ni se cortan en ningún idioma.
-        var titleFont = Theme.Text(8.0f);
-        var titleW = TextRenderer.MeasureText(title, titleFont).Width;
-        Lbl(footer, title, 8.0f, FontStyle.Regular, Theme.Muted, new Point(13, 2), new Size(titleW, footer.Height - 4), ContentAlignment.MiddleLeft);
-
-        var webFont = Theme.Text(9.0f, FontStyle.Bold);
-        var webLabel = webText + "  ↗";
-        var web = new LinkLabel
-        {
-            Text = webLabel,
-            Font = webFont,
-            LinkColor = Theme.GoldBase,
-            ActiveLinkColor = Theme.GoldHi,
-            VisitedLinkColor = Theme.GoldBase,
-            LinkBehavior = LinkBehavior.HoverUnderline,
-            BackColor = Color.Transparent,
-            Location = new Point(13 + titleW + 4, 2),
-            Size = new Size(TextRenderer.MeasureText(webLabel, webFont).Width + 4, footer.Height - 4),
-            TextAlign = ContentAlignment.MiddleLeft,
-            LinkArea = new LinkArea(0, webLabel.Length),
-            Cursor = Cursors.Hand,
-        };
-        web.LinkClicked += (_, _) => OpenUrl(webUrl);
-        footer.Controls.Add(web);
-
-        var tips = new ToolTip();
-        tips.SetToolTip(web, webUrl);
-    }
-
-    private static void OpenUrl(string url)
-    {
-        try
-        {
-            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })?.Dispose();
-        }
-        catch
-        {
-            // Sin navegador disponible: no hacemos nada.
-        }
-    }
-
     /// <summary>Título de tarjeta como los de la página: rombo de oro y texto en negrita.</summary>
     /// <param name="reserve">Sitio a la derecha para otra cosa (la píldora de estado de OBS).</param>
     private static void CardTitle(Card card, string text, int reserve = 0) =>
         card.Controls.Add(new SectionTitle { Text = text, Font = Theme.Text(8.5f, FontStyle.Bold), Location = new Point(11, 6), Size = new Size(card.Width - 22 - reserve, 20) });
 
-    /// <summary>Texto (y una línea gris opcional) a la izquierda y un interruptor a la derecha; clicar el texto también lo cambia.</summary>
     /// <summary>Pide confirmación y borra todo el historial (se guarda una copia de data.json antes).</summary>
     private void ResetStats()
     {
@@ -554,6 +512,7 @@ public sealed class SettingsForm : ThemedForm
             Array.Empty<InfoPoint>(), L.T("Vale", "OK"), null, Icons.Check);
     }
 
+    /// <summary>Texto (y una línea gris opcional) a la izquierda y un interruptor a la derecha; clicar el texto también lo cambia.</summary>
     private static ToggleSwitch AddToggleRow(Card card, string text, string? hint, int top, bool value)
     {
         // Centrado con lo que tiene a la izquierda: solo el título (una línea) o título y línea gris (dos).
