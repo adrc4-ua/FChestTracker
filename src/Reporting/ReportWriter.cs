@@ -68,8 +68,8 @@ public static class ReportWriter
         .bn{display:flex;flex-direction:column;line-height:1.2;min-width:0}
         .bn span{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
         .bn b{font-size:16px;letter-spacing:-.01em;background:linear-gradient(90deg,var(--gold-hi),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-        .main{min-width:0;padding:22px 28px 24px}
-        .ph{display:flex;align-items:center;gap:14px;margin:0 0 16px;padding-bottom:13px;border-bottom:1px solid var(--line2)}
+        .main{min-width:0;padding:26px 30px 34px}
+        .ph{display:flex;align-items:center;gap:14px;margin:0 0 20px;padding-bottom:16px;border-bottom:1px solid var(--line2)}
         .phi{width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;color:#1a1206;background:linear-gradient(180deg,var(--gold-hi),var(--gold));box-shadow:0 8px 22px -8px rgba(232,176,75,.7)}
         .phi svg .f{fill-opacity:.35}
         .phi svg{width:22px;height:22px}
@@ -80,7 +80,7 @@ public static class ReportWriter
         /* Cifras clave */
         .kpis{display:grid;grid-template-columns:minmax(0,1.9fr) repeat(5,minmax(0,1fr));gap:12px}
         .kpi,.card,.mini-kpi{background:linear-gradient(180deg,rgba(232,176,75,.05),rgba(232,176,75,0) 55%),var(--card);border:1px solid rgba(232,176,75,.14);border-radius:var(--radius);box-shadow:var(--shadow)}
-        .kpi{position:relative;padding:14px 16px;min-width:0;display:flex;flex-direction:column}
+        .kpi{position:relative;padding:16px 18px;min-width:0;display:flex;flex-direction:column}
         .kpi .ki{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px;color:var(--gold-hi);background:linear-gradient(180deg,rgba(232,176,75,.22),rgba(232,176,75,.07));border:1px solid var(--gold-line);position:absolute;top:14px;right:14px}
         .kpi .l{padding-right:40px}
         .kpi .l{font-size:12.5px;font-weight:600;color:var(--muted)}
@@ -95,20 +95,19 @@ public static class ReportWriter
         .kpi.hero .today b{color:var(--ink);font-weight:600}
 
         /* Secciones */
-        section{margin-top:16px}
-        .sh{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin:0 0 8px}
+        section{margin-top:22px}
+        .sh{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin:0 0 10px}
         h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.01em}
         h2::before{content:"";display:inline-block;width:6px;height:6px;border-radius:2px;margin:0 10px 2px 0;background:var(--gold);transform:rotate(45deg)}
         .sh .meta{font-size:12.5px;color:var(--muted)}
-        .pad{padding:14px 18px}
-        .chartsec .pad{padding:12px 16px}
+        .pad{padding:16px 18px}
         .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-top:0}
         .grid2 section{margin-top:0}
         .grid2>section,.trow>section{display:flex;flex-direction:column}
         .grid2>section>.card,.trow>section>.card{flex:1 1 auto}
 
         /* Evolución de cofres: curva a todo el ancho, textos y puntos encima */
-        .evo{position:relative;height:clamp(92px,14.5vh,180px);margin:4px 8px 22px 42px}
+        .evo{position:relative;height:clamp(92px,14vh,185px);margin:4px 8px 22px 44px}
         .evo svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
         .evo .area{fill:url(#evoFill)}
         .evo .line{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px rgba(232,176,75,.45))}
@@ -123,16 +122,15 @@ public static class ReportWriter
         .evo .pt:hover{transform:scale(1.4)}
 
         /* Resumen: últimas partidas y columna derecha */
-        .duo{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,1fr);gap:14px;margin-top:16px}
+        .duo{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(280px,1fr);gap:16px;margin-top:22px}
         .duo>section,.stack>section{margin-top:0}
-        .stack{display:flex;flex-direction:column;gap:14px;min-width:0}
-        .side-card{margin:0;padding:12px 16px}
+        .stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+        .side-card{margin:0;padding:14px 18px}
         .empty-side{margin:6px 0;text-align:center}
         .tl{list-style:none;margin:0;padding:0}
-        .tl li{display:flex;align-items:center;gap:11px;padding:7px 0;border-top:1px solid var(--line)}
+        .tl li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
         .tl li:first-child{border-top:0;padding-top:2px}
-        .tl li:last-child{padding-bottom:2px}
-        .gem{width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center;color:var(--gold);background:var(--bg2);border:1px solid rgba(232,176,75,.2)}
+        .gem{width:36px;height:36px;flex:none;border-radius:11px;display:grid;place-items:center;color:var(--gold);background:var(--bg2);border:1px solid rgba(232,176,75,.2)}
         .gem.f{color:var(--gold-hi);background:var(--gold-soft);border-color:var(--gold-line)}
         .tn{display:flex;flex-direction:column;min-width:0}
         .tn b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -147,7 +145,7 @@ public static class ReportWriter
         .team2 b.nm{font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .team2 .track{display:block;height:5px;margin-top:4px}
         .gemc{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:600}
-        table.compact th,table.compact td{padding:7px 12px}
+        table.compact th,table.compact td{padding:7px 14px}
         .trow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
         .trow>section{margin-top:22px}
         .trow .tiles{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
@@ -365,8 +363,8 @@ public static class ReportWriter
         .chip .sm-av{width:20px;height:20px;font-size:10.5px}
         .mini-kpi b small{font-size:13px;font-weight:600;color:var(--muted);margin-right:2px}
         @media (max-width:860px){.minis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.trow{grid-template-columns:1fr}}
-        @media (max-width:1160px){.kpis{grid-template-columns:repeat(5,minmax(0,1fr))}.kpi.hero{grid-column:1/-1}}
-        @media (max-width:999px){.duo{grid-template-columns:1fr}}
+        @media (max-width:1280px){.kpis{grid-template-columns:repeat(5,minmax(0,1fr))}.kpi.hero{grid-column:1/-1}}
+        @media (max-width:1100px){.duo{grid-template-columns:1fr}}
         /* Móvil y ventanas estrechas: el menú pasa arriba y la página se desplaza normalmente */
         @media (max-width:999px){.app{grid-template-columns:1fr}.side{position:sticky;z-index:20;height:auto;flex-direction:row;align-items:center;gap:10px;padding:10px 12px;
           border-right:0;border-bottom:1px solid var(--line2);background:rgba(11,11,13,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
@@ -386,23 +384,14 @@ public static class ReportWriter
           .fill{display:flex;flex-direction:column;min-height:0}
           .fill>.card{flex:0 1 auto;min-height:0;overflow:auto}
           .duo>section{display:flex;flex-direction:column;min-height:0}
-          .duo>section>.card{flex:0 1 auto;min-height:0;overflow:auto}
+          .duo>section>.card{flex:1 1 auto;min-height:0;overflow:auto}
           .duo>.stack{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
           .stack>section.grow{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
-          .stack>section.grow>.card{flex:0 1 auto;min-height:0;overflow:auto}
+          .stack>section.grow>.card{flex:1 1 auto;min-height:0;overflow:auto}
           .stack>.teamstrip{flex:none;margin-top:0}
           .main>.panel:not([hidden]){overflow:auto}
           .main>.offline{flex:none}
           .trow>section>.card{max-height:42vh;overflow:auto}
-        }
-        @media (min-width:1000px) and (max-height:760px){
-          .main{padding:14px 24px 16px}
-          .ph{margin:0 0 10px;padding-bottom:9px}
-          .kpi{padding:10px 14px} .kpi .v{font-size:24px} .kpi.hero .v{font-size:36px} .kpi.hero img{width:68px;height:68px}
-          section,.duo{margin-top:11px} .sh{margin:0 0 6px}
-          .evo{height:clamp(76px,12vh,110px);margin:2px 8px 18px 40px} .chartsec .pad{padding:9px 14px}
-          table.compact th,table.compact td{padding:6px 10px}
-          .tl li{padding:5px 0} .team2{padding:8px 14px}
         }
         .kpi .s::first-letter,.split span::first-letter,.mini-kpi span::first-letter,.sh .meta::first-letter,
         .rank .who2 .sub::first-letter,.row>span::first-letter,.badge::first-letter,
@@ -592,7 +581,7 @@ public static class ReportWriter
     }
 
     /// <summary>Últimos tesoros conseguidos (resumen): icono del objeto, nombre, partida y tipo.</summary>
-    private static string LatestTreasures(List<(MatchRecord m, TreasureFind f)> rows, Func<int, string> N, int max)
+    private static string LatestTreasures(List<(MatchRecord m, TreasureFind f)> rows, Func<int, string> N)
     {
         var sb = new StringBuilder($"""<section class="grow"><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div><div class="card side-card">""");
         if (rows.Count == 0)
@@ -601,7 +590,7 @@ public static class ReportWriter
             return sb.ToString();
         }
         sb.Append("<ul class=\"tl\">");
-        foreach (var (m, f) in rows.OrderByDescending(r => When(r.m)).ThenByDescending(r => r.f.ObtainedAtSeconds ?? -1).Take(max))
+        foreach (var (m, f) in rows.OrderByDescending(r => When(r.m)).ThenByDescending(r => r.f.ObtainedAtSeconds ?? -1).Take(8))
         {
             var (name, type, featured) = Prizes.Describe(f, When(m));
             var kind = featured ? (type != null ? $"{Prizes.Featured} · {type}" : Prizes.Featured) : type ?? L.T("Artilugio", "Gizmo");
@@ -795,13 +784,15 @@ public static class ReportWriter
             """);
 
         // Abajo: últimas partidas a la izquierda; últimos tesoros y compañeros a la derecha.
-        var teamStrip = mates != null ? TeamSummary(matches, extraKinds, N) : "";
         sb.Append("<div class=\"duo\"><section class=\"fill\">");
-        sb.Append($"""<div class="sh"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{(matches.Count > 5 ? $"<a class=\"more\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "")}</div>""");
-        AppendCompactMatches(sb, matches.Take(5).ToList());
+        sb.Append($"""<div class="sh"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{(matches.Count > 6 ? $"<a class=\"more\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "")}</div>""");
+        AppendCompactMatches(sb, matches.Take(6).ToList());
         sb.Append("</section><div class=\"stack\">");
-        sb.Append(LatestTreasures(treasureRows, N, teamStrip.Length > 0 ? 3 : 5));
-        sb.Append(teamStrip);
+        sb.Append(LatestTreasures(treasureRows, N));
+        if (mates != null)
+        {
+            sb.Append(TeamSummary(matches, extraKinds, N));
+        }
         sb.Append("</div></div></div>");
 
         // ================================ Cofres ================================
