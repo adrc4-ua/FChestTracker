@@ -1,8 +1,12 @@
-name: Build and release FCT.exe
+name: Build FCT.exe
+# Pushes (branches and v* tags) only build the exe, as an artifact: tags never create releases.
+# Releases are made by hand on GitHub; when one is published, FCT.exe is built from its tag and attached to it.
 on:
   push:
     branches: ['**']
     tags: ['v*']
+  release:
+    types: [published]
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,19 +25,15 @@ jobs:
           name: FCT
           path: dist/FCT.exe
 
-  # Only for tags: publishes the release with the GitHub CLI (no third-party action, write access only here).
+  # Only for a release published by hand: attaches the exe built from the release tag.
   #
-  # New repos default GITHUB_TOKEN to read-only: the `permissions: contents: write` below cannot raise it above
-  # whatever Settings → Actions → General → Workflow permissions allows for the whole repository. If that setting
-  # stays on "Read repository contents permission", `gh release create/upload` fails with the default token no
-  # matter what this file says. To make this work without touching that setting, add a repository secret named
-  # RELEASE_TOKEN (Settings → Secrets and variables → Actions → New repository secret) holding a GitHub token with
-  # write access to this repo's contents (classic PAT, "repo" scope, or a fine-grained PAT scoped to this repo with
-  # "Contents: Read and write"). When that secret exists, it is used instead of the default token; otherwise this
-  # falls back to the default token, which works fine once "Read and write permissions" is enabled for the repo.
-  release:
+  # GITHUB_TOKEN can only write here if Settings → Actions → General → Workflow permissions allows it ("Read and
+  # write permissions"); the `permissions: contents: write` below cannot raise that limit. Otherwise add a repository
+  # secret RELEASE_TOKEN (Settings → Secrets and variables → Actions) with a token that can write this repo's
+  # contents: it is used instead of the default token.
+  attach:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -42,14 +42,8 @@ jobs:
         with:
           name: FCT
           path: dist
-      - name: Create the release
+      - name: Attach FCT.exe to the release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
-          else
-            # No changelog in this app's releases: just the download.
-            gh release create "$TAG" dist/FCT.exe --title "Fortnite Chest Tracker $TAG" --notes "Descarga **FCT.exe** y ábrelo (Windows 10 / 11, sin instalación). Si ya lo tienes, se actualiza solo." --latest --repo "$GITHUB_REPOSITORY"
-          fi
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
