@@ -323,7 +323,7 @@ public sealed class SettingsForm : Form
                 item.Text = (mine ? "✓   " : "      ") + item.Text?.TrimStart('✓', ' ');
                 item.ForeColor = mine ? Theme.Cyan : Theme.Ink;
             }
-            _monitor.Change(c => c.Language = code);
+            _monitor.SetLanguage(code);
             if (InfoDialog.Confirm(this, L.T("Idioma", "Language"),
                     L.F("El nuevo idioma se aplica al reiniciar {0}. Tu historial y tus ajustes se conservan.",
                         "The new language applies when {0} restarts. Your history and settings are kept.", AppInfo.ShortName),

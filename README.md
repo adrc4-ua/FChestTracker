@@ -64,7 +64,7 @@ La página de estadísticas se abre en tu navegador (botón **Estadísticas**), 
 | **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, **tesoros disponibles actualmente** (los de la semana y, con un botón, las cinco semanas en una fila), dónde consigues tus tesoros y la lista con el momento exacto y quién los consiguió. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
 | **Compañeros** | Cofres del equipo, la tabla de **todos tus compañeros** (se ordena por partidas, victorias, cofres, media…) y el top 5 de más cofres abiertos y récord en una partida (ver abajo). |
-| **Configuración** | La de las estadísticas, que solo cambia esta página: su idioma (sin reiniciar), mostrar compañeros y sumar sus cofres, y qué contar como cofre. También la versión de FCT y enlaces a GitHub. |
+| **Configuración** | La de las estadísticas: el idioma se comparte con la app (cambia ambas y reinicia FCT), y el resto solo cambia esta página (mostrar compañeros y sumar sus cofres, y qué contar como cofre). También la versión de FCT y enlaces a GitHub. |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros de estadísticas" width="820"></p>
 
@@ -117,7 +117,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 
 <p align="center"><img src="docs/images/settings.png" alt="Configuración" width="620"></p>
 
-- **Idioma**: por defecto el de Windows (español o inglés; inglés si es otro); arriba puedes elegir el otro.
+- **Idioma**: por defecto el de Windows (español o inglés; inglés si es otro); arriba puedes elegir el otro (es bidireccional con el de la página de estadísticas).
 - **Abrir con Fortnite** (activado desde el primer uso): un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
 - **Abrir estadísticas al iniciar** (desactivado por defecto).
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).

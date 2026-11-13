@@ -284,17 +284,38 @@ public sealed class AppMonitor
     /// <summary>Dónde abrir el Resumen: servido por la app (su Configuración funciona) o, si no, el archivo.</summary>
     public string ReportTarget => ObsServer.ReportUrl ?? _store.ReportPath;
 
+    /// <summary>Cambia el idioma compartido (app y estadísticas) y rehace las estadísticas enseguida.</summary>
+    public void SetLanguage(string? code)
+    {
+        _reportRequested = true;
+        Change(c => c.Language = code);
+    }
+
     /// <summary>
-    /// Configuración cambiada en la página del Resumen (desde el hilo del servidor local). Solo toca los ajustes del
-    /// Resumen: la ventana y el overlay no cambian. La página se rehace enseguida, también en otro idioma (sin reiniciar).
+    /// Configuración cambiada en la página de Estadísticas (desde el hilo del servidor local). El idioma es
+    /// bidireccional (cambia también la app y la reinicia); el resto solo toca los ajustes de la página.
     /// </summary>
     private bool ApplyFromReport(string key, string value)
     {
+        if (key == "lang")
+        {
+            if (value.Length > 0 && !L.Languages.Any(l => l.Code == value))
+            {
+                return false;
+            }
+            var next = value.Length == 0 ? null : value;
+            var changed = _config.Language != next;
+            SetLanguage(next);
+            if (changed && AppInfo.ExePath != null)
+            {
+                // Deja responder al servidor HTTP y reescribir stats.html antes de cerrar y relanzar la app.
+                _ = Task.Delay(250).ContinueWith(_ => Restart());
+            }
+            return true;
+        }
         var on = value == "1";
         Action<ReportSettings>? change = key switch
         {
-            "lang" when value.Length == 0 => r => r.Language = null,
-            "lang" when L.Languages.Any(l => l.Code == value) => r => r.Language = value,
             "teammates" => r => r.ShowTeammates = on,
             "countMates" => r => r.CountTeammateChests = on,
             "ammo" => r => r.CountAmmoBoxes = on,

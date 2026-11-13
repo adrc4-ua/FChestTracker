@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Idioma bidireccional: cambiar el idioma en la app actualiza también la página de Estadísticas al instante, y cambiarlo desde la página de Estadísticas actualiza la app (y la reinicia automáticamente para aplicarlo).
 - Resumen: disposición vertical más compacta y responsiva (gráfico de 30 días, márgenes, 5 últimas partidas y últimos tesoros ajustados) para evitar barras de desplazamiento en «Últimas partidas» y en la página en pantallas de PC.
 - Tesoros: en «Todas las semanas», se quita la ficha con el recuento total de artilugios.
 - La página de estadísticas (antes «Informe» / «Resumen») pasa a llamarse **Estadísticas** en toda la aplicación, la consola y la documentación, y ahora se sirve en `http://localhost:7373/estadisticas` (`http://localhost:7373/estadisticas#resumen`).

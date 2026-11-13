@@ -64,7 +64,7 @@ The stats page opens in your browser (the **Stats** button), served by FCT at `h
 | **Treasures** | How many (featured and gizmos), % of matches with a treasure, **treasures available now** (this week's and, with a button, the five weeks in a row), where you get your treasures and the list with the exact moment and who got them. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
 | **Teammates** | Team chests, the table of **all your teammates** (sorts by matches, wins, chests, average…) and the top 5 for most chests opened and best single match (see below). |
-| **Settings** | The stats page's own, which only change this page: its language (no restart), show teammates and add their chests, and what counts as a chest. Also the FCT version and links to GitHub. |
+| **Settings** | The stats page's settings: language is shared with the app (changes both and restarts FCT), while the rest only change this page (show teammates and add their chests, and what counts as a chest). Also the FCT version and links to GitHub. |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of stats" width="820"></p>
 
@@ -78,7 +78,7 @@ The stats page opens in your browser (the **Stats** button), served by FCT at `h
 
 </details>
 
-Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; the stats page follows its own language setting (the app's by default).
+Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; changing the language in either the app or the stats page updates both.
 
 ## Teammates and team
 
@@ -117,7 +117,7 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
-- **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick the other one.
+- **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick another one (synced both ways with the stats page).
 - **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
 - **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).

@@ -76,7 +76,7 @@ public sealed class Config
     public bool CountTeammateChests { get; set; }
 
     /// <summary>
-    /// Settings of the Resumen page (its own Configuración tab): they only change what the page shows, never the
+    /// Settings of the Estadísticas page (its own Configuración tab): except for <see cref="Language"/> (shared with the app), they only change what the page shows, never the
     /// window or the overlay. Null in configs saved before it existed: it then starts from the app's settings.
     /// </summary>
     public ReportSettings? Report { get; set; }
@@ -116,11 +116,9 @@ public sealed class Config
     }
 }
 
-/// <summary>Settings that only affect the Resumen page.</summary>
+/// <summary>Settings that only affect the Estadísticas page.</summary>
 public sealed class ReportSettings
 {
-    /// <summary>Language of the page; null = the same as the app.</summary>
-    public string? Language { get; set; }
     public bool ShowTeammates { get; set; }
     public bool CountTeammateChests { get; set; }
     public bool CountAmmoBoxes { get; set; }

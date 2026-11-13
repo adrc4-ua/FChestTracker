@@ -16,7 +16,7 @@ public static class ReportWriter
         try
         {
             var page = config.ForReport();
-            using (L.Scope(config.ReportView.Language))
+            using (L.Scope(config.Language))
             {
                 WriteAtomic(store.ReportPath, Report(page, Profiles.View(data, page), Profiles.List(data, page), Profiles.InitialChests(data, page)));
             }
@@ -442,9 +442,12 @@ public static class ReportWriter
         if(!live){ctl.forEach(function(c){c.disabled=true});var on=d.querySelector('.offline-note');if(on)on.hidden=false}
         ctl.forEach(function(c){c.setAttribute('data-prev',c.type==='checkbox'?(c.checked?'1':'0'):c.value);
           c.addEventListener('change',function(){if(c.type==='radio'&&!c.checked)return;var key=c.getAttribute('data-key'),val=c.type==='checkbox'?(c.checked?'1':'0'):c.value;saving=true;
+            function reloadWhenReady(n){if(key!=='lang'||!live){saving=false;location.reload();return}
+              fetch('/api/ping',{cache:'no-store'}).then(function(r){if(r.ok){saving=false;location.reload()}else throw 0})
+                .catch(function(){if(n>0)setTimeout(function(){reloadWhenReady(n-1)},250);else{saving=false;location.reload()}})}
             fetch('/api/ajuste',{method:'POST',headers:{'X-FCT':'1','Content-Type':'application/x-www-form-urlencoded'},body:encodeURIComponent(key)+'='+encodeURIComponent(val)})
               .then(function(r){return r.json()}).then(function(j){if(!j.ok)throw 0;
-                say(b.getAttribute('data-saved'));setTimeout(function(){saving=false;location.reload()},1100)})
+                say(b.getAttribute('data-saved'));setTimeout(function(){reloadWhenReady(16)},1000)})
               .catch(function(){saving=false;say(b.getAttribute('data-failed'),true);
                 if(c.type==='checkbox')c.checked=c.getAttribute('data-prev')==='1';else if(c.type==='radio'){var p=d.querySelector('[data-key="'+key+'"][value="'+c.getAttribute('data-prev')+'"]');[].forEach.call(d.querySelectorAll('[data-key="'+key+'"]'),function(x){x.checked=x.value===(p?p.value:'')})}else c.value=c.getAttribute('data-prev')})})});
         [].forEach.call(d.querySelectorAll('[data-key="updates"]'),function(x){x.setAttribute('data-prev',(d.querySelector('[data-key="updates"]:checked')||{}).value||'')});
@@ -641,9 +644,9 @@ public static class ReportWriter
     };
 
     /// <summary>
-    /// Pestaña «Configuración» de Estadísticas: solo cambia lo que se ve en esta página (idioma, compañeros, qué cuenta como
-    /// cofre); la ventana y el overlay tienen la suya en la app. Se cambia aquí mismo cuando la página la sirve FCT
-    /// (http://localhost); abierta como archivo, se ve pero no se cambia. Aquí, y solo aquí, se ve la versión.
+    /// Pestaña «Configuración» de Estadísticas: el idioma es bidireccional (cambia la página y la app); compañeros y
+    /// qué cuenta como cofre solo cambian lo que se ve en esta página. Se cambia aquí mismo cuando la página la sirve
+    /// FCT (http://localhost); abierta como archivo, se ve pero no se cambia. Aquí, y solo aquí, se ve la versión.
     /// </summary>
     private static string SettingsPanel(Config config)
     {
@@ -654,19 +657,20 @@ public static class ReportWriter
             $"""<label class="sw"><input type="checkbox" role="switch" data-key="{key}"{(on ? " checked" : "")} aria-label="{H(label)}"><span></span></label>""";
         string Toggle(string icon, string key, bool on, string label, string? hint = null) => Row(icon, label, hint, Switch(key, on, label));
 
+        var chosenLang = config.Language != null && L.Languages.Any(l => l.Code == config.Language) ? config.Language : null;
+        var sysLanguage = L.Languages.FirstOrDefault(l => l.Code == L.SystemCode).Name ?? "English";
         var langs = new StringBuilder();
-        var appLanguage = L.Languages.FirstOrDefault(l => l.Code == (config.Language ?? L.SystemCode)).Name ?? "English";
-        langs.Append($"""<option value=""{(r.Language == null ? " selected" : "")}>{H(L.F("Como la app ({0})", "Same as the app ({0})", appLanguage))}</option>""");
+        langs.Append($"""<option value=""{(chosenLang == null ? " selected" : "")}>{H(L.F("Sistema ({0})", "System ({0})", sysLanguage))}</option>""");
         foreach (var (code, name) in L.Languages)
         {
-            langs.Append($"""<option value="{code}"{(r.Language == code ? " selected" : "")}>{H(name)}</option>""");
+            langs.Append($"""<option value="{code}"{(chosenLang == code ? " selected" : "")}>{H(name)}</option>""");
         }
         var offline = ObsServer.ReportUrl is { } url
             ? L.T("Abre las estadísticas con el botón Estadísticas de FCT para cambiar la configuración aquí.", "Open stats with the FCT Stats button to change the settings here.") + $" <a href=\"{url}\">{L.T("Abrir", "Open")} →</a>"
             : L.T("Abre FCT para cambiar la configuración aquí.", "Open FCT to change the settings here.");
         var logo = AppLogo.DataUri is { } l ? $"<img src=\"{l}\" alt=\"\" width=\"76\" height=\"76\">" : "";
         return $"""
-            {PageHeader("ajustes", L.T("Configuración", "Settings"), L.T("Solo cambia lo que ves en estas estadísticas; la app tiene la suya", "Only changes what you see in these stats; the app has its own"))}
+            {PageHeader("ajustes", L.T("Configuración", "Settings"), L.T("El idioma se comparte con la app; el resto solo cambia estas estadísticas", "Language is shared with the app; the rest only changes these stats"))}
             <p class="offline-note" hidden>{offline}</p>
             <div class="card abouthero">
               {logo}<div class="ai"><b>{AppInfo.Name}</b><span class="ver">{L.F("Versión {0}", "Version {0}", AppInfo.VersionText)}</span><small>{L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays.")}</small></div>
@@ -674,7 +678,7 @@ public static class ReportWriter
             </div>
             <div class="setgrid">
               <section><div class="sh"><h2>{L.T("Idioma", "Language")}</h2></div><div class="card set">
-                {Row("lang", L.T("Idioma de las estadísticas", "Stats language"), L.T("Se aplica al momento, sin reiniciar", "Applied right away, no restart"), $"<select class=\"sel\" data-key=\"lang\" aria-label=\"{H(L.T("Idioma de las estadísticas", "Stats language"))}\">{langs}</select>", " col")}
+                {Row("lang", L.T("Idioma", "Language"), L.T("Se aplica también en la app (se reinicia sola)", "Also applied to the app (restarts automatically)"), $"<select class=\"sel\" data-key=\"lang\" aria-label=\"{H(L.T("Idioma", "Language"))}\">{langs}</select>", " col")}
               </div></section>
               <section><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2></div><div class="card set">
                 {Toggle("mates", "teammates", r.ShowTeammates, L.T("Mostrar compañeros", "Show teammates"), L.T("Con quién juegas y sus cofres (hasta 1.087 m de ti)", "Who you play with and their chests (up to 1,087 m from you)"))}
