@@ -457,13 +457,18 @@ public sealed class AppMonitor
         _ = Task.Run(() =>
         {
             var error = Updater.Install(u);
-            _installing = false;
             if (error == null)
             {
+                _update = null;
+                _notice = L.T("Reiniciando con la nueva versión…", "Restarting with the new version…");
+                _installing = false;
                 RestartAfterUpdate = true;
+                RequestPublish();
                 CloseRequested?.Invoke();
                 return;
             }
+            _installing = false;
+            ErrorLog.Write("Actualización", error);
             SetNotice(L.F("No se pudo actualizar: {0}", "Update failed: {0}", error));
         });
     }

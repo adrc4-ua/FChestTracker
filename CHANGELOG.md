@@ -2,6 +2,11 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [3.4.1] - 2026-11-12
+
+- Actualizaciones: el aviso de descarga, reinicio o error tiene prioridad sobre el botón de actualizar (antes quedaba oculto detrás del botón); los errores se registran también en `errors.log`.
+- Actualizador: reintentos breves al sustituir el `.exe` (por bloqueos puntuales del antivirus) y restauración automática del ejecutable anterior si falla el intercambio.
+
 ## [3.4.0] - 2026-11-12
 
 - Actualizaciones: se buscan al iniciar y cada 30 minutos mientras FCT está abierto. Cada release incluye también `ChestCounter.exe` (el mismo exe) para que las versiones de antes del cambio de nombre se actualicen.
@@ -95,6 +100,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[3.4.1]: https://github.com/adrc4-ua/FChestTracker/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.1.0...v3.2.0

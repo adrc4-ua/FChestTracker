@@ -447,16 +447,17 @@ public sealed class MainForm : Form
         }
         _ignoreProfileChange = false;
 
-        // Aviso o actualización: uno u otro, en el mismo sitio.
+        // Aviso o actualización: el aviso (descarga, error o cierre) tiene prioridad sobre el botón.
         _autoCloseOffer = s.AutoCloseOffer;
-        _update.Visible = s.Update != null;
+        var hasNotice = !string.IsNullOrEmpty(s.Notice);
+        _update.Visible = !hasNotice && s.Update != null;
         if (s.Update != null)
         {
             _update.Text = L.T("Instalar la actualización", "Install the update");
         }
         _notice.Text = s.Notice ?? "";
         _notice.Cursor = s.AutoCloseOffer ? Cursors.Hand : Cursors.Default;
-        _noticeCard.Visible = s.Update == null && !string.IsNullOrEmpty(s.Notice);
+        _noticeCard.Visible = hasNotice;
 
         // Los botones ocupan el mismo sitio que el aviso o la actualización: cuando hay aviso, se ocultan.
         var notice = _update.Visible || _noticeCard.Visible;

@@ -115,16 +115,49 @@ public static class Updater
             }
             if (File.Exists(old))
             {
-                try { File.Delete(old); } catch { old = exe + $".{DateTime.Now:yyyyMMddHHmmss}.old"; }
+                try { File.Delete(old); } catch { old = exe + $".{DateTime.Now:yyyyMMddHHmmssfff}.old"; }
             }
-            File.Move(exe, old);
-            File.Move(download, exe);
+            MoveWithRetry(exe, old);
+            try
+            {
+                MoveWithRetry(download, exe);
+            }
+            catch
+            {
+                // Keep the previous exe in place if the antivirus/OS locked the downloaded file during swap.
+                try
+                {
+                    if (!File.Exists(exe) && File.Exists(old))
+                    {
+                        MoveWithRetry(old, exe);
+                    }
+                }
+                catch { }
+                throw;
+            }
             return null;
         }
         catch (Exception ex)
         {
             try { File.Delete(download); } catch { }
             return ex.Message;
+        }
+    }
+
+    private static void MoveWithRetry(string source, string destination)
+    {
+        const int attempts = 5;
+        for (var i = 1; ; i++)
+        {
+            try
+            {
+                File.Move(source, destination);
+                return;
+            }
+            catch (Exception ex) when (i < attempts && ex is IOException or UnauthorizedAccessException)
+            {
+                Thread.Sleep(150);
+            }
         }
     }
 
