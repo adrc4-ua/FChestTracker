@@ -4,7 +4,6 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- Resumen sin barra de desplazamiento en «Últimas partidas» ni en «Últimos tesoros»: se muestran las filas que caben (con «Ver todas» para el resto) y, en pantallas bajas (hasta 860 px de alto), cabecera, cifras y gráfico más compactos. Ninguna pestaña se desplaza entera desde 1280×720.
 - El archivo de la página pasa a llamarse `estadisticas.html` (el antiguo `report.html` se borra).
 - Cifras: «tuyos por partida» y «del equipo por partida» de Compañeros dicen ahora «en equipo» (solo cuentan partidas con compañeros; la media del Resumen cuenta todas, también las de solo), y la línea del gráfico es la «media por día jugado».
 - `build.bat`: al terminar de compilar `dist\FCT.exe`, abre directamente la aplicación en lugar de abrir la carpeta en el explorador.
