@@ -4,7 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- **Overlay**: solo se ve con Fortnite a la vista en su pantalla (con dos pantallas, usar la otra no lo oculta), se coloca en la pantalla de Fortnite y no se puede sacar por los bordes al arrastrarlo.
+- **Overlay**: solo se ve con Fortnite abierto (sin minimizar) en alguna pantalla; entonces se puede poner en cualquier pantalla y sitio. No se puede sacar por los bordes al arrastrarlo. Al cerrar Fortnite con la ventana de FCT a la vista, solo se va el overlay. Se enciende al abrir Fortnite.
 - **Abrir y cerrar**: con Fortnite abierto, FCT arranca en segundo plano con el overlay; sin Fortnite, abre la ventana. La X de la ventana la deja en segundo plano si Fortnite está abierto (si no, cierra); la ✕ del overlay cierra FCT. En segundo plano se cierra solo al cerrar Fortnite, o desde Salir en el área de notificación.
 - La ventana avisa mientras lee una tanda de replays («Leyendo tus replays… 3 / 40»), como la página de estadísticas.
 - Primer uso: cerrar cualquiera de las ventanas iniciales cierra la app sin guardar nada; al volver a abrirla empieza de nuevo.

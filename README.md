@@ -103,7 +103,7 @@ Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, ré
 - **Cifras grandes**: tu **total** de cofres y, en el recuadro, la partida **anterior** (o la **actual**, en directo, mientras juegas).
 - **Hoy**, **media** de hoy por partida, **anterior** (durante una partida) y **tesoros**.
 
-Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. Solo se ve mientras Fortnite está a la vista en su pantalla (con dos pantallas, usar la otra no lo oculta) y se coloca en la pantalla de Fortnite; no se puede sacar por los bordes. Al abrir FCT con Fortnite abierto se enciende; lo apagas con el botón **Overlay** o con Ctrl+Mayús+O.
+Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. Solo se ve mientras Fortnite está abierto (sin minimizar) en alguna pantalla; entonces puedes ponerlo en cualquier pantalla y sitio, y se sigue viendo aunque uses otra ventana. No se puede sacar por los bordes. Al abrir FCT con Fortnite abierto se enciende; lo apagas con el botón **Overlay** o con Ctrl+Mayús+O.
 
 ¿Transmites en directo? Mientras FCT está abierto, el mismo overlay está en **http://localhost:7373/** (cópialo desde **Configuración**). En OBS, añade una **fuente de navegador** con esa dirección: tiene fondo transparente y se actualiza sola.
 

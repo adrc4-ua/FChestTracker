@@ -653,6 +653,12 @@ public sealed class AppMonitor
                     _nextScan = DateTime.UtcNow.AddSeconds(_tracker.IsFinishing ? 2 : _tracker.HasPending ? 15 : (_watcher != null && !AutoMode ? 60 : 10));
                 }
                 changed |= CheckAutoClose();
+                // El overlay sigue a Fortnite (abierto o no) también cuando se cierra sin cambiar de ventana activa.
+                if (OperatingSystem.IsWindows() && DateTime.UtcNow >= _nextOverlayCheck)
+                {
+                    _nextOverlayCheck = DateTime.UtcNow.AddSeconds(3);
+                    NativeOverlay.Recheck();
+                }
             }
             catch (Exception ex)
             {
@@ -872,7 +878,7 @@ public sealed class AppMonitor
         return false;
     }
 
-    private DateTime _nextGameCheck;
+    private DateTime _nextGameCheck, _nextOverlayCheck;
 
     // ---- Piezas internas -------------------------------------------------------------------------
 
