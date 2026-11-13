@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Pantalla de tesoros más fiable**: los fuegos artificiales dorados y los localizadores se reconocen aunque la tarjeta aún esté apareciendo o brillando; se hacen más capturas durante la pantalla y se combinan tarjeta a tarjeta, así una captura a destiempo ya no deja un artilugio sin nombre.
+- **Estadísticas**: el aviso de que FCT está cerrado sale en el menú lateral, debajo de la última sección; en Compañeros la media también se muestra como mínimo (≥); en «Tesoros disponibles actualmente», la fila «Todas las semanas» ya no lleva un contador por artilugio (los totales siguen arriba).
 ## [5.2.1] - 2026-11-13
 
 - **Overlay**: eliminación de los atajos de teclado globales; la visibilidad y bloqueo se gestionan exclusivamente desde el botón nativo de la ventana principal y el icono de candado.

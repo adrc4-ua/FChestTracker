@@ -71,12 +71,11 @@ public static class StatsPage
             .Append("<title>").Append(AppInfo.Name).Append(page.Player.Length > 0 ? " · " + Esc(page.Player) : "").Append("</title>")
             .Append(logo == null ? "" : $"<link rel=\"icon\" href=\"{logo}\">")
             .Append("<style>").Append(StyleSheet).Append("</style></head>\n")
-            .Append($"<body data-refresh=\"{refresh}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\" ")
-            .Append($"data-offline=\"{Esc(L.F("{0} está cerrado: las cifras no se actualizan", "{0} is closed: the figures are not updating", AppInfo.ShortName))}\">")
+            .Append($"<body data-refresh=\"{refresh}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\">")
             .Append("<div class=\"shell\">");
 
         html.Append(Navigation(page, logo));
-        html.Append("<main class=\"content\"><div class=\"down\" role=\"status\" hidden></div>").Append(LoadingCard(Progress));
+        html.Append("<main class=\"content\">").Append(LoadingCard(Progress));
         AddPane(html, "resumen", OverviewTab.Build(page, logo));
         AddPane(html, "cofres", ChestsTab.Build(page));
         AddPane(html, "tesoros", TreasuresTab.Build(page));
@@ -117,9 +116,16 @@ public static class StatsPage
         {
             nav.Append(TabButton(id, label, "tab", count));
         }
+        nav.Append(ClosedNotice());
         nav.Append(TabButton("ajustes", L.T("Configuración", "Settings"), "tab tab-last", null));
         return nav.Append("</nav></aside>").ToString();
     }
+
+    /// <summary>Shown by the script under the last section when FCT stops answering (the page is no longer updated).</summary>
+    private static string ClosedNotice() =>
+        "<div class=\"down\" role=\"status\" hidden><span class=\"down-dot\" aria-hidden=\"true\"></span><div>"
+        + $"<b>{Esc(L.F("{0} está cerrado", "{0} is closed", AppInfo.ShortName))}</b>"
+        + $"<small>{Esc(L.T("Las cifras no se actualizan", "The figures are not updating"))}</small></div></div>";
 
     private static string TabButton(string id, string label, string classes, string? count)
     {

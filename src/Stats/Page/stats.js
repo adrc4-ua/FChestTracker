@@ -139,7 +139,7 @@
   // Served by FCT: a quick ping notices a language change (reload at once) or FCT closing (a notice instead of an error
   // page). The page itself reloads every data-refresh seconds, unless the player is busy with a setting.
   const down = doc.querySelector('.down'), pageLanguage = doc.documentElement.lang || '';
-  const showDown = () => { if (down) { down.textContent = body.dataset.offline; down.hidden = false; } };
+  const showDown = () => { if (down) down.hidden = false; };
   let missed = 0;
   if (served) {
     setInterval(() => {

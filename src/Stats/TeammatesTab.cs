@@ -113,7 +113,7 @@ internal static class TeammatesTab
                 .Append($"<td class=\"ac\" data-v=\"{mate.Matches}\">{Num(mate.Matches)}</td>")
                 .Append($"<td class=\"ac nowrap\" data-v=\"{Raw(mate.Wins + mate.Wins / 1000.0 / mate.Matches)}\">{wins}</td>")
                 .Append($"<td class=\"ac nowrap\" data-v=\"{mate.Chests}\"><span class=\"note\">≥</span> <b>{Num(mate.Chests)}</b></td>")
-                .Append($"<td class=\"ac\" data-v=\"{Raw(average)}\"><b>{average.ToString("0.0", L.Culture)}</b></td>")
+                .Append($"<td class=\"ac nowrap\" data-v=\"{Raw(average)}\"><span class=\"note\">≥</span> <b>{average.ToString("0.0", L.Culture)}</b></td>")
                 .Append($"<td class=\"ac nowrap\" data-v=\"{Raw(share)}\"><span class=\"note\">≥</span> {Percent(mate.Chests, mate.TeamChests)}</td>")
                 .Append($"<td class=\"ac nowrap note\" data-v=\"{mate.Last.Ticks}\">{L.DateTimeShort(mate.Last)}</td></tr>");
         }

@@ -5,13 +5,13 @@ namespace FCT.Monitoring;
 
 /// <summary>
 /// The end-of-match treasure screen. When the game log says it is shown, only the game's window is captured (even
-/// behind others) a few times while its cards finish appearing, and the reading with most cards is kept. Images only
-/// live in memory while being read; a minimized or uncapturable window simply leaves the match as it was.
+/// behind others) several times while its cards appear and settle, and the readings are combined card by card. Images
+/// only live in memory while being read; a minimized or uncapturable window simply leaves the match as it was.
 /// </summary>
 internal sealed class TreasureScreenCapture
 {
-    /// <summary>The cards slide in: several captures over the first ~9 s (the screen stays 17 s or more).</summary>
-    private static readonly int[] CaptureDelaysMs = { 1500, 1500, 1500, 2000, 2500 };
+    /// <summary>The cards slide and flash in: captures every 1.5 s over the first 12 s (the screen stays 17 s or more).</summary>
+    private static readonly int[] CaptureDelaysMs = { 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500 };
 
     private readonly ConcurrentQueue<TreasureScreen> _read = new();
     private readonly Action _wake;
@@ -22,24 +22,19 @@ internal sealed class TreasureScreenCapture
     {
         try
         {
-            List<string>? best = null;
+            var readings = new List<List<string>>();
             foreach (var delay in CaptureDelaysMs)
             {
                 await Task.Delay(delay);
                 var frame = await WindowCapture.CaptureAsync(GameWindow(), TimeSpan.FromSeconds(2));
-                if (frame == null)
+                if (frame != null)
                 {
-                    continue;
-                }
-                var cards = TreasureScreenReader.Read(frame).Select(c => c.Item).ToList();
-                if (best == null || cards.Count > best.Count)
-                {
-                    best = cards;
+                    readings.Add(TreasureScreenReader.Read(frame).Select(c => c.Item).ToList());
                 }
             }
-            if (best is { Count: > 0 })
+            if (Combine(readings) is { Count: > 0 } cards)
             {
-                _read.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = best });
+                _read.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = cards });
                 _wake();
             }
         }
@@ -48,6 +43,31 @@ internal sealed class TreasureScreenCapture
             ErrorLog.Write("Pantalla de tesoros", ex);
         }
     });
+
+    /// <summary>
+    /// One reading out of several: as many cards as the fullest capture saw (they appear left to right, so a capture
+    /// with fewer has the first ones), and for each card the name read most often. A card caught mid-animation reads
+    /// as unknown and is outvoted by the captures where it had settled; a card read as a gizmo only once among many
+    /// unknown readings (a featured treasure) stays unknown.
+    /// </summary>
+    internal static List<string> Combine(IReadOnlyList<List<string>> readings)
+    {
+        var count = readings.Count == 0 ? 0 : readings.Max(r => r.Count);
+        var cards = new List<string>(count);
+        for (var slot = 0; slot < count; slot++)
+        {
+            var seen = readings.Where(r => r.Count > slot).Select(r => r[slot]).ToList();
+            var unknown = seen.Count(name => name == TreasureScreenReader.Unknown);
+            var named = seen.Where(name => name != TreasureScreenReader.Unknown)
+                .GroupBy(name => name)
+                .OrderByDescending(g => g.Count())
+                .FirstOrDefault();
+            // a featured treasure reads as unknown: one stray gizmo reading among them does not rename it
+            var trusted = named != null && (named.Count() >= 2 || named.Count() >= unknown);
+            cards.Add(trusted ? named!.Key : TreasureScreenReader.Unknown);
+        }
+        return cards;
+    }
 
     /// <summary>The game's window; FCT_TREASURE_WINDOW (an exact window title) stands in for it in tests.</summary>
     private static IntPtr GameWindow()

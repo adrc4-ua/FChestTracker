@@ -136,7 +136,8 @@ internal static class TreasuresTab
         foreach (var prize in Prizes.All.Where(p => p.Week == 0))
         {
             var count = Got(prize);
-            card.Append($"<span class=\"token{(count > 0 ? " token-got" : "")}\"><i>{PageIcons.Of(prize)}</i>{Esc(Prizes.Shown(prize))}{(count > 0 ? $" <b>×{count}</b>" : "")}</span>");
+            // what any week can give: lit when obtained, without a count (the figures above have the totals)
+            card.Append($"<span class=\"token{(count > 0 ? " token-got" : "")}\"><i>{PageIcons.Of(prize)}</i>{Esc(Prizes.Shown(prize))}</span>");
         }
         card.Append("</div>")
             .Append($"<button class=\"weeks-btn\" type=\"button\" aria-expanded=\"false\" aria-controls=\"weeks\" data-open=\"{Esc(L.T("Ver todas las semanas", "See every week"))}\" data-close=\"{Esc(L.T("Ocultar las semanas", "Hide the weeks"))}\">{L.T("Ver todas las semanas", "See every week")}</button>")

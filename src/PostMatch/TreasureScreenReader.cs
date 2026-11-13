@@ -7,7 +7,7 @@ namespace FCT.PostMatch;
 /// <item>Extraction Accelerator: green device.</item>
 /// <item>Lucky Locator: purple triangle. Sprite Locator: red triangle.</item>
 /// <item>Portable Extractor: capsule with a steel-blue frame.</item>
-/// <item>Golden Firework: white/gold firework burst.</item>
+/// <item>Golden Firework: pale gold / white firework burst.</item>
 /// </list>
 /// Anything else on a gold card (a featured treasure: outfit, vehicle…) is reported as <see cref="Unknown"/>.
 /// </summary>
@@ -146,6 +146,24 @@ public static class TreasureScreenReader
 
     // ---- Icon: share of each colour family inside the card --------------------------------------------------------
 
+    /// <summary>
+    /// Each gizmo's colour family, and the smallest share of the card it has to cover. Low enough for a card caught
+    /// while it is still fading or flashing in (measured on real end screens, darker, lighter, washed out and at half
+    /// resolution): the firework's rays are pale gold rather than white then.
+    /// </summary>
+    private static readonly (string Family, double Floor, string Gizmo)[] Families =
+    {
+        ("green", 0.03, "Extraction Accelerator"),
+        ("purple", 0.03, "Lucky Locator"),
+        ("red", 0.05, "Sprite Locator"),
+        ("steel", 0.05, "Portable Extractor"),
+        ("pale", 0.03, "Golden Firework"),
+    };
+
+    /// <summary>
+    /// The gizmo whose colour dominates the icon. A gizmo icon is mostly one colour; a featured treasure (an outfit, a
+    /// vehicle…) mixes several, so the winner must clearly lead the runner-up or the card stays <see cref="Unknown"/>.
+    /// </summary>
     private static string Classify(WindowCapture.Frame f, Card c)
     {
         int ix = (int)(c.Width * 0.12), iy = (int)(c.Height * 0.12);
@@ -154,37 +172,41 @@ public static class TreasureScreenReader
         {
             return Unknown;
         }
-        int green = 0, purple = 0, red = 0, steel = 0, white = 0, total = 0;
+        var counts = new Dictionary<string, int> { ["green"] = 0, ["purple"] = 0, ["red"] = 0, ["steel"] = 0, ["pale"] = 0 };
         const int samples = 64;
         for (var sy = 0; sy < samples; sy++)
         {
             for (var sx = 0; sx < samples; sx++)
             {
-                var x = x0 + sx * w / samples;
-                var y = y0 + sy * h / samples;
-                var i = (y * f.Width + x) * 4;
-                byte b = f.Bgra[i], g = f.Bgra[i + 1], r = f.Bgra[i + 2];
-                total++;
-                if (IsGold(r, g, b))
+                var i = ((y0 + sy * h / samples) * f.Width + x0 + sx * w / samples) * 4;
+                if (FamilyOf(f.Bgra[i + 2], f.Bgra[i + 1], f.Bgra[i]) is { } family)
                 {
-                    continue;
+                    counts[family]++;
                 }
-                var (hh, s, v) = Hsv(r, g, b);
-                if (hh is >= 0.50 and <= 0.72 && s is >= 0.05 and <= 0.65 && v is >= 0.12 and <= 0.70) steel++;
-                else if (v < 0.30) { }
-                else if (s < 0.22 && v > 0.85) white++;
-                else if (hh is >= 0.20 and <= 0.45 && s > 0.30) green++;
-                else if (hh is >= 0.70 and <= 0.92 && s > 0.35) purple++;
-                else if ((hh >= 0.94 || hh <= 0.04) && s > 0.45) red++;
             }
         }
-        double Share(int n) => n / (double)total;
-        if (Share(green) > 0.08) return "Extraction Accelerator";
-        if (Share(purple) > 0.08) return "Lucky Locator";
-        if (Share(red) > 0.10) return "Sprite Locator";
-        if (Share(steel) > 0.06) return "Portable Extractor";
-        if (Share(white) > 0.03) return "Golden Firework";
-        return Unknown;
+        double Share(string family) => counts[family] / (double)(samples * samples);
+        var ranked = Families.OrderByDescending(g => Share(g.Family) / g.Floor).ToList();
+        var (best, runnerUp) = (ranked[0], ranked[1]);
+        var clearLead = Share(best.Family) / best.Floor >= 2 * Share(runnerUp.Family) / runnerUp.Floor;
+        return Share(best.Family) >= best.Floor && clearLead ? best.Gizmo : Unknown;
+    }
+
+    /// <summary>The colour family of one pixel of an icon; null for the card's gold, dark shading or anything else.</summary>
+    private static string? FamilyOf(byte r, byte g, byte b)
+    {
+        if (IsGold(r, g, b))
+        {
+            return null;
+        }
+        var (hue, s, v) = Hsv(r, g, b);
+        if (hue is >= 0.50 and <= 0.72 && s is >= 0.05 and <= 0.65 && v is >= 0.12 and <= 0.70) return "steel";
+        if (v < 0.30) return null;
+        if (s < 0.30 && v >= 0.55) return "pale";
+        if (hue is >= 0.20 and <= 0.45 && s > 0.30) return "green";
+        if (hue is >= 0.70 and <= 0.92 && s > 0.35) return "purple";
+        if ((hue >= 0.94 || hue <= 0.04) && s > 0.45) return "red";
+        return null;
     }
 
     private static (double H, double S, double V) Hsv(byte r, byte g, byte b)
