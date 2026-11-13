@@ -1,6 +1,9 @@
 name: Build FCT.exe
 # Pushes (branches and v* tags) only build the exe, as an artifact: tags never create releases.
-# Releases are made by hand on GitHub; when one is published, FCT.exe is built from its tag and attached to it.
+# Releases are made by hand on GitHub. FCT.exe is attached to a release:
+#  - by itself when the release is published, if its tag already has this workflow;
+#  - by hand for any tag: Actions → "Build FCT.exe" → Run workflow → write the tag (e.g. v2.0.2). The workflow of the
+#    branch you run it from (main) is used, so this also works for tags made before this file existed.
 on:
   push:
     branches: ['**']
@@ -8,6 +11,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to build and attach FCT.exe to (e.g. v2.0.2). Empty: only build.'
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
@@ -15,17 +23,24 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
       - name: Publish
-        run: dotnet publish src/FCT/FCT.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
+        shell: pwsh
+        run: |
+          # Old tags still have the project in src/ChestCounter.
+          $project = if (Test-Path src/FCT/FCT.csproj) { 'src/FCT/FCT.csproj' } else { 'src/ChestCounter/ChestCounter.csproj' }
+          dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
+          if (-not (Test-Path dist/FCT.exe)) { Get-ChildItem dist/*.exe | Select-Object -First 1 | Rename-Item -NewName FCT.exe }
       - uses: actions/upload-artifact@v4
         with:
           name: FCT
           path: dist/FCT.exe
 
-  # Only for a release published by hand: attaches the exe built from the release tag.
+  # Attaches the exe to the release (published by hand, or the tag given to "Run workflow").
   #
   # GITHUB_TOKEN can only write here if Settings → Actions → General → Workflow permissions allows it ("Read and
   # write permissions"); the `permissions: contents: write` below cannot raise that limit. Otherwise add a repository
@@ -33,7 +48,7 @@ jobs:
   # contents: it is used instead of the default token.
   attach:
     needs: build
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.tag != '')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -45,5 +60,5 @@ jobs:
       - name: Attach FCT.exe to the release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
