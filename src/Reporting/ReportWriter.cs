@@ -108,7 +108,7 @@ public static class ReportWriter
         .grid2>section>.card,.trow>section>.card{flex:1 1 auto}
 
         /* Evolución de cofres: curva a todo el ancho, textos y puntos encima */
-        .evo{position:relative;height:clamp(120px,20vh,240px);margin:6px 8px 26px 44px}
+        .evo{position:relative;height:clamp(120px,19.6vh,240px);margin:6px 8px 26px 44px}
         .evo svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
         .evo .area{fill:url(#evoFill)}
         .evo .line{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px rgba(232,176,75,.45))}
@@ -124,6 +124,8 @@ public static class ReportWriter
 
         /* Resumen: últimas partidas y columna derecha */
         .duo{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(280px,1fr);gap:16px;margin-top:22px}
+        #t-resumen .duo .sh{min-height:28px;align-items:center}
+        #t-resumen .duo .sh .more{white-space:nowrap;flex:none}
         .duo>section,.stack>section{margin-top:0}
         .stack{display:flex;flex-direction:column;gap:16px;min-width:0}
         .side-card{margin:0;padding:14px 18px}
@@ -389,9 +391,12 @@ public static class ReportWriter
           .fill>.card{flex:0 1 auto;min-height:0;overflow:auto}
           .duo>section{display:flex;flex-direction:column;min-height:0}
           .duo>section>.card{flex:0 1 auto;min-height:0;overflow:auto}
+          #t-resumen .duo>section>.card{flex:1 1 auto;display:flex;flex-direction:column}
+          #t-resumen .duo>section>.card:has(tbody tr:nth-child(5)) table.compact{min-height:100%}
           .duo>.stack{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
           .stack>section.grow{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
           .stack>section.grow>.card{flex:0 1 auto;min-height:0;overflow:auto}
+          #t-resumen .stack>section.grow>.card{flex:1 1 auto}
           .stack>.teamstrip{flex:none;margin-top:0}
           .main>.panel:not([hidden]){overflow:auto}
           .main>.offline{flex:none}
