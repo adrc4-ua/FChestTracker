@@ -106,6 +106,9 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
     private readonly HashSet<uint> _equipChannelsSeen = new();
     private readonly Dictionary<uint, uint> _pawnToPlayerState = new();
     private readonly Dictionary<uint, int> _playerStateToPlayerId = new();
+    /// <summary>First time each pawn was seen, and when it started dying (eliminated, not just downed).</summary>
+    private readonly Dictionary<uint, float> _pawnSeenAt = new();
+    private readonly Dictionary<uint, float> _pawnDyingAt = new();
 
     // Treasure prize handler abilities ("GA_TreasureHandler_*"): class netguid -> name.
     private readonly Dictionary<uint, string> _treasureHandlerGuids = new();
@@ -508,11 +511,20 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
                 }
                 break;
 
-            case PlayerPawn pawn when pawn.PlayerState is uint ps && ps != 0:
+            case PlayerPawn pawn:
                 var pawnId = Channels[channelIndex]?.ActorId;
-                if (pawnId != null)
+                if (pawnId != null && pawn.PlayerState is uint ps && ps != 0)
                 {
                     _pawnToPlayerState[pawnId.Value] = ps;
+                    _pawnSeenAt.TryAdd(pawnId.Value, Now);
+                }
+                if (pawnId != null && pawn.bIsDying == true)
+                {
+                    _pawnDyingAt.TryAdd(pawnId.Value, Now);
+                }
+                if (pawnId != null && DebugLevel == "1" && (pawn.bIsDBNO != null || pawn.bIsDying != null))
+                {
+                    Console.Error.WriteLine($"DBG pawnstate {Now,7:F1}s pawn{pawnId} dbno={pawn.bIsDBNO} dying={pawn.bIsDying}");
                 }
                 break;
 
@@ -665,6 +677,7 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             {
                 Console.Error.WriteLine($"DBG teammate {t.Name} chests={t.ChestsSeen}");
             }
+            Console.Error.WriteLine($"DBG targetpawns {string.Join(",", targetPawns)} mates {string.Join(",", matePawnNames.Select(kv => $"{kv.Key}={kv.Value}"))}");
             string NameOfPawn(uint pawn) =>
                 _pawnToPlayerState.TryGetValue(pawn, out var ps) && _playerStateToPlayerId.TryGetValue(ps, out var pid)
                     ? players.FirstOrDefault(p => p.Id == pid)?.PlayerName ?? $"pid{pid}" : $"pawn{pawn}";
@@ -858,6 +871,15 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             {
                 Diagnosis.Add(L.T("  ⚠ El replay no lo grabó el jugador contado: las concesiones del premio no se ven, solo los cofres dorados.",
                     "  ⚠ The replay was not recorded by the counted player: prize grants are not visible, only golden chests."));
+            }
+            // Eliminated for good (no later pawn): the ability system of the player stops replicating, so a treasure
+            // found by a teammate after that moment leaves no prize grant in the replay (measured: nothing after death).
+            var lastPawnSeen = targetPawns.Select(p => _pawnSeenAt.GetValueOrDefault(p)).DefaultIfEmpty(0).Max();
+            var deadAt = targetPawns.Where(p => _pawnDyingAt.ContainsKey(p)).Select(p => _pawnDyingAt[p]).DefaultIfEmpty(-1f).Max();
+            if (isRecorderTarget && deadAt >= 0 && deadAt >= lastPawnSeen)
+            {
+                Diagnosis.Add(L.F("  ⚠ Eliminado a las {0} sin reinicio: un tesoro que consiga el escuadrón después de ese momento no deja rastro en el replay.",
+                    "  ⚠ Eliminated at {0} with no reboot: a treasure the squad gets after that moment leaves no trace in the replay.", Pretty.Clock(deadAt)));
             }
             foreach (var f in finds)
             {
