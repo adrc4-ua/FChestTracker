@@ -94,7 +94,7 @@ It's on by default: on the page (stats **Settings → Show teammates**) and in t
 - **Team chests**: you + your teammates, in total and per match, with each one's share; handy when you hunt for a random item that drops from chests.
 - **All your teammates**: matches together, wins, chests opened, average and their share; tap a column to sort. Beside it, the top 5 for most chests opened and best single match.
 
-With **Add their chests to your total** (also off), your total, average, records and overlay include your team's chests. Your history does not change: turning it off shows only yours again.
+With **Add their chests to your total** (off by default), your total, average, records and overlay include your team's chests. Your history does not change: turning it off shows only yours again.
 
 ## The overlay
 
@@ -118,7 +118,7 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 
 ## Settings
 
-The app's (the **Settings** button) change the window and the overlay; the stats page has its own, in its **Settings** tab.
+The app's (the **Settings** button) change the window and the overlay; the stats page has its own in its **Settings** tab (except language, which is shared).
 
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
@@ -127,7 +127,7 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 - **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
-- **Chests before FCT**: an estimate added to your total. With **Estimate…** (also asked the first time) you choose *saved replays only* or *replays + estimate*:
+- **Chests before FCT**: an estimate added to your total. With **Work out the rest** (also asked the first time) you choose *Start from zero* / *Only saved ones* or *Work out the rest*:
   - **Matches this season**: looked up with your Epic name. Only if they can't be found (or your profile is private, which it tells you) do you type them in, reading them on [fortnite.gg](https://fortnite.gg/stats).
   - **Average chests per match**: that of your replays together with the **new matches** you play from then on (you choose how many: 5 by default, **10 recommended**; the more, the closer). Each replay weighs as much as a new match, so the more replays you have, the more they count. Or type it by hand.
   - **Estimate** = average × (matches this season − this season's replays already counted; replays from earlier seasons go into the average but are not subtracted). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). Until you play the new matches you see a provisional estimate. With no replays, the past is the estimate alone.

@@ -4,27 +4,50 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- **Sin logo en la interfaz** (solo en la barra de título): ventana principal con la estructura de antes (cofres y última partida, sus detalles, la semana; seis cifras en rejilla y los botones) y el estilo nuevo. El perfil es un texto, no un botón.
-- **Textos más cercanos y cortos** en la bienvenida, el aviso de versión nueva, «Partidas de antes» y los avisos de Configuración, con iconos con sentido. Restablecer estadísticas y otros avisos ya no usan el cuadro gris de Windows.
-- **Partidas de antes**: solo se pide el nombre de Epic y se buscan las partidas; fortnite.gg y el número a mano solo aparecen si no se encuentran o el perfil es privado. Arreglados los recuadros oscuros de los campos de texto.
-- **Por defecto activados**: Abrir con Fortnite, overlay y compañeros (ventana y página). En las instalaciones de antes se activan una vez al actualizar; luego se respeta lo que elijas.
+## [4.2.1] - 2026-11-12
+
+- Primer uso: la opción sin estimado pasa a llamarse **Empezar de cero** cuando no se cuentan partidas guardadas (no hay repeticiones o se eligió *Solo las nuevas*).
+- Documentación (`README.md`, `README.en.md`) y versión de compilación (`4.2.1`) actualizadas.
+
+## [4.2.0] - 2026-11-12
+
 - **Esta semana** con el gráfico de la página: curva dorada con relleno, escala, media discontinua y puntos (hoy en blanco). Tarjeta principal con las cifras centradas.
-- Configuración → Cofres antes de FCT: cifra entre − y +, y el botón «Calcular las de antes» como en la primera apertura.
-- Una copia de prueba (`--data`) ya no cambia el inicio de Windows al activar «Abrir con Fortnite».
-- **Nuevo diseño de la app**, el de la página de estadísticas: negro y oro, tarjetas con velo dorado, los mismos iconos y el cofre del logo. Ventana principal reorganizada (cofres abiertos y última partida juntos, fila de cifras con icono, semana con su media, botones como el menú de la página); Configuración, bienvenida y diálogos con el mismo estilo.
-- Corregido: al aparecer un aviso o la tarjeta de equipo, la ventana podía mostrar el error «Parameter is not valid».
-- **Overlay**: solo se ve con Fortnite abierto (sin minimizar) en alguna pantalla; entonces se puede poner en cualquier pantalla y sitio. No se puede sacar por los bordes al arrastrarlo. Al cerrar Fortnite con la ventana de FCT a la vista, solo se va el overlay. Se enciende al abrir Fortnite.
-- **Abrir y cerrar**: con Fortnite abierto, FCT arranca en segundo plano con el overlay; sin Fortnite, abre la ventana. La X de la ventana la deja en segundo plano si Fortnite está abierto (si no, cierra); la ✕ del overlay cierra FCT. En segundo plano se cierra solo al cerrar Fortnite, o desde Salir en el área de notificación.
-- La ventana avisa mientras lee una tanda de replays («Leyendo tus replays… 3 / 40»), como la página de estadísticas.
+- Configuración → Cofres antes de FCT: cifra entre `−` y `+`, y el botón **Calcular las de antes** como en la primera apertura.
+- **Abrir con Fortnite** activado por defecto (también una vez en instalaciones previas al actualizar; luego se respeta lo que elijas). Una copia de prueba (`--data`) ya no cambia el inicio de Windows al activarlo.
+
+## [4.1.0] - 2026-11-12
+
+- **Sin logo en la interfaz** (solo en la barra de título): ventana principal con la estructura clásica (cofres y última partida, sus detalles, la semana; seis cifras en rejilla y los botones) sobre el diseño negro y oro. El perfil pasa a mostrarse como texto.
+- **Textos más cercanos y cortos** en la bienvenida, el aviso de versión nueva, «Partidas de antes» y los avisos de Configuración, con iconos con sentido; restablecer estadísticas y otros avisos dejan de usar cuadros grises de Windows.
+- **Partidas de antes**: solo se pide el nombre de Epic y se buscan las partidas; `fortnite.gg` y el número a mano solo aparecen si no se encuentran o el perfil es privado. Arreglados los recuadros oscuros de los campos de texto.
+- **Por defecto activados**: overlay y compañeros (en ventana y página).
+
+## [4.0.0] - 2026-11-12
+
+Cambio incompatible en la interfaz de usuario: rediseño visual completo de la aplicación de escritorio en negro y oro.
+
+- **Nuevo diseño de la app**, a juego con la página de estadísticas: negro y oro, tarjetas con velo dorado, los mismos iconos SVG y estética unificada en ventana principal, Configuración, bienvenida y diálogos.
+- Corregido: al aparecer un aviso o la tarjeta de equipo, la ventana podía mostrar el error `Parameter is not valid` por fuentes liberadas al reescalar.
+
+## [3.7.0] - 2026-11-12
+
+- **Overlay**: solo se ve con Fortnite abierto (sin minimizar) en alguna pantalla; entonces se puede poner en cualquier pantalla y sitio, sin salirse por los bordes al arrastrarlo. Se enciende solo al abrir Fortnite y se oculta al cerrarlo aunque la ventana de FCT siga visible.
+- **Abrir y cerrar**: con Fortnite abierto, FCT arranca en segundo plano con el overlay; sin Fortnite, abre la ventana. La `X` de la ventana la deja en segundo plano si Fortnite está abierto (si no, cierra); la `✕` del overlay cierra FCT. En segundo plano se cierra solo al cerrar Fortnite, o desde *Salir* en el área de notificación.
+
+## [3.6.0] - 2026-11-12
+
+- **Partidas de antes** (primer uso y Configuración → Cofres antes de FCT → *Estimar…*): *solo repeticiones guardadas* o *repeticiones + estimación*. Estimado = media × (partidas de la temporada actual − repeticiones de esta temporada que FCT ya cuenta). Partidas de la temporada buscadas en `fortnite-api.com` (si la compilación lleva clave) o escritas a mano desde `fortnite.gg` (con aviso si el perfil es privado); media ponderada entre repeticiones guardadas y partidas nuevas (5 por defecto, 10 recomendado) o manual.
+- Ventana principal: los avisos y actualizaciones se muestran en una franja propia bajo la ventana sin tapar los botones; avisa también mientras lee una tanda de replays (`Leyendo tus replays… 3 / 40`).
 - Primer uso: cerrar cualquiera de las ventanas iniciales cierra la app sin guardar nada; al volver a abrirla empieza de nuevo.
-- **Partidas de antes** (primer uso y Configuración → Cofres antes de FCT → Estimar…): *solo repeticiones guardadas* o *repeticiones + estimación*. Estimado = media × (partidas de la temporada actual − repeticiones de esta temporada que FCT ya cuenta). Partidas de la temporada buscadas en fortnite-api.com (si la versión lleva la clave) o escritas a mano desde fortnite.gg; aviso si las estadísticas son privadas. Media de tus repeticiones junto con las partidas nuevas que elijas jugar (5 por defecto, 10 recomendado; cada repetición pesa como una partida), o escrita a mano; redondeada hacia abajo solo sin repeticiones o con 100 o más.
-- El archivo de la página pasa a llamarse `estadisticas.html` (el antiguo `report.html` se borra).
-- Cifras: «tuyos por partida» y «del equipo por partida» de Compañeros dicen ahora «en equipo» (solo cuentan partidas con compañeros; la media del Resumen cuenta todas, también las de solo), y la línea del gráfico es la «media por día jugado».
-- `build.bat`: al terminar de compilar `dist\FCT.exe`, abre directamente la aplicación en lugar de abrir la carpeta en el explorador.
-- Resumen: alineados los encabezados y los bordes superior e inferior entre «Últimas partidas» y la columna derecha («Últimos tesoros» y el resumen de compañeros).
-- Idioma bidireccional: cambiar el idioma en la app regenera y recarga automáticamente la página de Estadísticas abierta con el nuevo idioma, y cambiarlo desde la página (con el bloque de idioma centrado y estilizado como el resto de ajustes) actualiza y reinicia la app automáticamente.
+
+## [3.5.0] - 2026-11-12
+
+- La página de estadísticas (antes «Informe» / «Resumen») pasa a llamarse **Estadísticas** en toda la aplicación, la consola y la documentación; ahora se sirve en `http://localhost:7373/estadisticas` (`#resumen`) y se guarda como `estadisticas.html` (el antiguo `report.html` se borra).
+- **Idioma bidireccional**: cambiar el idioma en la app regenera y recarga automáticamente la página de Estadísticas abierta con el nuevo idioma, y cambiarlo desde la página (con el bloque de idioma centrado y estilizado como el resto de ajustes) actualiza y reinicia la app automáticamente.
+- Resumen: alineados los encabezados y los bordes superior e inferior entre «Últimas partidas» y la columna derecha («Últimos tesoros» y el resumen de compañeros), con barras de desplazamiento internas en tarjetas largas.
+- Cifras: «tuyos por partida» y «del equipo por partida» de Compañeros pasan a «en equipo», y la línea del gráfico indica «media por día jugado».
 - Tesoros: en «Todas las semanas», se quita la ficha con el recuento total de artilugios.
-- La página de estadísticas (antes «Informe» / «Resumen») pasa a llamarse **Estadísticas** en toda la aplicación, la consola y la documentación, y ahora se sirve en `http://localhost:7373/estadisticas` (`http://localhost:7373/estadisticas#resumen`).
+- `build.bat`: al terminar de compilar `dist\FCT.exe`, abre directamente la aplicación en lugar de abrir la carpeta en el explorador.
 
 ## [3.4.1] - 2026-11-12
 
@@ -124,7 +147,14 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
-[Sin publicar]: https://github.com/adrc4-ua/FChestTracker/compare/v3.4.1...HEAD
+[Sin publicar]: https://github.com/adrc4-ua/FChestTracker/compare/v4.2.1...HEAD
+[4.2.1]: https://github.com/adrc4-ua/FChestTracker/compare/v4.2.0...v4.2.1
+[4.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v4.1.0...v4.2.0
+[4.1.0]: https://github.com/adrc4-ua/FChestTracker/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.7.0...v4.0.0
+[3.7.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.5.0...v3.6.0
+[3.5.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.4.1...v3.5.0
 [3.4.1]: https://github.com/adrc4-ua/FChestTracker/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.2.0...v3.3.0
