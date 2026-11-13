@@ -222,7 +222,7 @@ Instala el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) (
 ```
 src/                         la aplicación: FCT.csproj → FCT.exe
 ├─ Program.cs                arranque y opciones de línea de comandos
-├─ App/                      versión, actualizaciones, inicio con Fortnite, traslado de datos, registro de errores
+├─ App/                      versión, actualizaciones, inicio con Fortnite, desinstalar, registro de errores
 ├─ Analysis/                 lectura de replays: cofres, tesoros, premios, perfiles
 ├─ Data/                     lo que se guarda: partidas, ajustes y el almacén JSON
 ├─ Monitoring/               el proceso en segundo plano (vigila replays, overlay y actualizaciones)

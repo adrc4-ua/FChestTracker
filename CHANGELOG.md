@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Ya no se trae la carpeta de datos de la v1.0.0 (cuando la app se llamaba ChestCounter): esa versión no podía actualizarse sola. Si alguien la tuviera, sus datos siguen en `%APPDATA%\ChestCounter`.
 - **Licencia: GNU GPL versión 3** (antes MIT; las versiones hasta la 4.4.1 siguen siendo MIT), con condiciones de atribución: quien distribuya FCT o algo basado en él debe publicar su código con la misma licencia, mencionar al autor y este repositorio y marcar sus cambios ([NOTICE.md](NOTICE.md)). Nuevo **Acerca de y licencia** en el menú del icono. ChestCounter aparece como lo que es, el proyecto del que FCT es un fork, y conserva su aviso MIT.
 - **Desinstalar** desde Configuración (o `FCT.exe --uninstall`): FCT se cierra y borra el exe, la tarea programada de «Abrir con Fortnite», las entradas de inicio y los restos de actualizaciones, sin tener que desactivar nada antes. Tus datos se quedan en `%APPDATA%\FCT`.
 - **Avisos legales**: nuevo [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) con todo lo externo (FortniteReplayDecompressor, ChestCounter, .NET, Fortnite-API, fortnite.gg, SignPath) y sus licencias o condiciones; también va dentro del exe (`FCT.exe --licenses`). LICENSE, README y la política de firma de código lo detallan, con el aviso de marcas de Epic Games, cómo desinstalar y los metadatos del exe (producto, versión, copyright). Las notas de cada release enlazan la política de firma.

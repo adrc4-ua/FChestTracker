@@ -116,18 +116,7 @@ internal static class Program
 
         // Carpeta de datos normal (no una de pruebas con --data): solo entonces se toca el inicio de Windows al empezar.
         var defaultFolder = dataDir == null;
-        if (dataDir == null)
-        {
-            dataDir = Store.DefaultFolder();
-            if (!Migration.MoveDataFolder(dataDir, TimeSpan.FromSeconds(afterUpdate ? 20 : 3)))
-            {
-                var closeOld = L.T("Cierra la versión anterior del contador para que FCT pueda traer tu historial, y vuelve a abrir FCT.",
-                    "Close the previous version of the counter so that FCT can bring your history over, then open FCT again.");
-                if (cliMode) Console.WriteLine("  " + closeOld);
-                else MessageBox.Show(closeOld, AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return 0;
-            }
-        }
+        dataDir ??= Store.DefaultFolder();
         var store = new Store(dataDir);
         ErrorLog.FilePath = store.ErrorLogPath;
 

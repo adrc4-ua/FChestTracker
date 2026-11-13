@@ -19,8 +19,8 @@ internal static class StartupEntries
     /// <summary>Run entry of the fallback standby.</summary>
     public const string StandbyEntry = AppInfo.ShortName;
 
-    /// <summary>Run entries any version ever wrote ("FortniteChestTracker" was a development name).</summary>
-    public static readonly string[] AllRunEntries = { StandbyEntry, "FortniteChestTracker", "ChestCounter" };
+    /// <summary>Run entries FCT ever wrote ("FortniteChestTracker" was a development name).</summary>
+    public static readonly string[] AllRunEntries = { StandbyEntry, "FortniteChestTracker" };
 
     private static string TaskName => Environment.GetEnvironmentVariable("FCT_TASK_NAME") is { Length: > 0 } test ? test : AppInfo.Name;
 
