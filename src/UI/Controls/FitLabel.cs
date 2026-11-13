@@ -26,6 +26,30 @@ public sealed class FitLabel : Label
         SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.SupportsTransparentBackColor, true);
     }
 
+    /// <summary>
+    /// Adds a see-through label to <paramref name="parent"/>, in Segoe UI of <paramref name="points"/>. <paramref name="figure"/>
+    /// uses the big figures' font and <paramref name="gold"/> the gold gradient (<see cref="Deep"/> with <paramref name="deep"/>).
+    /// </summary>
+    public static FitLabel Add(Control parent, string text, float points, FontStyle style, Color color, Point at, Size size,
+        ContentAlignment align = ContentAlignment.TopLeft, bool figure = false, bool gold = false, bool deep = false)
+    {
+        var label = new FitLabel
+        {
+            Text = text,
+            Font = figure ? Theme.Display(points, style) : Theme.Text(points, style),
+            ForeColor = color,
+            BackColor = Color.Transparent,
+            Location = at,
+            Size = size,
+            TextAlign = align,
+            UseMnemonic = false,
+            Gold = gold,
+            Deep = deep,
+        };
+        parent.Controls.Add(label);
+        return label;
+    }
+
     /// <summary>The gold gradient of big figures; <see cref="Deep"/> adds the third shade of the main figure.</summary>
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool Gold { get; set; }
