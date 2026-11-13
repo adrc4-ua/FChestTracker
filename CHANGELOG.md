@@ -167,28 +167,28 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
-[Sin publicar]: https://github.com/adrc4-ua/FChestTracker/compare/v4.2.1...HEAD
-[4.2.1]: https://github.com/adrc4-ua/FChestTracker/compare/v4.2.0...v4.2.1
-[4.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v4.1.0...v4.2.0
-[4.1.0]: https://github.com/adrc4-ua/FChestTracker/compare/v4.0.0...v4.1.0
-[4.0.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.7.0...v4.0.0
-[3.7.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.6.0...v3.7.0
-[3.6.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.5.0...v3.6.0
-[3.5.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.4.1...v3.5.0
-[3.4.1]: https://github.com/adrc4-ua/FChestTracker/compare/v3.4.0...v3.4.1
-[3.4.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.3.0...v3.4.0
-[3.3.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.2.0...v3.3.0
-[3.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.1.0...v3.2.0
-[3.1.0]: https://github.com/adrc4-ua/FChestTracker/compare/v3.0.0...v3.1.0
-[3.0.0]: https://github.com/adrc4-ua/FChestTracker/compare/v2.2.0...v3.0.0
-[2.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v2.1.0...v2.2.0
-[2.1.0]: https://github.com/adrc4-ua/FChestTracker/compare/v2.0.2...v2.1.0
-[2.0.2]: https://github.com/adrc4-ua/FChestTracker/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/adrc4-ua/FChestTracker/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.5.0...v2.0.0
-[1.5.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.3.0...v1.4.0
-[1.3.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/adrc4-ua/FChestTracker/releases/tag/v1.0.0
+[Sin publicar]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.2.1...HEAD
+[4.2.1]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.2.0...v4.2.1
+[4.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.1.0...v4.2.0
+[4.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.7.0...v4.0.0
+[3.7.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.5.0...v3.6.0
+[3.5.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.4.1...v3.5.0
+[3.4.1]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.4.0...v3.4.1
+[3.4.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.3.0...v3.4.0
+[3.3.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.2.0...v3.0.0
+[2.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.5.0...v2.0.0
+[1.5.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/releases/tag/v1.0.0
