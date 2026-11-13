@@ -1,107 +1,123 @@
+using System.Diagnostics;
 using System.Runtime.Versioning;
 
 namespace FCT.Monitoring;
 
 /// <summary>
-/// Vigila los replays en segundo plano: escaneo, partida en curso, overlay, actualizaciones y cierre automático.
-/// Solo el hilo de vigilancia toca los datos (el escaneo puede tardar minutos); la ventana pide cambios y
-/// recibe el estado publicado, así nunca se congela mientras se analizan replays.
+/// FCT while it runs: one background thread owns the history (a scan can take minutes), reads new replays, follows the
+/// match in progress, the treasure screen, updates and the automatic close, and publishes a <see cref="MonitorState"/>
+/// for the window. The window only asks for changes, so it never freezes while replays are read.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class AppMonitor
 {
-    /// <summary>Protege solo la configuración (escrituras cortas desde la ventana, el overlay y el hilo de vigilancia).</summary>
-    private readonly object _cfgGate = new();
+    private const int NoticeSeconds = 20;
+
     private readonly Store _store;
-    private readonly Config _config;
     private readonly TrackerData _data;
     private readonly Tracker _tracker;
-    private readonly string _dataDir;
+    private readonly SettingsGate _settings;
+    private readonly EarlierChests _earlier;
+    private readonly PlayerFollower _follower;
+    private readonly TreasureScreenCapture _screens;
+    private readonly UpdateFlow _updates;
     private readonly AutoResetEvent _wake = new(false);
+
     private FileSystemWatcher? _watcher;
-    private volatile bool _stop;
-    private volatile bool _publishRequested;
-    private volatile bool _reportRequested;
-    private volatile string? _shownKey;
-    private volatile string? _shownName;
-    private DateTime _nextScan = DateTime.UtcNow;
-    private volatile UpdateInfo? _update;
-    private bool _updateAnnounced;
-    private volatile bool _installing;
-    private volatile string? _notice;
+    private GameLogWatcher? _gameLog;
+    private volatile bool _stop, _publishRequested, _reportRequested, _scanned;
+    private volatile string? _shownKey, _shownName, _notice, _resetBackup;
+    private volatile ScanProgress? _progress;
+    private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck;
     private DateTime? _fortniteClosedSince;
     private bool _closeRequested;
 
     public AppMonitor(Store store, Config config, TrackerData data, Tracker tracker, string dataDir)
     {
         _store = store;
-        _config = config;
         _data = data;
         _tracker = tracker;
-        _dataDir = dataDir;
-        // Tanda de replays (primer uso, o muchos a la vez): aviso de carga en la ventana, como en la página de estadísticas.
-        _tracker.Progressed = p =>
+        DataFolder = dataDir;
+        _settings = new SettingsGate(store, config);
+        _earlier = new EarlierChests(_settings, data);
+        _follower = new PlayerFollower(data, tracker, () => config);
+        _screens = new TreasureScreenCapture(() => _wake.Set());
+        _updates = new UpdateFlow(() => config, RequestPublish);
+        // A batch of replays (first run, or many at once): the window shows a loading notice, like the stats page.
+        _tracker.Progressed = progress =>
         {
-            _progress = p;
+            _progress = progress;
             Publish();
         };
     }
 
-    private volatile ScanProgress? _progress;
+    // ---- What the window reads ----------------------------------------------------------------------------------------
 
-    /// <summary>Ajustes actuales (leer; los cambios se hacen con <see cref="Change"/>).</summary>
-    public Config Config => _config;
+    /// <summary>Current settings (read only: changes go through <see cref="Change"/>).</summary>
+    public Config Config => _settings.Config;
 
-    /// <summary>Abierto por el proceso en espera de Fortnite (arranca en segundo plano, con el overlay).</summary>
+    public string DataFolder { get; }
+
+    /// <summary>Opened by "Open with Fortnite" (starts in the background, with the overlay).</summary>
     public bool AutoMode { get; set; }
 
-    /// <summary>
-    /// La ventana está oculta (en el área de notificación) con Fortnite abierto. Así, al cerrarse Fortnite, el contador
-    /// se cierra solo en cuanto cuenta la última partida. Con la ventana a la vista no se cierra solo.
-    /// </summary>
+    /// <summary>The window is hidden in the notification area: closing Fortnite closes FCT once the last match is counted.</summary>
     public volatile bool InBackground;
 
-    /// <summary>Se pone a true cuando hay que reiniciar la nueva versión.</summary>
-    public bool RestartAfterUpdate { get; private set; }
-
-    /// <summary>Reinicio pedido desde Ajustes (cambio de idioma): la ventana se cierra y el exe vuelve a arrancar.</summary>
-    public bool RestartRequested { get; private set; }
-
-    /// <summary>Cierra el contador para volver a abrirlo (los textos se leen al arrancar).</summary>
-    public void Restart()
-    {
-        RestartRequested = true;
-        CloseRequested?.Invoke();
-    }
-
-    /// <summary>Desinstalar pedido desde Ajustes: se cierra todo y, al salir, se borran la tarea, las entradas y el exe.</summary>
-    public bool UninstallRequested { get; private set; }
-
-    /// <summary>La carpeta de los datos (se queda al desinstalar).</summary>
-    public string DataFolder => _dataDir;
-
-    public void Uninstall()
-    {
-        UninstallRequested = true;
-        CloseRequested?.Invoke();
-    }
-
-    /// <summary>Estado nuevo. Se llama desde el hilo de vigilancia: la ventana debe usar BeginInvoke.</summary>
+    /// <summary>New state, from the monitor thread (the window must marshal it).</summary>
     public event Action<MonitorState>? Changed;
 
-    /// <summary>Pide cerrar la ventana (Fortnite cerrado, o nueva versión instalada). Desde otro hilo.</summary>
+    /// <summary>Asks the window to close (Fortnite closed, new version, restart, uninstall), from any thread.</summary>
     public event Action? CloseRequested;
+
+    public bool RestartAfterUpdate => _updates.Installed;
+    public bool RestartRequested { get; private set; }
+    public bool UninstallRequested { get; private set; }
+
+    public string? ShownProfileName => _shownName;
+
+    /// <summary>Epic id of the profile on screen (its key, when the replays carry one), or null.</summary>
+    public string? ShownAccountId => _shownKey is { Length: 32 } key && key.All(Uri.IsHexDigit) ? key : null;
+
+    /// <summary>Where to open the stats page: served by FCT (its settings work there), or else the file.</summary>
+    public string ReportTarget => ObsServer.ReportUrl ?? _store.ReportPath;
+
+    public bool OverlayEnabled => OperatingSystem.IsWindows();
+    public bool OverlayVisible => OperatingSystem.IsWindows() && NativeOverlay.IsVisible;
+
+    /// <summary>
+    /// Days with matches of the profile on screen (all of them, ignoring the "count from" date), newest first, with how
+    /// many matches each: the choices of "count from".
+    /// </summary>
+    public IReadOnlyList<(DateTime Day, int Matches)> MatchDays()
+    {
+        try
+        {
+            var key = Profiles.Current(_data, Config)?.Key;
+            return _data.Matches.ToList()
+                .Where(m => (key == null || Profiles.Key(m) == key) && Profiles.IsSupportedVersion(m))
+                .GroupBy(Profiles.Day)
+                .OrderByDescending(day => day.Key)
+                .Select(day => (day.Key, day.Count()))
+                .ToList();
+        }
+        catch (InvalidOperationException)
+        {
+            return Array.Empty<(DateTime, int)>(); // the list changed while being read: no days this time
+        }
+    }
+
+    // ---- Life cycle ----------------------------------------------------------------------------------------------------
 
     public void Start()
     {
-        // Las pantallas de tesoros guardadas, otra vez con las reglas actuales (así se corrige lo que una versión
-        // anterior asignó mal, como el tesoro de una partida contado también en la repetición corta de después).
+        // Saved treasure screens again with today's rules: fixes what an older version assigned wrongly.
         try
         {
             var fixedAny = false;
-            foreach (var m in _data.Matches)
+            foreach (var match in _data.Matches)
             {
-                fixedAny |= TreasureScreenMerge.Apply(m, _data.TreasureScreens);
+                fixedAny |= TreasureScreenMerge.Apply(match, _data.TreasureScreens);
             }
             if (fixedAny)
             {
@@ -113,49 +129,14 @@ public sealed class AppMonitor
             ErrorLog.Write("Repasar pantallas de tesoros", ex);
         }
 
-        if (OperatingSystem.IsWindows())
-        {
-            StartOverlay();
-        }
-        RestartWatcher();
+        StartOverlay();
+        WatchReplays();
         ObsServer.ReportFile = _store.ReportPath;
         ObsServer.ReportLang = L.Code;
-        ObsServer.Settings = ApplyFromReport;
-        ObsServer.Start(_config.ObsPort > 0 ? _config.ObsPort : ObsServer.DefaultPort);
-        _gameLog = new GameLogWatcher(OnTreasureScreen);
-
-        new Thread(Loop) { IsBackground = true, Name = "Vigilancia" }.Start();
-
-    }
-
-    // Nueva versión en GitHub: única conexión de red de la herramienta (se puede desactivar en Configuración). Se mira
-    // al arrancar y luego cada 30 minutos mientras siga abierta, así una release nueva llega aunque no se cierre nunca.
-    private DateTime _nextUpdateCheck = DateTime.UtcNow;
-    private volatile bool _checkingUpdate;
-
-    private void PollUpdates()
-    {
-        if (_config.UpdateMode == "off" || _update != null || _checkingUpdate || DateTime.UtcNow < _nextUpdateCheck)
-        {
-            return;
-        }
-        _checkingUpdate = true;
-        _nextUpdateCheck = DateTime.UtcNow.AddMinutes(30);
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                if (await Updater.CheckAsync() is { } found)
-                {
-                    _update = found;
-                    RequestPublish();
-                }
-            }
-            finally
-            {
-                _checkingUpdate = false;
-            }
-        });
+        ObsServer.Settings = ApplyFromStatsPage;
+        ObsServer.Start(Config.ObsPort > 0 ? Config.ObsPort : ObsServer.DefaultPort);
+        _gameLog = new GameLogWatcher(_screens.Shown);
+        new Thread(Run) { IsBackground = true, Name = "Vigilancia" }.Start();
     }
 
     public void Stop()
@@ -167,89 +148,34 @@ public sealed class AppMonitor
         _gameLog?.Dispose();
     }
 
-    // ---- Pantalla de tesoros de fin de partida --------------------------------------------------------------
-
-    private GameLogWatcher? _gameLog;
-    private readonly System.Collections.Concurrent.ConcurrentQueue<TreasureScreen> _screens = new();
-    private const string GameProcess = "FortniteClient-Win64-Shipping";
-
-    /// <summary>
-    /// El juego acaba de mostrar la pantalla de tesoros: se captura solo su ventana (aunque esté detrás de otras) unas
-    /// veces mientras las fichas terminan de aparecer, y se queda la lectura con más fichas. La imagen solo vive en
-    /// memoria mientras se lee. Si la ventana está minimizada o no se puede capturar, la partida queda como hasta ahora.
-    /// </summary>
-    private void OnTreasureScreen(DateTime shownUtc)
+    /// <summary>Closes FCT to start it again (texts are read at start: a language change needs it).</summary>
+    public void Restart()
     {
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                List<string>? best = null;
-                // Las fichas entran con una animación: varias capturas durante los primeros 9 s (la pantalla dura 17 s
-                // o más) y se queda la que tenga más fichas.
-                foreach (var wait in new[] { 1500, 1500, 1500, 2000, 2500 })
-                {
-                    await Task.Delay(wait);
-                    var hwnd = GameWindow();
-                    var frame = await WindowCapture.CaptureAsync(hwnd, TimeSpan.FromSeconds(2));
-                    if (frame == null)
-                    {
-                        continue;
-                    }
-                    var cards = TreasureScreenReader.Read(frame).Select(c => c.Item).ToList();
-                    frame = null; // the image is dropped right after reading it
-                    if (best == null || cards.Count > best.Count)
-                    {
-                        best = cards;
-                    }
-                }
-                if (best is { Count: > 0 })
-                {
-                    _screens.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = best });
-                    _wake.Set();
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorLog.Write("Pantalla de tesoros", ex);
-            }
-        });
+        RestartRequested = true;
+        CloseRequested?.Invoke();
     }
 
-    /// <summary>Ventana del juego. FCT_TREASURE_WINDOW (título exacto de otra ventana) sirve para probar sin Fortnite.</summary>
-    private static IntPtr GameWindow() => Environment.GetEnvironmentVariable("FCT_TREASURE_WINDOW") is { Length: > 0 } title
-        ? PostMatchTools.FindWindowByTitle(title)
-        : System.Diagnostics.Process.GetProcessesByName(GameProcess).Select(p => p.MainWindowHandle).FirstOrDefault(h => h != IntPtr.Zero);
-
-    /// <summary>Guarda las pantallas leídas y las aplica a su partida (si ya está analizada). True si cambió algo.</summary>
-    private bool ApplyTreasureScreens()
+    /// <summary>Closes FCT; on the way out, its task, startup entries and exe are removed (the data stays).</summary>
+    public void Uninstall()
     {
-        var added = false;
-        while (_screens.TryDequeue(out var screen))
-        {
-            if (_data.TreasureScreens.All(s => Math.Abs((s.ShownUtc - screen.ShownUtc).TotalSeconds) > 30))
-            {
-                _data.TreasureScreens.Add(screen);
-                added = true;
-            }
-        }
-        if (!added)
-        {
-            return false;
-        }
-        foreach (var m in _data.Matches)
-        {
-            TreasureScreenMerge.Apply(m, _data.TreasureScreens);
-        }
-        try { _store.SaveData(_data); } catch (Exception ex) { ErrorLog.Write("Guardar pantalla de tesoros", ex); }
-        _reportRequested = true;
-        return true;
+        UninstallRequested = true;
+        CloseRequested?.Invoke();
     }
 
-    /// <summary>
-    /// Mensaje de estado de la ventana (por ejemplo, el reanálisis tras una actualización). Ocupa el sitio de los
-    /// botones, así que se quita solo pasados unos segundos.
-    /// </summary>
+    /// <summary>The player keeps FCT open after Fortnite closes.</summary>
+    public void KeepOpen()
+    {
+        AutoMode = false;
+        RequestPublish();
+    }
+
+    public void RequestPublish()
+    {
+        _publishRequested = true;
+        _wake.Set();
+    }
+
+    /// <summary>A message where the window's buttons are; it goes away by itself after a while.</summary>
     public void SetNotice(string? text)
     {
         _notice = text;
@@ -257,32 +183,21 @@ public sealed class AppMonitor
         RequestPublish();
     }
 
-    private const int NoticeSeconds = 20;
-    private DateTime _noticeUntil;
+    // ---- Settings ------------------------------------------------------------------------------------------------------
 
-    /// <summary>Quita el aviso cuando caduca (los botones vuelven a verse). True si cambió algo.</summary>
-    private bool ExpireNotice()
-    {
-        if (_notice == null || DateTime.UtcNow < _noticeUntil)
-        {
-            return false;
-        }
-        _notice = null;
-        return true;
-    }
-
-    /// <summary>Cambia un ajuste y lo guarda. La ventana se actualiza enseguida.</summary>
     public void Change(Action<Config> change)
     {
-        lock (_cfgGate)
-        {
-            change(_config);
-            SaveQuietly();
-        }
+        _settings.Edit(change);
         RequestPublish();
     }
 
-    /// <summary>Perfil elegido en la ventana: la página de estadísticas también pasa a ese jugador.</summary>
+    /// <summary>A change that the stats page shows too: the page is rewritten right after.</summary>
+    private void ChangeShown(Action<Config> change)
+    {
+        _reportRequested = true;
+        Change(change);
+    }
+
     public void SetProfile(string key)
     {
         Change(c => c.Profile = key);
@@ -290,64 +205,45 @@ public sealed class AppMonitor
         _wake.Set();
     }
 
-    /// <summary>Sumar o no al total las cajas de munición, de comida o los cañones de botín. Rehace las estadísticas enseguida.</summary>
-    public void SetCountExtra(Action<Config> change)
+    public void SetCountExtra(Action<Config> change) => ChangeShown(change);
+    public void SetCountTeammates(bool count) => ChangeShown(c => c.CountTeammateChests = count);
+    public void SetCountFrom(DateTime? from) => ChangeShown(c => c.CountFrom = from?.Date);
+    public void SetShowTeammates(bool show) => ChangeShown(c => c.ShowTeammates = show);
+    public void SetLanguage(string? code) => ChangeShown(c => c.Language = code);
+
+    public void ChangeDemosFolder(string folder)
     {
-        _reportRequested = true;
-        Change(change);
+        Change(c => c.DemosFolder = folder);
+        WatchReplays();
     }
 
-    /// <summary>Sumar o no a tu total los cofres abiertos de tus compañeros. Rehace las estadísticas enseguida.</summary>
-    public void SetCountTeammates(bool count)
+    /// <summary>"Open with Fortnite". False when it cannot be set up (FCT not run from its exe).</summary>
+    public bool SetStartWithFortnite(bool on)
     {
-        _reportRequested = true;
-        Change(c => c.CountTeammateChests = count);
-    }
-
-    /// <summary>Contar solo desde una fecha (null = todas las partidas). Rehace las estadísticas enseguida.</summary>
-    public void SetCountFrom(DateTime? from)
-    {
-        _reportRequested = true;
-        Change(c => c.CountFrom = from?.Date);
+        // Another data folder (--data, tests) only keeps the choice: Windows' startup belongs to the normal one.
+        var normalFolder = string.Equals(Path.GetFullPath(DataFolder).TrimEnd('\\', '/'), Path.GetFullPath(Store.DefaultFolder()).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
+        var done = true;
+        _settings.Edit(c =>
+        {
+            if (normalFolder && (!OperatingSystem.IsWindows() || !FortniteWatch.Apply(on, DataFolder)))
+            {
+                done = false;
+                return;
+            }
+            c.StartWithFortnite = on;
+        });
+        if (done)
+        {
+            RequestPublish();
+        }
+        return done;
     }
 
     /// <summary>
-    /// Días con partidas del perfil mostrado (todas, sin el filtro de fecha), del más reciente al más antiguo, con
-    /// cuántas partidas hubo: es lo que ofrece el selector «Contar desde».
+    /// A setting changed on the stats page (from the local server's thread). The language is shared with the app (which
+    /// restarts); the rest only concerns the page.
     /// </summary>
-    public IReadOnlyList<(DateTime Day, int Matches)> MatchDays()
-    {
-        try
-        {
-            var key = Profiles.Current(_data, _config)?.Key;
-            return _data.Matches.ToList()
-                .Where(m => (key == null || Profiles.Key(m) == key) && Profiles.IsSupportedVersion(m))
-                .GroupBy(Profiles.Day)
-                .OrderByDescending(g => g.Key)
-                .Select(g => (g.Key, g.Count()))
-                .ToList();
-        }
-        catch (InvalidOperationException)
-        {
-            return Array.Empty<(DateTime, int)>(); // la lista cambió mientras se leía: sin días esta vez
-        }
-    }
-
-    /// <summary>Dónde abrir el Resumen: servido por la app (su Configuración funciona) o, si no, el archivo.</summary>
-    public string ReportTarget => ObsServer.ReportUrl ?? _store.ReportPath;
-
-    /// <summary>Cambia el idioma compartido (app y estadísticas) y rehace las estadísticas enseguida.</summary>
-    public void SetLanguage(string? code)
-    {
-        _reportRequested = true;
-        Change(c => c.Language = code);
-    }
-
-    /// <summary>
-    /// Configuración cambiada en la página de Estadísticas (desde el hilo del servidor local). El idioma es
-    /// bidireccional (cambia también la app y la reinicia); el resto solo toca los ajustes de la página.
-    /// </summary>
-    private bool ApplyFromReport(string key, string value)
+    private bool ApplyFromStatsPage(string key, string value)
     {
         if (key == "lang")
         {
@@ -355,13 +251,12 @@ public sealed class AppMonitor
             {
                 return false;
             }
-            var next = value.Length == 0 ? null : value;
-            var changed = _config.Language != next;
-            SetLanguage(next);
-            if (changed && AppInfo.ExePath != null)
+            var code = value.Length == 0 ? null : value;
+            var differs = Config.Language != code;
+            SetLanguage(code);
+            if (differs && AppInfo.ExePath != null)
             {
-                // Deja responder al servidor HTTP y reescribir stats.html antes de cerrar y relanzar la app.
-                _ = Task.Delay(250).ContinueWith(_ => Restart());
+                _ = Task.Delay(250).ContinueWith(_ => Restart()); // lets the server answer and the page be rewritten first
             }
             return true;
         }
@@ -379,289 +274,46 @@ public sealed class AppMonitor
         {
             return false;
         }
-        _reportRequested = true;
-        Change(c => change(c.ReportView));
+        ChangeShown(c => change(c.ReportView));
         return true;
     }
 
-    /// <summary>Mostrar u ocultar los compañeros en la ventana.</summary>
-    public void SetShowTeammates(bool show)
-    {
-        _reportRequested = true;
-        Change(c => c.ShowTeammates = show);
-    }
-
-    private volatile string? _resetBackup;
-
     /// <summary>
-    /// Restablece las estadísticas: borra todo el historial (y los cofres de antes del contador) y empieza de cero.
-    /// Los replays que ya están en la carpeta no se vuelven a contar. Antes se guarda una copia de data.json.
-    /// Devuelve la ruta de esa copia. Se hace en el hilo de vigilancia, que es el dueño de los datos.
+    /// Empties the history (and the chests before FCT); replays already in the folder are not counted again. data.json is
+    /// copied first; the path of that copy is returned. Done by the monitor thread, which owns the history.
     /// </summary>
     public string ResetStats()
     {
-        var backup = Path.Combine(_store.Folder, $"data-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json");
-        _resetBackup = backup;
+        var copy = Path.Combine(_store.Folder, $"data-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json");
+        _resetBackup = copy;
         _wake.Set();
-        return backup;
+        return copy;
     }
 
-    // ---- Estimado de los cofres de antes de FCT ---------------------------------------------------------
+    // ---- Chests before FCT ------------------------------------------------------------------------------------------------
 
-    private volatile IReadOnlyList<MatchRecord> _profileMatches = Array.Empty<MatchRecord>();
-    private volatile bool _scanned;
+    public int InitialChests => _earlier.Chests;
+    public HistoryEstimate? Estimate => _earlier.Estimate;
 
-    /// <summary>Id de Epic del perfil mostrado (la clave del perfil cuando el replay lo trae), o null.</summary>
-    public string? ShownAccountId => _shownKey is { Length: 32 } key && key.All(Uri.IsHexDigit) ? key : null;
+    public HistoryEstimator.Result PreviewEstimate(int totalMatches, int sample, double? manualAverage) => _earlier.Preview(totalMatches, sample, manualAverage);
 
-    /// <summary>Lo que daría el estimado con este total de partidas, tal como están ahora las partidas contadas.</summary>
-    public HistoryEstimator.Result PreviewEstimate(int totalMatches, int sample, double? manualAverage) =>
-        HistoryEstimator.Compute(_profileMatches, totalMatches, DateTime.UtcNow, sample, manualAverage);
-
-    /// <summary>Estimado guardado (null = solo las repeticiones).</summary>
-    public HistoryEstimate? Estimate
-    {
-        get
-        {
-            lock (_cfgGate)
-            {
-                return _config.Estimates.GetValueOrDefault(_shownKey ?? "");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Elige cómo contar lo de antes: <paramref name="totalMatches"/> null = solo las repeticiones guardadas (se quita
-    /// el estimado); si no, repeticiones + estimado con ese total de partidas, tomado ahora. Se calcula en cuanto haya
-    /// al menos <paramref name="sample"/> partidas contadas para la media (si faltan, tras las próximas).
-    /// </summary>
-    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
-    {
-        // Del perfil mostrado: cada jugador del PC tiene su propio estimado.
-        var key = _shownKey ?? "";
-        Change(c =>
-        {
-            if (totalMatches is not int total)
-            {
-                c.Estimates.Remove(key);
-                c.InitialChests.Remove(key);
-                return;
-            }
-            c.Estimates[key] = new HistoryEstimate { TotalMatches = total, SnapshotUtc = DateTime.UtcNow, Source = source, ProfileKey = _shownKey, SampleSize = sample, ManualAverage = manualAverage };
-        });
-        _reportRequested = true;
-        _wake.Set();
-    }
-
-    /// <summary>
-    /// Calcula los estimados pendientes cuando ya se puede (repeticiones contadas o partidas nuevas jugadas): el de cada
-    /// perfil con sus propias partidas, aunque no sea el que se muestra.
-    /// </summary>
-    private bool ApplyEstimate()
-    {
-        if (!_scanned || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
-        {
-            return false;
-        }
-        List<(string Key, HistoryEstimate E)> pending;
-        lock (_cfgGate)
-        {
-            pending = _config.Estimates.Where(kv => !kv.Value.Done).Select(kv => (kv.Key, kv.Value)).ToList();
-        }
-        var applied = false;
-        foreach (var (entry, e) in pending)
-        {
-            // "" = preguntado antes de la primera partida: es del perfil que haya ahora (el de esa partida).
-            var key = entry.Length > 0 ? entry : Profiles.Current(_data, _config)?.Key;
-            if (key == null)
-            {
-                continue; // aún no hay ninguna partida: no se sabe de qué perfil es
-            }
-            var matches = Profiles.MatchesOf(_data, _config, key);
-            if (HistoryEstimator.Compute(matches, e.TotalMatches, e.SnapshotUtc, e.SampleSize, e.ManualAverage).Chests is not int chests)
-            {
-                continue;
-            }
-            lock (_cfgGate)
-            {
-                if (chests > 0)
-                {
-                    _config.InitialChests[key] = chests;
-                }
-                else
-                {
-                    _config.InitialChests.Remove(key);
-                }
-                e.ProfileKey = key;
-                e.Done = true;
-                if (entry != key)
-                {
-                    _config.Estimates.Remove(entry);
-                    _config.Estimates[key] = e;
-                }
-                SaveQuietly();
-            }
-            applied = true;
-            var several = Profiles.List(_data, _config).Count > 1;
-            var name = several ? Profiles.List(_data, _config).FirstOrDefault(p => p.Key == key)?.Name : null;
-            SetNotice(chests > 0
-                ? name != null
-                    ? L.F("Partidas de antes de {1}: ≈ {0} cofres estimados sumados a su total.", "{1}'s earlier matches: ≈ {0} estimated chests added to their total.", chests.ToString("#,0", L.Culture), name)
-                    : L.F("Partidas de antes: ≈ {0} cofres estimados sumados a tu total.", "Earlier matches: ≈ {0} estimated chests added to your total.", chests.ToString("#,0", L.Culture))
-                : L.T("Partidas de antes: tus repeticiones ya las cubren todas, no hace falta estimar.", "Earlier matches: your replays already cover them all, no estimate needed."));
-        }
-        if (applied)
-        {
-            _reportRequested = true;
-        }
-        return applied;
-    }
-
-    // ---- Varios jugadores en el mismo PC ------------------------------------------------------------------
-
-    /// <summary>La última partida vista (en directo o terminada): cuando cambia y es de otra cuenta, se sigue a ese jugador.</summary>
-    private string? _lastActivity;
-
-    /// <summary>
-    /// Sigue al jugador que está jugando: cuando aparece una partida nueva (en directo o recién terminada) de otra
-    /// cuenta con partidas contadas, se muestra su perfil y se avisa. Solo cambia con una partida nueva, así que el
-    /// perfil elegido a mano en la ventana se respeta hasta que alguien juegue. True si cambió algo.
-    /// </summary>
-    private bool FollowActivePlayer()
-    {
-        var live = _tracker.LiveMatch;
-        var newest = live ?? _data.Matches.Where(Profiles.IsSupportedVersion).MaxBy(m => m.MatchStartUtc ?? m.AnalyzedAtUtc);
-        if (newest == null)
-        {
-            return false;
-        }
-        var key = Profiles.Key(newest);
-        var activity = $"{key}|{newest.SessionId}|{newest.ReplayFile}";
-        if (_lastActivity == null)
-        {
-            _lastActivity = activity; // al arrancar: lo que ya había no cambia el perfil elegido
-            return false;
-        }
-        if (activity == _lastActivity)
-        {
-            return false;
-        }
-        _lastActivity = activity;
-        var profiles = Profiles.List(_data, _config);
-        var current = Profiles.Current(_data, _config);
-        if (string.IsNullOrEmpty(key) || current?.Key == key || profiles.FirstOrDefault(p => p.Key == key) is not { } player)
-        {
-            return false; // el mismo jugador, o una cuenta aún sin partidas contadas (se sigue al terminar su primera)
-        }
-        Change(c => c.Profile = key);
-        _reportRequested = true; // la página de estadísticas también pasa a ese jugador
-        SetNotice(L.F("Ahora juega {0}: se muestra su perfil.", "{0} is playing now: showing their profile.", player.Name));
-        return true;
-    }
-
-    /// <summary>La partida en curso, solo si es del perfil mostrado (la de otro jugador nunca se suma a este).</summary>
-    private MatchRecord? LiveOfShown()
-    {
-        var live = _tracker.LiveMatch;
-        if (live == null || !Profiles.Counted(live, _config))
-        {
-            return null;
-        }
-        var shownKey = Profiles.Current(_data, _config)?.Key;
-        return shownKey == null || Profiles.Key(live) == shownKey ? Profiles.Adjust(live, _config) : null;
-    }
-
-    /// <summary>Nombre del perfil mostrado, o null si aún no hay partidas.</summary>
-    public string? ShownProfileName => _shownName;
-
-    /// <summary>Cofres estimados de antes de usar el contador, del perfil mostrado.</summary>
-    public int InitialChests
-    {
-        get
-        {
-            lock (_cfgGate)
-            {
-                return Profiles.InitialChests(_config, _shownKey);
-            }
-        }
-    }
-
-    /// <summary>Guarda el estimado de cofres de antes para el perfil mostrado y rehace las estadísticas.</summary>
     public void SetInitialChests(int count)
     {
-        var key = _shownKey ?? "";
-        Change(c =>
-        {
-            if (count > 0)
-            {
-                c.InitialChests[key] = count;
-            }
-            else
-            {
-                c.InitialChests.Remove(key);
-            }
-        });
+        _earlier.SetChests(count);
+        RequestPublish();
         _reportRequested = true;
         _wake.Set();
     }
 
-    /// <summary>
-    /// Al arrancar, antes de leer replays: rehace las estadísticas (si no, tras actualizar seguirían las de la versión anterior
-    /// hasta la próxima partida) y las abre si está activado «Abrir estadísticas al iniciar». No se abre cuando el contador
-    /// arranca solo con Fortnite, para no tapar el juego.
-    /// </summary>
-    private void WriteReportAtStart()
+    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
     {
-        ReportWriter.WriteAll(_store, _config, _data);
-        if (_config.OpenReportOnStart && !AutoMode && File.Exists(_store.ReportPath))
-        {
-            try
-            {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(ReportTarget) { UseShellExecute = true })?.Dispose();
-            }
-            catch
-            {
-                // sin navegador: el botón «Estadísticas» de la ventana sigue funcionando
-            }
-        }
-    }
-
-    public void ChangeDemosFolder(string folder)
-    {
-        Change(c => c.DemosFolder = folder);
-        RestartWatcher();
-    }
-
-    /// <summary>Abrir con Fortnite: crea o quita la entrada de inicio. Devuelve false si no se puede (no se ejecuta desde su .exe).</summary>
-    public bool SetStartWithFortnite(bool on)
-    {
-        lock (_cfgGate)
-        {
-            // Otra carpeta de datos (--data, pruebas): solo se guarda; el inicio de Windows es de la instalación normal.
-            var defaultFolder = string.Equals(Path.GetFullPath(_dataDir).TrimEnd('\\', '/'), Path.GetFullPath(Store.DefaultFolder()).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
-            if (defaultFolder && (!OperatingSystem.IsWindows() || !FortniteWatch.Apply(on, _dataDir)))
-            {
-                return false;
-            }
-            _config.StartWithFortnite = on;
-            SaveQuietly();
-        }
+        _earlier.SetEstimate(totalMatches, source, sample, manualAverage);
         RequestPublish();
-        return true;
+        _reportRequested = true;
+        _wake.Set();
     }
 
-    /// <summary>El jugador decide mantener el contador abierto tras cerrar Fortnite.</summary>
-    public void KeepOpen()
-    {
-        AutoMode = false;
-        RequestPublish();
-    }
-
-    /// <summary>El overlay siempre está disponible: el botón y Ctrl+Mayús+O lo muestran y ocultan.</summary>
-    public bool OverlayEnabled => OperatingSystem.IsWindows();
-
-    /// <summary>True cuando el overlay está en pantalla (desactivado por defecto).</summary>
-    public bool OverlayVisible => OperatingSystem.IsWindows() && NativeOverlay.IsVisible;
+    // ---- Overlay and updates ----------------------------------------------------------------------------------------------
 
     public void ToggleOverlay()
     {
@@ -674,288 +326,200 @@ public sealed class AppMonitor
             NativeOverlay.Toggle();
             return;
         }
-        lock (_cfgGate)
-        {
-            _config.OverlayVisible = true;
-            SaveQuietly();
-        }
+        _settings.Edit(c => c.OverlayVisible = true);
         StartOverlay();
         RequestPublish();
     }
 
-    /// <summary>Descarga e instala la nueva versión en segundo plano; luego pide reiniciar.</summary>
-    public void InstallUpdate()
+    public void InstallUpdate() => _updates.Install(
+        notice: text => _notice = text,
+        failed: SetNotice,
+        restart: () => CloseRequested?.Invoke());
+
+    private void StartOverlay()
     {
-        var u = _update;
-        if (u == null || _installing)
-        {
-            return;
-        }
-        _installing = true;
-        RequestPublish();
-        _ = Task.Run(() =>
-        {
-            var error = Updater.Install(u);
-            if (error == null)
+        var c = Config;
+        NativeOverlay.Start(c.OverlayX, c.OverlayY, c.OverlayLocked,
+            (x, y) => _settings.Edit(s => (s.OverlayX, s.OverlayY) = (x, y)),
+            locked => _settings.Edit(s => s.OverlayLocked = locked),
+            c.OverlayVisible,
+            visible =>
             {
-                _update = null;
-                _notice = L.T("Reiniciando con la nueva versión…", "Restarting with the new version…");
-                _installing = false;
-                RestartAfterUpdate = true;
-                RequestPublish();
-                CloseRequested?.Invoke();
-                return;
-            }
-            _installing = false;
-            ErrorLog.Write("Actualización", error);
-            SetNotice(L.F("No se pudo actualizar: {0}", "Update failed: {0}", error));
-        });
+                _settings.Edit(s => s.OverlayVisible = visible);
+                RequestPublish(); // the window's overlay button changes colour
+            },
+            onClose: () => CloseRequested?.Invoke(), // the overlay's ✕ closes FCT
+            isGame: FortniteWatch.IsGameProcess);    // only on screen over the game
     }
 
-    /// <summary>Pide al hilo de vigilancia que publique el estado (se hace en cuanto puede).</summary>
-    public void RequestPublish()
-    {
-        _publishRequested = true;
-        _wake.Set();
-    }
+    // ---- The monitor thread -------------------------------------------------------------------------------------------------
 
-    // ---- Hilo de vigilancia ----------------------------------------------------------------------
-
-    private void Loop()
+    private void Run()
     {
-        WriteReportAtStart();
-        var first = true;
+        WriteStatsPageAtStart();
+        var changed = true;
         while (!_stop)
         {
-            var changed = first || _publishRequested;
-            first = false;
+            changed |= _publishRequested;
             _publishRequested = false;
-            changed |= ApplyTreasureScreens();
-
-            if (_resetBackup is { } backup)
-            {
-                _resetBackup = null;
-                try
-                {
-                    _tracker.Reset(backup);
-                    lock (_cfgGate)
-                    {
-                        _config.InitialChests.Clear();
-                        _config.Profile = null;
-                        SaveQuietly();
-                    }
-                    _reportRequested = true;
-                    changed = true;
-                }
-                catch (Exception ex)
-                {
-                    ErrorLog.Write("Restablecer estadísticas", ex);
-                    SetNotice(L.F("No se pudo restablecer: {0}", "Could not reset: {0}", ex.Message));
-                }
-            }
-
+            changed |= FileTreasureScreens();
+            changed |= ResetIfAsked();
             try
             {
-                if (DateTime.UtcNow >= _nextScan)
-                {
-                    var added = _tracker.Scan();
-                    _scanned = true;
-                    var liveChanged = _tracker.UpdateLive();
-                    changed |= added > 0 || liveChanged;
-
-                    // Partida en curso: se relee cada 15 s. Replay terminado: enseguida. Si no, un escaneo de respaldo.
-                    _nextScan = DateTime.UtcNow.AddSeconds(_tracker.IsFinishing ? 2 : _tracker.HasPending ? 15 : (_watcher != null && !AutoMode ? 60 : 10));
-                }
-                changed |= CheckAutoClose();
+                changed |= ScanIfDue();
+                changed |= CloseIfFortniteGone();
             }
             catch (Exception ex)
             {
                 ErrorLog.Write("Vigilancia", ex);
             }
-
-            changed |= FollowActivePlayer();
-            changed |= ApplyEstimate();
-            PollUpdates();
-            changed |= CheckUpdate();
+            changed |= FollowPlayer();
+            changed |= ApplyEstimates();
+            _updates.Poll();
+            changed |= _updates.Handle(idle: !_tracker.IsLive && !_tracker.HasPending && !_tracker.IsFinishing, InstallUpdate);
             changed |= ExpireNotice();
             if (_reportRequested)
             {
                 _reportRequested = false;
-                ReportWriter.WriteAll(_store, _config, _data);
+                ReportWriter.WriteAll(_store, Config, _data);
             }
             if (changed || _publishRequested)
             {
                 _publishRequested = false;
                 Publish();
             }
-
-            // Espera a que pase algo (cambio de archivo, ajuste) o un segundo.
-            _wake.WaitOne(TimeSpan.FromSeconds(1));
+            changed = false;
+            _wake.WaitOne(TimeSpan.FromSeconds(1)); // until something happens, or a second
         }
-    }
-
-    private void Publish()
-    {
-        var shown = Profiles.Current(_data, _config);
-        _shownKey = shown?.Key;
-        _shownName = shown?.Name;
-        _profileMatches = Profiles.View(_data, _config).Matches;
-        var liveAdjusted = LiveOfShown();
-        var view = OverlayModel.Build(Profiles.View(_data, _config), liveAdjusted, _tracker.IsLive && liveAdjusted != null, Profiles.InitialChests(_data, _config));
-        ReportWriter.WriteOverlay(_store, view);
-        ObsServer.Update(view);
-        if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
-        {
-            NativeOverlay.Update(view);
-        }
-
-        var notice = _installing
-            ? L.T("Descargando la actualización…", "Downloading the update…")
-            : _progress is { } p
-                ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", p.Done, p.Total)
-            : _notice;
-        var state = new MonitorState(view, Profiles.List(_data, _config), Profiles.Current(_data, _config)?.Key, _update, notice, false, BuildStats())
-        {
-            Team = BuildTeam(),
-        };
-        Changed?.Invoke(state);
     }
 
     /// <summary>
-    /// Estadísticas del perfil mostrado sobre todo su historial guardado (no solo los replays que siguen en disco),
-    /// con la partida en curso incluida. Son las mismas cifras que la página de estadísticas.
+    /// Before reading replays: the stats page is rewritten (after an update it would show the old version's until the
+    /// next match) and opened if "open stats at startup" is on — not when started by Fortnite, to keep the game in front.
     /// </summary>
-    private ChestStats BuildStats()
+    private void WriteStatsPageAtStart()
     {
-        var matches = Profiles.View(_data, _config).Matches;
-        var live = _tracker.IsLive ? LiveOfShown() : null;
-        var today = DateTime.Now.Date;
-
-        var perDay = new Dictionary<DateTime, int>();
-        foreach (var m in matches)
+        ReportWriter.WriteAll(_store, Config, _data);
+        if (!Config.OpenReportOnStart || AutoMode || !File.Exists(_store.ReportPath))
         {
-            var day = (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date;
-            perDay[day] = perDay.GetValueOrDefault(day) + m.ChestsOpened;
+            return;
         }
-        if (live != null)
+        try
         {
-            perDay[today] = perDay.GetValueOrDefault(today) + live.ChestsOpened;
+            Process.Start(new ProcessStartInfo(ReportTarget) { UseShellExecute = true })?.Dispose();
         }
-
-        var all = live != null ? matches.Append(live).ToList() : matches;
-        var average = matches.Count > 0 ? (double)matches.Sum(m => m.ChestsOpened) / matches.Count : 0;
-        var best = perDay.Count > 0 ? perDay.MaxBy(kv => kv.Value) : (KeyValuePair<DateTime, int>?)null;
-        return new ChestStats(
-            Matches: matches.Count,
-            Average: average,
-            BestMatch: all.Count > 0 ? all.Max(m => m.ChestsOpened) : 0,
-            Treasures: all.Sum(m => m.TreasureFinds.Count),
-            Today: perDay.GetValueOrDefault(today),
-            BestDay: best?.Key,
-            BestDayChests: best?.Value ?? 0)
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            LastDays = BuildLastDays(today, live),
-            HistoryMatches = Profiles.View(_data, _config).Matches.Count,
-            LastMatch = BuildLastMatch(),
-            HistorySince = Profiles.View(_data, _config).Matches
-                .Select(m => (DateTime?)(m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date)
-                .Min(),
-        };
+            // no browser: the window's "Stats" button still works
+        }
     }
 
-    /// <summary>
-    /// Equipo de la partida en curso (si se puede leer) o de la última: tus cofres y los abiertos de cada compañero.
-    /// Null si «Compañeros» está desactivado o aún no hay partidas.
-    /// </summary>
-    private TeamSummary? BuildTeam()
+    /// <summary>Reads what is ready; then again in 2 s (a match just ended), 15 s (one is settling) or as a fallback.</summary>
+    private bool ScanIfDue()
     {
-        if (!_config.ShowTeammates)
-        {
-            return null;
-        }
-        var kinds = _config.ExtraKinds();
-        var live = _tracker.IsLive ? LiveOfShown() : null;
-        var m = live ?? Profiles.View(_data, _config).Matches.OrderByDescending(x => x.MatchStartUtc ?? x.AnalyzedAtUtc).FirstOrDefault();
-        if (m == null)
-        {
-            return null;
-        }
-        var mates = (m.Teammates ?? new List<TeammateRecord>())
-            .Select(t => new TeamMember(t.Name, MatchRecord.Seen(t, kinds)))
-            .OrderByDescending(t => t.Chests)
-            .ToList();
-        return new TeamSummary(live != null, m.OwnChests, mates, m.Teammates == null);
-    }
-
-    /// <summary>Última partida terminada del perfil mostrado.</summary>
-    private LastMatchSummary? BuildLastMatch()
-    {
-        var m = Profiles.View(_data, _config).Matches
-            .OrderByDescending(x => x.MatchStartUtc ?? x.AnalyzedAtUtc)
-            .FirstOrDefault();
-        if (m == null)
-        {
-            return null;
-        }
-        return new LastMatchSummary(m.ChestsOpened, m.Chests.Count(c => c.Destroyed), m.TreasureFinds.Count,
-            m.Placement, m.TotalPlayers, m.Eliminations);
-    }
-
-    /// <summary>
-    /// Cofres de cada día de esta semana, de lunes a domingo, del perfil mostrado (todas sus partidas, no solo las
-    /// 100 últimas). Los días que aún no han llegado van marcados como futuros.
-    /// </summary>
-    private List<DayChests> BuildLastDays(DateTime today, MatchRecord? live)
-    {
-        const int days = 7;
-        var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
-        var sunday = monday.AddDays(days - 1);
-        var sums = new Dictionary<DateTime, int>();
-        var all = Profiles.View(_data, _config).Matches.Append(live).OfType<MatchRecord>();
-        foreach (var m in all)
-        {
-            var day = (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date;
-            if (day >= monday && day <= sunday)
-            {
-                sums[day] = sums.GetValueOrDefault(day) + m.ChestsOpened;
-            }
-        }
-        return Enumerable.Range(0, days)
-            .Select(i => monday.AddDays(i))
-            .Select(d => new DayChests(d, sums.GetValueOrDefault(d), Future: d > today))
-            .ToList();
-    }
-
-    /// <summary>Anuncia una versión nueva; en modo automático la instala cuando no hay partidas en curso. Devuelve true si hay que publicar.</summary>
-    private bool CheckUpdate()
-    {
-        var u = _update;
-        if (u == null || _updateAnnounced || _installing)
+        if (DateTime.UtcNow < _nextScan)
         {
             return false;
         }
+        var added = _tracker.Scan();
+        _scanned = true;
+        var liveChanged = _tracker.UpdateLive();
+        var fallback = _watcher != null && !AutoMode ? 60 : 10;
+        _nextScan = DateTime.UtcNow.AddSeconds(_tracker.IsFinishing ? 2 : _tracker.HasPending ? 15 : fallback);
+        return added > 0 || liveChanged;
+    }
 
-        if (_config.UpdateMode == "auto")
+    private bool FileTreasureScreens()
+    {
+        if (!_screens.FileInto(_data))
         {
-            var idle = !_tracker.IsLive && !_tracker.HasPending && !_tracker.IsFinishing;
-            if (!idle || AppInfo.ExePath == null)
+            return false;
+        }
+        try
+        {
+            _store.SaveData(_data);
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Guardar pantalla de tesoros", ex);
+        }
+        _reportRequested = true;
+        return true;
+    }
+
+    private bool ResetIfAsked()
+    {
+        if (_resetBackup is not { } copy)
+        {
+            return false;
+        }
+        _resetBackup = null;
+        try
+        {
+            _tracker.Reset(copy);
+            _settings.Edit(c =>
             {
-                return false;
-            }
-            _updateAnnounced = true;
-            InstallUpdate();
+                c.InitialChests.Clear();
+                c.Profile = null;
+            });
+            _reportRequested = true;
             return true;
         }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Restablecer estadísticas", ex);
+            SetNotice(L.F("No se pudo restablecer: {0}", "Could not reset: {0}", ex.Message));
+            return false;
+        }
+    }
 
-        _updateAnnounced = true;
+    private bool FollowPlayer()
+    {
+        if (_follower.NewPlayer() is not { } player)
+        {
+            return false;
+        }
+        Change(c => c.Profile = player.Key);
+        _reportRequested = true; // the stats page follows too
+        SetNotice(L.F("Ahora juega {0}: se muestra su perfil.", "{0} is playing now: showing their profile.", player.Name));
+        return true;
+    }
+
+    /// <summary>Pending estimates are computed once the replays are read and no match is being played or read.</summary>
+    private bool ApplyEstimates()
+    {
+        if (!_scanned || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
+        {
+            return false;
+        }
+        var notices = _earlier.ApplyPending();
+        foreach (var notice in notices)
+        {
+            SetNotice(notice);
+        }
+        if (notices.Count == 0)
+        {
+            return false;
+        }
+        _reportRequested = true;
+        return true;
+    }
+
+    private bool ExpireNotice()
+    {
+        if (_notice == null || DateTime.UtcNow < _noticeUntil)
+        {
+            return false;
+        }
+        _notice = null;
         return true;
     }
 
     /// <summary>
-    /// En segundo plano (ventana oculta): al cerrarse Fortnite, el contador se cierra solo en cuanto cuenta la última
-    /// partida (5 min como mucho). Con la ventana a la vista, o con Fortnite abierto, no se cierra.
+    /// In the background, once Fortnite has closed, FCT closes as soon as the last match is counted (5 minutes at most).
+    /// With the window in view, or the game running, it stays.
     /// </summary>
-    private bool CheckAutoClose()
+    private bool CloseIfFortniteGone()
     {
         var now = DateTime.UtcNow;
         if (!InBackground || _closeRequested)
@@ -963,10 +527,9 @@ public sealed class AppMonitor
             _fortniteClosedSince = null;
             return false;
         }
-        // Mirar los procesos tiene un coste: cada 3 s basta.
         if (now < _nextGameCheck)
         {
-            return false;
+            return false; // looking at the processes costs something: every 3 s is enough
         }
         _nextGameCheck = now.AddSeconds(3);
         if (FortniteWatch.IsFortniteRunning())
@@ -974,84 +537,74 @@ public sealed class AppMonitor
             _fortniteClosedSince = null;
             return false;
         }
-
         _fortniteClosedSince ??= now;
-        var lastMatchDone = !_tracker.IsLive && !_tracker.HasPending && !_tracker.IsFinishing;
-        if (!lastMatchDone && now - _fortniteClosedSince.Value < TimeSpan.FromMinutes(5))
+        var lastMatchCounted = !_tracker.IsLive && !_tracker.HasPending && !_tracker.IsFinishing;
+        if (lastMatchCounted || now - _fortniteClosedSince.Value >= TimeSpan.FromMinutes(5))
         {
-            return false;
+            _closeRequested = true;
+            CloseRequested?.Invoke();
         }
-        _closeRequested = true;
-        CloseRequested?.Invoke();
         return false;
     }
 
-    private DateTime _nextGameCheck;
-
-    // ---- Piezas internas -------------------------------------------------------------------------
-
-    private void StartOverlay()
+    private void Publish()
     {
-        NativeOverlay.Start(_config.OverlayX, _config.OverlayY, _config.OverlayLocked,
-            (x, y) =>
-            {
-                lock (_cfgGate)
-                {
-                    _config.OverlayX = x;
-                    _config.OverlayY = y;
-                    SaveQuietly();
-                }
-            },
-            locked =>
-            {
-                lock (_cfgGate)
-                {
-                    _config.OverlayLocked = locked;
-                    SaveQuietly();
-                }
-            },
-            _config.OverlayVisible,
-            visible =>
-            {
-                lock (_cfgGate)
-                {
-                    _config.OverlayVisible = visible;
-                    SaveQuietly();
-                }
-                RequestPublish(); // el botón de la ventana cambia de color
-            },
-            // Botón de cerrar del overlay: cierra la aplicación entera (y con ella el overlay).
-            () => CloseRequested?.Invoke(),
-            // Solo en pantalla con Fortnite delante.
-            FortniteWatch.IsGameProcess);
+        var config = Config;
+        var shown = Profiles.Current(_data, config);
+        _shownKey = shown?.Key;
+        _shownName = shown?.Name;
+        _earlier.ShownKey = _shownKey;
+        var view = Profiles.View(_data, config);
+        _earlier.ShowMatches(view.Matches);
+
+        var live = _follower.LiveOfShown();
+        var overlay = OverlayModel.Build(view, live, _tracker.IsLive && live != null, Profiles.InitialChests(_data, config));
+        ReportWriter.WriteOverlay(_store, overlay);
+        ObsServer.Update(overlay);
+        if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
+        {
+            NativeOverlay.Update(overlay);
+        }
+
+        var shownLive = _tracker.IsLive ? live : null;
+        var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
+            : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
+            : _notice;
+        Changed?.Invoke(new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false, ScreenFigures.Stats(view.Matches, shownLive))
+        {
+            Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
+        });
     }
 
-    /// <summary>Windows avisa cuando cambia un replay: no hace falta releer la carpeta todo el tiempo.</summary>
-    private void RestartWatcher()
+    // ---- The replays folder ---------------------------------------------------------------------------------------------------
+
+    /// <summary>Windows reports changes in the replays folder, so it need not be re-read all the time.</summary>
+    private void WatchReplays()
     {
         _watcher?.Dispose();
         _watcher = null;
         try
         {
-            if (Directory.Exists(_config.DemosFolder))
+            if (!Directory.Exists(Config.DemosFolder))
             {
-                _watcher = new FileSystemWatcher(_config.DemosFolder, "*.replay")
-                {
-                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
-                    EnableRaisingEvents = true,
-                };
-                _watcher.Created += (_, _) => Wake();
-                _watcher.Changed += (_, _) => Wake();
-                _watcher.Renamed += (_, _) => Wake();
+                return;
             }
+            _watcher = new FileSystemWatcher(Config.DemosFolder, "*.replay")
+            {
+                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = true,
+            };
+            _watcher.Created += (_, _) => ScanSoon();
+            _watcher.Changed += (_, _) => ScanSoon();
+            _watcher.Renamed += (_, _) => ScanSoon();
         }
-        catch
+        catch (Exception ex) when (ex is ArgumentException or IOException or UnauthorizedAccessException or PlatformNotSupportedException)
         {
-            _watcher = null; // escaneo periódico de respaldo
+            _watcher = null; // the periodic fallback scan covers it
         }
     }
 
-    private void Wake()
+    private void ScanSoon()
     {
         var soon = DateTime.UtcNow.AddSeconds(2);
         if (soon < _nextScan)
@@ -1059,10 +612,5 @@ public sealed class AppMonitor
             _nextScan = soon;
         }
         _wake.Set();
-    }
-
-    private void SaveQuietly()
-    {
-        try { _store.SaveConfig(_config); } catch { /* ignore */ }
     }
 }

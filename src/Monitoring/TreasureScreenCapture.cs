@@ -1,0 +1,96 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
+namespace FCT.Monitoring;
+
+/// <summary>
+/// The end-of-match treasure screen. When the game log says it is shown, only the game's window is captured (even
+/// behind others) a few times while its cards finish appearing, and the reading with most cards is kept. Images only
+/// live in memory while being read; a minimized or uncapturable window simply leaves the match as it was.
+/// </summary>
+internal sealed class TreasureScreenCapture
+{
+    /// <summary>The cards slide in: several captures over the first ~9 s (the screen stays 17 s or more).</summary>
+    private static readonly int[] CaptureDelaysMs = { 1500, 1500, 1500, 2000, 2500 };
+
+    private readonly ConcurrentQueue<TreasureScreen> _read = new();
+    private readonly Action _wake;
+
+    public TreasureScreenCapture(Action wake) => _wake = wake;
+
+    public void Shown(DateTime shownUtc) => _ = Task.Run(async () =>
+    {
+        try
+        {
+            List<string>? best = null;
+            foreach (var delay in CaptureDelaysMs)
+            {
+                await Task.Delay(delay);
+                var frame = await WindowCapture.CaptureAsync(GameWindow(), TimeSpan.FromSeconds(2));
+                if (frame == null)
+                {
+                    continue;
+                }
+                var cards = TreasureScreenReader.Read(frame).Select(c => c.Item).ToList();
+                if (best == null || cards.Count > best.Count)
+                {
+                    best = cards;
+                }
+            }
+            if (best is { Count: > 0 })
+            {
+                _read.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = best });
+                _wake();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Pantalla de tesoros", ex);
+        }
+    });
+
+    /// <summary>The game's window; FCT_TREASURE_WINDOW (an exact window title) stands in for it in tests.</summary>
+    private static IntPtr GameWindow()
+    {
+        if (Environment.GetEnvironmentVariable("FCT_TREASURE_WINDOW") is { Length: > 0 } title)
+        {
+            return PostMatchTools.FindWindowByTitle(title);
+        }
+        foreach (var process in Process.GetProcessesByName("FortniteClient-Win64-Shipping"))
+        {
+            using (process)
+            {
+                if (process.MainWindowHandle != IntPtr.Zero)
+                {
+                    return process.MainWindowHandle;
+                }
+            }
+        }
+        return IntPtr.Zero;
+    }
+
+    /// <summary>
+    /// Files the screens read since last time (one per screen: two within 30 s are the same) and gives every match its
+    /// screen again. True when the history changed (the caller saves it).
+    /// </summary>
+    public bool FileInto(TrackerData data)
+    {
+        var added = false;
+        while (_read.TryDequeue(out var screen))
+        {
+            if (data.TreasureScreens.TrueForAll(s => Math.Abs((s.ShownUtc - screen.ShownUtc).TotalSeconds) > 30))
+            {
+                data.TreasureScreens.Add(screen);
+                added = true;
+            }
+        }
+        if (added)
+        {
+            foreach (var match in data.Matches)
+            {
+                TreasureScreenMerge.Apply(match, data.TreasureScreens);
+            }
+        }
+        return added;
+    }
+}
