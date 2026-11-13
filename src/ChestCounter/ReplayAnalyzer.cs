@@ -300,7 +300,8 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
 
         var hex = bits <= (Environment.GetEnvironmentVariable("CHESTCOUNTER_PROBE_HEX") == "1" ? 100000 : 256) ? " hex=" + Convert.ToHexString(data) : "";
         var owner = _channelLabel.GetValueOrDefault(channel, "?");
-        Console.Error.WriteLine($"PRB {Now,7:F1}s ch{channel} [{owner}] {CleanName(group)}.{field} bits={bits}{guidText}{hex}{(strings.Count > 0 ? " txt=[" + string.Join(" | ", strings.Where(s => s.Length >= 5)) + "]" : "")}");
+        var actorId = Channels[channel]?.ActorId;
+        Console.Error.WriteLine($"PRB {Now,7:F1}s ch{channel} a{actorId} [{owner}]{CleanName(group)}.{field} bits={bits}{guidText}{hex}{(strings.Count > 0 ? " txt=[" + string.Join(" | ", strings.Where(s => s.Length >= 5)) + "]" : "")}");
     }
 
     private sealed class StderrLogger : Microsoft.Extensions.Logging.ILogger
