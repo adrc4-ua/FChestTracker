@@ -27,6 +27,12 @@
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
     <!-- Languages besides Spanish and English: one file per language (see Localization/Languages/README.md). -->
     <EmbeddedResource Include="Localization\Languages\*.json" LogicalName="FCT.lang.%(Filename).json" />
+    <!-- fortnite-api.com key to look up the player's total matches (estimate of the chests before FCT). It comes from
+         the FORTNITE_API_KEY environment variable (a GitHub secret in the release build); empty = typed by hand. -->
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>FortniteApiKey</_Parameter1>
+      <_Parameter2>$(FORTNITE_API_KEY)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />

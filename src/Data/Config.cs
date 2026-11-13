@@ -105,6 +105,12 @@ public sealed class Config
         return copy;
     }
 
+    /// <summary>
+    /// Estimate of the chests before FCT (Configuración → Cofres antes de FCT → Estimar, or the first-run question).
+    /// Null = only the saved replays. Pending until there is an average to use; then written to <see cref="InitialChests"/>.
+    /// </summary>
+    public HistoryEstimate? Estimate { get; set; }
+
     /// <summary>Non-chest kinds the player chose to add to the chest total.</summary>
     public IReadOnlyCollection<string> ExtraKinds()
     {
@@ -124,4 +130,21 @@ public sealed class ReportSettings
     public bool CountAmmoBoxes { get; set; }
     public bool CountFoodBoxes { get; set; }
     public bool CountLootCannons { get; set; }
+}
+
+/// <summary>The player's total matches according to the stats, and when it was taken (see HistoryEstimator).</summary>
+public sealed class HistoryEstimate
+{
+    public int TotalMatches { get; set; }
+    public DateTime SnapshotUtc { get; set; }
+    /// <summary>Matches the average needs at least (chosen by the player: 5 by default, 10 recommended).</summary>
+    public int SampleSize { get; set; } = HistoryEstimator.DefaultSample;
+    /// <summary>Average typed by the player (chests per match); null = calculated from the matches.</summary>
+    public double? ManualAverage { get; set; }
+    /// <summary>"api" (looked up on fortnite-api.com) or "manual" (typed by the player).</summary>
+    public string Source { get; set; } = "manual";
+    /// <summary>Profile it applies to; null = the one shown when it is calculated (first run: none yet).</summary>
+    public string? ProfileKey { get; set; }
+    /// <summary>Calculated and written to the chests before FCT.</summary>
+    public bool Done { get; set; }
 }

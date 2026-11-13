@@ -166,11 +166,15 @@ public sealed class SettingsForm : Form
             ForeColor = Theme.Amber,
             Font = Theme.Text(24f, FontStyle.Bold),
             Location = new Point(15, 36),
-            Width = 160,
+            Width = 122,
             MaxLength = 7,
             Text = Math.Min(MaxInitial, monitor.InitialChests).ToString(L.Culture),
         };
         initial.Controls.Add(_initial);
+        // Estimar a partir de las partidas totales (fortnite-api.com o fortnite.gg) y la media de las repeticiones.
+        var estimate = new PillButton { Text = L.T("Estimar…", "Estimate…"), Location = new Point(RightW - 13 - 34 - 8 - 84, 32), Size = new Size(84, 28), Radius = 9, Font = Theme.Text(8.5f, FontStyle.Bold) };
+        estimate.Click += (_, _) => EstimateEarlier();
+        initial.Controls.Add(estimate);
         var plus = new PillButton { Text = "+", Location = new Point(RightW - 13 - 34, 32), Size = new Size(34, 28), Radius = 9, Font = Theme.Text(11f, FontStyle.Bold) };
         var minus = new PillButton { Text = "−", Location = new Point(RightW - 13 - 34, 64), Size = new Size(34, 28), Radius = 9, Font = Theme.Text(11f, FontStyle.Bold) };
         plus.Click += (_, _) => StepInitial(10);
@@ -404,6 +408,23 @@ public sealed class SettingsForm : Form
         {
             var chosen = UpdateModes[index];
             _monitor.Change(c => c.UpdateMode = chosen);
+        }
+    }
+
+    /// <summary>«Estimar…»: solo repeticiones o repeticiones + estimado; la cifra se pone ya si se puede calcular.</summary>
+    private void EstimateEarlier()
+    {
+        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate) is not { } choice)
+        {
+            return;
+        }
+        _monitor.SetEstimate(choice.Estimate ? choice.TotalMatches : null, choice.Source, choice.Sample, choice.ManualAverage);
+        int? shown = !choice.Estimate ? 0 : _monitor.PreviewEstimate(choice.TotalMatches, choice.Sample, choice.ManualAverage).Chests;
+        if (shown is int value)
+        {
+            _loading = true;
+            _initial.Text = Math.Min(MaxInitial, value).ToString(L.Culture);
+            _loading = false;
         }
     }
 

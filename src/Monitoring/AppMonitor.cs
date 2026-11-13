@@ -355,6 +355,95 @@ public sealed class AppMonitor
         return backup;
     }
 
+    // ---- Estimado de los cofres de antes de FCT ---------------------------------------------------------
+
+    private volatile IReadOnlyList<MatchRecord> _profileMatches = Array.Empty<MatchRecord>();
+    private volatile bool _scanned;
+
+    /// <summary>Id de Epic del perfil mostrado (la clave del perfil cuando el replay lo trae), o null.</summary>
+    public string? ShownAccountId => _shownKey is { Length: 32 } key && key.All(Uri.IsHexDigit) ? key : null;
+
+    /// <summary>Lo que daría el estimado con este total de partidas, tal como están ahora las partidas contadas.</summary>
+    public HistoryEstimator.Result PreviewEstimate(int totalMatches, int sample, double? manualAverage) =>
+        HistoryEstimator.Compute(_profileMatches, totalMatches, DateTime.UtcNow, sample, manualAverage);
+
+    /// <summary>Estimado guardado (null = solo las repeticiones).</summary>
+    public HistoryEstimate? Estimate
+    {
+        get
+        {
+            lock (_cfgGate)
+            {
+                return _config.Estimate;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Elige cómo contar lo de antes: <paramref name="totalMatches"/> null = solo las repeticiones guardadas (se quita
+    /// el estimado); si no, repeticiones + estimado con ese total de partidas, tomado ahora. Se calcula en cuanto haya
+    /// al menos <paramref name="sample"/> partidas contadas para la media (si faltan, tras las próximas).
+    /// </summary>
+    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
+    {
+        var key = _shownKey ?? "";
+        Change(c =>
+        {
+            if (totalMatches is not int total)
+            {
+                c.Estimate = null;
+                c.InitialChests.Remove(key);
+                return;
+            }
+            c.Estimate = new HistoryEstimate { TotalMatches = total, SnapshotUtc = DateTime.UtcNow, Source = source, ProfileKey = _shownKey, SampleSize = sample, ManualAverage = manualAverage };
+        });
+        _reportRequested = true;
+        _wake.Set();
+    }
+
+    /// <summary>Calcula el estimado pendiente cuando ya se puede (repeticiones contadas o 5 partidas jugadas).</summary>
+    private bool ApplyEstimate()
+    {
+        HistoryEstimate? e;
+        lock (_cfgGate)
+        {
+            e = _config.Estimate;
+        }
+        if (e == null || e.Done || !_scanned || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
+        {
+            return false;
+        }
+        var key = e.ProfileKey ?? Profiles.Current(_data, _config)?.Key;
+        if (key == null)
+        {
+            return false; // aún no hay ninguna partida: no se sabe de qué perfil es
+        }
+        var matches = Profiles.View(_data, _config).Matches.Where(m => Profiles.Key(m) == key).ToList();
+        if (HistoryEstimator.Compute(matches, e.TotalMatches, e.SnapshotUtc, e.SampleSize, e.ManualAverage).Chests is not int chests)
+        {
+            return false;
+        }
+        lock (_cfgGate)
+        {
+            if (chests > 0)
+            {
+                _config.InitialChests[key] = chests;
+            }
+            else
+            {
+                _config.InitialChests.Remove(key);
+            }
+            e.ProfileKey = key;
+            e.Done = true;
+            SaveQuietly();
+        }
+        _reportRequested = true;
+        SetNotice(chests > 0
+            ? L.F("Partidas de antes: ≈ {0} cofres estimados sumados a tu total.", "Earlier matches: ≈ {0} estimated chests added to your total.", chests.ToString("#,0", L.Culture))
+            : L.T("Partidas de antes: tus repeticiones ya las cubren todas, no hace falta estimar.", "Earlier matches: your replays already cover them all, no estimate needed."));
+        return true;
+    }
+
     /// <summary>Nombre del perfil mostrado, o null si aún no hay partidas.</summary>
     public string? ShownProfileName => _shownName;
 
@@ -542,6 +631,7 @@ public sealed class AppMonitor
                 if (DateTime.UtcNow >= _nextScan)
                 {
                     var added = _tracker.Scan();
+                    _scanned = true;
                     var liveChanged = _tracker.UpdateLive();
                     changed |= added > 0 || liveChanged;
 
@@ -558,6 +648,7 @@ public sealed class AppMonitor
                 ErrorLog.Write("Vigilancia", ex);
             }
 
+            changed |= ApplyEstimate();
             PollUpdates();
             changed |= CheckUpdate();
             changed |= ExpireNotice();
@@ -582,6 +673,7 @@ public sealed class AppMonitor
         var shown = Profiles.Current(_data, _config);
         _shownKey = shown?.Key;
         _shownName = shown?.Name;
+        _profileMatches = Profiles.View(_data, _config).Matches;
         var liveAdjusted = (_tracker.LiveMatch != null && Profiles.Counted(_tracker.LiveMatch, _config)) ? Profiles.Adjust(_tracker.LiveMatch, _config) : null;
         var view = OverlayModel.Build(Profiles.View(_data, _config), liveAdjusted, _tracker.IsLive && liveAdjusted != null, Profiles.InitialChests(_data, _config));
         ReportWriter.WriteOverlay(_store, view);

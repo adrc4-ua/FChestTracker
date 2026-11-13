@@ -122,7 +122,10 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 - **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
-- **Chests before FCT**: an estimate added to your total.
+- **Chests before FCT**: an estimate added to your total. With **Estimate…** (also asked the first time) you choose *saved replays only* or *replays + estimate*:
+  - **Total matches**: look them up by your Epic name (if the build can) or read the number on [fortnite.gg](https://fortnite.gg/stats) and type it. If your stats are private, it says that is why they cannot be looked up.
+  - **Average chests per match**: calculated from your matches (you choose how many: 5 by default, **10 recommended**; the more, the closer) or typed by hand.
+  - **Estimate** = average × (total matches − matches FCT already counts). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). If matches are missing for the average, it is calculated after your next ones.
 - **Updates**, **overlay for OBS**, **replays folder** and **Reset statistics** (with a backup).
 
 ## How it works (and why it is safe)
@@ -132,7 +135,7 @@ Fortnite can record a **replay file** of every match on your PC. FCT reads those
 - ✅ **Only reads replay files**: the `.replay` files in `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, read-only.
 - ✅ **No game modification**: the Fortnite installation folder is never touched.
 - ✅ **No access to the game's memory**: it never reads, writes or injects anything into the Fortnite process.
-- ✅ **No data sent anywhere**: no login, no Epic account, no telemetry. The only network access is checking GitHub for new versions (can be turned off).
+- ✅ **No data sent anywhere**: no login, no Epic account, no telemetry. Network access: checking GitHub for new versions (can be turned off) and, only if you press **Look up** when estimating, asking fortnite-api.com for your total matches (it sends your Epic id or name, nothing else).
 - ✅ **Lightweight**: low priority ("efficiency mode" on Windows 11) and it sleeps between matches.
 
 ## Treasures

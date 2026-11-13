@@ -32,6 +32,9 @@ jobs:
         shell: pwsh
         env:
           BUILD_TAG: ${{ inputs.tag != '' && inputs.tag || (github.ref_type == 'tag' && github.ref_name || '') }}
+          # fortnite-api.com key (repository secret FORTNITE_API_KEY): lets the app look up the player's total matches.
+          # Without the secret the build still works and the player types the number.
+          FORTNITE_API_KEY: ${{ secrets.FORTNITE_API_KEY }}
         run: |
           # The project file moved over time; older tags still have it in one of the earlier places.
           $project = @('src/FCT.csproj', 'src/FCT/FCT.csproj', 'src/ChestCounter/ChestCounter.csproj') | Where-Object { Test-Path $_ } | Select-Object -First 1

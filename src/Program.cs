@@ -294,6 +294,12 @@ internal static class Program
             {
                 tracker.MarkSkipped(existing);
             }
+            // Partidas de antes: solo las repeticiones, o repeticiones + un estimado (se calcula cuando estén contadas;
+            // si no llegan a las partidas elegidas para la media, tras las próximas).
+            if (EstimateDialog.Ask(null, null, null, null, null) is { Estimate: true } earlier)
+            {
+                config.Estimate = new HistoryEstimate { TotalMatches = earlier.TotalMatches, SnapshotUtc = DateTime.UtcNow, Source = earlier.Source, SampleSize = earlier.Sample, ManualAverage = earlier.ManualAverage };
+            }
             // «Abrir con Fortnite» viene activado: se puede quitar en Configuración. Solo se puede desde el .exe publicado.
             config.StartWithFortnite = defaultFolder && OperatingSystem.IsWindows() && AppInfo.ExePath != null && FortniteWatch.Apply(true, dataDir);
         }
