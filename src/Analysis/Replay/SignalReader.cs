@@ -62,7 +62,7 @@ internal sealed class SignalReader : FortniteReplayReader.ReplayReader
     private uint _bunchChannel;
 
     public SignalReader(ReplaySignals signals)
-        : base(Environment.GetEnvironmentVariable("FCT_DEBUG") == "2" ? new StderrLogger() : null,
+        : base(Environment.GetEnvironmentVariable("FCT_DEBUG") == "2" ? new StderrLogger() : null!, // no logger unless debugging
                Enum.TryParse<ParseMode>(Environment.GetEnvironmentVariable("FCT_MODE"), out var mode) ? mode : ParseMode.Normal)
     {
         _signals = signals;
@@ -202,7 +202,9 @@ internal sealed class SignalReader : FortniteReplayReader.ReplayReader
     /// The abilities field of an ability system ClassNetCache (named "ActivatableAbilities", or unnamed in the variants
     /// without exported names) is taken raw here and searched for treasure grants; the library never sees it.
     /// </summary>
+#pragma warning disable CS8765 // unlike the base, a consumed field comes back as true with no payload (handled by the library patch)
     public override bool ReadFieldHeaderAndPayload(FBitArchive archive, NetFieldExportGroup group, out NetFieldExport? outField, out uint? payload)
+#pragma warning restore CS8765
     {
         var more = base.ReadFieldHeaderAndPayload(archive, group, out outField, out payload);
         if (!more || payload is not { } size || !IsAbilitySystem(group.PathName) || !group.PathName.EndsWith("_ClassNetCache", StringComparison.Ordinal)

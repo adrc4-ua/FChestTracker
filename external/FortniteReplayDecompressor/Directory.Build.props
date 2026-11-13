@@ -3,6 +3,6 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <!-- Warnings of the original code, left as they are: unreachable code, obsolete members, nullability. -->
-    <NoWarn>$(NoWarn);CS0162;CS0618;CS8714;CS8762</NoWarn>
+    <NoWarn>$(NoWarn);CS0162;CS0618;CS8714;CS8762;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS8629;CS8765;CS8767</NoWarn>
   </PropertyGroup>
 </Project>

@@ -6,7 +6,7 @@
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=flat-square&label=version&color=e8b04b)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/Fortnite-Chest-Tracker/total?style=flat-square&label=downloads&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![license](https://img.shields.io/github/license/adrc4-ua/Fortnite-Chest-Tracker?style=flat-square&label=license&color=555)](LICENSE)
 
-**Counts every chest you open in Fortnite, match after match: window, stats, in-game overlay and your team's chests.**
+**Your Fortnite chest history, match by match: in a window, on a stats page, on top of the game and with what your team opens.**
 
 <img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Stats" width="49%">
 
@@ -16,7 +16,7 @@
 
 ---
 
-FCT reads the replays Fortnite saves of every match and keeps count of the chests you open, the **treasure hunt treasures** and, if you want, your **teammates'** chests. Everything is saved on your PC: even when Fortnite deletes the replays, your history is kept.
+Fortnite can keep a replay of every match. FCT reads them and notes the chests you open, the **treasure hunt treasures** and, if you turn it on, your **teammates'** chests. The history lives on your PC and does not depend on the replays: when Fortnite deletes them, what was counted stays.
 
 - **Main window**: total, last match, today, best day, average, best match, treasures, this week's chart and your team.
 - **Stats** in your browser, with tabs: overview, chests, treasures, matches, teammates and settings.
@@ -24,14 +24,14 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 - **Teammates**: who you play with, wins together, each one's chests per match and a leaderboard.
 - **Safe**: it only reads replay files; it never touches the game or its memory.
 
-> It counts the chests **you** opened (and those your team opened near you). It does not show where chests are on the map.
+> FCT notes what **you** opened (and what your team was seen opening). It is not a map: it does not tell where chests are.
 
 ## Getting started
 
-1. Download **[`FCT.exe`](../../releases/latest)**. That single file is all you need.
-2. In Fortnite turn on *Settings → Game → Replays → **Record Replays*** (and *Large Team Modes* if you play them). Without replays there is nothing to read.
-3. Run `FCT.exe`.
-   > If Windows warns you, click *More info → Run anyway*. It happens because the program isn't signed yet.
+1. Get **[`FCT.exe`](../../releases/latest)**: there is no installer and nothing else to download.
+2. Inside Fortnite, switch on *Settings → Game → Replays → **Record Replays*** (also *Large Team Modes* if you play those). FCT only counts matches that have their replay.
+3. Open `FCT.exe`.
+   > If Windows shows its blue warning, choose *More info → Run anyway*: it appears while the exe carries no signature.
 4. The welcome screen reminds you about replays and, if there are already replays on your PC, lets you **count them** or start with **your next matches only**.
 
 <p align="center"><img src="docs/images/setup.png" alt="First-run welcome" width="520"></p>
@@ -103,7 +103,7 @@ With **Add their chests to your total** (off by default), your total, average, r
 - **Big numbers**: your chest **total** and, in the box, the **previous** match (or the **current** one, live, while you play).
 - **Today**, today's **average** per match, **previous** (during a match) and **treasures**.
 
-To see it over the game, set Fortnite to **Windowed Fullscreen** (*Settings → Video → Window Mode*): in exclusive fullscreen Windows cannot draw on top. It only shows while Fortnite is open (not minimized) on some screen; then you can put it on any screen and spot, and it stays visible even if you use another window. It can't be dragged past the screen edges. It's on by default and turns on when Fortnite opens; turn it off with the **Overlay** button or Ctrl+Shift+O.
+The overlay needs Fortnite in **Windowed Fullscreen** (*Settings → Video → Window Mode*); with exclusive fullscreen no window can stay above the game. It only shows while Fortnite is open (not minimized) on some screen; then you can put it on any screen and spot, and it stays visible even if you use another window. It can't be dragged past the screen edges. It's on by default and turns on when Fortnite opens; turn it off with the **Overlay** button or Ctrl+Shift+O.
 
 Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** (copy it from **Settings**). In OBS, add a **browser source** with that address: transparent background, refreshes by itself.
 
@@ -111,9 +111,9 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 
 | Shortcut | What it does |
 |---|---|
-| **Ctrl+Shift+O** | Show / hide the overlay. Works anywhere, even in game. |
-| **Ctrl+Shift+L** | Lock / unlock the overlay. **Locked**: clicks go through and it does not move. **Unlocked**: drag it with the left button. |
-| Right-click on the overlay | Hide it. |
+| **Ctrl+Shift+O** | Turns the overlay on or off, also with the game in front. |
+| **Ctrl+Shift+L** | Pins or releases the overlay. **Pinned**: clicks pass through and it stays put. **Released**: drag it with the left button. |
+| Right-click on the overlay | Hides it. |
 | Overlay **✕** button (right of the padlock) | Close FCT (the app and the overlay). |
 
 ## Settings
@@ -135,12 +135,12 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 
 ## How it works (and why it is safe)
 
-Fortnite can record a **replay file** of every match on your PC. FCT reads those files and nothing else.
+Everything comes from the replays Fortnite leaves on your PC; FCT needs nothing else from the game.
 
-- ✅ **Only reads replay files**: the `.replay` files in `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, read-only.
-- ✅ **No game modification**: the Fortnite installation folder is never touched.
-- ✅ **No access to the game's memory**: it never reads, writes or injects anything into the Fortnite process.
-- ✅ **No data sent anywhere**: no login, no Epic account, no telemetry. Network access: checking GitHub for new versions (can be turned off) and, only if you press **Look up** when estimating, asking fortnite-api.com for your matches this season (it sends your Epic id or name, nothing else).
+- ✅ **Reads replays, never changes them**: the `.replay` files in `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, opened for reading only.
+- ✅ **The game stays untouched**: FCT never enters the folder where Fortnite is installed.
+- ✅ **Away from its memory**: nothing is read from, written to or injected into the game's process.
+- ✅ **Your data stays with you**: there is no login, no Epic account to link and no telemetry. Network access: checking GitHub for new versions (can be turned off) and, only if you press **Look up** when estimating, asking fortnite-api.com for your matches this season (it sends your Epic id or name, nothing else).
 - ✅ **Lightweight**: low priority ("efficiency mode" on Windows 11) and it sleeps between matches.
 
 ## Treasures
@@ -148,7 +148,7 @@ Fortnite can record a **replay file** of every match on your PC. FCT reads those
 - **★★ Featured treasure.** The prizes of the week (outfit, pickaxe, vehicle, jam track, loading screen…) and the Pirate Shop Access. The server sends their **id**, so they show up with their name and type.
 - **★ Treasure gizmo.** One of the five gizmos (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator). The replay does not say which: the **post-match treasure screen** does, and FCT reads it by itself (see below). When it could not be read, it shows as "Treasure gizmo".
 - Every treasure shows the exact moment, the chest it came from and **who opened it** (you or a teammate): squad treasures are shared, so all of them count, as on the post-match screen.
-- A treasure obtained from something other than a chest (loot cannon, ammo box…) is flagged with ⚑.
+- ⚑ marks a treasure that came out of something that is not a chest (a loot cannon, an ammo box…).
 - **Post-match screen.** When Fortnite shows "Treasure found", FCT captures **the game window only** (even behind other windows, windowed or full screen), recognizes the icons and **deletes the image right away**: it is never saved. Everything is counted from the replay first, as always; the screen only names the gizmos and adds the ones the replay did not see (for example after your elimination), with **unknown** time and finder. If the game is minimized at that moment there is nothing to capture and the match keeps the replay data only. It does not touch the game process: the same technique as OBS window capture.
 - **Replay limit:** it only holds what the game sends to you. Once you are eliminated for good (no reboot) or leave the match, the squad's later treasures are not in the replay; only the post-match screen brings them back.
 
@@ -173,11 +173,11 @@ Everything is saved in `%APPDATA%\FCT`. **Your history does not depend on the re
 
 | File | Contents |
 |---|---|
-| `data.json` | Your whole history. **Back it up** if you change PC. |
+| `data.json` | Everything FCT has counted. **Copy it** when moving to another PC. |
 | `estadisticas.html` | The stats page. |
-| `matches.csv` | One line per match, for Excel or Google Sheets. |
+| `matches.csv` | Every match as a row, ready for Excel or Google Sheets. |
 | `config.json` | Settings, profile, replays folder and overlay position. |
-| `treasures.json` | Names of the treasure hunt prizes. |
+| `treasures.json` | What each treasure hunt prize is called. |
 | `overlay.html` | Copy of the overlay (for OBS, http://localhost:7373/ is better). |
 | `errors.log` | Replays that could not be read, to attach to a bug report. |
 

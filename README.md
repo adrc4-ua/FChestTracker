@@ -6,7 +6,7 @@
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/Fortnite-Chest-Tracker/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/adrc4-ua/Fortnite-Chest-Tracker?style=flat-square&label=licencia&color=555)](LICENSE)
 
-**Cuenta cada cofre que abres en Fortnite, partida tras partida: ventana, estadísticas, overlay sobre el juego y los cofres de tu equipo.**
+**Tu historial de cofres de Fortnite, partida a partida: en una ventana, en una página de estadísticas, encima del juego y con lo que abre tu equipo.**
 
 <img src="docs/images/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Estadísticas" width="49%">
 
@@ -16,7 +16,7 @@
 
 ---
 
-FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva la cuenta de los cofres que abres, de los **tesoros de la caza del tesoro** y, si quieres, de los cofres de tus **compañeros de equipo**. Todo se guarda en tu PC: aunque Fortnite borre los replays, tu historial se conserva.
+Fortnite puede guardar una repetición (replay) de cada partida. FCT las lee y apunta los cofres que abres, los **tesoros de la caza del tesoro** y, si lo activas, los cofres de tus **compañeros de equipo**. El historial vive en tu PC y no depende de los replays: aunque Fortnite los borre, lo contado se queda.
 
 - **Ventana principal**: total, última partida, hoy, mejor día, media, récord, tesoros, gráfico de la semana y tu equipo.
 - **Estadísticas** en el navegador, con pestañas: resumen, cofres, tesoros, partidas, compañeros y configuración.
@@ -24,14 +24,14 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 - **Compañeros**: con quién juegas, victorias juntos, cofres de cada uno por partida y un top.
 - **Seguro**: solo lee archivos de replay; no toca el juego ni su memoria.
 
-> Cuenta los cofres que **tú** abriste (y los que se vio abrir a tu equipo). No muestra dónde están los cofres en el mapa.
+> FCT apunta lo que **tú** abriste (y lo que se vio abrir a tu equipo). No es un mapa: no dice dónde hay cofres.
 
 ## Primeros pasos
 
-1. Descarga **[`FCT.exe`](../../releases/latest)**. Ese único archivo es todo lo que necesitas.
-2. En Fortnite activa *Ajustes → Juego → Repeticiones → **Grabar repeticiones*** (y *Modos de equipos grandes* si los juegas). Sin repeticiones no hay nada que leer.
-3. Ejecuta `FCT.exe`.
-   > Si Windows avisa, pulsa *Más información → Ejecutar de todas formas*. Pasa porque el programa aún no está firmado.
+1. Baja **[`FCT.exe`](../../releases/latest)**: no hay instalador ni nada más que descargar.
+2. Dentro de Fortnite, enciende *Ajustes → Juego → Repeticiones → **Grabar repeticiones*** (también *Modos de equipos grandes* si juegas esos modos). FCT solo cuenta partidas que tengan su repetición.
+3. Abre `FCT.exe`.
+   > Si sale el aviso azul de Windows, elige *Más información → Ejecutar de todas formas*: aparece mientras el exe no lleva firma.
 4. La bienvenida te recuerda lo de las repeticiones y, si ya tienes replays en el PC, te deja **contarlos** o empezar **solo con las próximas partidas**.
 
 <p align="center"><img src="docs/images/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
@@ -103,7 +103,7 @@ Con **Sumar sus cofres a tu total** (desactivado por defecto), tu total, media, 
 - **Cifras grandes**: tu **total** de cofres y, en el recuadro, la partida **anterior** (o la **actual**, en directo, mientras juegas).
 - **Hoy**, **media** de hoy por partida, **anterior** (durante una partida) y **tesoros**.
 
-Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. Solo se ve mientras Fortnite está abierto (sin minimizar) en alguna pantalla; entonces puedes ponerlo en cualquier pantalla y sitio, y se sigue viendo aunque uses otra ventana. No se puede sacar por los bordes. Al abrir FCT con Fortnite abierto se enciende; lo apagas con el botón **Overlay** o con Ctrl+Mayús+O.
+El overlay necesita Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*); con la pantalla completa exclusiva ninguna ventana puede quedar por encima del juego. Solo se ve mientras Fortnite está abierto (sin minimizar) en alguna pantalla; entonces puedes ponerlo en cualquier pantalla y sitio, y se sigue viendo aunque uses otra ventana. No se puede sacar por los bordes. Al abrir FCT con Fortnite abierto se enciende; lo apagas con el botón **Overlay** o con Ctrl+Mayús+O.
 
 ¿Transmites en directo? Mientras FCT está abierto, el mismo overlay está en **http://localhost:7373/** (cópialo desde **Configuración**). En OBS, añade una **fuente de navegador** con esa dirección: tiene fondo transparente y se actualiza sola.
 
@@ -111,9 +111,9 @@ Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Aj
 
 | Atajo | Qué hace |
 |---|---|
-| **Ctrl+Mayús+O** | Mostrar / ocultar el overlay. Funciona en cualquier sitio, incluso en el juego. |
-| **Ctrl+Mayús+L** | Bloquear / desbloquear el overlay. **Bloqueado**: el ratón lo atraviesa y no se mueve. **Desbloqueado**: arrástralo con el botón izquierdo. |
-| Clic derecho en el overlay | Ocultarlo. |
+| **Ctrl+Mayús+O** | Enciende o apaga el overlay, también con el juego delante. |
+| **Ctrl+Mayús+L** | Fija o suelta el overlay. **Fijo**: los clics pasan a través y no se mueve. **Suelto**: se arrastra con el botón izquierdo. |
+| Clic derecho sobre el overlay | Lo esconde. |
 | Botón **✕** del overlay (a la derecha del candado) | Cerrar FCT (la aplicación y el overlay). |
 
 ## Configuración
@@ -135,12 +135,12 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 
 ## Cómo funciona (y por qué es seguro)
 
-Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. FCT lee esos archivos y nada más.
+Todo sale de las repeticiones que Fortnite deja en tu PC; FCT no necesita nada más del juego.
 
-- ✅ **Solo lee archivos de repetición**: los `.replay` de `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, en modo solo lectura.
-- ✅ **Sin modificar el juego**: no toca la carpeta de instalación de Fortnite.
-- ✅ **Sin acceso a la memoria del juego**: nunca lee, escribe ni inyecta nada en el proceso de Fortnite.
-- ✅ **No envía datos**: sin inicio de sesión, sin cuenta de Epic, sin telemetría. Acceso a la red: buscar versiones nuevas en GitHub (se puede desactivar) y, solo si pulsas **Buscar** al estimar, consultar tus partidas de la temporada en fortnite-api.com (se envía tu id o nombre de Epic, nada más).
+- ✅ **Lee repeticiones, sin modificarlas**: los `.replay` de `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, abiertos solo para leer.
+- ✅ **El juego queda intacto**: no entra en la carpeta donde está instalado Fortnite.
+- ✅ **Lejos de su memoria**: no lee, escribe ni inyecta nada en el proceso del juego.
+- ✅ **Tus datos no salen de tu PC**: no hay inicio de sesión, no se vincula ninguna cuenta de Epic y no hay telemetría. Acceso a la red: buscar versiones nuevas en GitHub (se puede desactivar) y, solo si pulsas **Buscar** al estimar, consultar tus partidas de la temporada en fortnite-api.com (se envía tu id o nombre de Epic, nada más).
 - ✅ **Ligero**: prioridad baja ("modo de eficiencia" en Windows 11) y duerme entre partidas.
 
 ## Tesoros
@@ -148,7 +148,7 @@ Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. FC
 - **★★ Tesoro destacado.** Los premios de la semana (traje, pico, vehículo, pista, pantalla de carga…) y el acceso a la tienda pirata. El servidor envía su **id**, así que aparecen con su nombre y su tipo.
 - **★ Artilugio de tesoro.** Uno de los cinco artilugios (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator). El replay no dice cuál: lo dice la **pantalla de tesoros del final de la partida**, que FCT lee sola (ver abajo). Si no se pudo leer, aparece como "Artilugio de tesoro".
 - Cada tesoro aparece con el momento exacto, el cofre del que salió y **quién lo abrió** (tú o un compañero): los tesoros del escuadrón se reparten, así que cuentan todos, como en la pantalla de fin de partida.
-- Un tesoro que sale de algo que no es un cofre (cañón de botín, caja de munición…) se marca con ⚑.
+- ⚑ señala un tesoro que salió de algo que no es un cofre (un cañón de botín, una caja de munición…).
 - **Pantalla de fin de partida.** Cuando Fortnite muestra "Tesoro encontrado", FCT captura **solo la ventana del juego** (aunque esté detrás de otras ventanas, en ventana o a pantalla completa), reconoce los iconos y **borra la imagen en el acto**: nunca se guarda. Primero se cuenta todo con el replay, como siempre; la pantalla solo pone nombre a los artilugios y añade los que el replay no vio (por ejemplo, después de tu eliminación), con hora y jugador **desconocidos**. Si el juego está minimizado en ese momento, no hay nada que capturar y la partida queda solo con el replay. No toca el proceso del juego: la misma técnica que la captura de ventana de OBS.
 - **Límite del replay:** solo contiene lo que el juego te envía a ti. Si te eliminan definitivamente (sin reinicio) o sales de la partida, los tesoros que consiga el escuadrón después no están en el replay; solo la pantalla de fin de partida los recupera.
 
@@ -173,11 +173,11 @@ Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: c
 
 | Archivo | Contenido |
 |---|---|
-| `data.json` | Tu historial completo. **Haz copia de seguridad** si cambias de PC. |
+| `data.json` | Todo lo que FCT ha contado. **Cópialo** si te cambias de PC. |
 | `estadisticas.html` | Las estadísticas. |
-| `matches.csv` | Una línea por partida, para Excel o Google Sheets. |
+| `matches.csv` | Cada partida en una fila, lista para Excel o Google Sheets. |
 | `config.json` | Configuración de la app y del resumen, perfil, carpeta de replays y posición del overlay. |
-| `treasures.json` | Nombres de los premios de la caza del tesoro. |
+| `treasures.json` | Cómo se llama cada premio de la caza del tesoro. |
 | `overlay.html` | Copia del overlay (para OBS es mejor http://localhost:7373/). |
 | `errors.log` | Replays que no se pudieron leer, para adjuntar a un informe de error. |
 
