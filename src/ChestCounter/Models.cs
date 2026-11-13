@@ -106,6 +106,13 @@ public sealed class MatchRecord
     public List<TreasureFind> TreasureFinds { get; set; } = new();
     /// <summary>Teammates of the match (empty in solo). Null for matches analyzed before analyzer version 13.</summary>
     public List<TeammateRecord>? Teammates { get; set; }
+    /// <summary>
+    /// Moment of the final elimination of the player (no reboot afterwards), when the replay was recorded by them.
+    /// After it, the treasures the squad gets leave no trace in the replay (the player's ability system stops
+    /// replicating), so a treasure count lower than the post-match screen is expected. Null when they survived or
+    /// got rebooted (version 16+).
+    /// </summary>
+    public float? EliminatedAtSeconds { get; set; }
 
     /// <summary>How many non-chest interactions of a kind (ammo box, food box, loot cannon) this match has.</summary>
     public int Interactions(string kind) => OtherInteractions.Count > 0

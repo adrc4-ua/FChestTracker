@@ -134,8 +134,9 @@ Fortnite can record a **replay file** of every match on your PC. ChestCounter re
 ## Treasures
 
 - **★★ Golden chest (certain).** When a chest gives a treasure hunt prize (cosmetic, music track, vehicle…), the server spawns a golden chest carrying the **prize id**, which the tool reads from the replay.
-- **★ Every treasure received (exact moment)**, with the chest it came from; it only counts if that chest is **yours**. When the item cannot be identified it shows as **"Treasure gizmo"**.
+- **★ Every treasure received (exact moment)**, with the chest it came from and **who opened it** (you or a teammate): squad treasures are shared, so all of them count, as on the post-match screen. When the item cannot be identified it shows as **"Treasure gizmo"**.
 - A treasure obtained from something other than a chest (loot cannon, ammo box…) is flagged with ⚑.
+- **Limit:** the replay only holds what the game sends to you. Once you are eliminated for good (no reboot) or you leave the match, the treasures the squad gets afterwards **are not in the replay** and cannot be counted; the match shows ⚠ in the report. Nothing on the PC keeps them (not even the game log); the only complete source is the post-match screen.
 
 The game only sends prize ids: `treasures.json` names them and can be edited with Notepad.
 

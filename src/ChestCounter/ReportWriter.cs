@@ -668,6 +668,12 @@ public static class ReportWriter
         {
             var treasure = m.TreasureFinds.Count == 0 ? "<span class=\"muted\">—</span>"
                 : "<div class=\"tlist\">" + string.Concat(m.TreasureFinds.Select(f => $"<span class=\"star\">{(f.FromGoldenChest ? "★★" : "★")} {H(f.DisplayName)}</span>")) + "</div>";
+            // Eliminated with no reboot: the squad's treasures after that moment are not in the replay, so the
+            // count can be lower than the post-match screen. Said here so that the difference has an explanation.
+            if (m.EliminatedAtSeconds is float dead && m.Teammates is { Count: > 0 })
+            {
+                treasure += $"<div class=\"sm\" title=\"{H(L.T("Tras tu eliminación definitiva, los tesoros que consiga el escuadrón no quedan en el replay: pueden faltar respecto a la pantalla de fin de partida.", "After your final elimination, the treasures the squad gets are not in the replay: some may be missing compared with the post-match screen."))}\">⚠ {H(L.F("eliminado {0}, tesoros posteriores no visibles", "eliminated {0}, later treasures not visible", Pretty.Clock(dead)))}</div>";
+            }
             var placeClass = m.Placement switch { 1 => " win", > 0 and <= 10 => " top", _ => "" };
             var placeText = m.Placement == 1 ? "🏆 " + H(Pretty.Placement(m)) : H(Pretty.Placement(m));
             var own = withMates ? m.OwnChests : m.ChestsOpened;

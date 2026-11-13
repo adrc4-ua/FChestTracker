@@ -118,7 +118,7 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
     private readonly List<GrantEvent> _grants = new();
 
     /// <summary>Bump when the analysis changes so that existing replays are re-analyzed.</summary>
-    public const int CurrentVersion = 15; // 15: every prize handler grant is read; squad treasures with who found them. 14: chests behind instance names, refilled chests
+    public const int CurrentVersion = 16; // 16: final elimination recorded (squad treasures after it are not in the replay). 15: every prize handler grant is read; squad treasures with who found them. 14: chests behind instance names, refilled chests
 
     /// <summary>
     /// Set to an empty list before <see cref="Analyze"/> to get the cross-check of the match (--diagnose): the
@@ -843,6 +843,13 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
 
         finds.Sort((a, b) => (a.ObtainedAtSeconds ?? float.MaxValue).CompareTo(b.ObtainedAtSeconds ?? float.MaxValue));
 
+        // Eliminated for good (no later pawn): the ability system of the player stops replicating (measured: last
+        // change about 18 s after death), so a treasure found by a teammate after that moment leaves no prize grant
+        // in the replay. Recorded to explain a count lower than the post-match screen.
+        var lastPawnSeen = targetPawns.Select(p => _pawnSeenAt.GetValueOrDefault(p)).DefaultIfEmpty(0).Max();
+        var deadAt = targetPawns.Where(p => _pawnDyingAt.ContainsKey(p)).Select(p => _pawnDyingAt[p]).DefaultIfEmpty(-1f).Max();
+        float? eliminatedAt = isRecorderTarget && deadAt >= 0 && deadAt >= lastPawnSeen ? MathF.Round(deadAt, 1) : null;
+
         // --- Diagnosis (--diagnose): the independent signals of the replay side by side, and what does not match ----
         if (Diagnosis != null)
         {
@@ -850,6 +857,12 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
                 : matePawnNames.TryGetValue(pw, out var mn) ? mn : L.T("rival", "opponent");
             var squadGolden = finds.Count(f => f.FromGoldenChest);
             var otherGolden = _prizes.Count - squadGolden;
+            if (replay.Info is { } ri)
+            {
+                var startLocal = (replay.GameData?.UtcTimeStartedMatch ?? ri.Timestamp) is DateTime st ? DateTime.SpecifyKind(st, DateTimeKind.Utc).ToLocalTime() : (DateTime?)null;
+                Diagnosis.Add(L.F("Replay: {0} de duración{1}", "Replay: {0} long{1}", Pretty.Clock(ri.LengthInMs / 1000f),
+                    startLocal is DateTime sl ? L.F(" · partida iniciada a las {0:HH:mm:ss}, replay hasta las {1:HH:mm:ss}", " · match started at {0:HH:mm:ss}, replay until {1:HH:mm:ss}", sl, sl.AddMilliseconds(ri.LengthInMs)) : ""));
+            }
             Diagnosis.Add(L.F("Cofres: {0} tuyos ({1} destruidos, {2} reabiertos tras rellenarse) · otros contenedores: {3}",
                 "Chests: {0} yours ({1} destroyed, {2} reopened after a refill) · other containers: {3}",
                 chests.Count, chests.Count(c => c.Destroyed),
@@ -873,14 +886,10 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
                 Diagnosis.Add(L.T("  ⚠ El replay no lo grabó el jugador contado: las concesiones del premio no se ven, solo los cofres dorados.",
                     "  ⚠ The replay was not recorded by the counted player: prize grants are not visible, only golden chests."));
             }
-            // Eliminated for good (no later pawn): the ability system of the player stops replicating, so a treasure
-            // found by a teammate after that moment leaves no prize grant in the replay (measured: nothing after death).
-            var lastPawnSeen = targetPawns.Select(p => _pawnSeenAt.GetValueOrDefault(p)).DefaultIfEmpty(0).Max();
-            var deadAt = targetPawns.Where(p => _pawnDyingAt.ContainsKey(p)).Select(p => _pawnDyingAt[p]).DefaultIfEmpty(-1f).Max();
-            if (isRecorderTarget && deadAt >= 0 && deadAt >= lastPawnSeen)
+            if (eliminatedAt is float ea)
             {
                 Diagnosis.Add(L.F("  ⚠ Eliminado a las {0} sin reinicio: un tesoro que consiga el escuadrón después de ese momento no deja rastro en el replay.",
-                    "  ⚠ Eliminated at {0} with no reboot: a treasure the squad gets after that moment leaves no trace in the replay.", Pretty.Clock(deadAt)));
+                    "  ⚠ Eliminated at {0} with no reboot: a treasure the squad gets after that moment leaves no trace in the replay.", Pretty.Clock(ea)));
             }
             foreach (var f in finds)
             {
@@ -935,6 +944,7 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             Chests = chests,
             TreasureFinds = finds,
             Teammates = teammates,
+            EliminatedAtSeconds = eliminatedAt,
         };
     }
 }

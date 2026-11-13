@@ -134,8 +134,9 @@ Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. Ch
 ## Tesoros
 
 - **★★ Cofre dorado (seguro).** Cuando un cofre da un premio de la caza del tesoro (cosmético, pista musical, vehículo…), el servidor genera un cofre dorado con el **id del premio**, que la herramienta lee del replay.
-- **★ Cada tesoro recibido (momento exacto)**, con el cofre del que salió; solo cuenta si ese cofre es **tuyo**. Si el objeto no se puede identificar, aparece como **"Artilugio de tesoro"**.
+- **★ Cada tesoro recibido (momento exacto)**, con el cofre del que salió y **quién lo abrió** (tú o un compañero): los tesoros del escuadrón se reparten, así que cuentan todos, como en la pantalla de fin de partida. Si el objeto no se puede identificar, aparece como **"Artilugio de tesoro"**.
 - Un tesoro que sale de algo que no es un cofre (cañón de botín, caja de munición…) se marca con ⚑.
+- **Límite:** el replay solo contiene lo que el juego te envía a ti. Si te eliminan definitivamente (sin reinicio) o sales de la partida, los tesoros que consiga el escuadrón después **no quedan en el replay** y no se pueden contar; la partida lo indica con ⚠ en el informe. Nada en el PC los guarda (ni el log del juego); la única fuente completa es la pantalla de fin de partida.
 
 El juego solo envía ids de premios: `treasures.json` les pone nombre y se puede editar con el Bloc de notas.
 
