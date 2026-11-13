@@ -1,113 +1,125 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Win32;
 
 namespace FCT.App;
 
 /// <summary>
-/// One-time move from v1.0.0, published under the old name: data folder, Windows startup entry, standby process and
-/// the default names it wrote in treasures.json. It is the only place that knows the old name; it does nothing when
-/// there is nothing to move, and can be deleted once nobody runs v1.0.0 any more.
+/// One-time takeover from v1.0.0, which was published under the name "ChestCounter": its data folder, its startup entry,
+/// its background process and the placeholder prize names it wrote. Nothing happens when there is nothing to take
+/// over. This is the only code that knows the old name; it can go once nobody runs v1.0.0.
 /// </summary>
 internal static class Migration
 {
-    private const string OldName = "ChestCounter";
+    private const string V1Name = "ChestCounter";
+
+    /// <summary>Prize names v1.0.0 filled in by itself; the player never chose them.</summary>
+    private static readonly string[] V1PlaceholderNames =
+    {
+        "Plunder in Paradise (pantalla de carga)", "Plunder in Paradise (loading screen)",
+        "NO TRESPASSING (pista musical)", "NO TRESPASSING (jam track)", "No Trespassing (pista musical)",
+    };
 
     /// <summary>
-    /// Moves %APPDATA%\ChestCounter to <paramref name="folder"/> (only the default folder, only if it does not exist
-    /// yet). Waits up to <paramref name="wait"/> for v1.0.0 to close (after an update it is still closing). Returns
-    /// false when the old folder is still in use: the caller asks the player to close the old version.
+    /// Moves %APPDATA%\ChestCounter to <paramref name="folder"/> when that one does not exist yet. Waits up to
+    /// <paramref name="wait"/> for v1.0.0 to exit (right after an update it is still closing). False when v1.0.0 keeps
+    /// the folder: the caller then asks the player to close it.
     /// </summary>
     public static bool MoveDataFolder(string folder, TimeSpan wait)
     {
-        var old = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), OldName);
-        if (Directory.Exists(folder) || !File.Exists(Path.Combine(old, "data.json")))
+        var v1Folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), V1Name);
+        if (Directory.Exists(folder) || !File.Exists(Path.Combine(v1Folder, "data.json")))
         {
-            return true;
+            return true; // already moved, or never installed
         }
-        StopOldStandby();
-        var until = Stopwatch.StartNew();
-        // v1.0.0 still open (it does not keep its files open, so the move alone would not notice): it would go on
-        // writing to the old folder. Wait for it to close (after an update it is closing), else ask.
-        while (OldInstanceRunning(old))
+
+        SignalV1Standby();
+        var clock = Stopwatch.StartNew();
+        // v1.0.0 does not keep its files open, so a move would "succeed" under its feet: wait for it to be gone.
+        while (V1IsRunning(v1Folder))
         {
-            if (until.Elapsed >= wait)
+            if (clock.Elapsed >= wait)
             {
                 return false;
             }
             Thread.Sleep(500);
         }
-        while (true)
+
+        for (;;)
         {
             try
             {
-                Directory.Move(old, folder);
-                CleanTreasureNames(Path.Combine(folder, "treasures.json"));
-                RemoveOldStartupEntry();
-                return true;
+                Directory.Move(v1Folder, folder);
+                break;
             }
-            catch (IOException) when (until.Elapsed < wait)
+            catch (IOException) when (clock.Elapsed < wait)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(500); // still locked for a moment
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
                 return false;
             }
         }
+        DropPlaceholderNames(Path.Combine(folder, "treasures.json"));
+        DeleteV1StartupEntry();
+        return true;
     }
 
-    /// <summary>The single-instance mutex of v1.0.0 for its data folder (it used one per data folder).</summary>
-    private static bool OldInstanceRunning(string oldFolder)
+    /// <summary>v1.0.0 held one single-instance mutex per data folder, named after a hash of the folder.</summary>
+    private static bool V1IsRunning(string v1Folder)
     {
-        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(oldFolder).TrimEnd('\\', '/').ToLowerInvariant()));
-        if (Mutex.TryOpenExisting($@"Local\{OldName}.Instance." + Convert.ToHexString(hash, 0, 8), out var mutex))
+        var normalized = Path.GetFullPath(v1Folder).TrimEnd('\\', '/').ToLowerInvariant();
+        var name = $@"Local\{V1Name}.Instance.{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)), 0, 8)}";
+        if (!Mutex.TryOpenExisting(name, out var held))
         {
-            mutex.Dispose();
-            return true;
+            return false;
         }
-        return false;
+        held.Dispose();
+        return true;
     }
 
-    /// <summary>v1.0.0 wrote its default prize names (with "?" when unverified) and an empty name per gizmo.</summary>
-    private static void CleanTreasureNames(string path)
+    /// <summary>Keeps only names a player typed: not blank, not v1's "…?" guesses, not its placeholders.</summary>
+    private static void DropPlaceholderNames(string path)
     {
+        if (!File.Exists(path))
+        {
+            return;
+        }
         try
         {
-            if (!File.Exists(path))
-            {
-                return;
-            }
             var names = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path)) ?? new();
-            string[] defaults =
+            var chosen = new Dictionary<string, string>();
+            foreach (var (id, name) in names)
             {
-                "Plunder in Paradise (pantalla de carga)", "Plunder in Paradise (loading screen)",
-                "NO TRESPASSING (pista musical)", "NO TRESPASSING (jam track)", "No Trespassing (pista musical)",
-            };
-            var kept = names.Where(kv => !string.IsNullOrWhiteSpace(kv.Value) && !kv.Value.TrimEnd().EndsWith('?')
-                                         && !defaults.Contains(kv.Value.Trim(), StringComparer.OrdinalIgnoreCase))
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
-            File.WriteAllText(path, JsonSerializer.Serialize(kept, new JsonSerializerOptions { WriteIndented = true }));
-        }
-        catch
-        {
-            // not critical: the names are only shown instead of the catalogue ones
-        }
-    }
-
-    /// <summary>"Open with Fortnite" of v1.0.0: its standby process and its entry at Windows logon.</summary>
-    private static void StopOldStandby()
-    {
-        if (OperatingSystem.IsWindows() && EventWaitHandle.TryOpenExisting($@"Local\{OldName}.StandbyStop", out var stop))
-        {
-            using (stop)
-            {
-                stop.Set();
+                var placeholder = string.IsNullOrWhiteSpace(name) || name.TrimEnd().EndsWith('?')
+                    || Array.Exists(V1PlaceholderNames, p => p.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (!placeholder)
+                {
+                    chosen[id] = name;
+                }
             }
+            File.WriteAllText(path, JsonSerializer.Serialize(chosen, new JsonSerializerOptions { WriteIndented = true }));
+        }
+        catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
+        {
+            // only display names: the catalogue ones are shown instead
         }
     }
 
-    private static void RemoveOldStartupEntry()
+    /// <summary>Asks v1.0.0's background process ("open with Fortnite") to exit.</summary>
+    private static void SignalV1Standby()
+    {
+        if (OperatingSystem.IsWindows() && EventWaitHandle.TryOpenExisting($@"Local\{V1Name}.StandbyStop", out var stop))
+        {
+            stop.Set();
+            stop.Dispose();
+        }
+    }
+
+    private static void DeleteV1StartupEntry()
     {
         if (!OperatingSystem.IsWindows())
         {
@@ -115,12 +127,12 @@ internal static class Migration
         }
         try
         {
-            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
-            key?.DeleteValue(OldName, throwOnMissingValue: false);
+            using var run = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
+            run?.DeleteValue(V1Name, throwOnMissingValue: false);
         }
-        catch
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
         {
-            // not critical: the new entry is written separately when "Open with Fortnite" is on
+            // the current startup setup is written separately
         }
     }
 }
