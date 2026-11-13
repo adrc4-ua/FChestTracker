@@ -33,6 +33,9 @@ public static class ObsServer
     /// <summary>The stats file served at "/estadisticas".</summary>
     public static string? ReportFile { get; set; }
 
+    /// <summary>Language code of the current stats page (e.g. "es", "en"), returned by "/api/ping".</summary>
+    public static volatile string? ReportLang;
+
     /// <summary>Applies a setting changed on the Estadísticas page: (key, value) → accepted.</summary>
     public static Func<string, string, bool>? Settings { get; set; }
 
@@ -206,7 +209,7 @@ public static class ObsServer
                     ? ("200 OK", html, File.ReadAllText(ReportFile))
                     : ("404 Not Found", "text/plain", "stats page not ready");
             case ("GET", "/api/ping"):
-                return ("200 OK", json, "{\"ok\":true}");
+                return ("200 OK", json, $"{{\"ok\":true,\"lang\":\"{ReportLang ?? ""}\"}}");
             case ("POST", "/api/ajuste"):
                 return ChangeSetting(request, port);
             default:

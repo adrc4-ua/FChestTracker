@@ -19,6 +19,7 @@ public static class ReportWriter
             using (L.Scope(config.Language))
             {
                 WriteAtomic(store.ReportPath, Report(page, Profiles.View(data, page), Profiles.List(data, page), Profiles.InitialChests(data, page)));
+                FCT.Overlay.ObsServer.ReportLang = L.Code;
             }
             var view = Profiles.View(data, config);
             WriteAtomic(store.OverlayPath, Overlay(OverlayModel.Build(view, null, false, Profiles.InitialChests(data, config))));
@@ -257,9 +258,11 @@ public static class ReportWriter
         .setgrid>section{margin-top:0;display:flex;flex-direction:column} .setgrid>section>.card{flex:1}
         .si{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:11px;color:var(--gold-hi);background:linear-gradient(180deg,rgba(232,176,75,.22),rgba(232,176,75,.07));border:1px solid var(--gold-line)}
         .setrow .st{flex:1}
-        .setrow.col{flex-wrap:wrap} .setrow.col .sel{flex:1 1 100%;margin-left:52px;max-width:calc(100% - 52px)}
+        .setrow.col{flex-direction:column;align-items:center;text-align:center;gap:12px;padding:18px 0}
+        .setrow.col .st{flex:none;width:100%}
+        .setrow.col .sel{width:100%;max-width:260px;padding:9px 36px 9px 14px;text-align:center;text-align-last:center}
         @media (max-width:1250px){.setgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.setgrid>section:nth-child(3){margin-top:18px}}
-        .set{padding:2px 20px}
+        .set{padding:2px 20px;display:flex;flex-direction:column;justify-content:center}
         .setrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-top:1px solid var(--line)}
         .setrow:first-child{border-top:0}
         .setrow .st{min-width:0} .setrow .st b{display:block;font-weight:600} .setrow .st small{display:block;font-size:12.5px;color:var(--muted)}
@@ -271,8 +274,9 @@ public static class ReportWriter
         .sw input:checked+span::after{left:23px;background:#1a1206}
         .sw input:focus-visible+span{outline:2px solid var(--gold-hi);outline-offset:2px}
         .sw input:disabled{cursor:not-allowed} .sw input:disabled+span{opacity:.45}
-        .sel{appearance:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--bg2);border:1px solid var(--gold-line);border-radius:10px;padding:7px 34px 7px 12px;cursor:pointer;
+        .sel{appearance:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--bg2);border:1px solid var(--gold-line);border-radius:10px;padding:7px 34px 7px 12px;cursor:pointer;transition:border-color .15s,background-color .15s;
           background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(100% - 17px) 52%,calc(100% - 12px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+        .sel:hover:not(:disabled){border-color:var(--gold);background-color:rgba(232,176,75,.07)}
         .sel:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px} .sel:disabled{opacity:.5;cursor:not-allowed}
         .sel option{background:#151417;color:var(--ink)}
         .segc{display:inline-flex;flex:none;gap:3px;padding:3px;border:1px solid var(--line2);border-radius:10px;background:var(--bg2)}
@@ -441,8 +445,14 @@ public static class ReportWriter
                 if(c.type==='checkbox')c.checked=c.getAttribute('data-prev')==='1';else if(c.type==='radio'){var p=d.querySelector('[data-key="'+key+'"][value="'+c.getAttribute('data-prev')+'"]');[].forEach.call(d.querySelectorAll('[data-key="'+key+'"]'),function(x){x.checked=x.value===(p?p.value:'')})}else c.value=c.getAttribute('data-prev')})})});
         [].forEach.call(d.querySelectorAll('[data-key="updates"]'),function(x){x.setAttribute('data-prev',(d.querySelector('[data-key="updates"]:checked')||{}).value||'')});
         // Recarga sola; servida por FCT, solo si FCT sigue abierto (si no, un aviso en vez de una página de error).
-        var off=d.querySelector('.offline');
+        // Si cambia el idioma en la app mientras la página está abierta, recarga enseguida sin esperar al intervalo completo.
+        var off=d.querySelector('.offline'),docLang=d.documentElement.lang||'',missed=0;
         function busy(){var a=d.activeElement;return saving||(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest('.set'))}
+        if(live){setInterval(function(){if(saving)return;
+          fetch('/api/ping',{cache:'no-store'}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(j){
+            var wasDown=missed>=3;missed=0;if(off)off.hidden=true;
+            if((j.lang&&docLang&&j.lang!==docLang)||wasDown)location.reload();
+          }).catch(function(){missed++;if(missed>=3&&off){off.textContent=b.getAttribute('data-offline');off.hidden=false}})},1500)}
         setInterval(function(){if(busy())return;if(!live){location.reload();return}
           fetch('/api/ping',{cache:'no-store'}).then(function(r){if(r.ok)location.reload();else throw 0}).catch(function(){if(off){off.textContent=b.getAttribute('data-offline');off.hidden=false}})},(+b.getAttribute('data-refresh')||15)*1000);
         var y=get('cc-y',true);if(y)window.scrollTo(0,+y);addEventListener('pagehide',function(){put('cc-y',String(window.scrollY),true)});
@@ -667,7 +677,7 @@ public static class ReportWriter
             </div>
             <div class="setgrid">
               <section><div class="sh"><h2>{L.T("Idioma", "Language")}</h2></div><div class="card set">
-                {Row("lang", L.T("Idioma", "Language"), L.T("Se aplica también en la app (se reinicia sola)", "Also applied to the app (restarts automatically)"), $"<select class=\"sel\" data-key=\"lang\" aria-label=\"{H(L.T("Idioma", "Language"))}\">{langs}</select>", " col")}
+                {Row("lang", L.T("Idioma de la interfaz", "Interface language"), L.T("Se aplica también en la app (se reinicia sola)", "Also applied to the app (restarts automatically)"), $"<select class=\"sel\" data-key=\"lang\" aria-label=\"{H(L.T("Idioma de la interfaz", "Interface language"))}\">{langs}</select>", " col")}
               </div></section>
               <section><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2></div><div class="card set">
                 {Toggle("mates", "teammates", r.ShowTeammates, L.T("Mostrar compañeros", "Show teammates"), L.T("Con quién juegas y sus cofres (hasta 1.087 m de ti)", "Who you play with and their chests (up to 1,087 m from you)"))}

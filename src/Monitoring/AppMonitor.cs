@@ -76,6 +76,7 @@ public sealed class AppMonitor
         }
         RestartWatcher();
         ObsServer.ReportFile = _store.ReportPath;
+        ObsServer.ReportLang = L.Code;
         ObsServer.Settings = ApplyFromReport;
         ObsServer.Start(_config.ObsPort > 0 ? _config.ObsPort : ObsServer.DefaultPort);
         _gameLog = new GameLogWatcher(OnTreasureScreen);
