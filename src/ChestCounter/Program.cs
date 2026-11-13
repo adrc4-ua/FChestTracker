@@ -28,7 +28,7 @@ internal static class Program
 
         // Las opciones de línea de comandos escriben en la terminal que lanzó el exe; si no, la aplicación es una ventana
         // y la consola (que el código de análisis usa para sus mensajes) se oculta.
-        var cliMode = args.Any(a => a is "--once" or "--help" or "-h" or "--overlay-preview");
+        var cliMode = args.Any(a => a is "--once" or "--help" or "-h" or "--overlay-preview" or "--diagnose");
         if (OperatingSystem.IsWindows())
         {
             NativeConsole.Ensure(attachToParent: cliMode);
@@ -62,6 +62,7 @@ internal static class Program
         var auto = false;          // abierto por el proceso en espera cuando Fortnite arranca: se cierra solo al cerrar Fortnite
         var afterUpdate = false;   // reiniciado por el actualizador: espera a que la instancia anterior termine
         string? previewPath = null;
+        string? diagnosePath = null; // diagnóstico (no aparece en la ayuda): contrasta las señales de cada replay
         for (var i = 0; i < args.Length; i++)
         {
             switch (args[i])
@@ -72,6 +73,7 @@ internal static class Program
                 case "--once": once = true; break;
                 case "--reset-config": reset = true; break;
                 case "--overlay-preview": previewPath = args[++i]; break;
+                case "--diagnose": diagnosePath = args[++i]; break;
                 case "--auto": auto = true; break;
                 case "--after-update": afterUpdate = true; break;
                 case "-h":
@@ -105,7 +107,7 @@ internal static class Program
 
         // Una sola instancia por carpeta de datos: dos contarían las mismas partidas.
         using var instance = new Mutex(false, AppInfo.InstanceMutexFor(dataDir));
-        if (previewPath == null && !AcquireInstance(instance, afterUpdate ? TimeSpan.FromSeconds(20) : TimeSpan.Zero))
+        if (previewPath == null && diagnosePath == null && !AcquireInstance(instance, afterUpdate ? TimeSpan.FromSeconds(20) : TimeSpan.Zero))
         {
             if (auto)
             {
@@ -162,6 +164,42 @@ internal static class Program
                 Console.WriteLine(NativeOverlay.Snapshot(file)
                     ? L.F("Vista previa: {0}", "Preview: {0}", file)
                     : L.F("Error al capturar: {0}", "Capture failed: {0}", file));
+            }
+            return 0;
+        }
+
+        if (diagnosePath != null)
+        {
+            // Diagnóstico: lee un replay (o los de una carpeta) sin guardar nada y muestra, partida a partida, las
+            // señales independientes del replay (cofres, concesiones del premio, cofres dorados) y lo que no cuadra.
+            store.LoadPrizeNames();
+            var files = Directory.Exists(diagnosePath)
+                ? new DirectoryInfo(diagnosePath).GetFiles("*.replay").OrderBy(f => f.Name).ToList()
+                : new List<FileInfo> { new(diagnosePath) };
+            foreach (var f in files)
+            {
+                Console.WriteLine();
+                Console.WriteLine(f.Name);
+                if (!f.Exists || ReplayHeaderProbe.KeyMissing(f.FullName))
+                {
+                    Console.WriteLine(L.T("  No se puede leer (no existe o es una partida en curso).", "  Cannot be read (missing, or a match in progress)."));
+                    continue;
+                }
+                try
+                {
+                    using var ms = new MemoryStream(File.ReadAllBytes(f.FullName), writable: false);
+                    var analyzer = new ReplayAnalyzer { Diagnosis = new List<string>() };
+                    var m = analyzer.Analyze(ms, f.Name, "");
+                    Console.WriteLine($"  {L.DateTimeShort((m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime())} · {Pretty.Playlist(m.Playlist)} · {m.PlayerName}");
+                    foreach (var line in analyzer.Diagnosis)
+                    {
+                        Console.WriteLine("  " + line);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("  " + L.T("Error: ", "Error: ") + ex.Message);
+                }
             }
             return 0;
         }

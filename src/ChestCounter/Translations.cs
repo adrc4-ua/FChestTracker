@@ -51,6 +51,8 @@ internal static class Translations
         ["Puesto"] = new[] { "Colocação", "Место", "Place", "Platz", "Piazzamento", "Miejsce", "Sıralama", "順位" },
         ["Momento"] = new[] { "Momento", "Время", "Moment", "Zeitpunkt", "Momento", "Czas", "Zaman", "時刻" },
         ["Origen"] = new[] { "Origem", "Источник", "Origine", "Quelle", "Origine", "Źródło", "Kaynak", "入手元" },
+        ["Conseguido por"] = new[] { "Obtido por", "Кто получил", "Obtenu par", "Erhalten von", "Ottenuto da", "Zdobył", "Bulan", "入手者" },
+        ["Desconocido"] = new[] { "Desconhecido", "Неизвестно", "Inconnu", "Unbekannt", "Sconosciuto", "Nieznany", "Bilinmiyor", "不明" },
         ["Ignorado"] = new[] { "Ignorado", "Пропущено", "Ignoré", "Übersprungen", "Ignorato", "Pominięto", "Atlandı", "スキップ" },
 
         // Frases sueltas de la ventana y del overlay

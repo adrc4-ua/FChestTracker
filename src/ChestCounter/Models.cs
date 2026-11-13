@@ -19,6 +19,25 @@ public sealed class TreasureFind
     /// <summary>Name to display (re-resolved from treasures.json so renaming updates old matches).</summary>
     public string DisplayName => PrizeId != null ? TreasureNames.Friendly(PrizeId) : L.Name(Item);
 
+    public const string FinderSelf = "self", FinderTeammate = "teammate", FinderUnknown = "unknown";
+
+    /// <summary>
+    /// Who opened the chest that paid out: the tracked player ("self", also every treasure saved before analyzer
+    /// version 15, which only kept the player's own), a teammate ("teammate", see <see cref="FinderName"/>) or
+    /// "unknown" (received by the squad, but the chest is not in the replay: a teammate too far away).
+    /// </summary>
+    public string Finder { get; set; } = FinderSelf;
+    /// <summary>Name of the teammate who found it (null for the player's own and for unknown).</summary>
+    public string? FinderName { get; set; }
+
+    /// <summary>Name shown in the "obtained by" column of the report.</summary>
+    public string FinderLabel(MatchRecord match) => Finder switch
+    {
+        FinderTeammate => string.IsNullOrWhiteSpace(FinderName) ? L.T("Compañero", "Teammate") : FinderName,
+        FinderUnknown => L.T("Desconocido", "Unknown"),
+        _ => string.IsNullOrWhiteSpace(match.PlayerName) ? L.T("Tú", "You") : match.PlayerName,
+    };
+
     public string Item { get; set; } = "";
     public string RawItem { get; set; } = "";
     /// <summary>Prize id sent by the server with the golden chest, e.g. "DelilahPrize:dpid_item4".</summary>
@@ -326,21 +345,25 @@ public sealed class Store
     public string PrizeNamesPath => Path.Combine(Folder, "treasures.json");
     public string ErrorLogPath => Path.Combine(Folder, "errors.log");
 
-    /// <summary>Premios conocidos de la caza del tesoro (semana 1). Los ids nuevos se añaden solos con un nombre vacío.</summary>
+    /// <summary>
+    /// Premios conocidos de la caza del tesoro (semana 1), con el nombre oficial en inglés y el tipo traducido. Los ids
+    /// nuevos se añaden solos con un nombre vacío. El "?" marca una correspondencia id → premio sin confirmar: el
+    /// replay solo trae el id, y el premio hay que verlo en el juego al conseguirlo.
+    /// </summary>
     public static Dictionary<string, string> DefaultPrizeNames => L.Code != "es"
         ? new()
         {
-            ["DelilahPrize:dpid_item1"] = "A$AP Rocky solid gold gauntlets (pickaxe) ?",
+            ["DelilahPrize:dpid_item1"] = "Solid Gold Gauntlets (pickaxe) ?",
             ["DelilahPrize:dpid_item2"] = "Plunder in Paradise (loading screen)",
-            ["DelilahPrize:dpid_item3"] = "Mercedes-AMG G 63 (vehicle) ?",
-            ["DelilahPrize:dpid_item4"] = "No Trespassing (music track)",
+            ["DelilahPrize:dpid_item3"] = "Mercedes-AMG G 63 'G-Wagon' (vehicle) ?",
+            ["DelilahPrize:dpid_item4"] = "NO TRESPASSING (jam track)",
         }
         : new()
         {
-            ["DelilahPrize:dpid_item1"] = "Guanteletes de A$AP Rocky de oro macizo (pico) ?",
+            ["DelilahPrize:dpid_item1"] = "Solid Gold Gauntlets (pico) ?",
             ["DelilahPrize:dpid_item2"] = "Plunder in Paradise (pantalla de carga)",
-            ["DelilahPrize:dpid_item3"] = "Mercedes-AMG G 63 (vehículo) ?",
-            ["DelilahPrize:dpid_item4"] = "No Trespassing (pista musical)",
+            ["DelilahPrize:dpid_item3"] = "Mercedes-AMG G 63 'G-Wagon' (vehículo) ?",
+            ["DelilahPrize:dpid_item4"] = "NO TRESPASSING (pista musical)",
         };
 
     public void LoadPrizeNames()

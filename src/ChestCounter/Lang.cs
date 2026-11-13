@@ -142,11 +142,13 @@ public static class L
         ["Treasure"] = ("Tesoro", "Treasure"),
         ["Treasure (unknown type)"] = ("Tesoro (tipo desconocido)", "Treasure (unknown type)"),
         ["Treasure gizmo"] = ("Artilugio de tesoro", "Treasure gizmo"),
-        ["Golden firework"] = ("Fuego artificial dorado", "Golden firework"),
-        ["Portable extractor"] = ("Extractor portátil", "Portable extractor"),
-        ["Spirit locator"] = ("Localizador de espíritu", "Spirit locator"),
-        ["Lucky locator"] = ("Localizador afortunado", "Lucky locator"),
-        ["Extraction accelerator"] = ("Acelerador de extracción", "Extraction accelerator"),
+        // Artilugios de la caza del tesoro: nombre oficial en inglés en todos los idiomas (el nombre del juego en
+        // español no está verificado). Las claves no distinguen mayúsculas: valen también para el historial antiguo.
+        ["Golden Firework"] = ("Golden Firework", "Golden Firework"),
+        ["Portable Extractor"] = ("Portable Extractor", "Portable Extractor"),
+        ["Sprite Locator"] = ("Sprite Locator", "Sprite Locator"),
+        ["Lucky Locator"] = ("Lucky Locator", "Lucky Locator"),
+        ["Extraction Accelerator"] = ("Extraction Accelerator", "Extraction Accelerator"),
         ["unknown"] = ("desconocido", "unknown"),
     };
 
@@ -171,7 +173,8 @@ public static class L
         ["Gizmo de trésor"] = "Treasure gizmo",
         ["Feu d'artifice doré"] = "Golden firework",
         ["Extracteur portable"] = "Portable extractor",
-        ["Localisateur d'esprit"] = "Spirit locator",
+        ["Localisateur d'esprit"] = "Sprite Locator",
+        ["Spirit locator"] = "Sprite Locator", // nombre equivocado de versiones anteriores
         ["Localisateur chanceux"] = "Lucky locator",
         ["Accélérateur d'extraction"] = "Extraction accelerator",
         ["inconnu"] = "unknown",
