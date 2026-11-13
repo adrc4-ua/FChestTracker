@@ -104,31 +104,11 @@ public sealed class Tracker
     /// <param name="ignoreQuietPeriod">Read finished replays right away (--once).</param>
     public int Scan(bool ignoreQuietPeriod = false)
     {
-        HasPending = IsFinishing = false;
-        var ready = new List<FileInfo>();
-        foreach (var file in _folder.NotHandled().ToList())
-        {
-            file.Refresh();
-            if (!file.Exists)
-            {
-                continue;
-            }
-            var isReady = _folder.IsReady(file, ignoreQuietPeriod, out var justFinished);
-            IsFinishing |= justFinished;
-            if (isReady)
-            {
-                ready.Add(file);
-            }
-            else
-            {
-                HasPending = true;
-            }
-        }
+        var ready = ReadyReplays(ignoreQuietPeriod);
         if (ready.Count == 0)
         {
             return 0;
         }
-
         var results = ready.Count == 1 ? new List<ScanResult> { ReadOne(ready[0]) } : ReadBatch(ready);
         var added = results.Count(r => r.Match != null);
         if (added > 0 || ready.Count > 1)
@@ -136,6 +116,29 @@ public sealed class Tracker
             StatsPage.WriteAll(_store, _config, Data);
         }
         return added;
+    }
+
+    /// <summary>
+    /// The replays not handled yet that can be read now. Sets <see cref="HasPending"/> when some must still wait and
+    /// <see cref="IsFinishing"/> when one of them is a match that just ended.
+    /// </summary>
+    private List<FileInfo> ReadyReplays(bool ignoreQuietPeriod)
+    {
+        HasPending = IsFinishing = false;
+        var ready = _folder.NotHandled().ToList().Where(StillThere).ToLookup(replay =>
+        {
+            var canRead = _folder.IsReady(replay, ignoreQuietPeriod, out var justFinished);
+            IsFinishing |= justFinished;
+            return canRead;
+        });
+        HasPending = ready[false].Any();
+        return ready[true].ToList();
+    }
+
+    private static bool StillThere(FileInfo replay)
+    {
+        replay.Refresh();
+        return replay.Exists;
     }
 
     private ScanResult ReadOne(FileInfo file)
