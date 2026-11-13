@@ -350,7 +350,7 @@ public static class FortniteWatch
 
         using var stop = new EventWaitHandle(false, EventResetMode.AutoReset, AppInfo.StandbyStopEvent);
         try { Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.Idle; } catch { }
-        try { EcoQos.Enable(); } catch { }
+        try { EfficiencyMode.Enable(); } catch { }
         GC.Collect();
 
         var exe = AppInfo.ExePath;

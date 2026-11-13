@@ -4,71 +4,53 @@ using System.Runtime.Versioning;
 namespace FCT.App;
 
 /// <summary>
-/// The exe is a Windows application, so that the "start with Fortnite" standby process has no window at all.
-/// The normal tool gives itself a console window here, before anything is written.
+/// FCT.exe is built as a Windows (GUI) program so that its background launchers never flash a window. The command
+/// line options still need a console: this gives the process one, reusing the terminal that started it when possible.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public static class NativeConsole
 {
-    /// <param name="attachToParent">Command line use (--once, --help): write into the terminal that started the exe.</param>
+    /// <param name="attachToParent">True for command line options: print into the calling terminal.</param>
     public static void Ensure(bool attachToParent)
     {
-        if (GetConsoleWindow() != IntPtr.Zero)
+        var hasConsole = GetConsoleWindow() != IntPtr.Zero;
+        if (hasConsole || OutputIsRedirected())
         {
-            return; // already in a console (dotnet host, inherited)
+            return; // already a console, or output going to a file/pipe that Console writes to as it is
         }
-        if (IsRedirected(STD_OUTPUT_HANDLE))
+        if (!(attachToParent && AttachConsole(ParentProcess)))
         {
-            return; // output goes to a pipe or a file: Console uses it as is
+            AllocConsole();
         }
-        if (attachToParent && AttachConsole(ATTACH_PARENT_PROCESS))
-        {
-            return;
-        }
-        AllocConsole();
     }
 
-    /// <summary>Hides the console window: the app is a window, the console only keeps the log for the code that writes to it.</summary>
+    /// <summary>Hides the console: the window is the interface, the console only keeps what code writes to it.</summary>
     public static void Hide()
     {
-        var hwnd = GetConsoleWindow();
-        if (hwnd != IntPtr.Zero)
+        var console = GetConsoleWindow();
+        if (console != IntPtr.Zero)
         {
-            ShowWindow(hwnd, SW_HIDE);
+            ShowWindow(console, 0 /* SW_HIDE */);
         }
     }
 
-    /// <summary>Minimized without taking the focus (started with Fortnite: the game keeps the screen).</summary>
-    public static void Minimize()
+    private static bool OutputIsRedirected()
     {
-        var hwnd = GetConsoleWindow();
-        if (hwnd != IntPtr.Zero)
-        {
-            ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
-        }
-    }
-
-    private static bool IsRedirected(int std)
-    {
-        var h = GetStdHandle(std);
-        if (h == IntPtr.Zero || h == new IntPtr(-1))
+        var output = GetStdHandle(-11 /* STD_OUTPUT_HANDLE */);
+        if (output == IntPtr.Zero || output == new IntPtr(-1))
         {
             return false;
         }
-        var type = GetFileType(h);
-        return type is FILE_TYPE_DISK or FILE_TYPE_PIPE;
+        var kind = GetFileType(output);
+        return kind == 1 /* FILE_TYPE_DISK */ || kind == 3 /* FILE_TYPE_PIPE */;
     }
 
-    private const int STD_OUTPUT_HANDLE = -11;
-    private const int ATTACH_PARENT_PROCESS = -1;
-    private const uint FILE_TYPE_DISK = 1, FILE_TYPE_PIPE = 3;
-    private const int SW_SHOWMINNOACTIVE = 7;
-    private const int SW_HIDE = 0;
+    private const int ParentProcess = -1; // ATTACH_PARENT_PROCESS
 
     [DllImport("kernel32.dll")] private static extern IntPtr GetConsoleWindow();
     [DllImport("kernel32.dll")] private static extern bool AllocConsole();
     [DllImport("kernel32.dll")] private static extern bool AttachConsole(int processId);
-    [DllImport("kernel32.dll")] private static extern IntPtr GetStdHandle(int std);
+    [DllImport("kernel32.dll")] private static extern IntPtr GetStdHandle(int which);
     [DllImport("kernel32.dll")] private static extern uint GetFileType(IntPtr handle);
-    [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hwnd, int cmd);
+    [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr window, int command);
 }

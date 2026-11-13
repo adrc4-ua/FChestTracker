@@ -1,52 +1,74 @@
-using System.Runtime.Versioning;
-
 namespace FCT.Monitoring;
 
-/// <summary>Lo que muestra la ventana.</summary>
-public sealed record MonitorState(OverlayView View, IReadOnlyList<Profile> Profiles, string? CurrentKey, UpdateInfo? Update, string? Notice, bool AutoCloseOffer, ChestStats Stats)
+// What the monitor hands to the main window each time something changes. Immutable snapshots: the window only reads
+// them, on its own thread, so nothing here needs locking.
+
+/// <summary>A full snapshot for the main window.</summary>
+public sealed record MonitorState(
+    OverlayView View,
+    IReadOnlyList<Profile> Profiles,
+    string? CurrentKey,
+    UpdateInfo? Update,
+    string? Notice,
+    bool AutoCloseOffer,
+    ChestStats Stats)
 {
-    /// <summary>Equipo de la partida en curso o de la última (null si «Compañeros» está desactivado).</summary>
+    /// <summary>Squad of the match in progress, or of the last one; null when teammates are turned off.</summary>
     public TeamSummary? Team { get; init; }
 }
 
-/// <summary>Un compañero y los cofres que se le vieron abrir (un mínimo).</summary>
-public sealed record TeamMember(string Name, int Chests);
-
-/// <summary>
-/// Equipo de una partida para la ventana principal.
-/// <paramref name="Unknown"/>: partida analizada antes de guardar compañeros (sin datos de equipo).
-/// </summary>
-public sealed record TeamSummary(bool Live, int Mine, IReadOnlyList<TeamMember> Mates, bool Unknown)
-{
-    public int MatesTotal => Mates.Sum(m => m.Chests);
-    public int Total => Mine + MatesTotal;
-}
-
-/// <summary>Estadísticas del perfil mostrado (la partida en curso cuenta ya en hoy y en la mejor partida).</summary>
-/// <param name="Today">Cofres de hoy.</param>
-/// <param name="BestDay">Día con más cofres, o null si no hay partidas.</param>
-/// <param name="BestDayChests">Cofres de ese día.</param>
-/// <param name="Average">Media de cofres por partida terminada.</param>
-/// <param name="BestMatch">Cofres de la mejor partida.</param>
+/// <summary>Figures of the profile on screen; a match in progress already counts in today's and the best match.</summary>
+/// <param name="Matches">Finished matches counted.</param>
+/// <param name="Average">Chests per finished match.</param>
+/// <param name="BestMatch">Most chests in one match.</param>
+/// <param name="Treasures">Treasures found.</param>
+/// <param name="Today">Chests today.</param>
+/// <param name="BestDay">Day with the most chests (null without matches).</param>
+/// <param name="BestDayChests">Chests on <paramref name="BestDay"/>.</param>
 public sealed record ChestStats(int Matches, double Average, int BestMatch, int Treasures, int Today, DateTime? BestDay, int BestDayChests)
 {
     public static readonly ChestStats Empty = new(0, 0, 0, 0, 0, null, 0);
 
-    /// <summary>Cofres de los últimos 7 días, del más antiguo al de hoy (incluye la partida en curso).</summary>
+    /// <summary>The seven days of the chart, oldest first, today (with the match in progress) last.</summary>
     public IReadOnlyList<DayChests> LastDays { get; init; } = Array.Empty<DayChests>();
 
-    /// <summary>Partidas guardadas en el histórico (todas, no solo las 100 últimas; sobreviven aunque Fortnite borre el replay).</summary>
+    /// <summary>Every match in the saved history, also those whose replay Fortnite has already deleted.</summary>
     public int HistoryMatches { get; init; }
 
-    /// <summary>Fecha local de la primera partida del histórico, o null si no hay ninguna.</summary>
+    /// <summary>Local date of the oldest saved match (null when there is none).</summary>
     public DateTime? HistorySince { get; init; }
 
-    /// <summary>Resumen de la última partida terminada del perfil mostrado, o null si no hay ninguna.</summary>
+    /// <summary>The latest finished match of the profile (null when there is none).</summary>
     public LastMatchSummary? LastMatch { get; init; }
 }
 
-/// <summary>Cifras de la última partida: cofres abiertos (incluidos los destruidos), tesoros, puesto y eliminaciones.</summary>
+/// <summary>One day of the chart. <paramref name="Future"/>: a day of this week still to come.</summary>
+public sealed record DayChests(DateTime Day, int Chests, bool Future = false);
+
+/// <summary>The latest match: chests (broken ones included), how many of them were broken, treasures, place and eliminations.</summary>
 public sealed record LastMatchSummary(int Chests, int Destroyed, int Treasures, int? Placement, int? Players, int? Eliminations);
 
-/// <summary>Cofres de un día concreto. <paramref name="Future"/>: el día aún no ha llegado (resto de la semana).</summary>
-public sealed record DayChests(DateTime Day, int Chests, bool Future = false);
+/// <summary>
+/// The squad card. <paramref name="Unknown"/>: the match was read before teammates were recorded, so there is
+/// nothing to show about them.
+/// </summary>
+public sealed record TeamSummary(bool Live, int Mine, IReadOnlyList<TeamMember> Mates, bool Unknown)
+{
+    public int MatesTotal
+    {
+        get
+        {
+            var sum = 0;
+            foreach (var mate in Mates)
+            {
+                sum += mate.Chests;
+            }
+            return sum;
+        }
+    }
+
+    public int Total => Mine + MatesTotal;
+}
+
+/// <summary>A teammate and the chests seen (a minimum).</summary>
+public sealed record TeamMember(string Name, int Chests);

@@ -3,19 +3,23 @@ using System.Runtime.Versioning;
 
 namespace FCT.App;
 
-/// <summary>Icono de la ventana: el mismo icono de cofre que lleva el exe (ApplicationIcon).</summary>
+/// <summary>The icon of FCT.exe itself, for the windows' title bars (null lets Windows use its generic one).</summary>
 [SupportedOSPlatform("windows")]
 internal static class AppIcon
 {
     public static Icon? Load()
     {
+        if (Environment.ProcessPath is not { } exe)
+        {
+            return null;
+        }
         try
         {
-            return Environment.ProcessPath is { } path ? Icon.ExtractAssociatedIcon(path) : null;
+            return Icon.ExtractAssociatedIcon(exe);
         }
-        catch
+        catch (Exception ex) when (ex is IOException or ArgumentException or UnauthorizedAccessException)
         {
-            return null; // sin icono: Windows usa el genérico
+            return null;
         }
     }
 }

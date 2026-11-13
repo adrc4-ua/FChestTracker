@@ -435,7 +435,7 @@ internal static class Program
                 return;
             }
             try { Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.BelowNormal; } catch { }
-            try { EcoQos.Enable(); } catch { }
+            try { EfficiencyMode.Enable(); } catch { }
         }
     }
 }
