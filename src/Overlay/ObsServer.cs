@@ -33,8 +33,8 @@ public static class ObsServer
     /// <summary>The report file served at "/informe".</summary>
     public static string? ReportFile { get; set; }
 
-    /// <summary>Applies a setting changed on the report page: (key, value) → (accepted, the app restarts).</summary>
-    public static Func<string, string, (bool Ok, bool Restart)>? Settings { get; set; }
+    /// <summary>Applies a setting changed on the Resumen page: (key, value) → accepted.</summary>
+    public static Func<string, string, bool>? Settings { get; set; }
 
     /// <summary>Starts on the first free port from <paramref name="port"/> (a few tries). Safe to call twice.</summary>
     public static void Start(int port)
@@ -229,9 +229,8 @@ public static class ObsServer
         var pair = request.Body.Split('=', 2);
         var key = WebUtility.UrlDecode(pair[0]);
         var value = pair.Length > 1 ? WebUtility.UrlDecode(pair[1]) : "";
-        var (ok, restart) = Settings(key, value);
-        return ok
-            ? ("200 OK", json, $"{{\"ok\":true,\"restart\":{(restart ? "true" : "false")}}}")
+        return Settings(key, value)
+            ? ("200 OK", json, "{\"ok\":true}")
             : ("400 Bad Request", json, "{\"ok\":false}");
     }
 }

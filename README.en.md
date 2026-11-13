@@ -6,9 +6,9 @@
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=version&color=e8b04b)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=downloads&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![license](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=license&color=555)](LICENSE)
 
-**Counts every chest you open in Fortnite, match after match: window, report, in-game overlay and your team's chests.**
+**Counts every chest you open in Fortnite, match after match: window, summary, in-game overlay and your team's chests.**
 
-<img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Report" width="49%">
+<img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Summary" width="49%">
 
 [**⬇ Download FCT.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · Spanish and English
 
@@ -19,7 +19,7 @@
 FCT reads the replays Fortnite saves of every match and keeps count of the chests you open, the **treasure hunt treasures** and, if you want, your **teammates'** chests. Everything is saved on your PC: even when Fortnite deletes the replays, your history is kept.
 
 - **Main window**: total, last match, today, best day, average, best match, treasures, this week's chart and your team.
-- **Report** in your browser, with tabs: overview, chests, treasures, matches and teammates.
+- **Summary** in your browser, with tabs: overview, chests, treasures, matches, teammates and settings.
 - **Overlay** on top of the game and an **OBS page**.
 - **Teammates**: who you play with, wins together, each one's chests per match and a leaderboard.
 - **Safe**: it only reads replay files; it never touches the game or its memory.
@@ -49,13 +49,13 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 - **Right**: today, best day, average, best match, history (saved matches and since when) and treasures.
 - **This week**: a chart with each day's chests, Monday to Sunday.
 - **Team** (with *Teammates* on): your chests and each teammate's in the current or last match, the team total and their share.
-- **Buttons**: **Overlay** (green dot = on), **Report** and **Settings**. With several accounts on the PC, a profile picker shows up at the top.
+- **Buttons**: **Overlay** (green dot = on), **Summary** and **Settings**. With several accounts on the PC, a profile picker shows up at the top.
 
 The window can be resized and maximized: everything grows in proportion.
 
-## The report
+## The summary
 
-The report opens in your browser (the **Report** button), served by FCT at `http://localhost:7373/informe`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `report.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
+The summary opens in your browser (the **Summary** button), served by FCT at `http://localhost:7373/informe`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `report.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
 
 | Tab | What it shows |
 |---|---|
@@ -64,9 +64,9 @@ The report opens in your browser (the **Report** button), served by FCT at `http
 | **Treasures** | How many (featured and gizmos), % of matches with a treasure, **treasures available now** (this week's and, with a button, the five weeks in a row), where you get your treasures and the list with the exact moment and who got them. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
 | **Teammates** | Team chests, the table of **all your teammates** (sorts by matches, wins, chests, average…) and the top 5 for most chests opened and best single match (see below). |
-| **Settings** | Language, open with Fortnite, open the report at startup, updates, teammates, what counts as a chest, the FCT version and links to GitHub. Applied right away. |
+| **Settings** | The summary's own, which only change this page: its language (no restart), show teammates and add their chests, and what counts as a chest. Also the FCT version and links to GitHub. |
 
-<p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the report" width="820"></p>
+<p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the summary" width="820"></p>
 
 <details>
 <summary><b>See the other tabs</b></summary>
@@ -78,11 +78,11 @@ The report opens in your browser (the **Report** button), served by FCT at `http
 
 </details>
 
-Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; the report follows the app's language.
+Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; the summary follows its own language setting (the app's by default).
 
 ## Teammates and team
 
-Turn it on in **Settings → Teammates in the report** (off by default). You get:
+Turn it on in the summary's **Settings** (**Show teammates**) or, for the window, in the app's **Settings → Teammates in the window** (both off by default). You get:
 
 - **Exact**: who you play with, matches together and wins together.
 - **Approximate**: each teammate's chests. They come from **your** replay, and Fortnite only records what happens **within 1,087 m of you** (measured on real replays). If a teammate goes further, their chests are not counted: they are a **minimum (≥)**.
@@ -113,12 +113,14 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 
 ## Settings
 
+The app's (the **Settings** button) change the window and the overlay; the summary has its own, in its **Settings** tab.
+
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
 - **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick the other one.
 - **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
-- **Open the report at startup** (off by default).
-- **Teammates in the report** and **Add their chests to your total** (see above).
+- **Open the summary at startup** (off by default).
+- **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
 - **Chests before FCT**: an estimate added to your total.
 - **Updates**, **overlay for OBS**, **replays folder** and **Reset statistics** (with a backup).
@@ -150,7 +152,7 @@ There is no name to type: the player who recorded each replay is counted. With r
 
 ## Updates
 
-At startup, FCT checks GitHub for a new version and, by default, **installs it by itself** between two matches (your history and settings are kept). In Settings you can choose *Ask* or *Never* (no network access).
+FCT checks GitHub for a new version at startup and **every 30 minutes** while open, and by default **installs it by itself** between two matches (your history and settings are kept). The first time you open it, if it is not the latest version, it asks whether to download it; if you say no, updates switch to *Ask*. Versions published before the rename (ChestCounter) update too: every release carries a copy of the exe under that name; after updating, the file keeps its old name but runs FCT. In Settings you can choose *Ask* or *Never* (no network access).
 
 ## Your data
 
@@ -159,7 +161,7 @@ Everything is saved in `%APPDATA%\FCT`. **Your history does not depend on the re
 | File | Contents |
 |---|---|
 | `data.json` | Your whole history. **Back it up** if you change PC. |
-| `report.html` | The report. |
+| `report.html` | The summary. |
 | `matches.csv` | One line per match, for Excel or Google Sheets. |
 | `config.json` | Settings, profile, replays folder and overlay position. |
 | `treasures.json` | Names of the treasure hunt prizes. |
@@ -205,7 +207,7 @@ src/                         the app: FCT.csproj → FCT.exe
 ├─ Monitoring/               the background process (watches replays, overlay and updates)
 ├─ PostMatch/                post-match treasure screen: game window capture and icon reading
 ├─ Overlay/                  in-game overlay and its OBS version
-├─ Reporting/                HTML report
+├─ Reporting/                summary (HTML)
 ├─ UI/                       main window, settings and controls
 ├─ Localization/             app language; Languages/ to add languages (see its README)
 └─ Assets/                   icon

@@ -31,14 +31,38 @@ public static class L
     /// Código del idioma actual ("es", "en" o el de un archivo de idioma). Por defecto el de Windows; <see cref="Use"/>
     /// aplica el elegido en Ajustes. Para probar: la variable FCT_LANG fuerza el idioma por encima de todo.
     /// </summary>
-    public static string Code { get; private set; } = Detect();
+    public static string Code => _scope?.Code ?? _code;
 
     /// <summary>True cuando la interfaz va en inglés.</summary>
     public static bool En => Code == "en";
 
-    public static CultureInfo Culture { get; private set; } = CultureOf(Code);
+    public static CultureInfo Culture => _scope?.Culture ?? _culture;
 
-    private static Pack? Current = Packs.GetValueOrDefault(Code);
+    private static Pack? Current => _scope != null ? _scope.Pack : _current;
+
+    private static string _code = Detect();
+    private static CultureInfo _culture = CultureOf(_code);
+    private static Pack? _current = Packs.GetValueOrDefault(_code);
+
+    /// <summary>Idioma solo para este hilo mientras dura <see cref="Scope"/> (el Resumen puede ir en otro idioma que la app).</summary>
+    private sealed record Scoped(string Code, CultureInfo Culture, Pack? Pack);
+    [ThreadStatic] private static Scoped? _scope;
+
+    /// <summary>
+    /// Escribe en otro idioma lo que se genere en este hilo hasta que se libere (null o desconocido = el de la app).
+    /// Lo usa el Resumen, que tiene su propio idioma en su Configuración.
+    /// </summary>
+    public static IDisposable Scope(string? code)
+    {
+        var previous = _scope;
+        _scope = code != null && IsAvailable(code) ? new Scoped(code, CultureOf(code), Packs.GetValueOrDefault(code)) : null;
+        return new Restore(previous);
+    }
+
+    private sealed class Restore(Scoped? previous) : IDisposable
+    {
+        public void Dispose() => _scope = previous;
+    }
 
     /// <summary>Idioma de Windows (o el forzado con FCT_LANG), sin tener en cuenta lo elegido en Ajustes.</summary>
     public static string SystemCode => Detect();
@@ -52,9 +76,9 @@ public static class L
         var chosen = Environment.GetEnvironmentVariable("FCT_LANG") is { Length: > 0 } || code == null || !IsAvailable(code)
             ? Detect()
             : code;
-        Code = chosen;
-        Culture = CultureOf(chosen);
-        Current = Packs.GetValueOrDefault(chosen);
+        _code = chosen;
+        _culture = CultureOf(chosen);
+        _current = Packs.GetValueOrDefault(chosen);
     }
 
     private static bool IsAvailable(string code) => code is "es" or "en" || Packs.ContainsKey(code);
@@ -184,13 +208,14 @@ public static class L
         ["Treasure"] = ("Tesoro", "Treasure"),
         ["Treasure (unknown type)"] = ("Tesoro (tipo desconocido)", "Treasure (unknown type)"),
         ["Treasure gizmo"] = ("Artilugio de tesoro", "Treasure gizmo"),
-        // Artilugios de la caza del tesoro: nombre oficial en inglés en todos los idiomas (el nombre del juego en
-        // español no está verificado). Las claves no distinguen mayúsculas: valen también para el historial antiguo.
-        ["Golden Firework"] = ("Golden Firework", "Golden Firework"),
-        ["Portable Extractor"] = ("Portable Extractor", "Portable Extractor"),
-        ["Sprite Locator"] = ("Sprite Locator", "Sprite Locator"),
-        ["Lucky Locator"] = ("Lucky Locator", "Lucky Locator"),
-        ["Extraction Accelerator"] = ("Extraction Accelerator", "Extraction Accelerator"),
+        // Artilugios de la caza del tesoro. En data.json se guardan con su nombre inglés; en español, el del juego:
+        // «Extractor portátil» y «Localizador de la suerte» salen así en las notas oficiales de Epic; los otros tres,
+        // en guías en español y con el «espíritu» con que el juego traduce «Sprite». Las claves no distinguen mayúsculas.
+        ["Golden Firework"] = ("Fuegos artificiales dorados", "Golden Firework"),
+        ["Portable Extractor"] = ("Extractor portátil", "Portable Extractor"),
+        ["Sprite Locator"] = ("Localizador de espíritus", "Sprite Locator"),
+        ["Lucky Locator"] = ("Localizador de la suerte", "Lucky Locator"),
+        ["Extraction Accelerator"] = ("Acelerador de extracción", "Extraction Accelerator"),
         ["unknown"] = ("Desconocido", "Unknown"),
     };
 

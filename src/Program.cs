@@ -103,6 +103,8 @@ internal static class Program
             }
         }
 
+        // Carpeta de datos normal (no una de pruebas con --data): solo entonces se toca el inicio de Windows al empezar.
+        var defaultFolder = dataDir == null;
         if (dataDir == null)
         {
             dataDir = Store.DefaultFolder();
@@ -239,13 +241,36 @@ internal static class Program
             tracker.Scan(ignoreQuietPeriod: true);
             ReportWriter.WriteAll(store, config, data);
             tracker.PrintSummary();
-            Console.WriteLine(L.F("  Informe: {0}", "  Report: {0}", store.ReportPath));
+            Console.WriteLine(L.F("  Resumen: {0}", "  Summary: {0}", store.ReportPath));
             return 0;
         }
 
         // ---- Primer uso: aviso de las repeticiones y, si hay replays, si contarlos -------------------------------------------
         if (firstRun)
         {
+            // Una versión que no es la última: se ofrece descargar la nueva antes de empezar. Si se instala, arranca la
+            // nueva (que vuelve a dar la bienvenida); si no, las actualizaciones pasan a «Preguntar».
+            if (config.UpdateMode != "off" && AppInfo.ExePath != null && Updater.CheckAsync().GetAwaiter().GetResult() is { } newer)
+            {
+                if (InfoDialog.Confirm(null, L.F("Hay una versión más reciente de {0}", "A newer version of {0} is available", AppInfo.ShortName),
+                        L.T("Te recomendamos descargarla antes de empezar: tarda unos segundos.", "We recommend downloading it before you start: it takes a few seconds."),
+                        Array.Empty<InfoPoint>(), L.T("Descargar", "Download"), L.T("Ahora no", "Not now")))
+                {
+                    var error = Updater.Install(newer);
+                    if (error == null && AppInfo.ExePath is { } updatedExe)
+                    {
+                        try { instance.ReleaseMutex(); } catch { }
+                        Process.Start(new ProcessStartInfo(updatedExe, "--after-update") { UseShellExecute = true })?.Dispose();
+                        return 0;
+                    }
+                    MessageBox.Show(L.F("No se pudo actualizar: {0}", "Update failed: {0}", error), AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    config.UpdateMode = "prompt";
+                }
+            }
+
             // Bienvenida (con el diseño de la app): grabar replays y, si ya hay replays, si contarlos.
             var existing = tracker.UnprocessedFiles().Where(f => ReplayHeaderProbe.IsLive(f.FullName) != true).ToList();
             var points = new List<InfoPoint>
@@ -269,7 +294,8 @@ internal static class Program
             {
                 tracker.MarkSkipped(existing);
             }
-            // "Abrir con Fortnite" queda desactivado: se activa en Ajustes.
+            // «Abrir con Fortnite» viene activado: se puede quitar en Configuración. Solo se puede desde el .exe publicado.
+            config.StartWithFortnite = defaultFolder && OperatingSystem.IsWindows() && AppInfo.ExePath != null && FortniteWatch.Apply(true, dataDir);
         }
         store.SaveConfig(config);
 

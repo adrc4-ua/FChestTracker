@@ -76,8 +76,16 @@ public static class Prizes
     /// <summary>Prize behind an id in a week of the event (0: the week is not known, the first one that matches).</summary>
     public static Prize? ById(string? id, int week = 0) =>
         id == null ? null : All.FirstOrDefault(p => string.Equals(p.Id, id, StringComparison.OrdinalIgnoreCase) && (week == 0 || p.Week == 0 || p.Week == week));
+    /// <summary>Prize by its name: the stored (English) one or the one shown in the current language.</summary>
     public static Prize? ByName(string? name) =>
-        name == null ? null : All.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+        name == null ? null : All.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)
+                                                      || string.Equals(Shown(p), name, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Name shown for a prize: gizmos in the current language (their name in the game); the weekly cosmetics keep their
+    /// official name, which the Spanish game also uses.
+    /// </summary>
+    public static string Shown(Prize p) => p.Type == Kind.Gizmo ? L.Name(p.Name) : p.Name;
 
     public static string TypeName(Kind kind) => kind switch
     {
@@ -118,7 +126,7 @@ public static class Prizes
         // Gizmo read on the post-match screen.
         if (f.ScreenName is { } screenName && ByName(screenName) is { Type: Kind.Gizmo } read)
         {
-            return (read.Name, TypeName(Kind.Gizmo), false);
+            return (Shown(read), TypeName(Kind.Gizmo), false);
         }
 
         // Gizmo: named when the item is known, else the generic name.
@@ -128,7 +136,7 @@ public static class Prizes
             return (custom2, TypeName(Kind.Gizmo), false);
         }
         var item = TreasureNames.GizmoName(f.Item);
-        return ByName(item) is { Type: Kind.Gizmo } g ? (g.Name, TypeName(Kind.Gizmo), false) : (L.Name(TreasureNames.UnknownGizmo), null, false);
+        return ByName(item) is { Type: Kind.Gizmo } g ? (Shown(g), TypeName(Kind.Gizmo), false) : (L.Name(TreasureNames.UnknownGizmo), null, false);
     }
 
     private static string? NullIfEmpty(string s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();

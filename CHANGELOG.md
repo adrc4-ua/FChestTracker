@@ -4,6 +4,12 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Actualizaciones: se buscan al iniciar y cada 30 minutos mientras FCT está abierto. Cada release incluye también `ChestCounter.exe` (el mismo exe) para que las versiones de antes del cambio de nombre se actualicen.
+- Primer uso: si no es la última versión, pregunta si descargarla (si no, las actualizaciones quedan en *Preguntar*); «Abrir con Fortnite» viene activado.
+- «Informe» pasa a llamarse **Resumen** y «Ajustes» **Configuración**, en la app y en la página.
+- El resumen tiene su propia configuración (idioma sin reiniciar, compañeros, qué cuenta como cofre): solo cambia la página; la ventana y el overlay usan la de la app. «Abrir con Fortnite» y «Actualizaciones» quedan solo en la app.
+- Artilugios con su nombre en español cuando la app va en español (Extractor portátil, Localizador de la suerte, Localizador de espíritus, Acelerador de extracción, Fuegos artificiales dorados).
+- Resumen: seis últimas partidas (las dos columnas acaban a la vez); «Cofres del equipo abiertos por tus compañeros» en vez de «Aportan tus compañeros»; columnas numéricas centradas en todas las tablas; Configuración rediseñada.
 - Idiomas: la app y el informe quedan en español (de España) e inglés. Los demás idiomas se añaden con un archivo JSON por idioma (`src/Localization/Languages/`), que se genera con `dotnet run tools/i18n.cs -- <código>`.
 - Informe: pestaña **Ajustes** (idioma, abrir con Fortnite, abrir el informe al iniciar, actualizaciones, compañeros, qué contar como cofre, versión y enlaces a GitHub). El informe lo sirve FCT en `http://localhost:7373/informe` para poder cambiarlos desde la página; si FCT se cierra, la página lo avisa.
 - La versión ya no aparece en la app (ni en el título): solo en Ajustes del informe.

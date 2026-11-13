@@ -75,6 +75,36 @@ public sealed class Config
     /// </summary>
     public bool CountTeammateChests { get; set; }
 
+    /// <summary>
+    /// Settings of the Resumen page (its own Configuración tab): they only change what the page shows, never the
+    /// window or the overlay. Null in configs saved before it existed: it then starts from the app's settings.
+    /// </summary>
+    public ReportSettings? Report { get; set; }
+
+    /// <summary>The Resumen settings, created from the app's ones the first time.</summary>
+    [JsonIgnore]
+    public ReportSettings ReportView => Report ??= new ReportSettings
+    {
+        ShowTeammates = ShowTeammates,
+        CountTeammateChests = CountTeammateChests,
+        CountAmmoBoxes = CountAmmoBoxes,
+        CountFoodBoxes = CountFoodBoxes,
+        CountLootCannons = CountLootCannons,
+    };
+
+    /// <summary>A copy of these settings with the Resumen ones in place of the app's (to build the page).</summary>
+    public Config ForReport()
+    {
+        var r = ReportView;
+        var copy = (Config)MemberwiseClone();
+        copy.ShowTeammates = r.ShowTeammates;
+        copy.CountTeammateChests = r.CountTeammateChests;
+        copy.CountAmmoBoxes = r.CountAmmoBoxes;
+        copy.CountFoodBoxes = r.CountFoodBoxes;
+        copy.CountLootCannons = r.CountLootCannons;
+        return copy;
+    }
+
     /// <summary>Non-chest kinds the player chose to add to the chest total.</summary>
     public IReadOnlyCollection<string> ExtraKinds()
     {
@@ -84,4 +114,16 @@ public sealed class Config
         if (CountLootCannons) kinds.Add(ChestKinds.Cannon);
         return kinds;
     }
+}
+
+/// <summary>Settings that only affect the Resumen page.</summary>
+public sealed class ReportSettings
+{
+    /// <summary>Language of the page; null = the same as the app.</summary>
+    public string? Language { get; set; }
+    public bool ShowTeammates { get; set; }
+    public bool CountTeammateChests { get; set; }
+    public bool CountAmmoBoxes { get; set; }
+    public bool CountFoodBoxes { get; set; }
+    public bool CountLootCannons { get; set; }
 }

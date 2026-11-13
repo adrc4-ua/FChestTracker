@@ -57,8 +57,13 @@ jobs:
         with:
           name: FCT
           path: dist
-      - name: Attach FCT.exe to the release
+      # The same exe also goes as ChestCounter.exe: the versions published before the rename only update from an
+      # asset with that exact name (and only when their own file is called that). Once updated they run FCT and
+      # look for FCT.exe from then on. Keep this copy while anyone may still run a pre-rename version.
+      - name: Attach FCT.exe (and the copy for pre-rename versions) to the release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
-        run: gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
+        run: |
+          cp dist/FCT.exe dist/ChestCounter.exe
+          gh release upload "$TAG" dist/FCT.exe dist/ChestCounter.exe --clobber --repo "$GITHUB_REPOSITORY"

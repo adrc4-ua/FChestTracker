@@ -82,19 +82,36 @@ public sealed class AppMonitor
 
         new Thread(Loop) { IsBackground = true, Name = "Vigilancia" }.Start();
 
-        // Nueva versión en GitHub: única conexión de red de la herramienta (se puede desactivar en ajustes).
-        if (_config.UpdateMode != "off")
+    }
+
+    // Nueva versión en GitHub: única conexión de red de la herramienta (se puede desactivar en Configuración). Se mira
+    // al arrancar y luego cada 30 minutos mientras siga abierta, así una release nueva llega aunque no se cierre nunca.
+    private DateTime _nextUpdateCheck = DateTime.UtcNow;
+    private volatile bool _checkingUpdate;
+
+    private void PollUpdates()
+    {
+        if (_config.UpdateMode == "off" || _update != null || _checkingUpdate || DateTime.UtcNow < _nextUpdateCheck)
         {
-            _ = Task.Run(async () =>
+            return;
+        }
+        _checkingUpdate = true;
+        _nextUpdateCheck = DateTime.UtcNow.AddMinutes(30);
+        _ = Task.Run(async () =>
+        {
+            try
             {
-                var found = await Updater.CheckAsync();
-                if (found != null)
+                if (await Updater.CheckAsync() is { } found)
                 {
                     _update = found;
                     RequestPublish();
                 }
-            });
-        }
+            }
+            finally
+            {
+                _checkingUpdate = false;
+            }
+        });
     }
 
     public void Stop()
@@ -264,66 +281,37 @@ public sealed class AppMonitor
         }
     }
 
-    /// <summary>Dónde abrir el informe: servido por la app (su página de Ajustes funciona) o, si no, el archivo.</summary>
+    /// <summary>Dónde abrir el Resumen: servido por la app (su Configuración funciona) o, si no, el archivo.</summary>
     public string ReportTarget => ObsServer.ReportUrl ?? _store.ReportPath;
 
-    private static readonly string[] UpdateModes = { "prompt", "auto", "off" };
-
     /// <summary>
-    /// Ajuste cambiado en la página de Ajustes del informe (desde el hilo del servidor local). Devuelve si se aceptó
-    /// y si la app se va a reiniciar (idioma). El informe se rehace enseguida para que la página muestre el cambio.
+    /// Configuración cambiada en la página del Resumen (desde el hilo del servidor local). Solo toca los ajustes del
+    /// Resumen: la ventana y el overlay no cambian. La página se rehace enseguida, también en otro idioma (sin reiniciar).
     /// </summary>
-    private (bool Ok, bool Restart) ApplyFromReport(string key, string value)
+    private bool ApplyFromReport(string key, string value)
     {
         var on = value == "1";
-        var ok = true;
-        var restart = false;
-        switch (key)
+        Action<ReportSettings>? change = key switch
         {
-            case "lang":
-                var code = value.Length == 0 ? null : value;
-                if (code != null && !L.Languages.Any(l => l.Code == code))
-                {
-                    return (false, false);
-                }
-                Change(c => c.Language = code);
-                restart = true;
-                // Los textos se leen al arrancar: la app se reinicia, dando tiempo a que la página reciba la respuesta.
-                Task.Delay(800).ContinueWith(_ => Restart());
-                break;
-            case "fortnite":
-                ok = SetStartWithFortnite(on);
-                break;
-            case "openReport":
-                Change(c => c.OpenReportOnStart = on);
-                break;
-            case "teammates":
-                SetShowTeammates(on);
-                break;
-            case "countMates":
-                SetCountTeammates(on);
-                break;
-            case "ammo":
-                SetCountExtra(c => c.CountAmmoBoxes = on);
-                break;
-            case "food":
-                SetCountExtra(c => c.CountFoodBoxes = on);
-                break;
-            case "cannons":
-                SetCountExtra(c => c.CountLootCannons = on);
-                break;
-            case "updates" when UpdateModes.Contains(value):
-                Change(c => c.UpdateMode = value);
-                break;
-            default:
-                return (false, false);
+            "lang" when value.Length == 0 => r => r.Language = null,
+            "lang" when L.Languages.Any(l => l.Code == value) => r => r.Language = value,
+            "teammates" => r => r.ShowTeammates = on,
+            "countMates" => r => r.CountTeammateChests = on,
+            "ammo" => r => r.CountAmmoBoxes = on,
+            "food" => r => r.CountFoodBoxes = on,
+            "cannons" => r => r.CountLootCannons = on,
+            _ => null,
+        };
+        if (change == null)
+        {
+            return false;
         }
         _reportRequested = true;
-        _wake.Set();
-        return (ok, restart);
+        Change(c => change(c.ReportView));
+        return true;
     }
 
-    /// <summary>Mostrar u ocultar la sección «Compañeros» del informe. Rehace el informe enseguida.</summary>
+    /// <summary>Mostrar u ocultar los compañeros en la ventana.</summary>
     public void SetShowTeammates(bool show)
     {
         _reportRequested = true;
@@ -543,6 +531,7 @@ public sealed class AppMonitor
                 ErrorLog.Write("Vigilancia", ex);
             }
 
+            PollUpdates();
             changed |= CheckUpdate();
             changed |= ExpireNotice();
             if (_reportRequested)

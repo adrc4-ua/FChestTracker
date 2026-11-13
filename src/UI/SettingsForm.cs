@@ -33,7 +33,7 @@ public sealed class SettingsForm : Form
         _monitor = monitor;
         var config = monitor.Config;
 
-        Text = L.T("Ajustes", "Settings");
+        Text = L.T("Configuración", "Settings");
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
@@ -48,7 +48,7 @@ public sealed class SettingsForm : Form
         Icon = AppIcon.Load();
 
         // Cabecera, como en la ventana principal.
-        Lbl(this, L.T("AJUSTES", "SETTINGS"), 8.5f, FontStyle.Bold, Theme.Cyan, new Point(LeftX, 14), new Size(200, 18));
+        Lbl(this, L.T("CONFIGURACIÓN", "SETTINGS"), 8.5f, FontStyle.Bold, Theme.Cyan, new Point(LeftX, 14), new Size(200, 18));
         AddLanguagePicker(config.Language, new Point(RightX, 9));
 
         // ---- Columna izquierda ---------------------------------------------------------------
@@ -71,12 +71,12 @@ public sealed class SettingsForm : Form
                 _loading = false;
                 MessageBox.Show(this,
                     L.F("No se puede desde aquí: abre {0} desde su archivo .exe.", "Not possible from here: open {0} from its .exe file.", AppInfo.ShortName),
-                    L.T("Ajustes", "Settings"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    L.T("Configuración", "Settings"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         };
-        _report = AddToggleRow(start, L.T("Abrir el informe al iniciar", "Open the report at startup"), null, 64, config.OpenReportOnStart);
+        _report = AddToggleRow(start, L.T("Abrir el resumen al iniciar", "Open the summary at startup"), null, 64, config.OpenReportOnStart);
         _report.CheckedChanged += (_, _) => { if (!_loading) _monitor.Change(c => c.OpenReportOnStart = _report.Checked); };
-        var mates = AddToggleRow(start, L.T("Compañeros en el informe", "Teammates in the report"),
+        var mates = AddToggleRow(start, L.T("Compañeros en la ventana", "Teammates in the window"),
             L.T("Sus cofres: hasta 1.087 m de ti", "Their chests: up to 1,087 m from you"), 94, config.ShowTeammates);
         mates.CheckedChanged += (_, _) =>
         {
@@ -84,9 +84,9 @@ public sealed class SettingsForm : Form
             {
                 return;
             }
-            if (mates.Checked && !InfoDialog.Confirm(this, L.T("Compañeros en el informe", "Teammates in the report"),
-                    L.T("La ventana y el informe mostrarán con quién juegas y los cofres de cada compañero.",
-                        "The window and the report will show who you play with and each teammate's chests."),
+            if (mates.Checked && !InfoDialog.Confirm(this, L.T("Compañeros en la ventana", "Teammates in the window"),
+                    L.T("La ventana mostrará tu equipo y los cofres de cada compañero. El resumen tiene su propia configuración.",
+                        "The window will show your team and each teammate's chests. The summary has its own settings."),
                     new[] { ExactPoint(), ApproxPoint() },
                     L.T("Activar", "Turn on"), L.T("Cancelar", "Cancel")))
             {

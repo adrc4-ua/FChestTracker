@@ -147,11 +147,11 @@ public sealed class MainForm : Form
         Controls.Add(_update);
 
         // Botones de acción.
-        _overlayButton = Action(L.T("Overlay", "Overlay"), RightX);
+        _overlayButton = Action(L.T("Overlay", "Overlay"), RightX, 80);
         _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
-        _reportButton = Action(L.T("Informe", "Report"), RightX + 95);
+        _reportButton = Action(L.T("Resumen", "Summary"), RightX + 86, 86);
         _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
-        _settingsButton = Action(L.T("Ajustes", "Settings"), RightX + 190);
+        _settingsButton = Action(L.T("Configuración", "Settings"), RightX + 178, RightW - 178);
         _settingsButton.Click += (_, _) => OpenSettings();
 
         // Icono en el área de notificación (la flecha hacia arriba de la barra de tareas): el programa sigue ahí
@@ -161,8 +161,8 @@ public sealed class MainForm : Form
         openItem.Font = new Font(openItem.Font, FontStyle.Bold);
         trayMenu.Items.Add(openItem);
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
-        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Informe", "Report"), null, (_, _) => Open(_monitor.ReportTarget)));
-        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Ajustes", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Resumen", "Summary"), null, (_, _) => Open(_monitor.ReportTarget)));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Configuración", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
         trayMenu.Items.Add(new ToolStripSeparator());
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => Close()));
         _tray = new NotifyIcon
@@ -524,9 +524,14 @@ public sealed class MainForm : Form
         return Lbl(card, "—", 15f, FontStyle.Bold, valueColor, new Point(12, 31), new Size(117, 28));
     }
 
-    private PillButton Action(string text, int x)
+    private PillButton Action(string text, int x, int width)
     {
-        var b = new PillButton { Text = text, Location = new Point(x, 277), Size = new Size(88, 40), Radius = 11 };
+        var b = new PillButton { Text = text, Location = new Point(x, 277), Size = new Size(width, 40), Radius = 11 };
+        // Un texto que no cabe (otro idioma, letra grande) se reduce un poco en vez de cortarse.
+        while (TextRenderer.MeasureText(text, b.Font).Width > width - 12 && b.Font.Size > 7f)
+        {
+            b.Font = new Font(b.Font.FontFamily, b.Font.Size - 0.5f, b.Font.Style);
+        }
         Controls.Add(b);
         return b;
     }
