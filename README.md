@@ -123,9 +123,9 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.
 - **Cofres antes de FCT**: un estimado que se suma a tu total. Con **Estimar…** (también se pregunta la primera vez) eliges *solo repeticiones guardadas* o *repeticiones + estimación*:
-  - **Partidas totales**: búscalas por tu nombre de Epic (si la versión puede consultarlas) o mira el número en [fortnite.gg](https://fortnite.gg/stats) y escríbelo. Si tus estadísticas son privadas, se avisa de que por eso no se pueden consultar.
+  - **Partidas de la temporada actual**: búscalas por tu nombre de Epic (si la versión puede consultarlas) o mira el número de la temporada en [fortnite.gg](https://fortnite.gg/stats) y escríbelo. Si tus estadísticas son privadas, se avisa de que por eso no se pueden consultar.
   - **Media de cofres por partida**: la de tus repeticiones junto con las **partidas nuevas** que juegues desde ese momento (eliges cuántas: 5 por defecto, **10 recomendado**; cuantas más, más acertada). Cada repetición pesa como una partida nueva, así que cuantas más repeticiones tengas, más cuentan. O escríbela a mano.
-  - **Estimado** = media × (partidas totales − repeticiones ya contadas). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.
+  - **Estimado** = media × (partidas de la temporada − repeticiones ya contadas). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.
 - **Actualizaciones**, **overlay para OBS**, **carpeta de replays** y **Restablecer estadísticas** (con copia de seguridad).
 
 ## Cómo funciona (y por qué es seguro)
@@ -135,7 +135,7 @@ Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. FC
 - ✅ **Solo lee archivos de repetición**: los `.replay` de `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, en modo solo lectura.
 - ✅ **Sin modificar el juego**: no toca la carpeta de instalación de Fortnite.
 - ✅ **Sin acceso a la memoria del juego**: nunca lee, escribe ni inyecta nada en el proceso de Fortnite.
-- ✅ **No envía datos**: sin inicio de sesión, sin cuenta de Epic, sin telemetría. Acceso a la red: buscar versiones nuevas en GitHub (se puede desactivar) y, solo si pulsas **Buscar** al estimar, consultar tus partidas totales en fortnite-api.com (se envía tu id o nombre de Epic, nada más).
+- ✅ **No envía datos**: sin inicio de sesión, sin cuenta de Epic, sin telemetría. Acceso a la red: buscar versiones nuevas en GitHub (se puede desactivar) y, solo si pulsas **Buscar** al estimar, consultar tus partidas de la temporada en fortnite-api.com (se envía tu id o nombre de Epic, nada más).
 - ✅ **Ligero**: prioridad baja ("modo de eficiencia" en Windows 11) y duerme entre partidas.
 
 ## Tesoros

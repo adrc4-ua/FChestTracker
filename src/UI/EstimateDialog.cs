@@ -79,8 +79,8 @@ public sealed class EstimateDialog : Form
         var inner = pw - 28;
         var py = 14;
 
-        // 1 · Partidas totales.
-        py = AddText(_panel, L.T("1 · Tus partidas totales en Fortnite", "1 · Your total matches in Fortnite"), Theme.Text(9.5f, FontStyle.Bold), Theme.Ink, 14, py, inner) + 6;
+        // 1 · Partidas de la temporada actual (la estimación solo cubre esta temporada).
+        py = AddText(_panel, L.T("1 · Tus partidas de esta temporada", "1 · Your matches this season"), Theme.Text(9.5f, FontStyle.Bold), Theme.Ink, 14, py, inner) + 6;
         var buttons = StatsClient.Available ? 2 : 1;
         var fieldW = inner - buttons * (100 + 8);
         _name = Field(_panel, new Point(14, py), fieldW, playerName ?? "", Theme.Text(9.5f), Theme.Ink);
@@ -101,8 +101,8 @@ public sealed class EstimateDialog : Form
         _total.TextChanged += (_, _) => { _source = "manual"; UpdatePreview(); };
         _status = new Label { Location = new Point(14 + 150 + 12, py), Size = new Size(inner - 150 - 12, 38), Font = Theme.Text(8.5f), ForeColor = Theme.Muted, BackColor = Color.Transparent, TextAlign = ContentAlignment.MiddleLeft };
         _status.Text = StatsClient.Available
-            ? L.T("Pulsa «Buscar» o escribe el número que ves en fortnite.gg.", "Press «Look up» or type the number shown on fortnite.gg.")
-            : L.T("Míralo en fortnite.gg (botón de arriba) y escríbelo aquí.", "Look it up on fortnite.gg (button above) and type it here.");
+            ? L.T("Pulsa «Buscar» o escribe las partidas de la temporada actual que ves en fortnite.gg.", "Press «Look up» or type the current season's matches shown on fortnite.gg.")
+            : L.T("Mira las partidas de la temporada actual en fortnite.gg (botón de arriba) y escríbelas aquí.", "Look up the current season's matches on fortnite.gg (button above) and type them here.");
         _panel.Controls.Add(_status);
         py += 38 + 16;
 
@@ -226,7 +226,7 @@ public sealed class EstimateDialog : Form
         _ok.Enabled = total > 0 && (!_manualAverage || typed != null);
         if (total <= 0)
         {
-            _preview.Text = L.T("Escribe o busca tus partidas totales.", "Type or look up your total matches.");
+            _preview.Text = L.T("Escribe o busca tus partidas de esta temporada.", "Type or look up your matches this season.");
             return;
         }
         if (_manualAverage && typed == null)
@@ -278,7 +278,7 @@ public sealed class EstimateDialog : Form
                 _total.Text = answer.Matches.ToString(CultureInfo.InvariantCulture);
                 _source = "api";
                 _status.ForeColor = Theme.Mint;
-                _status.Text = L.F("{0}: {1} en total.", "{0}: {1} in total.", answer.Name ?? _name.Text.Trim(), L.Count(answer.Matches, "partida", "partidas", "match", "matches"));
+                _status.Text = L.F("{0}: {1} esta temporada.", "{0}: {1} this season.", answer.Name ?? _name.Text.Trim(), L.Count(answer.Matches, "partida", "partidas", "match", "matches"));
                 break;
             case StatsClient.Outcome.Private:
                 _status.ForeColor = Theme.Amber;

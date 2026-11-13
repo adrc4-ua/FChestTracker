@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace FCT.App;
 
 /// <summary>
-/// Total Battle Royale matches of a player, from fortnite-api.com (public stats). Only called when the player asks
+/// Battle Royale matches of a player in the current season, from fortnite-api.com (public stats). Only called when the player asks
 /// for it (estimate of the chests before FCT). It needs the project's key, put in the exe when it is built (GitHub
 /// secret FORTNITE_API_KEY; for tests, the variable FCT_FORTNITE_API_KEY). Without a key the player types the number.
 /// </summary>
@@ -22,7 +22,7 @@ public static class StatsClient
     /// <summary>True when this build can look the matches up by itself.</summary>
     public static bool Available => Key != null;
 
-    /// <summary>Lifetime matches of the player: by account id when known, else by Epic name.</summary>
+    /// <summary>Matches of the player in the current season (timeWindow=season): by account id when known, else by Epic name.</summary>
     public static async Task<Answer> TotalMatchesAsync(string? accountId, string? name)
     {
         if (Key is not { } key)
@@ -35,8 +35,8 @@ public static class StatsClient
             return new Answer(Outcome.NotFound);
         }
         var url = byId
-            ? $"https://fortnite-api.com/v2/stats/br/v2/{accountId}"
-            : $"https://fortnite-api.com/v2/stats/br/v2?name={Uri.EscapeDataString(name!.Trim())}&accountType=epic";
+            ? $"https://fortnite-api.com/v2/stats/br/v2/{accountId}?timeWindow=season"
+            : $"https://fortnite-api.com/v2/stats/br/v2?name={Uri.EscapeDataString(name!.Trim())}&accountType=epic&timeWindow=season";
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(12) };
@@ -54,7 +54,10 @@ public static class StatsClient
             }
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var data = doc.RootElement.GetProperty("data");
-            var matches = data.GetProperty("stats").GetProperty("all").GetProperty("overall").GetProperty("matches").GetInt32();
+            // Sin partidas esta temporada, "overall" llega vacío (null): son 0.
+            var matches = data.TryGetProperty("stats", out var stats) && stats.TryGetProperty("all", out var all)
+                && all.ValueKind == JsonValueKind.Object && all.TryGetProperty("overall", out var overall)
+                && overall.ValueKind == JsonValueKind.Object && overall.TryGetProperty("matches", out var count) ? count.GetInt32() : 0;
             var shown = data.TryGetProperty("account", out var account) && account.TryGetProperty("name", out var n) ? n.GetString() : null;
             return new Answer(Outcome.Ok, matches, shown);
         }
