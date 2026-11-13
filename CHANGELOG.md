@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Tesoros que la repetición no ve** (conseguidos después de morir): la pantalla de fin de partida los suma siempre, con su nombre si se lee y sin él si no; una tarjeta ilegible ya no hace perder la pantalla entera, y también se suman los tesoros destacados. Cada pantalla se asocia solo a su partida: antes, una partida sin pantalla leída podía quedarse con la de la siguiente.
 - **Pantalla de tesoros de fin de partida**: ahora se leen bien las tarjetas cuyo icono las cruza o las llena (Acelerador de extracción, fuegos artificiales) y ya no se confunde el rótulo dorado de «Victoria» con una tarjeta. Comprobado con capturas reales: acelerador, localizador de la suerte + fuegos, localizador de espíritus, fuegos y extractor portátil. Se capturan más veces (durante 9 s) para no llegar antes de que aparezcan todas.
 - **Firma del ejecutable preparada** (SignPath, gratis para código abierto): [política de firma](CODE_SIGNING_POLICY.md) y paso de firma en el flujo de GitHub, que se activa en cuanto SignPath esté configurado. Hasta entonces Windows puede avisar al abrir el exe (README: *Más información → Ejecutar de todas formas*).
 - Las releases ya no llevan la copia `ChestCounter.exe`: las versiones de antes del cambio de nombre ya no se actualizan solas (hay que descargar `FCT.exe` una vez).
