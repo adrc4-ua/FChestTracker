@@ -55,7 +55,7 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 
 ## Las estadísticas
 
-La página de estadísticas se abre en tu navegador (botón **Estadísticas**), servida por FCT en `http://localhost:7373/estadisticas`, y se actualiza sola; si cierras FCT, la página avisa en vez de dar error. También queda guardada como `report.html`. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
+La página de estadísticas se abre en tu navegador (botón **Estadísticas**), servida por FCT en `http://localhost:7373/estadisticas`, y se actualiza sola; si cierras FCT, la página avisa en vez de dar error. También queda guardada como `estadisticas.html`. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
 
 | Pestaña | Qué muestra |
 |---|---|
@@ -163,7 +163,7 @@ Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: c
 | Archivo | Contenido |
 |---|---|
 | `data.json` | Tu historial completo. **Haz copia de seguridad** si cambias de PC. |
-| `report.html` | Las estadísticas. |
+| `estadisticas.html` | Las estadísticas. |
 | `matches.csv` | Una línea por partida, para Excel o Google Sheets. |
 | `config.json` | Configuración de la app y del resumen, perfil, carpeta de replays y posición del overlay. |
 | `treasures.json` | Nombres de los premios de la caza del tesoro. |

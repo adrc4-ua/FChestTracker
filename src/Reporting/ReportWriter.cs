@@ -19,6 +19,10 @@ public static class ReportWriter
             using (L.Scope(config.Language))
             {
                 WriteAtomic(store.ReportPath, Report(page, Profiles.View(data, page), Profiles.List(data, page), Profiles.InitialChests(data, page)));
+                if (File.Exists(store.OldReportPath))
+                {
+                    try { File.Delete(store.OldReportPath); } catch { /* abierto en el navegador: la próxima vez */ }
+                }
                 FCT.Overlay.ObsServer.ReportLang = L.Code;
             }
             var view = Profiles.View(data, config);
@@ -392,7 +396,7 @@ public static class ReportWriter
           .duo>section{display:flex;flex-direction:column;min-height:0}
           .duo>section>.card{flex:0 1 auto;min-height:0;overflow:auto}
           #t-resumen .duo>section>.card{flex:1 1 auto;display:flex;flex-direction:column}
-          #t-resumen .duo>section>.card:has(tbody tr:nth-child(5)) table.compact{min-height:100%}
+          .fitrows{overflow:hidden!important}
           .duo>.stack{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
           .stack>section.grow{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
           .stack>section.grow>.card{flex:0 1 auto;min-height:0;overflow:auto}
@@ -405,6 +409,20 @@ public static class ReportWriter
         .kpi .s::first-letter,.split span::first-letter,.mini-kpi span::first-letter,.sh .meta::first-letter,
         .rank .who2 .sub::first-letter,.row>span::first-letter,.badge::first-letter,
         .chests+.sm::first-letter,td>.sm::first-letter,.tag::first-letter,.pchip::first-letter{text-transform:uppercase}
+        @media (min-width:1000px) and (min-height:620px) and (max-height:860px){
+          .main{padding:16px 26px 20px}
+          .ph{margin-bottom:12px;padding-bottom:10px} .phi{width:36px;height:36px} .ph h1{font-size:21px} .ph p{margin-top:1px}
+          .kpi{padding:11px 15px} .kpi .ki{width:30px;height:30px;top:11px;right:11px} .kpi .ki svg{width:17px;height:17px}
+          .kpi .v{font-size:24px} .kpi .s{margin-top:2px}
+          .kpi.hero img{width:60px;height:60px} .kpi.hero .v{font-size:36px}
+          section,.duo{margin-top:14px} .sh{margin-bottom:7px}
+          .chartsec .card.pad{padding:10px 16px}
+          .evo{height:clamp(70px,13vh,240px);margin-bottom:22px}
+          .main>.panel>.fill,.main>.panel>.duo{min-height:96px}
+          table.compact th,table.compact td{padding:7px 14px}
+          .side-card{padding:10px 16px} .tl li{padding:6px 0} .team2{padding:9px 16px}
+        }
+        @media (min-width:1000px) and (min-height:620px) and (max-height:760px){.evo{height:64px} .kpi.hero img{width:52px;height:52px}}
         @media (prefers-reduced-motion:reduce){.dot,.spin{animation:none}}
         """;
 
@@ -452,6 +470,9 @@ public static class ReportWriter
         // Recarga sola; servida por FCT, solo si FCT sigue abierto (si no, un aviso en vez de una página de error).
         // Si cambia el idioma en la app mientras la página está abierta, recarga enseguida sin esperar al intervalo completo.
         var off=d.querySelector('.offline'),docLang=d.documentElement.lang||'',missed=0;
+        function fitRows(){[].forEach.call(d.querySelectorAll('.panel:not([hidden]) .fitrows'),function(c){var rows=[].slice.call(c.querySelectorAll('tbody tr,ul.tl>li'));
+          rows.forEach(function(r){r.hidden=false});for(var i=rows.length-1;i>0&&c.scrollHeight>c.clientHeight+1;i--)rows[i].hidden=true})}
+        fitRows();addEventListener('resize',fitRows);tabs.forEach(function(x){x.addEventListener('click',function(){setTimeout(fitRows,0)})});
         function busy(){var a=d.activeElement;return saving||(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest('.set'))}
         if(live){setInterval(function(){if(saving)return;
           fetch('/api/ping',{cache:'no-store'}).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(j){
@@ -546,7 +567,7 @@ public static class ReportWriter
         if (played.Count > 0)
         {
             var avg = played.Average();
-            sb.Append($"""<span class="al" style="top:{Py(Y(avg))}"><i>{H(L.T("media", "avg"))} {avg.ToString("0", Loc)}</i></span>""");
+            sb.Append($"""<span class="al" style="top:{Py(Y(avg))}"><i>{H(L.T("media por día jugado", "avg per day played"))} {avg.ToString("0", Loc)}</i></span>""");
         }
         // Curva suave (Catmull-Rom → Bézier) sin bajar de cero.
         var pts = perDay.Select((v, i) => (X: X(i), Y: Y(v))).ToList();
@@ -579,7 +600,7 @@ public static class ReportWriter
     /// <summary>Últimas partidas del resumen: lo esencial en una tabla corta.</summary>
     private static void AppendCompactMatches(StringBuilder sb, List<MatchRecord> rows)
     {
-        sb.Append($"""<div class="card tw"><table class="compact"><thead><tr><th>{L.T("Fecha", "Date")}</th><th>{L.T("Modo", "Mode")}</th><th class="c">{L.T("Puesto", "Placement")}</th><th class="c">{L.T("Elim.", "Elims")}</th><th class="c">{L.T("Cofres", "Chests")}</th><th class="c">{L.T("Tesoros", "Treasures")}</th></tr></thead><tbody>""");
+        sb.Append($"""<div class="card tw fitrows"><table class="compact"><thead><tr><th>{L.T("Fecha", "Date")}</th><th>{L.T("Modo", "Mode")}</th><th class="c">{L.T("Puesto", "Placement")}</th><th class="c">{L.T("Elim.", "Elims")}</th><th class="c">{L.T("Cofres", "Chests")}</th><th class="c">{L.T("Tesoros", "Treasures")}</th></tr></thead><tbody>""");
         if (rows.Count == 0)
         {
             sb.Append($"<tr><td colspan=\"6\" class=\"empty\">{L.T("Aún no hay partidas analizadas. Juega una y aparecerá aquí.", "No matches analyzed yet. Play one and it will show up here.")}</td></tr>");
@@ -598,7 +619,7 @@ public static class ReportWriter
     /// <summary>Últimos tesoros conseguidos (resumen): icono del objeto, nombre, partida y tipo.</summary>
     private static string LatestTreasures(List<(MatchRecord m, TreasureFind f)> rows, Func<int, string> N)
     {
-        var sb = new StringBuilder($"""<section class="grow"><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div><div class="card side-card">""");
+        var sb = new StringBuilder($"""<section class="grow"><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div><div class="card side-card fitrows">""");
         if (rows.Count == 0)
         {
             sb.Append($"<p class=\"sm empty-side\">{L.T("Aún no has encontrado tesoros.", "No treasures yet.")}</p></div></section>");
@@ -800,8 +821,8 @@ public static class ReportWriter
 
         // Abajo: últimas partidas a la izquierda; últimos tesoros y compañeros a la derecha.
         sb.Append("<div class=\"duo\"><section class=\"fill\">");
-        sb.Append($"""<div class="sh"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{(matches.Count > 6 ? $"<a class=\"more\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "")}</div>""");
-        AppendCompactMatches(sb, matches.Take(6).ToList());
+        sb.Append($"""<div class="sh"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{(matches.Count > 0 ? $"<a class=\"more\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "")}</div>""");
+        AppendCompactMatches(sb, matches.Take(10).ToList());
         sb.Append("</section><div class=\"stack\">");
         sb.Append(LatestTreasures(treasureRows, N));
         if (mates != null)
@@ -1138,8 +1159,8 @@ public static class ReportWriter
             <section><div class="sh"><h2>{L.T("Cofres del equipo", "Team chests")}</h2></div>
             <div class="minis">
               <div class="mini-kpi"><b class="cy"><small>≥</small>{N(teamAll)}</b><span>{L.T("cofres del equipo en total", "team chests in total")}</span></div>
-              <div class="mini-kpi"><b><small>≥</small>{Avg(teamAll, teamMatches.Count)}</b><span>{L.T("del equipo por partida", "per match for the team")}</span></div>
-              <div class="mini-kpi"><b>{Avg(teamMine, teamMatches.Count)}</b><span>{L.T("tuyos por partida", "yours per match")}</span></div>
+              <div class="mini-kpi"><b><small>≥</small>{Avg(teamAll, teamMatches.Count)}</b><span>{L.T("del equipo por partida en equipo", "for the team per team match")}</span></div>
+              <div class="mini-kpi"><b>{Avg(teamMine, teamMatches.Count)}</b><span>{L.T("tuyos por partida en equipo", "yours per team match")}</span></div>
               <div class="mini-kpi"><b><small>≥</small>{(teamAll > 0 ? (100.0 * teamMates / teamAll).ToString("0", Loc) : "0")} %</b><span>{L.T("cofres del equipo abiertos por tus compañeros", "team chests opened by your teammates")}</span></div>
             </div></section>
             """);

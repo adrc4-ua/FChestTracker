@@ -55,7 +55,7 @@ The window can be resized and maximized: everything grows in proportion.
 
 ## Stats
 
-The stats page opens in your browser (the **Stats** button), served by FCT at `http://localhost:7373/estadisticas`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `report.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
+The stats page opens in your browser (the **Stats** button), served by FCT at `http://localhost:7373/estadisticas`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `estadisticas.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
 
 | Tab | What it shows |
 |---|---|
@@ -161,7 +161,7 @@ Everything is saved in `%APPDATA%\FCT`. **Your history does not depend on the re
 | File | Contents |
 |---|---|
 | `data.json` | Your whole history. **Back it up** if you change PC. |
-| `report.html` | The stats page. |
+| `estadisticas.html` | The stats page. |
 | `matches.csv` | One line per match, for Excel or Google Sheets. |
 | `config.json` | Settings, profile, replays folder and overlay position. |
 | `treasures.json` | Names of the treasure hunt prizes. |

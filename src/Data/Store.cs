@@ -22,7 +22,10 @@ public sealed class Store
     public string ConfigPath => Path.Combine(Folder, "config.json");
 
     public string DataPath => Path.Combine(Folder, "data.json");
-    public string ReportPath => Path.Combine(Folder, "report.html");
+    public string ReportPath => Path.Combine(Folder, "estadisticas.html");
+
+    /// <summary>Name the stats page had before (report.html): deleted once the new one is written.</summary>
+    public string OldReportPath => Path.Combine(Folder, "report.html");
     public string OverlayPath => Path.Combine(Folder, "overlay.html");
     public string CsvPath => Path.Combine(Folder, "matches.csv");
     public string PrizeNamesPath => Path.Combine(Folder, "treasures.json");
