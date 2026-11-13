@@ -1,7 +1,7 @@
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>The "Cofres" tab: chests by kind, the other containers, and chests by game mode.</summary>
 internal static class ChestsTab

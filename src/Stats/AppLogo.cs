@@ -3,7 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// FCT's icon as a PNG data URI for the stats page header and its browser tab. Rendered once at 96 px (crisp at 48 px

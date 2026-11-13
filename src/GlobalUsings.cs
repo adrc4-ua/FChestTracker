@@ -4,7 +4,7 @@ global using FCT.Analysis;
 global using FCT.Data;
 global using FCT.Monitoring;
 global using FCT.Overlay;
-global using FCT.Reporting;
+global using FCT.Stats;
 global using FCT.UI;
 global using FCT.Localization;
 global using FCT.PostMatch;

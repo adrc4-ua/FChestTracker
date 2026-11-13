@@ -22,13 +22,13 @@ public sealed class Store
     public string DataPath => InFolder("data.json");
     public string ConfigPath => InFolder("config.json");
     public string PrizeNamesPath => InFolder("treasures.json");
-    public string ReportPath => InFolder("estadisticas.html");
+    public string StatsPath => InFolder("estadisticas.html");
     public string OverlayPath => InFolder("overlay.html");
     public string CsvPath => InFolder("matches.csv");
     public string ErrorLogPath => InFolder("errors.log");
 
     /// <summary>Earlier name of the stats page; removed once the current one has been written.</summary>
-    public string OldReportPath => InFolder("report.html");
+    public string LegacyStatsPath => InFolder("report.html");
 
     private string InFolder(string name) => Path.Combine(Folder, name);
 

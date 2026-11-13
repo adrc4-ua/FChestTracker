@@ -1,7 +1,7 @@
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// The overlay card for OBS: overlay.html (a file that reloads itself) and the live page FCT serves, which fetches the

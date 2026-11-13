@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// The 30-day chest curve. The line and its fill are an SVG stretched to the card; numbers, dates, the average line and

@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Net;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>Small pieces every part of the stats page uses: escaping, numbers, dates and the embedded CSS/JS.</summary>
 internal static class PageParts
@@ -12,7 +12,7 @@ internal static class PageParts
 
     private static readonly Dictionary<string, string> Loaded = new();
 
-    /// <summary>A file of Reporting/Page embedded in the exe (line endings normalized, whatever git did to them).</summary>
+    /// <summary>A file of Stats/Page embedded in the exe (line endings normalized, whatever git did to them).</summary>
     private static string Asset(string name)
     {
         lock (Loaded)

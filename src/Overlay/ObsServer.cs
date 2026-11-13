@@ -25,13 +25,13 @@ public static class ObsServer
     public static string? Url { get; private set; }
 
     /// <summary>Address of the stats page as served here (the only place where its settings tab works).</summary>
-    public static string? ReportUrl => Url == null ? null : Url + "estadisticas";
+    public static string? StatsUrl => Url == null ? null : Url + "estadisticas";
 
     /// <summary>The stats file served at "/estadisticas".</summary>
-    public static string? ReportFile { get; set; }
+    public static string? StatsFile { get; set; }
 
     /// <summary>Language of the current stats page, reported by "/api/ping" so an open page knows when to reload.</summary>
-    public static volatile string? ReportLang;
+    public static volatile string? StatsLang;
 
     /// <summary>Applies a setting sent by the stats page: (key, value) → accepted.</summary>
     public static Func<string, string, bool>? Settings { get; set; }
@@ -105,10 +105,10 @@ public static class ObsServer
         {
             ("GET", "/" or "/overlay") => LocalResponse.Html(OverlayPage.LivePage(_overlayBox)),
             ("GET", "/view") => LocalResponse.Html(_overlayBox),
-            ("GET", "/estadisticas") => ReportFile != null && File.Exists(ReportFile)
-                ? LocalResponse.Html(File.ReadAllText(ReportFile))
+            ("GET", "/estadisticas") => StatsFile != null && File.Exists(StatsFile)
+                ? LocalResponse.Html(File.ReadAllText(StatsFile))
                 : LocalResponse.Text("404 Not Found", "stats page not ready"),
-            ("GET", "/api/ping") => LocalResponse.Json($"{{\"ok\":true,\"lang\":\"{ReportLang ?? ""}\"}}"),
+            ("GET", "/api/ping") => LocalResponse.Json($"{{\"ok\":true,\"lang\":\"{StatsLang ?? ""}\"}}"),
             ("POST", "/api/ajuste") => ChangeSetting(request, port),
             _ => LocalResponse.Text("404 Not Found", "not found"), // OPTIONS too: no preflight is ever accepted
         };

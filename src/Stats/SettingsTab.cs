@@ -1,7 +1,7 @@
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// The "Configuración" tab. The language goes both ways (page and app); teammates and what counts as a chest only change
@@ -12,7 +12,7 @@ internal static class SettingsTab
 {
     public static string Build(Config config)
     {
-        var view = config.ReportView;
+        var view = config.StatsView;
         var html = new StringBuilder(Head("ajustes", L.T("Configuración", "Settings"),
             L.T("El idioma se comparte con la app; el resto solo cambia estas estadísticas", "Language is shared with the app; the rest only changes these stats")));
         html.Append($"<p class=\"file-note\" hidden>{FileNote()}</p>").Append(About());
@@ -35,7 +35,7 @@ internal static class SettingsTab
 
     /// <summary>Shown (by the script) when the page is a file: where to open it to change anything.</summary>
     private static string FileNote() =>
-        ObsServer.ReportUrl is { } url
+        ObsServer.StatsUrl is { } url
             ? L.T("Abre las estadísticas con el botón Estadísticas de FCT para cambiar la configuración aquí.", "Open stats with the FCT Stats button to change the settings here.") + $" <a href=\"{url}\">{L.T("Abrir", "Open")} →</a>"
             : L.T("Abre FCT para cambiar la configuración aquí.", "Open FCT to change the settings here.");
 

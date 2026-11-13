@@ -25,7 +25,7 @@ public sealed class AppMonitor
 
     private FileSystemWatcher? _watcher;
     private GameLogWatcher? _gameLog;
-    private volatile bool _stop, _publishRequested, _reportRequested, _scanned;
+    private volatile bool _stop, _publishRequested, _statsRequested, _scanned;
     private volatile string? _shownKey, _shownName, _notice, _resetBackup;
     private volatile ScanProgress? _progress;
     private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck;
@@ -80,7 +80,7 @@ public sealed class AppMonitor
     public string? ShownAccountId => _shownKey is { Length: 32 } key && key.All(Uri.IsHexDigit) ? key : null;
 
     /// <summary>Where to open the stats page: served by FCT (its settings work there), or else the file.</summary>
-    public string ReportTarget => ObsServer.ReportUrl ?? _store.ReportPath;
+    public string StatsTarget => ObsServer.StatsUrl ?? _store.StatsPath;
 
     public bool OverlayEnabled => OperatingSystem.IsWindows();
     public bool OverlayVisible => OperatingSystem.IsWindows() && NativeOverlay.IsVisible;
@@ -131,8 +131,8 @@ public sealed class AppMonitor
 
         StartOverlay();
         WatchReplays();
-        ObsServer.ReportFile = _store.ReportPath;
-        ObsServer.ReportLang = L.Code;
+        ObsServer.StatsFile = _store.StatsPath;
+        ObsServer.StatsLang = L.Code;
         ObsServer.Settings = ApplyFromStatsPage;
         ObsServer.Start(Config.ObsPort > 0 ? Config.ObsPort : ObsServer.DefaultPort);
         _gameLog = new GameLogWatcher(_screens.Shown);
@@ -194,14 +194,14 @@ public sealed class AppMonitor
     /// <summary>A change that the stats page shows too: the page is rewritten right after.</summary>
     private void ChangeShown(Action<Config> change)
     {
-        _reportRequested = true;
+        _statsRequested = true;
         Change(change);
     }
 
     public void SetProfile(string key)
     {
         Change(c => c.Profile = key);
-        _reportRequested = true;
+        _statsRequested = true;
         _wake.Set();
     }
 
@@ -261,7 +261,7 @@ public sealed class AppMonitor
             return true;
         }
         var on = value == "1";
-        Action<ReportSettings>? change = key switch
+        Action<StatsSettings>? change = key switch
         {
             "teammates" => r => r.ShowTeammates = on,
             "countMates" => r => r.CountTeammateChests = on,
@@ -274,7 +274,7 @@ public sealed class AppMonitor
         {
             return false;
         }
-        ChangeShown(c => change(c.ReportView));
+        ChangeShown(c => change(c.StatsView));
         return true;
     }
 
@@ -301,7 +301,7 @@ public sealed class AppMonitor
     {
         _earlier.SetChests(count);
         RequestPublish();
-        _reportRequested = true;
+        _statsRequested = true;
         _wake.Set();
     }
 
@@ -309,7 +309,7 @@ public sealed class AppMonitor
     {
         _earlier.SetEstimate(totalMatches, source, sample, manualAverage);
         RequestPublish();
-        _reportRequested = true;
+        _statsRequested = true;
         _wake.Set();
     }
 
@@ -378,9 +378,9 @@ public sealed class AppMonitor
             _updates.Poll();
             changed |= _updates.Handle(idle: !_tracker.IsLive && !_tracker.HasPending && !_tracker.IsFinishing, InstallUpdate);
             changed |= ExpireNotice();
-            if (_reportRequested)
+            if (_statsRequested)
             {
-                _reportRequested = false;
+                _statsRequested = false;
                 StatsPage.WriteAll(_store, Config, _data);
             }
             if (changed || _publishRequested)
@@ -400,13 +400,13 @@ public sealed class AppMonitor
     private void WriteStatsPageAtStart()
     {
         StatsPage.WriteAll(_store, Config, _data);
-        if (!Config.OpenReportOnStart || AutoMode || !File.Exists(_store.ReportPath))
+        if (!Config.OpenStatsOnStart || AutoMode || !File.Exists(_store.StatsPath))
         {
             return;
         }
         try
         {
-            Process.Start(new ProcessStartInfo(ReportTarget) { UseShellExecute = true })?.Dispose();
+            Process.Start(new ProcessStartInfo(StatsTarget) { UseShellExecute = true })?.Dispose();
         }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
@@ -443,7 +443,7 @@ public sealed class AppMonitor
         {
             ErrorLog.Write("Guardar pantalla de tesoros", ex);
         }
-        _reportRequested = true;
+        _statsRequested = true;
         return true;
     }
 
@@ -462,7 +462,7 @@ public sealed class AppMonitor
                 c.InitialChests.Clear();
                 c.Profile = null;
             });
-            _reportRequested = true;
+            _statsRequested = true;
             return true;
         }
         catch (Exception ex)
@@ -480,7 +480,7 @@ public sealed class AppMonitor
             return false;
         }
         Change(c => c.Profile = player.Key);
-        _reportRequested = true; // the stats page follows too
+        _statsRequested = true; // the stats page follows too
         SetNotice(L.F("Ahora juega {0}: se muestra su perfil.", "{0} is playing now: showing their profile.", player.Name));
         return true;
     }
@@ -501,7 +501,7 @@ public sealed class AppMonitor
         {
             return false;
         }
-        _reportRequested = true;
+        _statsRequested = true;
         return true;
     }
 

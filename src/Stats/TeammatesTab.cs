@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// The "Compañeros" tab (a setting of the page): who the player plays with, matches together, wins and the chests

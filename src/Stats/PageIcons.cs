@@ -1,4 +1,4 @@
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// FCT's icon drawings (24 × 24, 1.7 gold stroke, soft fill on the "f" class), shared by the stats page and the app.

@@ -9,7 +9,7 @@ internal static class CommandLineTools
         tracker.Scan(ignoreQuietPeriod: true);
         StatsPage.WriteAll(store, config, data);
         tracker.PrintSummary();
-        Console.WriteLine(L.F("  Estadísticas: {0}", "  Stats: {0}", store.ReportPath));
+        Console.WriteLine(L.F("  Estadísticas: {0}", "  Stats: {0}", store.StatsPath));
         return 0;
     }
 

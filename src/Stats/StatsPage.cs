@@ -1,7 +1,7 @@
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>
 /// estadisticas.html: one self-contained page (style, script and logo inside) with a section per tab. It is rewritten
@@ -17,15 +17,15 @@ public static class StatsPage
     {
         try
         {
-            var pageSettings = config.ForReport();
+            var pageSettings = config.ForStatsPage();
             using (L.Scope(config.Language))
             {
-                SaveText(store.ReportPath, Build(pageSettings, Profiles.View(data, pageSettings), Profiles.InitialChests(data, pageSettings)));
-                ObsServer.ReportLang = L.Code;
+                SaveText(store.StatsPath, Build(pageSettings, Profiles.View(data, pageSettings), Profiles.InitialChests(data, pageSettings)));
+                ObsServer.StatsLang = L.Code;
             }
-            if (File.Exists(store.OldReportPath))
+            if (File.Exists(store.LegacyStatsPath))
             {
-                try { File.Delete(store.OldReportPath); } catch (IOException) { /* open in a browser: next time */ } catch (UnauthorizedAccessException) { }
+                try { File.Delete(store.LegacyStatsPath); } catch (IOException) { /* open in a browser: next time */ } catch (UnauthorizedAccessException) { }
             }
             var appView = Profiles.View(data, config);
             SaveText(store.OverlayPath, OverlayPage.File(OverlayModel.Build(appView, null, false, Profiles.InitialChests(data, config))));

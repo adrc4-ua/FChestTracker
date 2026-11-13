@@ -34,7 +34,7 @@ public sealed class MainForm : ThemedForm
     private readonly Card _noticeCard;
     private readonly Label _notice;
     private readonly PillButton _update;
-    private readonly PillButton _overlayButton, _reportButton, _settingsButton;
+    private readonly PillButton _overlayButton, _statsButton, _settingsButton;
     private readonly DailyChart _daily;
     private readonly Label _weekMeta;
     private readonly Card _teamCard;
@@ -151,8 +151,8 @@ public sealed class MainForm : ThemedForm
         _statTreasures = Tile(1, 2, L.T("Tesoros", "Treasures"), Icons.Treasure, out _);
 
         // ---- Botones: como el menú de la página (Estadísticas con las letras en oro) -------------------------------
-        _reportButton = Nav(L.T("Estadísticas", "Stats"), Icons.Summary, RightX, NavY);
-        _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
+        _statsButton = Nav(L.T("Estadísticas", "Stats"), Icons.Summary, RightX, NavY);
+        _statsButton.Click += (_, _) => Open(_monitor.StatsTarget);
         _overlayButton = Nav(L.T("Overlay", "Overlay"), Icons.Overlay, RightX, NavY + NavH + NavGap);
         _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
         _settingsButton = Nav(L.T("Configuración", "Settings"), Icons.Settings, RightX, NavY + 2 * (NavH + NavGap));
@@ -198,7 +198,7 @@ public sealed class MainForm : ThemedForm
         openItem.Font = new Font(openItem.Font, FontStyle.Bold);
         trayMenu.Items.Add(openItem);
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
-        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Estadísticas", "Stats"), null, (_, _) => Open(_monitor.ReportTarget)));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Estadísticas", "Stats"), null, (_, _) => Open(_monitor.StatsTarget)));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Configuración", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Acerca de y licencia", "About and license"), null, (_, _) => ShowAbout()));
         trayMenu.Items.Add(new ToolStripSeparator());

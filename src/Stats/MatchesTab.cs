@@ -1,7 +1,7 @@
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>The "Partidas" tab (the 100 newest matches) and the short table of the overview.</summary>
 internal static class MatchesTab

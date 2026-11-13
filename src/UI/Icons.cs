@@ -1,4 +1,4 @@
-using FCT.Reporting;
+using FCT.Stats;
 
 namespace FCT.UI;
 

@@ -27,7 +27,7 @@ public sealed class SettingsForm : ThemedForm
 
     private readonly AppMonitor _monitor;
     private readonly ToggleSwitch _fortnite;
-    private readonly ToggleSwitch _report;
+    private readonly ToggleSwitch _openStats;
     private readonly PillButton[] _updates = new PillButton[UpdateModes.Length];
     private readonly Label _updateHint;
     private readonly TextBox _folder;
@@ -74,8 +74,8 @@ public sealed class SettingsForm : ThemedForm
                     Array.Empty<InfoPoint>(), L.T("Vale", "OK"), null, Icons.Info);
             }
         };
-        _report = AddToggleRow(start, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 70, config.OpenReportOnStart);
-        _report.CheckedChanged += (_, _) => { if (!_loading) _monitor.Change(c => c.OpenReportOnStart = _report.Checked); };
+        _openStats = AddToggleRow(start, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 70, config.OpenStatsOnStart);
+        _openStats.CheckedChanged += (_, _) => { if (!_loading) _monitor.Change(c => c.OpenStatsOnStart = _openStats.Checked); };
         var mates = AddToggleRow(start, L.T("Compañeros en la ventana", "Teammates in the window"),
             L.T("Sus cofres, si andan cerca de ti", "Their chests, if they're near you"), 98, config.ShowTeammates);
         mates.CheckedChanged += (_, _) =>

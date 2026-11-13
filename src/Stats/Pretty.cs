@@ -1,4 +1,4 @@
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>Turns raw match values into the short texts the window, the overlay and the stats page show.</summary>
 public static class Pretty

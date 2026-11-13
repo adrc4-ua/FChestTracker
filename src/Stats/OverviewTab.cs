@@ -1,7 +1,7 @@
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>The "Resumen" tab: headline figures, the 30-day curve, latest matches and treasures, and the team strip.</summary>
 internal static class OverviewTab

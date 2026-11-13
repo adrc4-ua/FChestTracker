@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using static FCT.Reporting.PageParts;
+using static FCT.Stats.PageParts;
 
-namespace FCT.Reporting;
+namespace FCT.Stats;
 
 /// <summary>matches.csv: one line per match (oldest first), separated by ';' for spreadsheets.</summary>
 internal static class MatchesCsv

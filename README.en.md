@@ -228,7 +228,7 @@ src/                         the app: FCT.csproj → FCT.exe
 ├─ Monitoring/               the background process (watches replays, overlay and updates)
 ├─ PostMatch/                post-match treasure screen: game window capture and icon reading
 ├─ Overlay/                  in-game overlay and its OBS version
-├─ Reporting/                stats page (HTML)
+├─ Stats/                    stats page (HTML)
 ├─ UI/                       main window, settings and controls
 ├─ Localization/             app language; Languages/ to add languages (see its README)
 └─ Assets/                   icon
