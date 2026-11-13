@@ -115,7 +115,13 @@ public static class Prizes
             return ById(f.PrizeId, week) is { } p ? (p.Name, TypeName(p.Type), true) : (Featured, null, true);
         }
 
-        // Gizmo: named when the item is known (older analyses could see it), else the generic name.
+        // Gizmo read on the post-match screen.
+        if (f.ScreenName is { } screenName && ByName(screenName) is { Type: Kind.Gizmo } read)
+        {
+            return (read.Name, TypeName(Kind.Gizmo), false);
+        }
+
+        // Gizmo: named when the item is known, else the generic name.
         var custom2 = f.PrizeId != null && TreasureNames.PrizeNames.TryGetValue(f.PrizeId, out var n2) && !string.IsNullOrWhiteSpace(n2) ? n2.Trim() : null;
         if (custom2 != null)
         {

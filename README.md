@@ -135,10 +135,11 @@ Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. FC
 ## Tesoros
 
 - **★★ Tesoro destacado.** Los premios de la semana (traje, pico, vehículo, pista, pantalla de carga…) y el acceso a la tienda pirata. El servidor envía su **id**, así que aparecen con su nombre y su tipo.
-- **★ Artilugio de tesoro.** Uno de los cinco artilugios (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator); el replay no dice cuál.
+- **★ Artilugio de tesoro.** Uno de los cinco artilugios (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator). El replay no dice cuál: lo dice la **pantalla de tesoros del final de la partida**, que FCT lee sola (ver abajo). Si no se pudo leer, aparece como "Artilugio de tesoro".
 - Cada tesoro aparece con el momento exacto, el cofre del que salió y **quién lo abrió** (tú o un compañero): los tesoros del escuadrón se reparten, así que cuentan todos, como en la pantalla de fin de partida.
 - Un tesoro que sale de algo que no es un cofre (cañón de botín, caja de munición…) se marca con ⚑.
-- **Límite:** el replay solo contiene lo que el juego te envía a ti. Si te eliminan definitivamente (sin reinicio) o sales de la partida, los tesoros que consiga el escuadrón después **no quedan en el replay** y no se pueden contar; la partida lo indica con ⚠ en el informe. Nada en el PC los guarda (ni el log del juego); la única fuente completa es la pantalla de fin de partida.
+- **Pantalla de fin de partida.** Cuando Fortnite muestra "Tesoro encontrado", FCT captura **solo la ventana del juego** (aunque esté detrás de otras ventanas, en ventana o a pantalla completa), reconoce los iconos y **borra la imagen en el acto**: nunca se guarda. Primero se cuenta todo con el replay, como siempre; la pantalla solo pone nombre a los artilugios y añade los que el replay no vio (por ejemplo, después de tu eliminación), con hora y jugador **desconocidos**. Si el juego está minimizado en ese momento, no hay nada que capturar y la partida queda solo con el replay. No toca el proceso del juego: la misma técnica que la captura de ventana de OBS.
+- **Límite del replay:** solo contiene lo que el juego te envía a ti. Si te eliminan definitivamente (sin reinicio) o sales de la partida, los tesoros que consiga el escuadrón después no están en el replay; solo la pantalla de fin de partida los recupera.
 
 Los premios conocidos ya tienen nombre. Si aparece uno nuevo, sale como "Tesoro destacado" y su id se añade a `treasures.json`, donde puedes ponerle nombre con el Bloc de notas.
 
@@ -201,6 +202,7 @@ src/                         la aplicación: FCT.csproj → FCT.exe
 ├─ Analysis/                 lectura de replays: cofres, tesoros, premios, perfiles
 ├─ Data/                     lo que se guarda: partidas, ajustes y el almacén JSON
 ├─ Monitoring/               el proceso en segundo plano (vigila replays, overlay y actualizaciones)
+├─ PostMatch/                pantalla de tesoros de fin de partida: captura de la ventana del juego y lectura de iconos
 ├─ Overlay/                  overlay sobre el juego y su versión para OBS
 ├─ Reporting/                informe HTML
 ├─ UI/                       ventana principal, ajustes y controles

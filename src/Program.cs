@@ -27,7 +27,7 @@ internal static class Program
 
         // Las opciones de línea de comandos escriben en la terminal que lanzó el exe; si no, la aplicación es una ventana
         // y la consola (que el código de análisis usa para sus mensajes) se oculta.
-        var cliMode = args.Any(a => a is "--once" or "--help" or "-h" or "--overlay-preview" or "--diagnose");
+        var cliMode = args.Any(a => a is "--once" or "--help" or "-h" or "--overlay-preview" or "--diagnose" or "--read-treasure-screen" or "--capture-window");
         if (OperatingSystem.IsWindows())
         {
             NativeConsole.Ensure(attachToParent: cliMode);
@@ -73,6 +73,9 @@ internal static class Program
                 case "--reset-config": reset = true; break;
                 case "--overlay-preview": previewPath = args[++i]; break;
                 case "--diagnose": diagnosePath = args[++i]; break;
+                // Pruebas de la lectura de la pantalla de tesoros (no aparecen en la ayuda).
+                case "--read-treasure-screen": return PostMatchTools.ReadImage(args[++i]);
+                case "--capture-window": return PostMatchTools.CaptureWindow(args[++i], i + 1 < args.Length ? args[++i] : null);
                 case "--auto": auto = true; break;
                 case "--after-update": afterUpdate = true; break;
                 case "-h":

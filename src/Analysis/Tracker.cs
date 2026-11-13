@@ -267,6 +267,8 @@ public sealed class Tracker
             _data.Matches.Remove(existing);
         }
 
+        // The post-match treasure screen (if it was read) names the gizmos and adds the ones the replay did not see.
+        TreasureScreenMerge.Apply(record, _data.TreasureScreens);
         _data.Matches.Add(record);
         _data.ProcessedFiles[key] = record.SessionId;
         _store.SaveData(_data);

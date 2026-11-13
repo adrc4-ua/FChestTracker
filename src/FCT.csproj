@@ -2,7 +2,10 @@
   <PropertyGroup>
     <!-- Windows app: the standby process has no window; the tool opens its own console (NativeConsole). -->
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <!-- Windows.Graphics.Capture reads the post-match treasure screen from the game window: runs on Windows 10 2004+,
+         built against the Windows 11 SDK (borderless capture where available). -->
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Assets/app.ico</ApplicationIcon>
     <!-- FCT.exe; Windows shows the long name (Task Manager, file properties). -->

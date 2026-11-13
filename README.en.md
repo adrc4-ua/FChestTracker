@@ -135,10 +135,11 @@ Fortnite can record a **replay file** of every match on your PC. FCT reads those
 ## Treasures
 
 - **★★ Featured treasure.** The prizes of the week (outfit, pickaxe, vehicle, jam track, loading screen…) and the Pirate Shop Access. The server sends their **id**, so they show up with their name and type.
-- **★ Treasure gizmo.** One of the five gizmos (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator); the replay does not say which.
+- **★ Treasure gizmo.** One of the five gizmos (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator). The replay does not say which: the **post-match treasure screen** does, and FCT reads it by itself (see below). When it could not be read, it shows as "Treasure gizmo".
 - Every treasure shows the exact moment, the chest it came from and **who opened it** (you or a teammate): squad treasures are shared, so all of them count, as on the post-match screen.
 - A treasure obtained from something other than a chest (loot cannon, ammo box…) is flagged with ⚑.
-- **Limit:** the replay only holds what the game sends to you. Once you are eliminated for good (no reboot) or you leave the match, the treasures the squad gets afterwards **are not in the replay** and cannot be counted; the match shows ⚠ in the report. Nothing on the PC keeps them (not even the game log); the only complete source is the post-match screen.
+- **Post-match screen.** When Fortnite shows "Treasure found", FCT captures **the game window only** (even behind other windows, windowed or full screen), recognizes the icons and **deletes the image right away**: it is never saved. Everything is counted from the replay first, as always; the screen only names the gizmos and adds the ones the replay did not see (for example after your elimination), with **unknown** time and finder. If the game is minimized at that moment there is nothing to capture and the match keeps the replay data only. It does not touch the game process: the same technique as OBS window capture.
+- **Replay limit:** it only holds what the game sends to you. Once you are eliminated for good (no reboot) or leave the match, the squad's later treasures are not in the replay; only the post-match screen brings them back.
 
 Known prizes are already named. A new one shows up as "Featured treasure" and its id is added to `treasures.json`, where you can name it with Notepad.
 
@@ -201,6 +202,7 @@ src/                         the app: FCT.csproj → FCT.exe
 ├─ Analysis/                 replay reading: chests, treasures, prizes, profiles
 ├─ Data/                     what is saved: matches, settings and the JSON store
 ├─ Monitoring/               the background process (watches replays, overlay and updates)
+├─ PostMatch/                post-match treasure screen: game window capture and icon reading
 ├─ Overlay/                  in-game overlay and its OBS version
 ├─ Reporting/                HTML report
 ├─ UI/                       main window, settings and controls

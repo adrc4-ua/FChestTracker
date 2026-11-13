@@ -76,6 +76,7 @@ public sealed class AppMonitor
         }
         RestartWatcher();
         ObsServer.Start(_config.ObsPort > 0 ? _config.ObsPort : ObsServer.DefaultPort);
+        _gameLog = new GameLogWatcher(OnTreasureScreen);
 
         new Thread(Loop) { IsBackground = true, Name = "Vigilancia" }.Start();
 
@@ -100,6 +101,84 @@ public sealed class AppMonitor
         _stop = true;
         _wake.Set();
         _watcher?.Dispose();
+        _gameLog?.Dispose();
+    }
+
+    // ---- Pantalla de tesoros de fin de partida --------------------------------------------------------------
+
+    private GameLogWatcher? _gameLog;
+    private readonly System.Collections.Concurrent.ConcurrentQueue<TreasureScreen> _screens = new();
+    private const string GameProcess = "FortniteClient-Win64-Shipping";
+
+    /// <summary>
+    /// El juego acaba de mostrar la pantalla de tesoros: se captura solo su ventana (aunque esté detrás de otras) unas
+    /// veces mientras las fichas terminan de aparecer, y se queda la lectura con más fichas. La imagen solo vive en
+    /// memoria mientras se lee. Si la ventana está minimizada o no se puede capturar, la partida queda como hasta ahora.
+    /// </summary>
+    private void OnTreasureScreen(DateTime shownUtc)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                List<string>? best = null;
+                foreach (var wait in new[] { 1200, 1200, 1200 })
+                {
+                    await Task.Delay(wait);
+                    var hwnd = GameWindow();
+                    var frame = await WindowCapture.CaptureAsync(hwnd, TimeSpan.FromSeconds(2));
+                    if (frame == null)
+                    {
+                        continue;
+                    }
+                    var cards = TreasureScreenReader.Read(frame).Select(c => c.Item).ToList();
+                    frame = null; // the image is dropped right after reading it
+                    if (best == null || cards.Count > best.Count)
+                    {
+                        best = cards;
+                    }
+                }
+                if (best is { Count: > 0 })
+                {
+                    _screens.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = best });
+                    _wake.Set();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Write("Pantalla de tesoros", ex);
+            }
+        });
+    }
+
+    /// <summary>Ventana del juego. FCT_TREASURE_WINDOW (título exacto de otra ventana) sirve para probar sin Fortnite.</summary>
+    private static IntPtr GameWindow() => Environment.GetEnvironmentVariable("FCT_TREASURE_WINDOW") is { Length: > 0 } title
+        ? PostMatchTools.FindWindowByTitle(title)
+        : System.Diagnostics.Process.GetProcessesByName(GameProcess).Select(p => p.MainWindowHandle).FirstOrDefault(h => h != IntPtr.Zero);
+
+    /// <summary>Guarda las pantallas leídas y las aplica a su partida (si ya está analizada). True si cambió algo.</summary>
+    private bool ApplyTreasureScreens()
+    {
+        var added = false;
+        while (_screens.TryDequeue(out var screen))
+        {
+            if (_data.TreasureScreens.All(s => Math.Abs((s.ShownUtc - screen.ShownUtc).TotalSeconds) > 30))
+            {
+                _data.TreasureScreens.Add(screen);
+                added = true;
+            }
+        }
+        if (!added)
+        {
+            return false;
+        }
+        foreach (var m in _data.Matches)
+        {
+            TreasureScreenMerge.Apply(m, _data.TreasureScreens);
+        }
+        try { _store.SaveData(_data); } catch (Exception ex) { ErrorLog.Write("Guardar pantalla de tesoros", ex); }
+        _reportRequested = true;
+        return true;
     }
 
     /// <summary>
@@ -358,6 +437,7 @@ public sealed class AppMonitor
             var changed = first || _publishRequested;
             first = false;
             _publishRequested = false;
+            changed |= ApplyTreasureScreens();
 
             if (_resetBackup is { } backup)
             {

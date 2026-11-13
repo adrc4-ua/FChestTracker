@@ -53,4 +53,8 @@ public sealed class TreasureFind
     public bool SourceCertain { get; set; }
     /// <summary>For estimated sources: other (non-chest) interactions between the source and the first use.</summary>
     public List<string> AlsoPossible { get; set; } = new();
+    /// <summary>Gizmo name read from the post-match treasure screen (the replay does not say which gizmo it was).</summary>
+    public string? ScreenName { get; set; }
+    /// <summary>Only on the post-match screen, not in the replay (won after a final elimination): time and finder unknown.</summary>
+    public bool FromScreen { get; set; }
 }

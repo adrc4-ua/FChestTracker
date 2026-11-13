@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Pantalla de tesoros de fin de partida: FCT captura solo la ventana del juego (aunque esté tapada), reconoce los iconos, borra la imagen y pone nombre a cada artilugio; añade los tesoros que el replay no vio (tras tu eliminación) con hora y jugador desconocidos.
+- Requiere Windows 10 2004 o posterior (captura de ventanas de Windows).
 - Sin "sesiones": la ventana, el overlay y el informe muestran lo de **hoy** (cofres, partidas y media por partida de hoy).
 - Ventana: el gráfico es la semana actual, de lunes a domingo.
 - Informe: logo de la app, pestañas más grandes con iconos, estado "En directo", textos unificados (mayúscula inicial, versalitas solo en etiquetas) y "Victoria" en vez de "Victoria Real".

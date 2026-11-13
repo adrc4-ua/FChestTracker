@@ -7,3 +7,4 @@ global using FCT.Overlay;
 global using FCT.Reporting;
 global using FCT.UI;
 global using FCT.Localization;
+global using FCT.PostMatch;

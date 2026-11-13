@@ -39,6 +39,8 @@ public sealed class MatchRecord
     /// got rebooted (version 16+).
     /// </summary>
     public float? EliminatedAtSeconds { get; set; }
+    /// <summary>The post-match treasure screen of this match was read: its gizmos are named and none is missing.</summary>
+    public bool TreasureScreenRead { get; set; }
 
     /// <summary>How many non-chest interactions of a kind (ammo box, food box, loot cannon) this match has.</summary>
     public int Interactions(string kind) => OtherInteractions.Count > 0

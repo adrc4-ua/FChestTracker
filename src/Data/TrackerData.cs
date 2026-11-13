@@ -12,4 +12,7 @@ public sealed class TrackerData
 
     /// <summary>Key = file name|size|last write ticks. Value = session id, "skipped" or "error: ...".</summary>
     public Dictionary<string, string> ProcessedFiles { get; set; } = new();
+
+    /// <summary>Post-match treasure screens read so far (applied to their match, also after a re-analysis).</summary>
+    public List<TreasureScreen> TreasureScreens { get; set; } = new();
 }
