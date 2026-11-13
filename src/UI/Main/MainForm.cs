@@ -272,8 +272,8 @@ public sealed partial class MainForm : ThemedForm
                 new InfoPoint(Icons.Warning, Theme.GoldHi, L.T("Sin garantía", "No warranty"),
                     L.T("Se ofrece tal cual, sin garantía de ningún tipo.", "It is provided as is, without any warranty.")),
                 new InfoPoint(Icons.Folder, Theme.GoldHi, L.T("Código de terceros", "Third-party code"),
-                    L.T("Basado en ChestCounter (© 2026 LED-N, MIT). Usa FortniteReplayDecompressor (© Shiqan, MIT) y .NET (MIT). No afiliado a Epic Games.",
-                        "Based on ChestCounter (© 2026 LED-N, MIT). Uses FortniteReplayDecompressor (© Shiqan, MIT) and .NET (MIT). Not affiliated with Epic Games.")),
+                    L.T("Inspirado en ChestCounter, de xdoofy92. Usa FortniteReplayDecompressor (© Shiqan, MIT) y .NET (MIT). No afiliado a Epic Games.",
+                        "Inspired by ChestCounter, by xdoofy92. Uses FortniteReplayDecompressor (© Shiqan, MIT) and .NET (MIT). Not affiliated with Epic Games.")),
             },
             L.T("Ver licencia", "View license"), L.T("Cerrar", "Close"), Icons.Info);
         if (read)

@@ -252,7 +252,7 @@ Todo lo externo que usa, con su licencia o sus condiciones, está en [THIRD_PART
 | | Para qué | Licencia |
 |---|---|---|
 | [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan | Leer y descomprimir las repeticiones. Va incluido en `external/`, con cambios propios descritos en [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md). | MIT |
-| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | FCT es un fork de ChestCounter: partió de su idea, su código y su historial (hasta el 11/11/2026) y desde entonces evoluciona por separado. Parte de su código sigue en FCT, así que su aviso de copyright y su licencia MIT se conservan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). | MIT |
+| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | Origen e inspiración: FCT empezó como un fork de ChestCounter, que le dio la idea de contar los cofres con las repeticiones. Desde la versión siguiente a la 4.4.1 todo el código de FCT es propio. | MIT (hasta la 4.4.1) |
 | [.NET](https://github.com/dotnet/runtime) y Windows Forms | El exe lleva el runtime de .NET dentro, para no tener que instalar nada. | MIT |
 
 **Servicios** (ninguno recibe datos sin que lo pidas; detalle en la [política de privacidad](CODE_SIGNING_POLICY.md#privacy-policy))

@@ -43,7 +43,7 @@ jobs:
           FORTNITE_API_KEY: ${{ secrets.FORTNITE_API_KEY }}
         run: |
           # The project file moved over time; older tags still have it in one of the earlier places.
-          $project = @('src/FCT.csproj', 'src/FCT/FCT.csproj', 'src/ChestCounter/ChestCounter.csproj') | Where-Object { Test-Path $_ } | Select-Object -First 1
+          $project = @('src/FCT.csproj', 'src/FCT/FCT.csproj') | Where-Object { Test-Path $_ } | Select-Object -First 1
           $versionArgs = @()
           if ($env:BUILD_TAG -match '^v(\d+\.\d+\.\d+)$') {
             $versionArgs += "-p:Version=$($Matches[1])"

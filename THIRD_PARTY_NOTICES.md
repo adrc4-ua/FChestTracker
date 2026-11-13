@@ -22,21 +22,19 @@ dentro de `FCT.exe` (`FCT.exe --licenses` lo muestra).*
 
 ## 2. Origin of the project · Origen del proyecto
 
-FCT is a derived work (fork) of [ChestCounter](https://github.com/xdoofy92/ChestCounter), published by xdoofy92
-under the MIT license (© 2026 LED-N). FCT took its idea (counting the chests opened in Fortnite from its replay
-files), its code and its history up to 11 November 2026, and has evolved separately since then (treasures and the
-end-of-match screen, teammates, profiles, estimate of earlier matches, interface, overlay, start with Fortnite,
-distribution…). Part of ChestCounter's code is still in FCT, so its copyright notice and MIT permission notice are kept
-(here and in [NOTICE.md](NOTICE.md)), as the MIT license requires; its full text is below. The commits of this repository up to 11 November 2026
-(up to "pend") come from ChestCounter and are the work of its author.
+FCT started as a fork of [ChestCounter](https://github.com/xdoofy92/ChestCounter), by xdoofy92, which gave it its
+starting idea: counting the chests opened in Fortnite from the game's replay files. FCT has grown separately since then
+(treasures and the end-of-match screen, teammates, profiles, estimate of earlier matches, interface, overlay, start with
+Fortnite, distribution…), and from the version after 4.4.1 all of its code is its own: no ChestCounter code is included,
+so FCT does not carry ChestCounter's license. Versions up to 4.4.1 did include ChestCounter code, under its MIT license
+(© 2026 LED-N), and those copies keep that notice.
 
-*FCT es una obra derivada (fork) de ChestCounter, publicado por xdoofy92 con licencia MIT (© 2026 LED-N). FCT tomó su
-idea (contar los cofres abiertos en Fortnite a partir de sus repeticiones), su código y su historial hasta el 11 de
-noviembre de 2026, y desde entonces ha evolucionado por separado (tesoros y pantalla de fin de partida, compañeros,
-perfiles, estimado de partidas previas, interfaz, overlay, apertura con Fortnite, distribución…). Parte del código de
-ChestCounter sigue en FCT, así que su aviso de copyright y de permiso MIT se conservan (aquí y en NOTICE.md), como exige
-la licencia MIT, y su texto completo está más abajo. Los commits de este repositorio hasta el 11 de noviembre de 2026 (hasta «pend») vienen de
-ChestCounter y son obra de su autor.*
+*FCT empezó como un fork de ChestCounter, de xdoofy92, que le dio la idea de partida: contar los cofres abiertos en
+Fortnite a partir de las repeticiones del juego. Desde entonces FCT ha crecido por su cuenta (tesoros y pantalla de fin de
+partida, compañeros, perfiles, estimado de partidas previas, interfaz, overlay, apertura con Fortnite, distribución…) y,
+desde la versión siguiente a la 4.4.1, todo su código es propio: no incluye código de ChestCounter, así que FCT no lleva
+su licencia. Las versiones hasta la 4.4.1 sí incluían código de ChestCounter, con su licencia MIT (© 2026 LED-N), y esas
+copias conservan ese aviso.*
 
 ## 3. Online services · Servicios en línea
 
@@ -80,32 +78,6 @@ GitHub is a trademark of GitHub, Inc. SignPath is a trademark of SignPath GmbH. 
 MIT License
 
 Copyright (c) 2020-2026 Shiqan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-### ChestCounter
-
-```
-MIT License
-
-Copyright (c) 2026 LED-N
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

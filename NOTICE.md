@@ -61,9 +61,9 @@ license. The license above applies from the version after 4.4.1 on.
 
 ## Third-party code
 
-- Parts of FCT come from [ChestCounter](https://github.com/xdoofy92/ChestCounter) (Copyright (c) 2026 LED-N, MIT
-  license); FCT is a fork of it. Those parts keep their MIT copyright and permission notice, reproduced in
-  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The MIT license allows including them in a GPL-licensed work.
+- FCT started as a fork of [ChestCounter](https://github.com/xdoofy92/ChestCounter) (xdoofy92), the project that gave it
+  its idea. All of FCT's code is now its own; versions up to 4.4.1 included ChestCounter code under its MIT license
+  (Copyright (c) 2026 LED-N), and those copies keep that notice.
 - [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) (Copyright (c) 2020-2026 Shiqan,
   MIT) and the .NET runtime (MIT): see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
@@ -104,6 +104,7 @@ la ley, incluido el de actuar contra cualquier uso que incumpla estas condicione
 **Versiones anteriores:** hasta la **4.4.1** incluida se publicaron con licencia MIT, y esas copias siguen siendo MIT.
 Esta licencia rige desde la versión siguiente.
 
-**Código de terceros:** partes de FCT vienen de ChestCounter (© 2026 LED-N, MIT; FCT es un fork) y conservan su aviso
-MIT; FortniteReplayDecompressor (© Shiqan, MIT) y .NET (MIT). Todo en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+**Origen y código de terceros:** FCT empezó como un fork de ChestCounter (xdoofy92), el proyecto que le dio la idea;
+hoy todo su código es propio (hasta la 4.4.1 incluía código de ChestCounter, con su licencia MIT, © 2026 LED-N).
+FortniteReplayDecompressor (© Shiqan, MIT) y .NET (MIT). Todo en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 FCT no está afiliado a Epic Games; Fortnite es una marca registrada de Epic Games, Inc.

@@ -252,7 +252,7 @@ Everything external it uses, with its license or terms, is in [THIRD_PARTY_NOTIC
 | | What for | License |
 |---|---|---|
 | [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan | Reading and decompressing replays. Included in `external/`, with its own changes described in [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md). | MIT |
-| [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92 | FCT is a fork of ChestCounter: it started from its idea, code and history (up to 11/11/2026) and has evolved separately since. Part of its code is still in FCT, so its copyright notice and MIT license are kept in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). | MIT |
+| [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92 | Origin and inspiration: FCT started as a fork of ChestCounter, which gave it the idea of counting chests from the replays. From the version after 4.4.1 all of FCT's code is its own. | MIT (up to 4.4.1) |
 | [.NET](https://github.com/dotnet/runtime) and Windows Forms | The exe carries the .NET runtime, so nothing has to be installed. | MIT |
 
 **Services** (none receives data unless you ask; details in the [privacy policy](CODE_SIGNING_POLICY.md#privacy-policy))
