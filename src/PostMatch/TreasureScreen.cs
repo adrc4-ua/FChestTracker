@@ -33,9 +33,12 @@ public static class TreasureScreenMerge
         {
             return null;
         }
-        var end = DateTime.SpecifyKind(start, DateTimeKind.Utc).AddSeconds(m.DurationSeconds ?? 0);
+        var begin = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+        var end = begin.AddSeconds(m.DurationSeconds ?? 0);
+        // Never a screen shown before this match started: a very short replay right after a match (joined and left)
+        // took the previous match's screen, and its treasures were counted twice.
         return screens
-            .Where(s => s.ShownUtc >= end - Before && s.ShownUtc <= end + After)
+            .Where(s => s.ShownUtc >= end - Before && s.ShownUtc <= end + After && s.ShownUtc > begin.AddSeconds(30))
             .OrderBy(s => Math.Abs((s.ShownUtc - end).TotalSeconds))
             .FirstOrDefault();
     }

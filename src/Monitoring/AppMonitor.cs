@@ -82,6 +82,25 @@ public sealed class AppMonitor
 
     public void Start()
     {
+        // Las pantallas de tesoros guardadas, otra vez con las reglas actuales (así se corrige lo que una versión
+        // anterior asignó mal, como el tesoro de una partida contado también en la repetición corta de después).
+        try
+        {
+            var fixedAny = false;
+            foreach (var m in _data.Matches)
+            {
+                fixedAny |= TreasureScreenMerge.Apply(m, _data.TreasureScreens);
+            }
+            if (fixedAny)
+            {
+                _store.SaveData(_data);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Repasar pantallas de tesoros", ex);
+        }
+
         if (OperatingSystem.IsWindows())
         {
             StartOverlay();
