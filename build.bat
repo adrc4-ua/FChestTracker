@@ -24,6 +24,5 @@ if errorlevel 1 (
 )
 
 echo.
-echo Done! The file to share: %~dp0dist\FCT.exe
-explorer dist
-pause
+echo Done! Launching %~dp0dist\FCT.exe
+start "" "%~dp0dist\FCT.exe"
