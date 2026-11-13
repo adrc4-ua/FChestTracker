@@ -59,7 +59,7 @@ El botón **Estadísticas** las abre en tu navegador, y se actualizan solas mien
 
 <img src="docs/images/stats-summary-es.png" alt="Resumen de estadísticas" width="100%">
 
-**💎 Tesoros** · los que has conseguido, de dónde salieron y los premios de esta semana.
+**Tesoros** · los que has conseguido, de dónde salieron y los premios de esta semana.
 
 <img src="docs/images/stats-treasures-es.png" alt="Tesoros" width="100%">
 
