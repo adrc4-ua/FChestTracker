@@ -124,14 +124,14 @@ public sealed class Tracker
 
         var batch = ready.Count >= 2;
         var profilesBefore = Profiles.List(_data).Count;
-        var bar = batch ? new ConsoleProgressBar(L.T("Analizando replays", "Analyzing replays"), ready.Count) : null;
+        var bar = batch ? new ConsoleProgress(L.T("Analizando replays", "Analyzing replays"), ready.Count) : null;
         var outcomes = new List<Outcome>();
         for (var i = 0; i < ready.Count; i++)
         {
             var file = ready[i];
             if (batch)
             {
-                bar!.Update(i, file.Name);
+                bar!.Show(i, file.Name);
                 ReportWriter.Progress = new ScanProgress(i, ready.Count);
                 ReportWriter.WriteAll(_store, _config, _data);
                 Progressed?.Invoke(ReportWriter.Progress);
@@ -159,8 +159,8 @@ public sealed class Tracker
 
         if (batch)
         {
-            bar!.Update(ready.Count);
-            bar.Clear();
+            bar!.Show(ready.Count);
+            bar.Erase();
             ReportWriter.Progress = null;
             Progressed?.Invoke(null);
             PrintBatchSummary(outcomes);

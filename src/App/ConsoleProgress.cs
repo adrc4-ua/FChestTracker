@@ -1,83 +1,86 @@
 namespace FCT.App;
 
 /// <summary>
-/// A progress line for the command line options, rewritten in place: label, bar, "done / total" and, when it fits,
-/// the end of the current file name. Draws nothing when the output is redirected (the final summary is enough).
+/// A progress line for the command line options, rewritten in place: caption, bar, "done / total" and, when it fits,
+/// the end of the file being read. Silent when the output goes to a file or pipe (the final summary is enough there).
 /// </summary>
-public sealed class ConsoleProgressBar
+public sealed class ConsoleProgress
 {
-    private const int BarCells = 28;
-    private static readonly bool CanRedraw = !Console.IsInputRedirected && !Console.IsOutputRedirected;
+    private const int Cells = 28;
 
-    private readonly string _label;
-    private readonly int _total;
-    private int _drawn; // characters of the previous line, to blank what a shorter one leaves behind
+    private readonly string _caption;
+    private readonly int _steps;
+    private readonly bool _live = !(Console.IsOutputRedirected || Console.IsInputRedirected);
+    private int _width; // length of the last line drawn, to blank leftovers of a longer one
 
-    public ConsoleProgressBar(string label, int total)
+    public ConsoleProgress(string caption, int steps)
     {
-        _label = label;
-        _total = Math.Max(1, total);
+        _caption = caption;
+        _steps = steps < 1 ? 1 : steps;
     }
 
-    public void Update(int done, string? detail = null)
+    public void Show(int step, string? currentFile = null)
     {
-        if (!CanRedraw)
+        if (!_live)
         {
             return;
         }
-        var full = (int)Math.Round(BarCells * Math.Clamp(done, 0, _total) / (double)_total);
-        var bar = new string('█', full) + new string('░', BarCells - full);
-        var tail = $"  {done} / {_total}";
-        var head = $"  {_label}  ";
-
-        var used = head.Length + bar.Length + tail.Length;
-        if (!string.IsNullOrEmpty(detail))
+        var ratio = Math.Min(Math.Max(step, 0), _steps) / (double)_steps;
+        var filled = (int)Math.Round(ratio * Cells);
+        var parts = new (string Text, ConsoleColor Color)[]
         {
-            var space = ConsoleWidth() - used - 4;
-            if (space > 8)
-            {
-                tail += "  " + (detail.Length > space ? "…" + detail[^(space - 1)..] : detail);
-            }
-        }
+            ($"  {_caption}  ", ConsoleColor.Cyan),
+            ("".PadRight(filled, '█').PadRight(Cells, '░'), ConsoleColor.Yellow),
+            ($"  {step} / {_steps}" + FileSuffix(currentFile, _caption.Length + Cells + 16), ConsoleColor.Gray),
+        };
 
         Console.Write('\r');
-        Paint(head, ConsoleColor.Cyan);
-        Paint(bar, ConsoleColor.Yellow);
-        Paint(tail, ConsoleColor.Gray);
+        var written = 0;
+        foreach (var (text, color) in parts)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            written += text.Length;
+        }
         Console.ResetColor();
-        var length = head.Length + bar.Length + tail.Length;
-        if (length < _drawn)
+        if (_width > written)
         {
-            Console.Write(new string(' ', _drawn - length));
+            Console.Write("".PadRight(_width - written));
         }
-        _drawn = length;
+        _width = written;
     }
 
-    /// <summary>Blanks the line, so the summary can take its place.</summary>
-    public void Clear()
+    /// <summary>Blanks the line so the summary can take its place.</summary>
+    public void Erase()
     {
-        if (CanRedraw && _drawn > 0)
+        if (_live && _width > 0)
         {
-            Console.Write('\r' + new string(' ', _drawn) + '\r');
-            _drawn = 0;
+            Console.Write("\r" + "".PadRight(_width) + "\r");
+            _width = 0;
         }
     }
 
-    private static void Paint(string text, ConsoleColor color)
+    /// <summary>"  …end-of-name" sized to the console, or nothing when there is no room.</summary>
+    private static string FileSuffix(string? file, int used)
     {
-        Console.ForegroundColor = color;
-        Console.Write(text);
-    }
-
-    private static int ConsoleWidth()
-    {
+        if (string.IsNullOrEmpty(file))
+        {
+            return "";
+        }
+        int columns;
         try
         {
-            return Console.WindowWidth;
+            columns = Console.WindowWidth;
         }
         catch (IOException)
         {
-            return 80;
+            columns = 80;
         }
+        var room = columns - used - 4;
+        if (room <= 8)
+        {
+            return "";
+        }
+        return "  " + (file.Length <= room ? file : "…" + file.Substring(file.Length - room + 1));
     }
 }
