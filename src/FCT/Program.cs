@@ -229,7 +229,7 @@ internal static class Program
         var data = store.LoadData();
         var tracker = new Tracker(store, config, data);
         // Antes de cualquier escaneo: si no, los replays se analizarían dos veces.
-        var reanalyzing = tracker.UpgradeIfNeeded();
+        tracker.UpgradeIfNeeded();
 
         // ---- Modo de línea de comandos -------------------------------------------------------------------
         if (once)
@@ -281,12 +281,8 @@ internal static class Program
         }
 
         // ---- Ventana -------------------------------------------------------------------------------------
+        // Si el análisis cambió, los replays se vuelven a leer en silencio (sin duplicados): no hace falta avisar.
         var monitor = new FCT.Monitor(store, config, data, tracker, dataDir) { AutoMode = auto };
-        if (reanalyzing)
-        {
-            monitor.SetNotice(L.T("Nueva versión del análisis: se vuelven a leer los replays (sin duplicados).",
-                "New analysis version: the replays are read again (no duplicates)."));
-        }
 
         var form = new MainForm(monitor, store);
         monitor.CloseRequested += () =>
