@@ -222,13 +222,14 @@ public static class NativeOverlay
         int S(int v) => (int)Math.Round(v * _scale);
 
         CreateFonts();
-        _brushBg = CreateSolidBrush(Rgb(15, 19, 27));
-        _brushBorder = CreateSolidBrush(Rgb(42, 51, 68));
-        _brushLine = CreateSolidBrush(Rgb(34, 41, 56));
-        _brushChip = CreateSolidBrush(Rgb(26, 32, 45));
-        _brushGold = CreateSolidBrush(Rgb(255, 184, 77));
-        _brushGreen = CreateSolidBrush(Rgb(61, 220, 151));
-        _brushPill = CreateSolidBrush(Rgb(20, 58, 44));
+        // Paleta de la app (negro y oro): tarjeta, borde de oro fino, línea, cápsula dorada suave, oro y menta (en directo).
+        _brushBg = CreateSolidBrush(Rgb(18, 18, 21));
+        _brushBorder = CreateSolidBrush(Rgb(82, 65, 37));
+        _brushLine = CreateSolidBrush(Rgb(44, 42, 38));
+        _brushChip = CreateSolidBrush(Rgb(39, 33, 25));
+        _brushGold = CreateSolidBrush(Rgb(232, 176, 75));
+        _brushGreen = CreateSolidBrush(Rgb(134, 214, 160));
+        _brushPill = CreateSolidBrush(Rgb(30, 44, 36));
 
         var hInstance = GetModuleHandleW(null);
         _wndProc = WndProc;
@@ -584,13 +585,13 @@ public static class NativeOverlay
             // Header: "COFRES" ... [● EN DIRECTO] [lock]
             _badgeW = v.Badge != null ? TextWidth(hdc, _fontHeader, BadgeText(v.Badge), out _) + S(22) : 0;
             var buttons = _onClose != null ? S(44) : S(24); // lock (+ close)
-            var headerW = TextWidth(hdc, _fontHeader, Header, out _headerH) + S(10) + _badgeW + buttons;
+            var headerW = S(12) + TextWidth(hdc, _fontHeader, Header, out _headerH) + S(10) + _badgeW + buttons;
 
             // Big total on the left, current / last match in a rounded chip on the right.
             _col1W = Math.Max(TextWidth(hdc, _fontBig, v.Total, out _bigH), TextWidth(hdc, _fontCaption, CaptionTotal.ToUpperInvariant(), out _captionH));
             var currentW = Math.Max(TextWidth(hdc, _fontBig, v.Current ?? "—", out _),
                 Math.Max(TextWidth(hdc, _fontCaption, v.CurrentCaption.ToUpperInvariant(), out _), TextWidth(hdc, _fontCaption, OverlayModel.LastMatchCaption.ToUpperInvariant(), out _)));
-            _chipW = currentW + 2 * S(10);
+            _chipW = currentW + 2 * S(12);
             _chipH = _bigH + _captionH + S(8);
             _mainH = Math.Max(_bigH + _captionH, _chipH);
             var mainW = _col1W + S(ColGap) + _chipW;
@@ -601,10 +602,16 @@ public static class NativeOverlay
             for (var i = 0; i < v.Rows.Count; i++)
             {
                 var row = v.Rows[i];
-                _statW[i] = Math.Max(TextWidth(hdc, _fontLabel, row.Label.ToUpperInvariant(), out _), TextWidth(hdc, _fontStat, row.Value, out var vh));
+                var valueW = TextWidth(hdc, _fontStat, StatValue(row), out var vh);
+                if (row.Treasure)
+                {
+                    valueW += vh + S(3); // the gem icon before the number
+                }
+                _statW[i] = Math.Max(TextWidth(hdc, _fontLabel, row.Label.ToUpperInvariant(), out _), valueW);
                 _statH = Math.Max(_statH, vh);
             }
-            var statsW = _statW.Sum() + Math.Max(0, _statW.Length - 1) * S(StatGap);
+            // Equal columns, each one centred: as wide as the widest one.
+            var statsW = _statW.Length == 0 ? 0 : _statW.Length * _statW.Max() + (_statW.Length - 1) * S(StatGap);
 
             // Never shrinks: the overlay keeps the same size between a match in progress and the end of the match.
             var contentW = Math.Max(headerW, Math.Max(mainW, statsW));
@@ -684,90 +691,194 @@ public static class NativeOverlay
         }
     }
 
+    /// <summary>Value of a stat as drawn: the treasure count without its emoji (the overlay draws the gem icon).</summary>
+    private static string StatValue(OverlayRow row) => row.Treasure ? row.Value.Replace(OverlayModel.TreasureIcon, "").Trim() : row.Value;
+
+    /// <summary>
+    /// The overlay with the app's style: black card with the gold veil of its cards, thin gold border, gold stripe on
+    /// the left (mint during a match), «◆ COFRES» like the app's titles, the big numbers with the gold gradient, the
+    /// current / last match in a soft gold chip, and the stats in equal centred columns (treasures with the gold gem).
+    /// Plain GDI for the small texts (sharp ClearType) and GDI+ for gradients, icons and the big numbers.
+    /// </summary>
     private static void PaintTo(IntPtr hwnd, IntPtr hdc)
     {
         var v = _view;
         GetClientRect(hwnd, out var rc);
-        FillRect(hdc, ref rc, _brushBg);
-        SetBkMode(hdc, TRANSPARENT);
-
         int S(int n) => (int)Math.Round(n * _scale);
-        var muted = Rgb(122, 132, 150);
-        var ink = Rgb(230, 234, 242);
-        var gold = Rgb(255, 184, 77);
-        var green = Rgb(61, 220, 151);
+        var ink = Rgb(243, 238, 227);
+        var muted = Rgb(150, 143, 128);
+        var champ = Rgb(216, 194, 143);
+        var faint = Rgb(90, 85, 75);
+        var mint = Rgb(134, 214, 160);
 
-        // Accent stripe on the left edge (gold, green during a match), clipped by the rounded window region.
-        var stripe = new RECT { Left = 0, Top = 0, Right = S(Stripe), Bottom = rc.Bottom };
-        FillRect(hdc, ref stripe, v.CurrentLive ? _brushGreen : _brushGold);
-
-        // Thin border following the rounded shape.
-        var border = CreateRoundRectRgn(0, 0, rc.Right + 1, rc.Bottom + 1, S(16), S(16));
-        FrameRgn(hdc, border, _brushBorder, 1, 1);
-        DeleteObject(border);
-
+        // Layout (sizes measured by Relayout).
         var x = S(Stripe) + S(Pad);
         var right = rc.Right - S(Pad);
-        var y = S(9);
+        var headY = S(9);
+        var mainY = headY + _headerH + S(6);
+        var ty = mainY + (_mainH - _bigH - _captionH) / 2;
+        var cl = right - _chipW;
+        var ct = mainY + (_mainH - _chipH) / 2;
+        var statsY = mainY + _mainH + S(8);
+        var slot = v.Rows.Count > 0 ? (right - x) / (float)v.Rows.Count : 0f;
+        var pillL = _lockRect.Left - S(6) - _badgeW;
+        var pillR = _lockRect.Left - S(6);
 
-        // Header: title, state pill, lock button (Segoe MDL2 Assets: E785 = open padlock, E72E = closed padlock).
-        Text(hdc, _fontHeader, muted, Header, x, y, right, y + _headerH);
+        // 1 · Flat backgrounds (GDI).
+        FillRect(hdc, ref rc, _brushBg);
+        SetBkMode(hdc, TRANSPARENT);
+        RoundFill(hdc, _brushChip, cl, ct, right, ct + _chipH, S(12));
+        var chipEdge = CreateRoundRectRgn(cl, ct, right + 1, ct + _chipH + 1, S(12), S(12));
+        FrameRgn(hdc, chipEdge, _brushBorder, 1, 1);
+        DeleteObject(chipEdge);
         if (v.Badge != null)
         {
-            var pr = _lockRect.Left - S(6);
-            var pl = pr - _badgeW;
-            RoundFill(hdc, _brushPill, pl, y - S(3), pr, y + _headerH + S(3), _headerH + S(6));
-            var dot = S(7);
-            var dy = y + (_headerH - dot) / 2;
-            var dotRgn = CreateEllipticRgn(pl + S(7), dy, pl + S(7) + dot + 1, dy + dot + 1);
-            FillRgn(hdc, dotRgn, _brushGreen);
-            DeleteObject(dotRgn);
-            Text(hdc, _fontHeader, green, BadgeText(v.Badge), pl + S(17), y, pr, y + _headerH);
+            RoundFill(hdc, _brushPill, pillL, headY - S(3), pillR, headY + _headerH + S(3), _headerH + S(6));
         }
+        if (v.Rows.Count > 0)
+        {
+            var line = new RECT { Left = x, Top = statsY, Right = right, Bottom = statsY + 1 };
+            FillRect(hdc, ref line, _brushLine);
+        }
+
+        // 2 · Gradients, icons and big numbers (GDI+).
+        using (var g = System.Drawing.Graphics.FromHdc(hdc))
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            var gold = System.Drawing.Color.FromArgb(232, 176, 75);
+            var goldHi = System.Drawing.Color.FromArgb(248, 217, 143);
+            var goldDeep = System.Drawing.Color.FromArgb(196, 138, 44);
+
+            // Gold veil over the top half (like the app's cards).
+            var veil = new System.Drawing.RectangleF(0, 0, rc.Right, rc.Bottom * 0.55f);
+            using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(new System.Drawing.PointF(0, -1), new System.Drawing.PointF(0, veil.Bottom),
+                       System.Drawing.Color.FromArgb(16, gold), System.Drawing.Color.FromArgb(0, gold)))
+            {
+                g.FillRectangle(brush, veil);
+            }
+            // Accent stripe on the left (clipped by the rounded window region): gold gradient, mint during a match.
+            var stripe = new System.Drawing.RectangleF(0, 0, S(Stripe), rc.Bottom);
+            using (var brush = v.CurrentLive
+                       ? (System.Drawing.Brush)new System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(134, 214, 160))
+                       : new System.Drawing.Drawing2D.LinearGradientBrush(new System.Drawing.PointF(0, -1), new System.Drawing.PointF(0, rc.Bottom + 1), goldHi, gold))
+            {
+                g.FillRectangle(brush, stripe);
+            }
+            // ◆ before COFRES (the app's section titles).
+            var d = S(6);
+            var state = g.Save();
+            g.TranslateTransform(x + d * 0.75f, headY + _headerH / 2f);
+            g.RotateTransform(45);
+            using (var brush = new System.Drawing.SolidBrush(gold))
+            {
+                g.FillRectangle(brush, -d / 2f, -d / 2f, d, d);
+            }
+            g.Restore(state);
+            // Live dot in the pill.
+            if (v.Badge != null)
+            {
+                var dot = S(7);
+                using var brush = new System.Drawing.SolidBrush(System.Drawing.Color.FromArgb(134, 214, 160));
+                g.FillEllipse(brush, pillL + S(8), headY + (_headerH - dot) / 2f, dot, dot);
+            }
+
+            // Big numbers with the gold gradient: the total (deep) and the match (lighter; mint live, faint none).
+            BigNumber(g, v.Total, x - S(1), ty, null, true);
+            var currentColor = v.Current == null ? System.Drawing.Color.FromArgb(90, 85, 75) : v.CurrentLive ? System.Drawing.Color.FromArgb(134, 214, 160) : (System.Drawing.Color?)null;
+            BigNumber(g, v.Current ?? "—", cl, ct + S(3), currentColor, false, _chipW);
+
+            // Gem icon of the treasures stat.
+            for (var i = 0; i < v.Rows.Count; i++)
+            {
+                var row = v.Rows[i];
+                if (!row.Treasure)
+                {
+                    continue;
+                }
+                var numberW = TextWidth(hdc, _fontStat, StatValue(row), out _);
+                var icon = _statH * 0.82f;
+                var total = icon + S(3) + numberW;
+                var cx = x + slot * (i + 0.5f);
+                var vy = statsY + 1 + S(7) + _captionH + S(1);
+                FCT.UI.SvgIcon.Draw(g, FCT.UI.Icons.Treasure, new System.Drawing.RectangleF(cx - total / 2f, vy + (_statH - icon) / 2f, icon, icon), gold, 0.3f, 1.15f);
+            }
+        }
+
+        // 3 · Sharp texts (GDI, ClearType).
+        Text(hdc, _fontHeader, champ, Header, x + S(12), headY, right, headY + _headerH);
+        if (v.Badge != null)
+        {
+            Text(hdc, _fontHeader, mint, BadgeText(v.Badge), pillL + S(19), headY, pillR, headY + _headerH);
+        }
+        // Lock and close (Segoe MDL2 Assets: E785 open padlock, E72E closed padlock, E8BB close).
         SelectObject(hdc, _fontIcon);
-        SetTextColor(hdc, _locked ? Rgb(86, 96, 114) : Rgb(200, 206, 218));
+        SetTextColor(hdc, _locked ? faint : champ);
         var lr = _lockRect;
         DrawTextW(hdc, _locked ? "\uE72E" : "\uE785", -1, ref lr, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
         if (_onClose != null)
         {
-            // Close (Segoe MDL2 Assets E8BB = ChromeClose): closes the app and the overlay.
-            SetTextColor(hdc, Rgb(200, 206, 218));
+            SetTextColor(hdc, champ);
             var cr = _closeRect;
             DrawTextW(hdc, "\uE8BB", -1, ref cr, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
         }
-        y += _headerH + S(6);
-
-        // Total (left) and current / last match chip (right).
-        var ty = y + (_mainH - _bigH - _captionH) / 2;
-        Text(hdc, _fontBig, gold, v.Total, x - S(1), ty, x + _col1W + S(4), ty + _bigH);
         Text(hdc, _fontCaption, muted, CaptionTotal.ToUpperInvariant(), x, ty + _bigH, x + _col1W + S(4), ty + _bigH + _captionH);
+        Text(hdc, _fontCaption, v.CurrentLive ? mint : muted, v.CurrentCaption.ToUpperInvariant(), cl, ct + S(3) + _bigH, right, ct + S(3) + _bigH + _captionH, DT_CENTER);
 
-        var cl = right - _chipW;
-        var ct = y + (_mainH - _chipH) / 2;
-        RoundFill(hdc, _brushChip, cl, ct, right, ct + _chipH, S(10));
-        var currentColor = v.Current == null ? Rgb(80, 88, 104) : v.CurrentLive ? green : ink;
-        Text(hdc, _fontBig, currentColor, v.Current ?? "—", cl, ct + S(3), right, ct + S(3) + _bigH, DT_CENTER);
-        Text(hdc, _fontCaption, v.CurrentLive ? green : muted, v.CurrentCaption.ToUpperInvariant(), cl, ct + S(3) + _bigH, right, ct + S(3) + _bigH + _captionH, DT_CENTER);
-        y += _mainH + S(8);
-
-        // Stats strip: columns spread over the whole width.
+        // Stats: equal columns, label and value centred in each.
         if (v.Rows.Count > 0)
         {
-            var line = new RECT { Left = x, Top = y, Right = right, Bottom = y + 1 };
-            FillRect(hdc, ref line, _brushLine);
-            y += 1 + S(7);
-            var free = right - x - _statW.Sum();
-            var gap = v.Rows.Count > 1 ? free / (v.Rows.Count - 1) : 0;
-            var cx = x;
+            var y = statsY + 1 + S(7);
             for (var i = 0; i < v.Rows.Count; i++)
             {
                 var row = v.Rows[i];
-                var colRight = i == v.Rows.Count - 1 ? right + S(4) : cx + _statW[i] + S(4);
-                Text(hdc, _fontLabel, muted, row.Label.ToUpperInvariant(), cx, y, colRight, y + _captionH);
+                var l = (int)Math.Round(x + slot * i);
+                var r = (int)Math.Round(x + slot * (i + 1));
+                Text(hdc, _fontLabel, muted, row.Label.ToUpperInvariant(), l - S(6), y, r + S(6), y + _captionH, DT_CENTER);
                 var vy = y + _captionH + S(1);
-                Text(hdc, _fontStat, row.Treasure ? Rgb(255, 128, 170) : ink, row.Value, cx, vy, colRight, vy + _statH);
-                cx += _statW[i] + gap;
+                if (row.Treasure)
+                {
+                    // Number after the gem icon (drawn above), the pair centred in the column.
+                    var number = StatValue(row);
+                    var numberW = TextWidth(hdc, _fontStat, number, out _);
+                    var icon = (int)Math.Round(_statH * 0.82f);
+                    var total = icon + S(3) + numberW;
+                    var left = (int)Math.Round(x + slot * (i + 0.5f) - total / 2f) + icon + S(3);
+                    Text(hdc, _fontStat, Rgb(232, 176, 75), number, left, vy, left + numberW + S(2), vy + _statH);
+                }
+                else
+                {
+                    Text(hdc, _fontStat, ink, row.Value, l - S(6), vy, r + S(6), vy + _statH, DT_CENTER);
+                }
             }
+        }
+    }
+
+    /// <summary>
+    /// A big number drawn as a shape: with the gold gradient (<paramref name="solid"/> null) or one colour, left-aligned
+    /// at <paramref name="left"/> or centred in <paramref name="centerWidth"/>, vertically centred in the line of the big font.
+    /// </summary>
+    private static void BigNumber(System.Drawing.Graphics g, string text, float left, float top, System.Drawing.Color? solid, bool deep, int centerWidth = 0)
+    {
+        using var path = new System.Drawing.Drawing2D.GraphicsPath();
+        using var family = new System.Drawing.FontFamily("Segoe UI");
+        path.AddString(text, family, (int)System.Drawing.FontStyle.Bold, (float)Math.Round(26 * _scale), System.Drawing.PointF.Empty, System.Drawing.StringFormat.GenericTypographic);
+        var ink = path.GetBounds();
+        var x = centerWidth > 0 ? left + (centerWidth - ink.Width) / 2f - ink.Left : left + Math.Max(1f, _scale) - ink.Left;
+        var y = top + (_bigH - ink.Height) / 2f - ink.Top;
+        using (var move = new System.Drawing.Drawing2D.Matrix())
+        {
+            move.Translate(x, y);
+            path.Transform(move);
+        }
+        var bounds = path.GetBounds();
+        System.Drawing.Brush brush = solid is { } c
+            ? new System.Drawing.SolidBrush(c)
+            : new System.Drawing.Drawing2D.LinearGradientBrush(new System.Drawing.PointF(0, bounds.Top - 1), new System.Drawing.PointF(0, bounds.Bottom + 1),
+                System.Drawing.Color.FromArgb(248, 217, 143), deep ? System.Drawing.Color.FromArgb(196, 138, 44) : System.Drawing.Color.FromArgb(232, 176, 75));
+        using (brush)
+        {
+            g.FillPath(brush, path);
         }
     }
 

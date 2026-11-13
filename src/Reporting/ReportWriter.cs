@@ -1273,25 +1273,31 @@ public static class ReportWriter
         }
     }
 
+    // Same look as the app and the in-game overlay: black card with a gold veil, thin gold border, gold stripe (mint live),
+    // «◆ COFRES», big numbers with the gold gradient, soft gold chip, centred stats and the gold gem for treasures.
     private const string OverlayStyle = """
-        html,body{margin:0;background:transparent;color:#e6eaf2;font:500 16px/1.25 "Segoe UI",system-ui,sans-serif}
-        .box{position:relative;display:inline-block;min-width:230px;padding:10px 14px 10px 18px;border-radius:14px;overflow:hidden;
-          background:rgba(15,19,27,.9);border:1px solid #2a3344;box-shadow:0 6px 24px rgba(0,0,0,.35)}
-        .box:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#ffb84d}
-        .box.live:before{background:#3ddc97}
-        .head{display:flex;align-items:center;justify-content:space-between;gap:16px;font:700 12px "Segoe UI",sans-serif;letter-spacing:.12em;color:#7a8496}
-        .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:#143a2c;color:#3ddc97;letter-spacing:.06em}
-        .pill:before{content:"";width:8px;height:8px;border-radius:50%;background:#3ddc97;animation:pulse 1.6s ease-in-out infinite}
+        html,body{margin:0;background:transparent;color:#f3eee3;font:500 16px/1.25 "Segoe UI",system-ui,sans-serif}
+        .box{position:relative;display:inline-block;min-width:240px;padding:10px 14px 10px 18px;border-radius:16px;overflow:hidden;
+          background:linear-gradient(180deg,rgba(232,176,75,.07),rgba(232,176,75,0) 55%),rgba(18,18,21,.94);border:1px solid rgba(232,176,75,.30);box-shadow:0 10px 28px rgba(0,0,0,.45)}
+        .box:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#f8d98f,#e8b04b)}
+        .box.live:before{background:#86d6a0}
+        .head{display:flex;align-items:center;justify-content:space-between;gap:16px;font:700 12px "Segoe UI",sans-serif;letter-spacing:.12em;color:#d8c28f}
+        .head>span:first-child:before{content:"";display:inline-block;width:6px;height:6px;margin:0 8px 2px 1px;background:#e8b04b;transform:rotate(45deg)}
+        .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:rgba(134,214,160,.12);border:1px solid rgba(134,214,160,.32);color:#86d6a0;letter-spacing:.06em}
+        .pill:before{content:"";width:8px;height:8px;border-radius:50%;background:#86d6a0;animation:pulse 1.6s ease-in-out infinite}
         @keyframes pulse{50%{opacity:.35}}
         .main{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:6px 0 8px}
         .big{display:block;font-size:34px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
-        .total .big{color:#ffb84d}
-        .cap{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#7a8496;text-transform:uppercase}
-        .chip{min-width:84px;padding:5px 12px;border-radius:11px;background:#1a202d;text-align:center}
-        .chip.live .big,.chip.live .cap{color:#3ddc97}.chip.none .big{color:#505868}
-        .stats{display:flex;justify-content:space-between;gap:14px;border-top:1px solid #222938;padding-top:7px}
-        .stat .cap{font-size:10px}.stat b{display:block;font-size:16px;font-weight:700}
-        .stat.t b{color:#ff80aa}.stat small{display:block;font-size:11px;font-weight:600;color:#7a8496}
+        .total .big,.chip .big{background:linear-gradient(180deg,#f8d98f,#e8b04b 60%,#c48a2c);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .chip .big{background-image:linear-gradient(180deg,#f8d98f,#e8b04b)}
+        .cap{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#968f80;text-transform:uppercase}
+        .chip{min-width:84px;padding:5px 12px;border-radius:12px;background:rgba(232,176,75,.10);border:1px solid rgba(232,176,75,.30);text-align:center}
+        .chip.live .big{background:none;color:#86d6a0}.chip.live .cap{color:#86d6a0}.chip.none .big{background:none;color:#5a554b}
+        .stats{display:flex;justify-content:space-around;gap:14px;border-top:1px solid #2c2a26;padding-top:7px}
+        .stat{text-align:center}.stat .cap{font-size:10px}.stat b{display:block;font-size:16px;font-weight:700}
+        .stat.t b{color:#e8b04b;display:flex;align-items:center;justify-content:center;gap:4px}.stat.t svg{width:15px;height:15px}
+        .stat small{display:block;font-size:11px;font-weight:600;color:#968f80}
+        svg .f{fill:currentColor;fill-opacity:.3}
         """;
 
     /// <summary>The overlay card (shared by overlay.html and the OBS page served by the tool).</summary>
@@ -1300,7 +1306,9 @@ public static class ReportWriter
         var stats = new StringBuilder();
         foreach (var r in v.Rows)
         {
-            stats.Append($"<div class=\"stat{(r.Treasure ? " t" : "")}\"><span class=\"cap\">{H(r.Label)}</span><b>{H(r.Value)}</b></div>");
+            // Treasures: the gold gem icon (the same as the app's) instead of the emoji.
+            var value = r.Treasure ? GemIconBig + H(r.Value.Replace(OverlayModel.TreasureIcon, "").Trim()) : H(r.Value);
+            stats.Append($"<div class=\"stat{(r.Treasure ? " t" : "")}\"><span class=\"cap\">{H(r.Label)}</span><b>{value}</b></div>");
         }
         var badge = v.Badge != null ? $"<span class=\"pill\">{H(v.Badge.TrimStart('●', ' '))}</span>" : "";
         var chip = v.Current == null ? "none" : v.CurrentLive ? "live" : "";
