@@ -304,7 +304,8 @@ internal static class Program
             }
             // Partidas de antes: solo las repeticiones, o repeticiones + un estimado (se calcula cuando estén contadas;
             // si no llegan a las partidas elegidas para la media, tras las próximas).
-            if (EstimateDialog.Ask(null, null, null, null, null) is not { } earlier)
+            // Sin partidas guardadas que contar (no hay, o «Solo las nuevas»), la primera opción es «Empezar de cero».
+            if (EstimateDialog.Ask(null, null, null, null, null, fromScratch: existing.Count == 0 || countThem == false) is not { } earlier)
             {
                 return 0; // ventana cerrada
             }

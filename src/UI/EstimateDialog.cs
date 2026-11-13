@@ -62,7 +62,9 @@ public sealed class EstimateDialog : ThemedForm
     private int _sample;
     private string _source = "manual";
 
-    private EstimateDialog(string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool owned)
+    /// <param name="fromScratch">No hay partidas guardadas que contar (no había, o se eligió «Solo las nuevas»): la primera
+    /// opción es «Empezar de cero» y los textos no hablan de partidas guardadas.</param>
+    private EstimateDialog(string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool owned, bool fromScratch = false)
     {
         _previewOf = previewOf;
         _accountId = accountId;
@@ -81,13 +83,18 @@ public sealed class EstimateDialog : ThemedForm
         // ---- Cabecera ------------------------------------------------------------------------------------------------
         Controls.Add(new IconTile { IconSvg = Icons.Calc, Solid = true, Location = new Point(Pad, Pad), Size = new Size(42, 42) });
         var y = AddText(this, L.T("¿Sumamos tus partidas de antes?", "Add your earlier matches too?"), Theme.Text(12f, FontStyle.Bold), Theme.GoldHi, 74, Pad - 1, W - 74 - Pad) + 2;
-        y = AddText(this, L.T("FCT solo ve las partidas que tienes guardadas. Si quieres, calculamos cuántos cofres abriste en las demás.",
-                "FCT only sees the matches you have saved. If you like, we'll work out how many chests you opened in the rest."),
+        y = AddText(this, fromScratch
+                ? L.T("FCT empieza a contar desde ahora. Si quieres, calculamos cuántos cofres abriste antes.",
+                    "FCT starts counting from now. If you like, we'll work out how many chests you opened before.")
+                : L.T("FCT solo ve las partidas que tienes guardadas. Si quieres, calculamos cuántos cofres abriste en las demás.",
+                    "FCT only sees the matches you have saved. If you like, we'll work out how many chests you opened in the rest."),
             Theme.Text(9f), Theme.Muted, 74, y, W - 74 - Pad);
         y = Math.Max(y, Pad + 42) + 16;
 
         var half = (W - 2 * Pad - 8) / 2;
-        _onlyReplays = Pill(this, L.T("Solo las guardadas", "Only saved ones"), new Point(Pad, y), new Size(half, 38), 9f, Icons.Folder);
+        _onlyReplays = fromScratch
+            ? Pill(this, L.T("Empezar de cero", "Start from zero"), new Point(Pad, y), new Size(half, 38), 9f, Icons.Sparkle)
+            : Pill(this, L.T("Solo las guardadas", "Only saved ones"), new Point(Pad, y), new Size(half, 38), 9f, Icons.Folder);
         _withEstimate = Pill(this, L.T("Calcular las de antes", "Work out the rest"), new Point(Pad + half + 8, y), new Size(half, 38), 9f, Icons.Calc);
         _onlyReplays.Click += (_, _) => SelectMode(false);
         _withEstimate.Click += (_, _) => SelectMode(true);
@@ -168,8 +175,10 @@ public sealed class EstimateDialog : ThemedForm
             _samples.Add(pill);
             sx += sw + 6;
         }
-        AddText(_calcArea, L.F("partidas. Cuantas más, más exacto (te recomendamos {0} ★). También usamos las que ya tienes guardadas.",
-                "matches. The more, the more accurate (we recommend {0} ★). The ones you already have saved count too.", HistoryEstimator.RecommendedSample),
+        AddText(_calcArea, fromScratch
+                ? L.F("partidas. Cuantas más, más exacto (te recomendamos {0} ★).", "matches. The more, the more accurate (we recommend {0} ★).", HistoryEstimator.RecommendedSample)
+                : L.F("partidas. Cuantas más, más exacto (te recomendamos {0} ★). También usamos las que ya tienes guardadas.",
+                    "matches. The more, the more accurate (we recommend {0} ★). The ones you already have saved count too.", HistoryEstimator.RecommendedSample),
             Theme.Text(8.25f), Theme.Muted, 0, 40, Inner);
         _panel.Controls.Add(_calcArea);
 
@@ -229,9 +238,10 @@ public sealed class EstimateDialog : ThemedForm
 
     /// <summary>Muestra el diálogo. Devuelve lo elegido, o null si se cancela o se cierra la ventana.</summary>
     /// <param name="previewOf">Resultado con (partidas de la temporada, partidas para la media, media escrita); null en el primer uso.</param>
-    public static Choice? Ask(IWin32Window? owner, string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf)
+    /// <param name="fromScratch">Sin partidas guardadas que contar: «Empezar de cero» en vez de «Solo las guardadas».</param>
+    public static Choice? Ask(IWin32Window? owner, string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool fromScratch = false)
     {
-        using var dialog = new EstimateDialog(playerName, accountId, current, previewOf, owner != null);
+        using var dialog = new EstimateDialog(playerName, accountId, current, previewOf, owner != null, fromScratch);
         return dialog.ShowDialog(owner) == DialogResult.OK ? dialog.Result : null;
     }
 
