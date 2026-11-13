@@ -252,16 +252,9 @@ public sealed class SettingsForm : Form
         };
         Controls.Add(close);
 
-        // Pie: web y redes del autor, como enlaces que abren el navegador.
+        // Pie: enlace al repositorio del proyecto.
         var footer = AddCard(LeftX, 490, RightX + RightW - LeftX, 44, 12);
-        AddLinks(footer, L.T("Web y redes", "Web and social"), "dprojects.org", "https://dprojects.org/",
-            new (string Tip, string Url, string Logo)[]
-            {
-                ("Twitter", "https://x.com/xdoofy92", "social-twitter"),
-                ("Instagram", "https://www.instagram.com/xdoofy92/", "social-instagram"),
-                ("YouTube", "https://www.youtube.com/@xdoofy92", "social-youtube"),
-                ("TikTok", "https://www.tiktok.com/@xdoofy92", "social-tiktok"),
-            });
+        AddLinks(footer, L.T("Código fuente", "Source code"), "GitHub", AppInfo.RepoUrl, Array.Empty<(string Tip, string Url, string Logo)>());
 
         FitTexts(this);
         AcceptButton = close;

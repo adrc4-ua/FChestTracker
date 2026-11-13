@@ -4,7 +4,7 @@
 
 # Fortnite Chest Counter
 
-[![version](https://img.shields.io/github/v/release/xdoofy92/ChestCounter?style=flat-square&label=version&color=e8b04b)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/xdoofy92/ChestCounter/total?style=flat-square&label=downloads&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![license](https://img.shields.io/github/license/xdoofy92/ChestCounter?style=flat-square&label=license&color=555)](LICENSE)
+[![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=version&color=e8b04b)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=downloads&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![license](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=license&color=555)](LICENSE)
 
 **Counts every chest you open in Fortnite, match after match: window, report, in-game overlay and your team's chests.**
 
@@ -191,6 +191,6 @@ Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Wi
 
 ## License and credits
 
-[MIT](LICENSE). Replay parsing is based on [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan (MIT), lightly modified: see [`lib/PATCHES.md`](lib/PATCHES.md).
+[MIT](LICENSE). This project started from [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92. Replay parsing is based on [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan (MIT), lightly modified: see [`lib/PATCHES.md`](lib/PATCHES.md).
 
 This project is not affiliated with, endorsed or sponsored by Epic Games. Fortnite is a registered trademark of Epic Games, Inc.

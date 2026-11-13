@@ -4,7 +4,7 @@
 
 # Contador de cofres de Fortnite
 
-[![version](https://img.shields.io/github/v/release/xdoofy92/ChestCounter?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/xdoofy92/ChestCounter/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/xdoofy92/ChestCounter?style=flat-square&label=licencia&color=555)](LICENSE)
+[![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=licencia&color=555)](LICENSE)
 
 **Cuenta cada cofre que abres en Fortnite, partida tras partida: ventana, informe, overlay sobre el juego y los cofres de tu equipo.**
 
@@ -191,6 +191,6 @@ Instala el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) (
 
 ## Licencia y créditos
 
-[MIT](LICENSE). El análisis de los replays se basa en [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan (MIT), ligeramente modificado: ver [`lib/PATCHES.md`](lib/PATCHES.md).
+[MIT](LICENSE). Este proyecto parte de [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92. El análisis de los replays se basa en [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan (MIT), ligeramente modificado: ver [`lib/PATCHES.md`](lib/PATCHES.md).
 
 Este proyecto no está afiliado a Epic Games, ni cuenta con su respaldo ni patrocinio. Fortnite es una marca registrada de Epic Games, Inc.
