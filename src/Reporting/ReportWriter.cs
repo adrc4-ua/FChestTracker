@@ -108,7 +108,7 @@ public static class ReportWriter
         .grid2>section>.card,.trow>section>.card{flex:1 1 auto}
 
         /* Evolución de cofres: curva a todo el ancho, textos y puntos encima */
-        .evo{position:relative;height:clamp(92px,14vh,185px);margin:4px 8px 22px 44px}
+        .evo{position:relative;height:clamp(120px,20vh,240px);margin:6px 8px 26px 44px}
         .evo svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
         .evo .area{fill:url(#evoFill)}
         .evo .line{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px rgba(232,176,75,.45))}
@@ -146,7 +146,7 @@ public static class ReportWriter
         .team2 b.nm{font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .team2 .track{display:block;height:5px;margin-top:4px}
         .gemc{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:600}
-        table.compact th,table.compact td{padding:7px 14px}
+        table.compact th,table.compact td{padding:9px 14px}
         .trow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
         .trow>section{margin-top:22px}
         .trow .tiles{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
@@ -388,10 +388,10 @@ public static class ReportWriter
           .fill{display:flex;flex-direction:column;min-height:0}
           .fill>.card{flex:0 1 auto;min-height:0;overflow:auto}
           .duo>section{display:flex;flex-direction:column;min-height:0}
-          .duo>section>.card{flex:1 1 auto;min-height:0;overflow:auto}
+          .duo>section>.card{flex:0 1 auto;min-height:0;overflow:auto}
           .duo>.stack{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
           .stack>section.grow{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
-          .stack>section.grow>.card{flex:1 1 auto;min-height:0;overflow:auto}
+          .stack>section.grow>.card{flex:0 1 auto;min-height:0;overflow:auto}
           .stack>.teamstrip{flex:none;margin-top:0}
           .main>.panel:not([hidden]){overflow:auto}
           .main>.offline{flex:none}
