@@ -1,60 +1,88 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace FCT.Data;
 
+/// <summary>
+/// One treasure-hunt reward of a match (data.json format): what it was, where it came from, who got it and how sure
+/// FCT is about each of those.
+/// </summary>
 public sealed class TreasureFind
 {
-    /// <summary>Name to display (re-resolved from treasures.json so renaming updates old matches).</summary>
-    public string DisplayName => Prizes.Describe(this).Name;
-
-    /// <summary>Featured treasure (cosmetic, vehicle, shop access…: the server names it) rather than a treasure gizmo.</summary>
-    public bool Featured => FromPrizeChest || (PrizeId != null && !TreasureNames.IsGizmoKey(PrizeId));
-
     public const string FinderSelf = "self", FinderTeammate = "teammate", FinderUnknown = "unknown";
 
-    /// <summary>
-    /// Who opened the chest that paid out: the tracked player ("self", also every treasure saved before analyzer
-    /// version 15, which only kept the player's own), a teammate ("teammate", see <see cref="FinderName"/>) or
-    /// "unknown" (received by the squad, but the chest is not in the replay: a teammate too far away).
-    /// </summary>
-    public string Finder { get; set; } = FinderSelf;
-    /// <summary>Name of the teammate who found it (null for the player's own and for unknown).</summary>
-    public string? FinderName { get; set; }
-
-    /// <summary>Name shown in the "obtained by" column of the report.</summary>
-    public string FinderLabel(MatchRecord match) => Finder switch
-    {
-        FinderTeammate => string.IsNullOrWhiteSpace(FinderName) ? L.T("Compañero", "Teammate") : FinderName,
-        FinderUnknown => L.T("Desconocido", "Unknown"),
-        _ => string.IsNullOrWhiteSpace(match.PlayerName) ? L.T("Tú", "You") : match.PlayerName,
-    };
+    // ---- What ------------------------------------------------------------------------------------------------------------
 
     public string Item { get; set; } = "";
     public string RawItem { get; set; } = "";
-    /// <summary>Prize id sent by the server with a featured treasure, e.g. "DelilahPrize:dpid_item4" (gizmos: an internal "Unknown:…" key).</summary>
+
+    /// <summary>Server prize id of a featured reward ("DelilahPrize:dpid_…"); gizmos get an internal "Unknown:…" key.</summary>
     public string? PrizeId { get; set; }
-    /// <summary>True when detected from the treasure hunt chest itself (it carries the prize id).</summary>
-    public bool FromPrizeChest { get; set; }
-    /// <summary>True when detected only from the prize handler (exact time, item unknown unless sent at that moment).</summary>
-    public bool FromPrizeHandler { get; set; }
-    /// <summary>True when the time is exact (featured treasure chest or prize handler), false when estimated.</summary>
-    public bool TimeExact { get; set; }
-    /// <summary>True when the source chest was destroyed rather than opened.</summary>
-    public bool SourceDestroyed { get; set; }
-    public string SourceLabel => SourceDestroyed ? $"{L.Name(SourceKind)} ({L.T("destruido", "destroyed")})" : L.Name(SourceKind);
-    /// <summary>When it was obtained (replay seconds).</summary>
+
+    /// <summary>Gizmo name read from the end-of-match screen (the replay never says which gizmo it was).</summary>
+    public string? ScreenName { get; set; }
+
+    /// <summary>Name to show, looked up every time so a rename in treasures.json reaches old matches too.</summary>
+    public string DisplayName => Prizes.Describe(this).Name;
+
+    /// <summary>A named reward from the server (cosmetic, vehicle, shop access…) rather than one of the gizmos.</summary>
+    public bool Featured => FromPrizeChest || (PrizeId is { } id && !TreasureNames.IsGizmoKey(id));
+
+    // ---- When and how it was detected ---------------------------------------------------------------------------------
+
     public float? ObtainedAtSeconds { get; set; }
-    /// <summary>Kind of container / interaction it came from (Chest, Loot cannon...).</summary>
+
+    /// <summary>The time is the real one (prize chest or prize handler); otherwise it is estimated.</summary>
+    public bool TimeExact { get; set; }
+
+    /// <summary>Found through the treasure chest itself, which carries the prize id.</summary>
+    public bool FromPrizeChest { get; set; }
+
+    /// <summary>Found only through the prize handler: exact time, item known only if sent at that moment.</summary>
+    public bool FromPrizeHandler { get; set; }
+
+    /// <summary>Only on the end-of-match screen, not in the replay (won after being eliminated): no time, no finder.</summary>
+    public bool FromScreen { get; set; }
+
+    // ---- Where it came from ------------------------------------------------------------------------------------------------
+
     public string SourceKind { get; set; } = "";
     public string SourceBlueprint { get; set; } = "";
     public bool SourceIsChest { get; set; } = true;
-    /// <summary>True when the source chest is known for sure (same moment as the prize), false when it is only close in time.</summary>
+    public bool SourceDestroyed { get; set; }
+
+    /// <summary>The source container happened at the very moment of the reward (false: only the closest one in time).</summary>
     public bool SourceCertain { get; set; }
-    /// <summary>For estimated sources: other (non-chest) interactions between the source and the first use.</summary>
+
+    /// <summary>For an estimated source: non-chest searches between that source and the first use of the reward.</summary>
     public List<string> AlsoPossible { get; set; } = new();
-    /// <summary>Gizmo name read from the post-match treasure screen (the replay does not say which gizmo it was).</summary>
-    public string? ScreenName { get; set; }
-    /// <summary>Only on the post-match screen, not in the replay (won after a final elimination): time and finder unknown.</summary>
-    public bool FromScreen { get; set; }
+
+    public string SourceLabel
+    {
+        get
+        {
+            var kind = L.Name(SourceKind);
+            return SourceDestroyed ? $"{kind} ({L.T("destruido", "destroyed")})" : kind;
+        }
+    }
+
+    // ---- Who got it -------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// <see cref="FinderSelf"/> (also every treasure stored before analyzer 15, which only kept the player's own),
+    /// <see cref="FinderTeammate"/> (named in <see cref="FinderName"/>) or <see cref="FinderUnknown"/> (the squad got
+    /// it but its chest is not in the replay: a teammate out of range).
+    /// </summary>
+    public string Finder { get; set; } = FinderSelf;
+
+    public string? FinderName { get; set; }
+
+    /// <summary>Text of the "obtained by" column of the stats page.</summary>
+    public string FinderLabel(MatchRecord match)
+    {
+        static string OrDefault(string? name, string fallback) => string.IsNullOrWhiteSpace(name) ? fallback : name;
+        return Finder switch
+        {
+            FinderTeammate => OrDefault(FinderName, L.T("Compañero", "Teammate")),
+            FinderUnknown => L.T("Desconocido", "Unknown"),
+            _ => OrDefault(match.PlayerName, L.T("Tú", "You")),
+        };
+    }
 }

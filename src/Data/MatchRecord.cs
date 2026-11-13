@@ -1,76 +1,126 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FCT.Data;
 
+/// <summary>
+/// Everything FCT keeps about one Battle Royale match, as stored in data.json. Property names are the file format:
+/// renaming one would make saved histories unreadable.
+/// </summary>
 public sealed class MatchRecord
 {
+    // ---- Identity of the replay ------------------------------------------------------------------------------------
+
     public string SessionId { get; set; } = "";
     public string ReplayFile { get; set; } = "";
     public DateTime AnalyzedAtUtc { get; set; }
+    public int AnalyzerVersion { get; set; } = 1;
+
+    // ---- The match --------------------------------------------------------------------------------------------------
+
     public DateTime? MatchStartUtc { get; set; }
     public int? DurationSeconds { get; set; }
     public string? Playlist { get; set; }
     public string? GameVersion { get; set; }
-    public string? PlayerName { get; set; }
-    public string? EpicId { get; set; }
-    public bool TrackedByUsername { get; set; }
-    /// <summary>Set when none of the configured names played this match (name of the replay owner).</summary>
-    public string? NotTrackedOwner { get; set; }
-    public bool IsReplayOwner { get; set; }
+    public bool IsBattleRoyale { get; set; } = true;
     public int? Placement { get; set; }
     public int? TotalPlayers { get; set; }
     public int? Eliminations { get; set; }
+
+    // ---- Whose match it is --------------------------------------------------------------------------------------------
+
+    public string? PlayerName { get; set; }
+    public string? EpicId { get; set; }
+    public bool TrackedByUsername { get; set; }
+    public bool IsReplayOwner { get; set; }
+
+    /// <summary>Owner of the replay when none of the configured players took part (the match is then not counted).</summary>
+    public string? NotTrackedOwner { get; set; }
+
+    // ---- What was opened -------------------------------------------------------------------------------------------------
+
     public int ChestsOpened { get; set; }
     public int AmmoBoxesOpened { get; set; }
     public int OtherContainersOpened { get; set; }
-    /// <summary>Non-chest interactions by kind (loot cannons, ammo boxes, food boxes...).</summary>
+
+    /// <summary>Searches that are not chests, per kind (see <see cref="ChestKinds"/>).</summary>
     public Dictionary<string, int> OtherInteractions { get; set; } = new();
-    public int AnalyzerVersion { get; set; } = 1;
-    public bool IsBattleRoyale { get; set; } = true;
+
     public List<ChestRecord> Chests { get; set; } = new();
     public List<TreasureFind> TreasureFinds { get; set; } = new();
-    /// <summary>Teammates of the match (empty in solo). Null for matches analyzed before analyzer version 13.</summary>
-    public List<TeammateRecord>? Teammates { get; set; }
-    /// <summary>The post-match treasure screen of this match was read: its gizmos are named and none is missing.</summary>
+
+    /// <summary>True once the end-of-match treasure screen named the gizmos of this match.</summary>
     public bool TreasureScreenRead { get; set; }
 
-    /// <summary>How many non-chest interactions of a kind (ammo box, food box, loot cannon) this match has.</summary>
-    public int Interactions(string kind) => OtherInteractions.Count > 0
-        ? OtherInteractions.GetValueOrDefault(kind)
-        : kind == ChestKinds.AmmoBox ? AmmoBoxesOpened : 0; // old matches only kept the ammo boxes
+    /// <summary>Squad mates (empty when playing alone; null in matches read by analyzers older than version 13).</summary>
+    public List<TeammateRecord>? Teammates { get; set; }
 
-    /// <summary>Chests a teammate was seen opening, plus the non-chest kinds the player chose to count.</summary>
-    public static int Seen(TeammateRecord t, IReadOnlyCollection<string> kinds) =>
-        t.ChestsSeen + kinds.Sum(k => t.Kinds.GetValueOrDefault(k));
+    // ---- Derived values (never saved) ---------------------------------------------------------------------------------
 
-    /// <summary>Chests the teammates of this match were seen opening (a minimum: only what happened nearby).</summary>
-    public int TeammatesSeen(IReadOnlyCollection<string> kinds) => Teammates?.Sum(t => Seen(t, kinds)) ?? 0;
-
-    /// <summary>Teammates' chests added to <see cref="ChestsOpened"/> by the setting (only on adjusted copies).</summary>
+    /// <summary>Part of <see cref="ChestsOpened"/> that belongs to teammates, on copies made by <see cref="WithExtras"/>.</summary>
     [JsonIgnore]
     public int TeammatesAdded { get; private set; }
 
-    /// <summary>The player's own chests (with the chosen extra kinds), without the teammates' ones.</summary>
+    /// <summary>Chests of the player alone (the extra kinds chosen in Settings included, teammates excluded).</summary>
     [JsonIgnore]
     public int OwnChests => ChestsOpened - TeammatesAdded;
 
+    /// <summary>Count of one non-chest kind. Matches saved by early versions only knew ammo boxes, in their own field.</summary>
+    public int Interactions(string kind)
+    {
+        if (OtherInteractions.Count == 0)
+        {
+            return kind == ChestKinds.AmmoBox ? AmmoBoxesOpened : 0;
+        }
+        return OtherInteractions.TryGetValue(kind, out var count) ? count : 0;
+    }
+
+    /// <summary>What one teammate was seen opening: chests plus the extra kinds being counted.</summary>
+    public static int Seen(TeammateRecord mate, IReadOnlyCollection<string> kinds)
+    {
+        var total = mate.ChestsSeen;
+        foreach (var kind in kinds)
+        {
+            total += mate.Kinds.TryGetValue(kind, out var n) ? n : 0;
+        }
+        return total;
+    }
+
+    /// <summary>Sum of <see cref="Seen"/> over the squad. A lower bound: far-away teammates are not in the replay.</summary>
+    public int TeammatesSeen(IReadOnlyCollection<string> kinds)
+    {
+        if (Teammates == null)
+        {
+            return 0;
+        }
+        var total = 0;
+        foreach (var mate in Teammates)
+        {
+            total += Seen(mate, kinds);
+        }
+        return total;
+    }
+
     /// <summary>
-    /// Copy whose chest total also includes the given non-chest kinds (settings "count ammo boxes"...) and, when
-    /// asked, the chests the teammates were seen opening. The saved history is never changed. Returns the same match
-    /// when nothing is added.
+    /// The match as the player chose to count it: extra kinds (ammo boxes…) and, optionally, the teammates' chests
+    /// added to <see cref="ChestsOpened"/>. Works on a shallow copy so the stored history stays untouched; when there
+    /// is nothing to add, the same instance comes back.
     /// </summary>
     public MatchRecord WithExtras(IReadOnlyCollection<string> kinds, bool addTeammates = false)
     {
-        var extra = kinds.Sum(Interactions);
-        var mates = addTeammates ? TeammatesSeen(kinds) : 0;
-        if (extra == 0 && mates == 0)
+        var extraKinds = 0;
+        foreach (var kind in kinds)
+        {
+            extraKinds += Interactions(kind);
+        }
+        var fromMates = addTeammates ? TeammatesSeen(kinds) : 0;
+        if (extraKinds + fromMates == 0)
         {
             return this;
         }
-        var copy = (MatchRecord)MemberwiseClone();
-        copy.ChestsOpened = ChestsOpened + extra + mates;
-        copy.TeammatesAdded = mates;
-        return copy;
+
+        var counted = (MatchRecord)MemberwiseClone();
+        counted.ChestsOpened += extraKinds + fromMates;
+        counted.TeammatesAdded = fromMates;
+        return counted;
     }
 }
