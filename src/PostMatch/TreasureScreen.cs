@@ -1,9 +1,10 @@
 namespace FCT.PostMatch;
 
 /// <summary>
-/// What the post-match "Treasure found" screen showed: one entry per card, left to right (the order the treasures
-/// were won). A gizmo name, or <see cref="TreasureScreenReader.Unknown"/> for a card that is not a gizmo (a featured
-/// treasure) or could not be read. Saved in data.json so that a re-analysis of the replay applies it again.
+/// What the post-match "Treasure found" screen showed: one entry per card, left to right. The game groups equal
+/// treasures into one card, so the cards are the kinds won, in the order each kind was first won. A gizmo name, or
+/// <see cref="TreasureScreenReader.Unknown"/> for a card that is not a gizmo (a featured treasure) or could not be
+/// read. Saved in data.json so that a re-analysis of the replay applies it again.
 /// </summary>
 public sealed class TreasureScreen
 {
@@ -69,16 +70,16 @@ public static class TreasureScreenMerge
     private const int MaxMissed = 8;
 
     /// <summary>
-    /// The screen lists every treasure of the match in the order it was won, those after a final elimination too.
-    /// The replay sees the first ones, so:
+    /// The screen shows one card per kind of treasure, in the order each kind was first won (those won after a final
+    /// elimination too); the replay sees every treasure until then, but not which gizmo each one was. So:
     /// <list type="number">
-    /// <item>The first cards are the treasures the replay saw: their gizmos get the name read on the screen, when the
-    /// order matches for sure.</item>
-    /// <item>The cards after them are treasures the replay missed (won after dying, or out of its reach): they are
-    /// always added, so they count, with their name when it was read (else as an unnamed treasure). An unreadable
-    /// card no longer throws away the whole screen.</item>
+    /// <item>The first gizmo of the match is always the first gizmo card: it is always named.</item>
+    /// <item>With as many cards as treasures, every kind appeared once: each gizmo gets its card's name, in order.</item>
+    /// <item>Cards beyond the treasures the replay saw are treasures it missed (won after dying, or out of its
+    /// reach): they are always added, so they count, with their name when it was read.</item>
     /// </list>
-    /// A screen with fewer cards than the replay saw (read before they had all appeared) only names, never removes.
+    /// Fewer cards than treasures (equal ones grouped) leaves the other gizmos unnamed: which kind each one was cannot
+    /// be told. Nothing the replay saw is ever removed.
     /// </summary>
     private static void ApplyScreen(MatchRecord m, TreasureScreen screen)
     {
@@ -93,9 +94,8 @@ public static class TreasureScreenMerge
             return;
         }
 
-        // 1 · Names of the gizmos the replay saw. The first cards are those treasures: when their non-gizmo cards are
-        // exactly the featured treasures the replay saw, the gizmo cards among them are its gizmos, in order. (With
-        // fewer cards than treasures, or an unreadable gizmo card among them, the order is not sure: no names.)
+        // 1 · Names of the gizmos the replay saw. With one card per treasure (as many cards as treasures, the unknown
+        // ones being exactly its featured treasures), each gizmo gets its card in order.
         var head = cards.Take(seen).ToList();
         var headGizmos = head.Where(c => c != unknown).ToList();
         if (head.Count == seen && head.Count(c => c == unknown) == replayFeatured && headGizmos.Count == replayGizmos.Count)
@@ -104,6 +104,12 @@ public static class TreasureScreenMerge
             {
                 replayGizmos[i].ScreenName = headGizmos[i];
             }
+        }
+        // Otherwise only the first gizmo is sure: the first gizmo card is the kind won first. (A card that could not
+        // be read before it leaves even that open.)
+        else if (replayGizmos.Count > 0 && cards.FirstOrDefault() is { } first && first != unknown && replayFeatured == 0)
+        {
+            replayGizmos[0].ScreenName = first;
         }
 
         // 2 · The ones the replay missed: the cards after those, always counted.

@@ -10,8 +10,11 @@ namespace FCT.Monitoring;
 /// </summary>
 internal sealed class TreasureScreenCapture
 {
-    /// <summary>The cards slide and flash in: captures every 1.5 s over the first 12 s (the screen stays 17 s or more).</summary>
-    private static readonly int[] CaptureDelaysMs = { 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500 };
+    /// <summary>
+    /// The screen often stays only 2 to 7 s (the player leaves at once), sometimes much longer: captures every half
+    /// second over the first 6 s, then every 1.5 s up to 12 s.
+    /// </summary>
+    private static readonly int[] CaptureDelaysMs = { 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 1500, 1500, 1500, 1500 };
 
     private readonly ConcurrentQueue<TreasureScreen> _read = new();
     private readonly Action _wake;
