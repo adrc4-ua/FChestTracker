@@ -13,7 +13,7 @@ if errorlevel 1 (
 )
 
 echo Building (1 to 2 minutes the first time)...
-dotnet publish src\FCT\FCT.csproj -c Release -r win-x64 --self-contained true ^
+dotnet publish src\FCT.csproj -c Release -r win-x64 --self-contained true ^
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
   -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
 if errorlevel 1 (

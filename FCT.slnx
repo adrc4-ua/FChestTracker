@@ -7,6 +7,6 @@
     <Project Path="external/FortniteReplayDecompressor/Unreal.Encryption/Unreal.Encryption.csproj" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/FCT/FCT.csproj" />
+    <Project Path="src/FCT.csproj" />
   </Folder>
 </Solution>

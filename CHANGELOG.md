@@ -5,8 +5,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 ## [Sin publicar]
 
 - Informe: sin pie de página; la caza del tesoro pasa al Resumen (premios de la semana como fichas, el resto plegado).
-- Ventana: los avisos se quitan solos y ya no tapan los botones; fuera el aviso de reanálisis.
-- Estructura del proyecto: código por carpetas (`App`, `Analysis`, `Data`, `Monitoring`, `Overlay`, `Reporting`, `UI`, `Localization`), librería de replays en `external/`, solución `FCT.slnx`.
+- Estructura del proyecto: la aplicación en `src/` (`FCT.csproj`) con el código por carpetas (`App`, `Analysis`, `Data`, `Monitoring`, `Overlay`, `Reporting`, `UI`, `Localization`), librería de replays en `external/`, solución `FCT.slnx`.
 
 ## [2.0.2] - 2026-11-12
 

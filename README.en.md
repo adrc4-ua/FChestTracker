@@ -195,7 +195,7 @@ Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Wi
 ### Project structure
 
 ```
-src/FCT/                     the app (FCT.exe)
+src/                         the app: FCT.csproj → FCT.exe
 ├─ Program.cs                startup and command line options
 ├─ App/                      version, updates, start with Fortnite, data move, error log
 ├─ Analysis/                 replay reading: chests, treasures, prizes, profiles

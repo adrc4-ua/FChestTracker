@@ -31,8 +31,8 @@ jobs:
       - name: Publish
         shell: pwsh
         run: |
-          # Old tags still have the project in src/ChestCounter.
-          $project = if (Test-Path src/FCT/FCT.csproj) { 'src/FCT/FCT.csproj' } else { 'src/ChestCounter/ChestCounter.csproj' }
+          # The project file moved over time; older tags still have it in one of the earlier places.
+          $project = @('src/FCT.csproj', 'src/FCT/FCT.csproj', 'src/ChestCounter/ChestCounter.csproj') | Where-Object { Test-Path $_ } | Select-Object -First 1
           dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
           if (-not (Test-Path dist/FCT.exe)) { Get-ChildItem dist/*.exe | Select-Object -First 1 | Rename-Item -NewName FCT.exe }
       - uses: actions/upload-artifact@v4

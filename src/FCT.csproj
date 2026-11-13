@@ -20,6 +20,6 @@
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />
+    <ProjectReference Include="..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />
   </ItemGroup>
 </Project>
