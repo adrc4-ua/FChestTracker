@@ -961,6 +961,10 @@ public static class TreasureNames
     public const string UnknownGizmo = "Treasure gizmo";
     private const string OldUnknownPrefix = "Inconnu:";
 
+    /// <summary>Internal key of a treasure gizmo (its prize is not in the replay): never shown.</summary>
+    public static bool IsGizmoKey(string id) =>
+        id.StartsWith(UnknownPrefix, StringComparison.OrdinalIgnoreCase) || id.StartsWith(OldUnknownPrefix, StringComparison.OrdinalIgnoreCase);
+
     /// <summary>Display name of a prize id (from treasures.json), or of a treasure item blueprint.</summary>
     public static string Friendly(string item)
     {

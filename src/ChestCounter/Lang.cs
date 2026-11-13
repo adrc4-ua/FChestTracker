@@ -129,11 +129,13 @@ public static class L
     // Nombres internos guardados en data.json (en inglés) -> nombre mostrado.
     private static readonly Dictionary<string, (string Es, string En)> Names = new(StringComparer.OrdinalIgnoreCase)
     {
+        // Nombres de los cofres en el juego (capítulo 7). Las claves son las internas de data.json y no cambian:
+        // "Extraction / relic chest" es el cofre de los Sprites ("relic" en los archivos del juego).
         ["Chest"] = ("Cofre", "Chest"),
-        ["Rare chest"] = ("Cofre raro", "Rare chest"),
-        ["Buried chest"] = ("Cofre enterrado", "Buried chest"),
-        ["Extraction / relic chest"] = ("Cofre de extracción / reliquias", "Extraction / relic chest"),
-        ["Spirit poster chest"] = ("Cofre de los carteles de espíritu", "Spirit poster chest"),
+        ["Rare chest"] = ("Cofre raro", "Rare Chest"),
+        ["Buried chest"] = ("Cofre enterrado", "Buried Chest"),
+        ["Extraction / relic chest"] = ("Cofre de espíritu", "Sprite Chest"),
+        ["Spirit poster chest"] = ("Cofre del cartel de espíritu", "Sprite Poster Chest"),
         ["Other chest"] = ("Otro cofre", "Other chest"),
         ["Loot cannon"] = ("Cañón de botín", "Loot cannon"),
         ["Ammo box"] = ("Caja de munición", "Ammo box"),
@@ -149,7 +151,7 @@ public static class L
         ["Sprite Locator"] = ("Sprite Locator", "Sprite Locator"),
         ["Lucky Locator"] = ("Lucky Locator", "Lucky Locator"),
         ["Extraction Accelerator"] = ("Extraction Accelerator", "Extraction Accelerator"),
-        ["unknown"] = ("desconocido", "unknown"),
+        ["unknown"] = ("Desconocido", "Unknown"),
     };
 
     /// <summary>

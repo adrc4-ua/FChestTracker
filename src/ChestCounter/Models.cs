@@ -17,7 +17,10 @@ public sealed class ChestRecord
 public sealed class TreasureFind
 {
     /// <summary>Name to display (re-resolved from treasures.json so renaming updates old matches).</summary>
-    public string DisplayName => PrizeId != null ? TreasureNames.Friendly(PrizeId) : L.Name(Item);
+    public string DisplayName => Prizes.Describe(this).Name;
+
+    /// <summary>Featured treasure (cosmetic, vehicle, shop access…: the server names it) rather than a treasure gizmo.</summary>
+    public bool Featured => FromGoldenChest || (PrizeId != null && !TreasureNames.IsGizmoKey(PrizeId));
 
     public const string FinderSelf = "self", FinderTeammate = "teammate", FinderUnknown = "unknown";
 
@@ -353,32 +356,19 @@ public sealed class Store
     public string ErrorLogPath => Path.Combine(Folder, "errors.log");
 
     /// <summary>
-    /// Premios conocidos de la caza del tesoro (semana 1), con el nombre oficial en inglés y el tipo traducido. Los ids
-    /// nuevos se añaden solos con un nombre vacío. El "?" marca una correspondencia id → premio sin confirmar: el
-    /// replay solo trae el id, y el premio hay que verlo en el juego al conseguirlo.
+    /// treasures.json: only the names the player chooses (prize id → name). The known prizes are named by
+    /// <see cref="Prizes"/>; a featured prize id that is not in it is added with an empty name, to be filled in.
     /// </summary>
-    public static Dictionary<string, string> DefaultPrizeNames => L.Code != "es"
-        ? new()
-        {
-            ["DelilahPrize:dpid_item1"] = "Solid Gold Gauntlets (pickaxe) ?",
-            ["DelilahPrize:dpid_item2"] = "Plunder in Paradise (loading screen)",
-            ["DelilahPrize:dpid_item3"] = "Mercedes-AMG G 63 'G-Wagon' (vehicle) ?",
-            ["DelilahPrize:dpid_item4"] = "NO TRESPASSING (jam track)",
-        }
-        : new()
-        {
-            ["DelilahPrize:dpid_item1"] = "Solid Gold Gauntlets (pico) ?",
-            ["DelilahPrize:dpid_item2"] = "Plunder in Paradise (pantalla de carga)",
-            ["DelilahPrize:dpid_item3"] = "Mercedes-AMG G 63 'G-Wagon' (vehículo) ?",
-            ["DelilahPrize:dpid_item4"] = "NO TRESPASSING (pista musical)",
-        };
-
     public void LoadPrizeNames()
     {
         var names = Load<Dictionary<string, string>>(PrizeNamesPath);
         if (names == null)
         {
-            names = DefaultPrizeNames;
+            names = new Dictionary<string, string>();
+            Save(PrizeNamesPath, names);
+        }
+        else if (CleanPrizeNames(names))
+        {
             Save(PrizeNamesPath, names);
         }
 
@@ -392,13 +382,15 @@ public sealed class Store
     /// <summary>Adds unknown prize ids to treasures.json so the user can name them. Returns the new ids.</summary>
     public List<string> RegisterPrizeIds(IEnumerable<string> ids)
     {
-        var added = ids.Where(id => !TreasureNames.PrizeNames.ContainsKey(id)).Distinct().ToList();
+        // Gizmos (no prize id in the replay) and prizes already in the catalogue need no name from the player.
+        var added = ids.Where(id => !TreasureNames.IsGizmoKey(id) && Prizes.ById(id) == null && !TreasureNames.PrizeNames.ContainsKey(id))
+            .Distinct().ToList();
         if (added.Count == 0)
         {
             return added;
         }
 
-        var names = Load<Dictionary<string, string>>(PrizeNamesPath) ?? DefaultPrizeNames;
+        var names = Load<Dictionary<string, string>>(PrizeNamesPath) ?? new Dictionary<string, string>();
         foreach (var id in added)
         {
             names[id] = "";
@@ -406,6 +398,28 @@ public sealed class Store
         }
         Save(PrizeNamesPath, names);
         return added;
+    }
+
+    /// <summary>
+    /// Drops what earlier versions wrote by themselves: empty names (including the "Unknown:…" key of every gizmo) and
+    /// the default names (now in <see cref="Prizes"/>, marked with "?" when unverified). Keeps the player's own names.
+    /// </summary>
+    private static bool CleanPrizeNames(Dictionary<string, string> names)
+    {
+        string[] oldDefaults =
+        {
+            "Solid Gold Gauntlets (pickaxe) ?", "Plunder in Paradise (loading screen)", "Mercedes-AMG G 63 'G-Wagon' (vehicle) ?", "NO TRESPASSING (jam track)",
+            "Solid Gold Gauntlets (pico) ?", "Plunder in Paradise (pantalla de carga)", "Mercedes-AMG G 63 'G-Wagon' (vehículo) ?", "NO TRESPASSING (pista musical)",
+            "Guanteletes de A$AP Rocky de oro macizo (pico) ?", "Mercedes-AMG G 63 (vehículo) ?", "No Trespassing (pista musical)",
+        };
+        var drop = names.Where(kv => string.IsNullOrWhiteSpace(kv.Value) || kv.Value.TrimEnd().EndsWith('?')
+                                     || oldDefaults.Contains(kv.Value.Trim(), StringComparer.OrdinalIgnoreCase))
+            .Select(kv => kv.Key).ToList();
+        foreach (var key in drop)
+        {
+            names.Remove(key);
+        }
+        return drop.Count > 0;
     }
 
     public Store(string folder)

@@ -61,7 +61,7 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 |---|---|
 | **Resumen** | Total de cofres, sesión, victorias (y %), top 10, partidas, media, récord, mejor día, tesoros, gráfico de 30 días y las últimas partidas. |
 | **Cofres** | Por tipo de cofre, otros contenedores (cajas de munición, de comida, cañones; indica si suman al total) y una tabla **por modo de juego**. |
-| **Tesoros** | Cuántos, de cofres dorados, con origen seguro, % de partidas con tesoro, de dónde vienen y la lista con el momento exacto. |
+| **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, de dónde vienen, la lista con el momento exacto y quién los consiguió, y todos los premios de la caza del tesoro por semana. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
 | **Compañeros** | Cofres del equipo, **top de compañeros**, la tabla **por partida** y todos tus compañeros (ver abajo). |
 
@@ -133,12 +133,13 @@ Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. FC
 
 ## Tesoros
 
-- **★★ Cofre dorado (seguro).** Cuando un cofre da un premio de la caza del tesoro (cosmético, pista musical, vehículo…), el servidor genera un cofre dorado con el **id del premio**, que la herramienta lee del replay.
-- **★ Cada tesoro recibido (momento exacto)**, con el cofre del que salió y **quién lo abrió** (tú o un compañero): los tesoros del escuadrón se reparten, así que cuentan todos, como en la pantalla de fin de partida. Si el objeto no se puede identificar, aparece como **"Artilugio de tesoro"**.
+- **★★ Tesoro destacado.** Los premios de la semana (traje, pico, vehículo, pista, pantalla de carga…) y el acceso a la tienda pirata. El servidor envía su **id**, así que aparecen con su nombre y su tipo.
+- **★ Artilugio de tesoro.** Uno de los cinco artilugios (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator); el replay no dice cuál.
+- Cada tesoro aparece con el momento exacto, el cofre del que salió y **quién lo abrió** (tú o un compañero): los tesoros del escuadrón se reparten, así que cuentan todos, como en la pantalla de fin de partida.
 - Un tesoro que sale de algo que no es un cofre (cañón de botín, caja de munición…) se marca con ⚑.
 - **Límite:** el replay solo contiene lo que el juego te envía a ti. Si te eliminan definitivamente (sin reinicio) o sales de la partida, los tesoros que consiga el escuadrón después **no quedan en el replay** y no se pueden contar; la partida lo indica con ⚠ en el informe. Nada en el PC los guarda (ni el log del juego); la única fuente completa es la pantalla de fin de partida.
 
-El juego solo envía ids de premios: `treasures.json` les pone nombre y se puede editar con el Bloc de notas.
+Los premios conocidos ya tienen nombre. Si aparece uno nuevo, sale como "Tesoro destacado" y su id se añade a `treasures.json`, donde puedes ponerle nombre con el Bloc de notas.
 
 ## Perfiles (varias cuentas en un PC)
 

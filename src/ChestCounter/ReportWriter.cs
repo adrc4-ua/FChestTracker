@@ -120,56 +120,59 @@ public static class ReportWriter
 
     private static DateTime When(MatchRecord m) => (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime();
 
-    // Misma paleta que la ventana (azul noche, cian y ámbar). Oscuro por defecto; claro si el sistema lo pide.
+    // Paleta negro + oro (dorado del tesoro), solo oscura. Los nombres antiguos de las variables (--cyan, --amber…)
+    // apuntan a tonos de oro para que todas las piezas sigan la misma paleta.
     private const string Style = """
-        :root{--bg:#0b0e14;--bg2:#0f131b;--card:#151a24;--card2:#1a2030;--ink:#e6eaf2;--muted:#7a8496;--faint:#4a5468;--line:#232b3a;--line2:#2e3850;
-          --cyan:#38d6f0;--cyan-soft:rgba(56,214,240,.12);--amber:#ffb84d;--amber-soft:rgba(255,184,77,.13);--mint:#3ddc97;--mint-soft:rgba(61,220,151,.13);
-          --rose:#ff80aa;--rose-soft:rgba(255,128,170,.12);--blue:#3878dc;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.18)}
-        @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f6fa;--bg2:#eef1f6;--card:#fff;--card2:#f7f9fc;--ink:#151a24;--muted:#5d6678;--faint:#9aa3b5;
-          --line:#e3e7ef;--line2:#d4dae6;--cyan:#0b8fb0;--cyan-soft:rgba(11,143,176,.09);--amber:#b8730d;--amber-soft:rgba(184,115,13,.1);--mint:#13895a;--mint-soft:rgba(19,137,90,.1);
-          --rose:#c2346a;--rose-soft:rgba(194,52,106,.08);--blue:#2f6fd6;--shadow:0 1px 2px rgba(20,30,50,.06),0 6px 20px rgba(20,30,50,.06)}}
-        :root[data-theme="light"]{--bg:#f4f6fa;--bg2:#eef1f6;--card:#fff;--card2:#f7f9fc;--ink:#151a24;--muted:#5d6678;--faint:#9aa3b5;
-          --line:#e3e7ef;--line2:#d4dae6;--cyan:#0b8fb0;--cyan-soft:rgba(11,143,176,.09);--amber:#b8730d;--amber-soft:rgba(184,115,13,.1);--mint:#13895a;--mint-soft:rgba(19,137,90,.1);
-          --rose:#c2346a;--rose-soft:rgba(194,52,106,.08);--blue:#2f6fd6;--shadow:0 1px 2px rgba(20,30,50,.06),0 6px 20px rgba(20,30,50,.06)}
+        :root{color-scheme:dark;--bg:#08080a;--bg2:#111114;--card:#121215;--card2:#17171b;--ink:#f3eee3;--muted:#968f80;--faint:#5a554b;--line:#1f1e1d;--line2:#2c2a26;
+          --gold:#e8b04b;--gold-hi:#f8d98f;--gold-lo:#8a6524;--gold-soft:rgba(232,176,75,.10);--gold-line:rgba(232,176,75,.30);
+          --cyan:var(--gold);--cyan-soft:var(--gold-soft);--amber:var(--gold-hi);--amber-soft:rgba(248,217,143,.09);--mint:#d8c28f;--mint-soft:rgba(216,194,143,.10);
+          --rose:var(--gold);--rose-soft:var(--gold-soft);--blue:var(--gold-lo);
+          --t1:#e8b04b;--t2:#f8d98f;--t3:#c48a2c;--t4:#d8c28f;--t5:#a9853f;
+          --radius:18px;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 18px 40px -18px rgba(0,0,0,.7)}
         *{box-sizing:border-box}
         html{background:var(--bg)}
-        body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
-        main{max-width:1120px;margin:0 auto;padding:28px 16px 56px}
+        body{margin:0;color:var(--ink);font:14px/1.55 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;
+          background:radial-gradient(900px 420px at 50% -160px,rgba(232,176,75,.13),transparent 70%),var(--bg);background-attachment:fixed;min-height:100vh}
+        main{max-width:1120px;margin:0 auto;padding:32px 16px 64px}
+        ::selection{background:rgba(232,176,75,.35);color:#fff}
         .num{font-variant-numeric:tabular-nums}
         .muted{color:var(--muted)}
+        .gold{color:var(--gold)}
 
         /* Cabecera */
-        .masthead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--line)}
+        .masthead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding-bottom:22px;margin-bottom:8px}
         .brand{display:flex;align-items:center;gap:14px;min-width:0}
-        .logo{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--cyan-soft);color:var(--cyan)}
-        .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
-        h1{margin:0;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.015em;overflow-wrap:anywhere}
-        .upd{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--muted);font-size:12.5px}
-        .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 var(--mint);animation:pulse 2s ease-out infinite}
-        @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,151,.5)}70%{box-shadow:0 0 0 7px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
-        .profiles{margin:-12px 0 22px;font-size:13px;color:var(--muted)}
+        .logo{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;color:#1a1305;
+          background:linear-gradient(140deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));box-shadow:0 8px 24px -8px rgba(232,176,75,.55)}
+        .eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+        h1{margin:0;font-size:26px;line-height:1.2;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
+        .upd{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border:1px solid var(--line2);border-radius:99px;background:rgba(18,18,21,.7);color:var(--muted);font-size:12.5px}
+        .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 var(--gold);animation:pulse 2.2s ease-out infinite}
+        @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,176,75,.55)}70%{box-shadow:0 0 0 7px rgba(232,176,75,0)}100%{box-shadow:0 0 0 0 rgba(232,176,75,0)}}
+        .profiles{margin:0 0 22px;font-size:13px;color:var(--muted)}
 
         /* Cifras clave */
         .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-        .kpi{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);min-width:0}
-        .kpi .l{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-        .kpi .v{margin-top:6px;font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+        .kpi,.card,.mini-kpi,.mate,.board,.pweek{background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 60%),var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .kpi{position:relative;padding:18px 20px;min-width:0}
+        .kpi .l{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .kpi .v{margin-top:8px;font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.025em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
         .kpi .s{margin-top:4px;font-size:12.5px;color:var(--muted)}
-        .kpi.hero{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;
-          background:linear-gradient(135deg,var(--cyan-soft),transparent 65%),var(--card)}
-        .kpi.hero .v{font-size:64px;color:var(--cyan);margin-top:10px}
+        .kpi.hero{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;border-color:var(--gold-line);
+          background:radial-gradient(520px 260px at 0% 0%,rgba(232,176,75,.16),transparent 70%),var(--card)}
+        .kpi.hero .v{font-size:68px;margin-top:10px;background:linear-gradient(180deg,var(--gold-hi),var(--gold) 60%,#c48a2c);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kpi.hero .s{font-size:13.5px}
-        .kpi .acc{color:var(--amber)} .kpi .ros{color:var(--rose)} .kpi .mnt{color:var(--mint)}
-        .split{display:flex;gap:28px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+        .kpi .acc,.kpi .ros,.kpi .mnt{color:var(--gold)}
+        .split{display:flex;gap:28px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line2)}
         .split b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
         .split span{font-size:12px;color:var(--muted)}
 
         /* Secciones */
-        section{margin-top:28px}
+        section{margin-top:32px}
         .sh{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin:0 0 12px}
-        h2{margin:0;font-size:16px;font-weight:700;letter-spacing:-.005em}
+        h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.01em}
+        h2::before{content:"";display:inline-block;width:6px;height:6px;border-radius:2px;margin:0 10px 2px 0;background:var(--gold);transform:rotate(45deg)}
         .sh .meta{font-size:12.5px;color:var(--muted)}
-        .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
         .pad{padding:18px 20px}
         .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
         .grid2 section{margin-top:0}
@@ -178,127 +181,153 @@ public static class ReportWriter
         .chart{position:relative;display:grid;grid-template-columns:auto 1fr;gap:0 10px}
         .yaxis{display:flex;flex-direction:column;justify-content:space-between;height:200px;font-size:11px;color:var(--faint);text-align:right;font-variant-numeric:tabular-nums}
         .yaxis span{transform:translateY(-50%)} .yaxis span:last-child{transform:translateY(50%)}
-        .plot{position:relative;height:200px;display:flex;align-items:flex-end;gap:3px;
+        .plot{position:relative;height:200px;display:flex;align-items:flex-end;gap:4px;
           background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 50%;border-bottom:1px solid var(--line2)}
-        .avg{position:absolute;left:0;right:0;z-index:2;border-top:1px dashed var(--amber);pointer-events:none}
-        .avg span{position:absolute;left:0;top:-19px;font-size:11px;font-weight:600;color:var(--amber);background:var(--card);padding:0 4px;border-radius:4px}
+        .avg{position:absolute;left:0;right:0;z-index:2;border-top:1px dashed var(--gold-hi);pointer-events:none;opacity:.8}
+        .avg span{position:absolute;left:0;top:-20px;font-size:11px;font-weight:600;color:var(--gold-hi);background:var(--card);padding:0 5px;border-radius:5px}
         .col{flex:1;min-width:4px;height:100%;display:flex;align-items:flex-end;position:relative}
-        .bar{width:100%;background:var(--blue);border-radius:4px 4px 1px 1px;transition:filter .12s,background .12s}
-        .col.today .bar{background:var(--cyan)}
-        .bar.zero{background:var(--line2);height:2px!important;border-radius:1px}
-        .col:hover .bar{filter:brightness(1.25)}
-        .tip{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--ink);color:var(--bg);
+        .bar{width:100%;background:linear-gradient(180deg,#b88a35,#5c4417);border-radius:5px 5px 2px 2px;transition:filter .15s}
+        .col.today .bar{background:linear-gradient(180deg,var(--gold-hi),var(--gold));box-shadow:0 0 18px -4px rgba(232,176,75,.6)}
+        .bar.zero{background:var(--line2);height:2px!important;border-radius:1px;box-shadow:none}
+        .col:hover .bar{filter:brightness(1.3)}
+        .tip{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--gold-hi);color:#1a1305;
           padding:4px 9px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .12s;z-index:3}
         .col:nth-child(-n+4) .tip{left:0;transform:none}
         .col:nth-last-child(-n+4) .tip{left:auto;right:0;transform:none}
         .col:hover .tip{opacity:1}
-        .xaxis{grid-column:2;display:flex;gap:3px;margin-top:8px;font-size:11px;color:var(--faint)}
+        .xaxis{grid-column:2;display:flex;gap:4px;margin-top:8px;font-size:11px;color:var(--faint)}
         .xaxis span{flex:1;min-width:4px;text-align:center;white-space:nowrap;overflow:visible}
         .xaxis span:empty{visibility:hidden}
-        .xaxis .t{color:var(--cyan);font-weight:600}
+        .xaxis .t{color:var(--gold);font-weight:600}
 
         /* Listas con barra de proporción */
         .rows{display:flex;flex-direction:column}
-        .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+        .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:11px 0;border-bottom:1px solid var(--line)}
         .row:last-child{border-bottom:none}
         .row .n{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
         .row .n small{font-weight:500;color:var(--muted);margin-left:6px}
-        .track{grid-column:1/-1;height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
-        .track i{display:block;height:100%;border-radius:3px;background:var(--cyan)}
+        .track{grid-column:1/-1;height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
+        .track i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold-lo),var(--gold))}
         .row.sub{color:var(--muted)} .row.sub .n{color:var(--muted);font-weight:600}
-        .row.warn .track i{background:var(--amber)}
+        .row.warn .track i{background:linear-gradient(90deg,#6b5a3a,#a89064)}
         .note{margin:12px 0 0;font-size:12.5px;color:var(--muted)}
 
         /* Tablas */
         .tw{overflow-x:auto}
         table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-        th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
-        th{position:sticky;top:0;background:var(--card2);font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-        thead tr th:first-child{border-top-left-radius:15px} thead tr th:last-child{border-top-right-radius:15px}
+        th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+        th{position:sticky;top:0;background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+        thead tr th:first-child{border-top-left-radius:17px} thead tr th:last-child{border-top-right-radius:17px}
         tbody tr:last-child td{border-bottom:none}
-        tbody tr:hover td{background:var(--bg2)}
+        tbody tr{transition:background .12s}
+        tbody tr:hover td{background:rgba(232,176,75,.035)}
         .r{text-align:right} .nw{white-space:nowrap}
         .sm{font-size:12.5px;color:var(--muted)}
-        .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted)}
-        .badge.win{background:var(--amber-soft);color:var(--amber)}
-        .badge.top{background:var(--mint-soft);color:var(--mint)}
+        .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted);border:1px solid var(--line2)}
+        .badge.win{background:var(--gold-soft);color:var(--gold-hi);border-color:var(--gold-line)}
+        .badge.top{background:var(--mint-soft);color:var(--mint);border-color:rgba(216,194,143,.25)}
         .badge.mode{background:transparent;border:1px solid var(--line2);color:var(--ink);font-weight:500}
         .chests{display:flex;align-items:center;justify-content:flex-end;gap:10px}
-        .chests .mini{width:70px;height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
-        .chests .mini i{display:block;height:100%;background:var(--amber);border-radius:3px}
+        .chests .mini{width:70px;height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
+        .chests .mini i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border-radius:3px}
         .chests b{min-width:28px;text-align:right}
-        .star{color:var(--rose);font-weight:600}
+        .star{color:var(--gold);font-weight:600;letter-spacing:-.05em}
         .tlist{display:flex;flex-direction:column;gap:2px}
-        tr.unusual td{background:var(--amber-soft)}
-        .flag{display:flex;gap:12px;align-items:flex-start;margin-top:28px;padding:14px 18px;border:1px solid var(--amber);border-radius:14px;background:var(--amber-soft)}
-        .flag .ic{color:var(--amber);font-size:18px;line-height:1.2}
+        .tlist .star{letter-spacing:0;white-space:nowrap}
+        .tname{display:flex;gap:8px;align-items:baseline;font-weight:600}
+        .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+        .tag{display:inline-flex;align-items:center;padding:1px 8px;border-radius:99px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted);border:1px solid var(--line2)}
+        .tag.gold{color:var(--gold-hi);background:var(--gold-soft);border-color:var(--gold-line)}
+        tr.unusual td{background:rgba(232,176,75,.05)}
+        .flag{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border:1px solid var(--gold-line);border-radius:14px;background:var(--gold-soft)}
+        .flag .ic{color:var(--gold);font-size:18px;line-height:1.2}
         .empty{padding:28px 20px;text-align:center;color:var(--muted)}
 
+        /* Premios de la caza del tesoro */
+        .prizes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+        .pweek{padding:16px 18px 10px;min-width:0}
+        .pweek.now{border-color:var(--gold-line);background:radial-gradient(360px 160px at 100% 0%,rgba(232,176,75,.12),transparent 70%),var(--card)}
+        .pweek.all{grid-column:1/-1}
+        .pweek.all ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));column-gap:24px}
+        .ph{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:6px}
+        .ph b{font-size:14px}
+        .ph span:not(.tag){font-size:12px;color:var(--muted)}
+        .pweek ul{list-style:none;margin:0;padding:0}
+        .pweek li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 10px;padding:8px 0;border-bottom:1px solid var(--line)}
+        .pweek ul>li:last-child{border-bottom:none}
+        .pweek.all li{border-bottom:1px solid var(--line)}
+        .pn{font-weight:600;overflow-wrap:anywhere}
+        .pt{grid-column:1;font-size:12px;color:var(--muted)}
+        .cnt{grid-column:2;grid-row:1/3;align-self:center;color:#1a1305;background:var(--gold);border-radius:99px;padding:1px 9px;font-size:12px}
+        .pweek li.got .pn{color:var(--gold-hi)}
+        .pweek p.sm{margin:6px 0 8px}
+
         /* Carga */
-        .loading{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--cyan);border-radius:16px;padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
-        .spin{width:30px;height:30px;flex:none;border:3px solid var(--line2);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}
+        .loading{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--gold-line);border-radius:var(--radius);padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
+        .spin{width:30px;height:30px;flex:none;border:3px solid var(--line2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}
         .loading .grow{flex:1;min-width:0}
-        .pbar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0 6px}
-        .pbar i{display:block;height:100%;background:var(--cyan);border-radius:4px}
+        .pbar{height:6px;background:var(--line2);border-radius:4px;overflow:hidden;margin:8px 0 6px}
+        .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));border-radius:4px}
 
         /* Pie */
-        footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.65}
-        footer h3{margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+        footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line2);color:var(--muted);font-size:12.5px;line-height:1.7}
+        footer h3{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
         footer p{margin:0 0 6px;max-width:860px}
+        footer code{font-size:12px;color:var(--gold-hi);background:var(--bg2);border:1px solid var(--line2);border-radius:5px;padding:0 5px}
 
         /* Pestañas: barra fija arriba; sin JavaScript se ven todas las secciones seguidas */
-        .tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 24px;padding:10px 16px;
-          background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+        .tabs{position:sticky;top:10px;z-index:20;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 0 26px;padding:5px;width:max-content;max-width:100%;
+          background:rgba(18,18,21,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line2);border-radius:14px;box-shadow:0 10px 30px -12px rgba(0,0,0,.8)}
         .tabs::-webkit-scrollbar{display:none}
         html:not(.js) .tabs{display:none}
         .tab{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:10px;
-          cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:background .12s,color .12s}
-        .tab:hover{color:var(--ink);background:var(--card)}
-        .tab[aria-selected="true"]{color:var(--ink);background:var(--card);box-shadow:inset 0 -2px 0 var(--cyan),0 0 0 1px var(--line)}
-        .tab .c{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--bg2);color:var(--muted);font-variant-numeric:tabular-nums}
-        .tab[aria-selected="true"] .c{background:var(--cyan-soft);color:var(--cyan)}
-        .tab:focus-visible,.more:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+          cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:background .15s,color .15s}
+        .tab:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+        .tab[aria-selected="true"]{color:#1a1305;background:linear-gradient(180deg,var(--gold-hi),var(--gold))}
+        .tab .c{font-size:11.5px;font-weight:700;padding:0 7px;border-radius:99px;background:var(--bg2);color:var(--muted);font-variant-numeric:tabular-nums}
+        .tab[aria-selected="true"] .c{background:rgba(26,19,5,.18);color:#1a1305}
+        .tab:focus-visible,.more:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
         .panel>:first-child{margin-top:0}
         html:not(.js) .panel+.panel{margin-top:40px}
         .panel[hidden]{display:none}
-        .more{font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none;padding:4px 10px;border-radius:8px}
-        .more:hover{background:var(--cyan-soft)}
+        .more{font-size:13px;font-weight:600;color:var(--gold);text-decoration:none;padding:4px 10px;border-radius:8px}
+        .more:hover{background:var(--gold-soft)}
 
-        /* Piezas nuevas */
-        .split b.acc{color:var(--amber)} .split b.mnt{color:var(--mint)}
-        .row.rose .track i{background:var(--rose)}
+        /* Piezas comunes */
+        .split b.acc{color:var(--gold-hi)} .split b.mnt{color:var(--mint)}
+        .row.rose .track i{background:linear-gradient(90deg,var(--gold-lo),var(--gold))}
         .row.off .track i{background:var(--line2)}
         .row .lbl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
         .row .badge{font-size:11.5px;padding:1px 8px}
         .minis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:28px}
-        .mini-kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
-        .mini-kpi b{display:block;font-size:24px;line-height:1.15;font-variant-numeric:tabular-nums}
+        .mini-kpi{padding:16px 18px;min-width:0}
+        .mini-kpi b{display:block;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
         .mini-kpi span{font-size:12.5px;color:var(--muted)}
-        .ros{color:var(--rose)} .acc{color:var(--amber)} .cy{color:var(--cyan)}
+        .ros,.acc,.cy{color:var(--gold)}
         .flag{margin:0 0 20px}
         .empty.big{padding:56px 24px;font-size:14.5px}
         .empty.big .star{display:block;font-size:30px;margin-bottom:8px}
-        table.matches tr.won td{background:var(--amber-soft)} table.matches tr.won td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+        table.matches tr.won td{background:rgba(232,176,75,.06)} table.matches tr.won td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
         .team{margin-top:4px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         td.foot{text-align:center;padding:14px 16px}
         .callout{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;margin-bottom:24px;border:1px solid var(--line2);border-radius:14px;background:var(--card);color:var(--muted);font-size:13px;line-height:1.55}
-        .callout .ic{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--cyan-soft);color:var(--cyan);font-weight:700;font-size:12px;font-style:italic;font-family:Georgia,serif}
+        .callout .ic{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-weight:700;font-size:12px;font-style:italic;font-family:Georgia,serif}
         .mates{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-        .mate{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);min-width:0}
+        .mate{padding:16px 18px;min-width:0}
         .who{display:flex;align-items:center;gap:12px;min-width:0}
         .who .grow{min-width:0}
-        .av{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:17px;color:#0b0e14}
+        .av{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:17px;color:#1a1305}
         .av.sm-av{width:26px;height:26px;font-size:12px}
         .who .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .mate .nm{font-size:15.5px}
-        .mate .st{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+        .mate .st{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
         .mate .st b{display:block;font-size:20px;line-height:1.2;font-variant-numeric:tabular-nums}
         .mate .st b small{font-size:12px;font-weight:600;color:var(--muted);margin-right:2px}
         .mate .st span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35}
         .boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-        .board{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 12px;box-shadow:var(--shadow);min-width:0}
-        .board h3{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+        .board{padding:14px 16px 12px;min-width:0}
+        .board h3{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
         .board ol{list-style:none;margin:0;padding:0}
         .board li{display:grid;grid-template-columns:22px 26px minmax(0,1fr) auto;align-items:center;gap:2px 8px;padding:7px 0;border-bottom:1px solid var(--line)}
         .board li:last-child{border-bottom:none}
@@ -309,29 +338,29 @@ public static class ReportWriter
         .board .who2 .sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .board li b{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
         .board li b small{font-size:11px;font-weight:600;color:var(--muted);margin-right:2px}
-        .board li.first b{color:var(--amber);font-size:17px}
-        .board .bar{grid-column:3/-1;height:4px;border-radius:2px;background:var(--bg2);overflow:hidden}
-        .board .bar i{display:block;height:100%;background:var(--cyan);border-radius:2px}
-        .board li.first .bar i{background:var(--amber)}
+        .board li.first b{color:var(--gold-hi);font-size:17px}
+        .board .bar{grid-column:3/-1;height:4px;border-radius:2px;background:var(--bg2);overflow:hidden;box-shadow:none}
+        .board .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border-radius:2px}
+        .board li.first .bar i{background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
         .bfoot{margin-top:8px;font-size:12px;color:var(--muted)}
         .mates-line{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:5px}
-        .chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 3px;border-radius:99px;background:var(--bg2);font-size:12px;white-space:nowrap;max-width:100%}
+        .chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 3px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);font-size:12px;white-space:nowrap;max-width:100%}
         .matches .chip{padding-left:9px}
         .chip .cn{color:var(--muted);overflow:hidden;text-overflow:ellipsis;max-width:130px}
         .chip b{font-variant-numeric:tabular-nums}
         .chip .sm-av{width:20px;height:20px;font-size:10.5px}
         .mini-kpi b small{font-size:13px;font-weight:600;color:var(--muted);margin-right:2px}
         .teambar{display:flex;align-items:center;justify-content:flex-end;gap:10px}
-        .teambar .tb{position:relative;width:90px;height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
-        .teambar .tb i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--cyan)}
-        .teambar .tb i.me{background:var(--amber);z-index:1}
+        .teambar .tb{position:relative;width:90px;height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
+        .teambar .tb i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--gold-lo)}
+        .teambar .tb i.me{background:var(--gold);z-index:1}
         .teambar b{min-width:44px;text-align:right}
         .teambar b small{font-size:11px;color:var(--muted);margin-right:2px}
         @media (max-width:520px){.teambar .tb{display:none}}
         @media (max-width:860px){.minis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-        @media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.kpi.hero .v{font-size:52px}}
-        @media (max-width:520px){main{padding:20px 16px 40px}.kpis{grid-template-columns:1fr 1fr}.kpi.hero{grid-row:auto}.kpi .v{font-size:24px}
-          .kpi.hero .v{font-size:44px}th,td{padding:10px 12px}.chests .mini{display:none}.yaxis,.plot{height:150px}}
+        @media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.kpi.hero .v{font-size:54px}}
+        @media (max-width:520px){main{padding:22px 16px 40px}.kpis{grid-template-columns:1fr 1fr}.kpi.hero{grid-row:auto}.kpi .v{font-size:24px}
+          .kpi.hero .v{font-size:46px}th,td{padding:10px 12px}.chests .mini{display:none}.yaxis,.plot{height:150px}.tabs{top:6px}}
         @media (prefers-reduced-motion:reduce){.dot,.spin{animation:none}}
         """;
 
@@ -377,7 +406,7 @@ public static class ReportWriter
         sb.Append($"""
             <!doctype html><html lang="{L.Code}"><head><meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1">
-            <meta name="color-scheme" content="dark light">
+            <meta name="color-scheme" content="dark">
             <meta http-equiv="refresh" content="{(progress != null ? 2 : 15)}">
             <title>{title}{(player.Length > 0 ? " · " + H(player) : "")}</title><style>{Style}</style></head><body><main>
             <header class="masthead">
@@ -569,25 +598,24 @@ public static class ReportWriter
                 sb.Append($"<div class=\"flag\"><span class=\"ic\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("de otra forma que con un cofre", "other than from a chest")}</b>: {kinds}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
             }
 
-            var golden = treasureRows.Count(r => r.f.FromGoldenChest);
-            var certain = treasureRows.Count(r => r.f.SourceCertain);
+            var featured = treasureRows.Count(r => r.f.Featured);
             var treasureMatches = treasureRows.Select(r => r.m).Distinct().Count();
             sb.Append($"""
                 <div class="minis">
-                  <div class="mini-kpi"><b class="ros">{N(treasureRows.Count)}</b><span>{L.T("tesoros en total", "treasures in total")}</span></div>
-                  <div class="mini-kpi"><b class="acc">{N(golden)}</b><span>{L.T("de cofres dorados", "from golden chests")}</span></div>
-                  <div class="mini-kpi"><b>{N(certain)}</b><span>{L.T("con origen seguro", "with a certain source")}</span></div>
+                  <div class="mini-kpi"><b class="gold">{N(treasureRows.Count)}</b><span>{L.T("tesoros en total", "treasures in total")}</span></div>
+                  <div class="mini-kpi"><b>{N(featured)}</b><span>{L.T("tesoros destacados", "featured treasures")}</span></div>
+                  <div class="mini-kpi"><b>{N(treasureRows.Count - featured)}</b><span>{L.T("artilugios de tesoro", "treasure gizmos")}</span></div>
                   <div class="mini-kpi"><b>{(matches.Count > 0 ? (100.0 * treasureMatches / matches.Count).ToString("0", Loc) : "0")} %</b><span>{L.T("de partidas con tesoro", "of matches with a treasure")}</span></div>
                 </div>
                 """);
 
-            var bySource = treasureRows.GroupBy(r => r.f.SourceLabel).OrderByDescending(g => g.Count()).ToList();
+            var bySource = treasureRows.GroupBy(r => L.Name(r.f.SourceKind)).OrderByDescending(g => g.Count()).ToList();
             var srcMax = Math.Max(1, bySource.Max(g => g.Count()));
-            sb.Append($"<section><div class=\"sh\"><h2>{L.T("De dónde vienen los tesoros", "Where the treasures come from")}</h2><span class=\"meta\">{L.T("seguros / total", "certain / total")}</span></div><div class=\"card pad\"><div class=\"rows\">");
+            sb.Append($"<section><div class=\"sh\"><h2>{L.T("De dónde vienen los tesoros", "Where the treasures come from")}</h2><span class=\"meta\">{L.Count(treasureRows.Count, "tesoro", "tesoros", "treasure", "treasures")}</span></div><div class=\"card pad\"><div class=\"rows\">");
             foreach (var g in bySource)
             {
                 var isChest = g.First().f.SourceIsChest;
-                sb.Append($"<div class=\"row{(isChest ? " rose" : " warn")}\"><span>{(isChest ? "" : "⚑ ")}{H(g.Key)}</span><span class=\"n\">{g.Count(r => r.f.SourceCertain)}<small>/ {g.Count()}</small></span><div class=\"track\"><i style=\"width:{(100.0 * g.Count() / srcMax).ToString("0.##", CultureInfo.InvariantCulture)}%\"></i></div></div>");
+                sb.Append($"<div class=\"row{(isChest ? "" : " warn")}\"><span>{(isChest ? "" : "⚑ ")}{H(g.Key)}</span><span class=\"n\">{N(g.Count())}</span><div class=\"track\"><i style=\"width:{(100.0 * g.Count() / srcMax).ToString("0.##", CultureInfo.InvariantCulture)}%\"></i></div></div>");
             }
             sb.Append("</div></div></section>");
 
@@ -597,16 +625,12 @@ public static class ReportWriter
                 """);
             foreach (var (m, f) in treasureRows)
             {
-                var id = f.PrizeId != null ? $"<div class=\"sm\">{H(f.PrizeId)}</div>" : (f.RawItem.StartsWith("WID_") ? $"<div class=\"sm\">{H(f.RawItem)}</div>" : "");
                 var when = f.ObtainedAtSeconds is float t ? (f.TimeExact ? Pretty.Clock(t) : $"<span class=\"sm\">{L.T("hacia", "around")}</span> {Pretty.Clock(t)}") : "<span class=\"muted\">—</span>";
-                var source = $"{(f.SourceIsChest ? "" : "⚑ ")}{H(f.SourceLabel)}"
-                    + (f.SourceCertain ? "" : $" <span class=\"sm\">({Pretty.Likely})</span>")
-                    + (!f.SourceIsChest && !string.IsNullOrEmpty(f.SourceBlueprint) ? $"<div class=\"sm\">{H(f.SourceBlueprint)}</div>" : "")
-                    + (f.AlsoPossible.Count > 0 ? $"<div class=\"sm\">{L.T("también posible: ", "also possible: ")}{H(string.Join(", ", f.AlsoPossible.Select(L.Name)))}</div>" : "");
+                var source = $"{(f.SourceIsChest ? "" : "⚑ ")}{H(f.SourceLabel)}";
                 // Quién abrió el cofre que dio el tesoro: tú, un compañero (por su nombre) o desconocido (lo recibió el
                 // escuadrón, pero el cofre no está en el replay).
                 var by = f.Finder == TreasureFind.FinderUnknown ? $"<span class=\"muted\">{H(f.FinderLabel(m))}</span>" : H(f.FinderLabel(m));
-                sb.Append($"<tr{(f.SourceIsChest ? "" : " class=\"unusual\"")}><td class=\"nw\">{L.DateTimeShort(When(m))}<div class=\"sm\">{H(Pretty.Playlist(m.Playlist))}</div></td><td><span class=\"star\">{(f.FromGoldenChest ? "★★" : "★")} {H(f.DisplayName)}</span>{id}</td><td class=\"nw\">{by}</td><td class=\"nw num\">{when}</td><td>{source}</td></tr>");
+                sb.Append($"<tr{(f.SourceIsChest ? "" : " class=\"unusual\"")}><td class=\"nw\">{L.DateTimeShort(When(m))}<div class=\"sm\">{H(Pretty.Playlist(m.Playlist))}</div></td><td>{TreasureCell(f, When(m))}</td><td class=\"nw\">{by}</td><td class=\"nw num\">{when}</td><td>{source}</td></tr>");
             }
             sb.Append("</tbody></table></div></section>");
         }
@@ -614,6 +638,7 @@ public static class ReportWriter
         {
             sb.Append($"<div class=\"card\"><div class=\"empty big\"><div class=\"star\">★</div>{L.T("Todavía no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
         }
+        AppendPrizeCatalog(sb, treasureRows);
         sb.Append("</div>");
 
         // ================================ Partidas ================================
@@ -635,15 +660,15 @@ public static class ReportWriter
             """
             <footer><h3>Cómo se cuenta</h3>
             <p>Cuenta los cofres que abriste o destruiste tú mismo, según tus archivos de replay (analizados tras cada partida). Las cajas de munición, las cajas de comida y los cañones de botín solo cuentan si lo activas en Ajustes.</p>
-            <p><span class="star">★★</span> cofre dorado de la caza del tesoro (cosmético, acceso a la tienda…), detectado con seguridad. <span class="star">★</span> tesoro recibido gracias a uno de tus cofres (momento exacto), con nombre cuando el objeto se puede identificar.</p>
-            <p>Los nombres de los premios se pueden editar en <code>treasures.json</code>. Esta página se actualiza sola.</p></footer>
+            <p><span class="star">★★</span> tesoro destacado de la caza del tesoro (traje, pico, vehículo, acceso a la tienda…), con su nombre. <span class="star">★</span> artilugio de tesoro (el replay no dice cuál). Cuentan todos los tesoros del escuadrón, también los de tus compañeros; los que llegan después de tu eliminación definitiva no quedan en el replay.</p>
+            <p>Puedes poner nombre a un premio en <code>treasures.json</code>. Esta página se actualiza sola.</p></footer>
             </main></body></html>
             """,
             """
             <footer><h3>How it counts</h3>
             <p>Counts the chests you opened or destroyed yourself, from your replay files (analyzed after each match). Ammo boxes, food boxes and loot cannons only count if you turn it on in Settings.</p>
-            <p><span class="star">★★</span> golden treasure hunt chest (cosmetic, shop access…), detected for sure. <span class="star">★</span> treasure received from one of your own chests (exact moment), named when the item can be identified.</p>
-            <p>Prize names can be edited in <code>treasures.json</code>. This page refreshes by itself.</p></footer>
+            <p><span class="star">★★</span> featured treasure of the treasure hunt (outfit, pickaxe, vehicle, Item Shop access…), with its name. <span class="star">★</span> treasure gizmo (the replay does not say which one). Every squad treasure counts, also your teammates'; the ones that come after your final elimination are not in the replay.</p>
+            <p>You can name a prize in <code>treasures.json</code>. This page refreshes by itself.</p></footer>
             </main></body></html>
             """);
         sb.Append(footer.Replace("</main></body></html>", $"</main><script>{TabsScript}</script></body></html>"));
@@ -667,7 +692,7 @@ public static class ReportWriter
         foreach (var m in rows)
         {
             var treasure = m.TreasureFinds.Count == 0 ? "<span class=\"muted\">—</span>"
-                : "<div class=\"tlist\">" + string.Concat(m.TreasureFinds.Select(f => $"<span class=\"star\">{(f.FromGoldenChest ? "★★" : "★")} {H(f.DisplayName)}</span>")) + "</div>";
+                : "<div class=\"tlist\">" + string.Concat(m.TreasureFinds.Select(f => $"<span class=\"star\">{(f.Featured ? "★★" : "★")} {H(Prizes.Describe(f, When(m)).Name)}</span>")) + "</div>";
             // Eliminated with no reboot: the squad's treasures after that moment are not in the replay, so the
             // count can be lower than the post-match screen. Said here so that the difference has an explanation.
             if (m.EliminatedAtSeconds is float dead && m.Teammates is { Count: > 0 })
@@ -693,6 +718,60 @@ public static class ReportWriter
     }
 
     private static string N0(int n) => n.ToString("#,0", Loc);
+
+    /// <summary>Celda de un tesoro: estrella, nombre limpio y su tipo (o "Tesoro destacado") debajo.</summary>
+    private static string TreasureCell(TreasureFind f, DateTime matchLocal)
+    {
+        var (name, type, featured) = Prizes.Describe(f, matchLocal);
+        var tags = new List<string>();
+        if (featured && name != Prizes.Featured)
+        {
+            tags.Add($"<span class=\"tag gold\">{H(Prizes.Featured)}</span>");
+        }
+        if (type != null)
+        {
+            tags.Add($"<span class=\"tag\">{H(type)}</span>");
+        }
+        return $"<div class=\"tname\"><span class=\"star\">{(featured ? "★★" : "★")}</span><span>{H(name)}</span></div>"
+               + (tags.Count > 0 ? $"<div class=\"tags\">{string.Concat(tags)}</div>" : "");
+    }
+
+    /// <summary>
+    /// Premios de la caza del tesoro por semana (y los de todas las semanas), con los que ya has conseguido marcados.
+    /// </summary>
+    private static void AppendPrizeCatalog(StringBuilder sb, List<(MatchRecord m, TreasureFind f)> rows)
+    {
+        var got = rows.Select(r => Prizes.Describe(r.f, When(r.m)).Name)
+            .GroupBy(n => n, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+        var thisWeek = Prizes.WeekOf(DateTime.Now);
+        string Range(int week)
+        {
+            var from = Prizes.WeekStarts[week - 1];
+            var to = (week < Prizes.WeekStarts.Length ? Prizes.WeekStarts[week] : Prizes.End).AddDays(-1);
+            return $"{from.ToString(L.En ? "MMM d" : "d MMM", Loc)} – {to.ToString(L.En ? "MMM d" : "d MMM", Loc)}";
+        }
+        string Item(Prizes.Prize p)
+        {
+            var n = got.GetValueOrDefault(p.Name);
+            return $"<li class=\"{(n > 0 ? "got" : "")}\"><span class=\"pn\">{H(p.Name)}{(p.Announced ? "" : $" <span class=\"tag\">{L.T("sin confirmar", "unconfirmed")}</span>")}</span>"
+                   + $"<span class=\"pt\">{H(Prizes.TypeName(p.Type))}</span>{(n > 0 ? $"<b class=\"cnt\">×{n}</b>" : "")}</li>";
+        }
+
+        sb.Append($"""<section><div class="sh"><h2>{L.T("Premios de la caza del tesoro", "Treasure hunt prizes")}</h2><span class="meta">{L.T("del 1 de noviembre al 5 de diciembre · los que tienes, marcados", "November 1 to December 5 · the ones you got, marked")}</span></div><div class="prizes">""");
+        // Los artilugios llegan sin nombre (el replay no dice cuál): se cuentan juntos.
+        var gizmos = rows.Count(r => !r.f.Featured);
+        var gizmoNote = gizmos > 0
+            ? $"<p class=\"sm\">{L.F("Has conseguido {0}; el replay no dice cuál de ellos.", "You got {0}; the replay does not say which one.", L.Count(gizmos, "artilugio", "artilugios", "gizmo", "gizmos"))}</p>"
+            : "";
+        sb.Append($"""<div class="pweek all"><div class="ph"><b>{L.T("Todas las semanas", "Every week")}</b></div><ul>{string.Concat(Prizes.All.Where(p => p.Week == 0).Select(Item))}</ul>{gizmoNote}</div>""");
+        for (var w = 1; w <= Prizes.WeekStarts.Length; w++)
+        {
+            var list = Prizes.All.Where(p => p.Week == w).ToList();
+            var body = list.Count > 0 ? $"<ul>{string.Concat(list.Select(Item))}</ul>" : $"<p class=\"sm\">{L.T("Premios aún no anunciados.", "Prizes not announced yet.")}</p>";
+            sb.Append($"""<div class="pweek{(w == thisWeek ? " now" : "")}"><div class="ph"><b>{L.F("Semana {0}", "Week {0}", w)}</b><span>{Range(w)}</span>{(w == thisWeek ? $"<span class=\"tag gold\">{L.T("Esta semana", "This week")}</span>" : "")}</div>{body}</div>""");
+        }
+        sb.Append("</div></section>");
+    }
 
     /// <summary>
     /// Pestaña «Compañeros» (opción de Ajustes): con quién juegas, partidas juntos, victorias y cofres que se les vio
@@ -726,7 +805,7 @@ public static class ReportWriter
 
         var sb = new StringBuilder();
         var tracked = matches.Count(m => m.Teammates is { Count: > 0 });
-        string[] tones = { "var(--cyan)", "var(--amber)", "var(--mint)", "var(--rose)", "var(--blue)" };
+        string[] tones = { "var(--t1)", "var(--t2)", "var(--t3)", "var(--t4)", "var(--t5)" };
         string Tone(string key) => tones[(int)((uint)StringComparer.OrdinalIgnoreCase.GetHashCode(key) % tones.Length)];
         string Initial(string name) => H(name.Trim().Length > 0 ? char.ToUpperInvariant(name.Trim()[0]).ToString() : "?");
         string Pct(int part, int whole) => whole > 0 ? (100.0 * part / whole).ToString("0", Loc) + " %" : "—";

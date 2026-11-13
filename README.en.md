@@ -61,7 +61,7 @@ The window can be resized and maximized: everything grows in proportion.
 |---|---|
 | **Overview** | Chest total, session, Victory Royales (and %), top 10s, matches, average, best match, best day, treasures, 30-day chart and the latest matches. |
 | **Chests** | By chest type, other containers (ammo boxes, food boxes, loot cannons; shows whether they count) and a **by game mode** table. |
-| **Treasures** | How many, from golden chests, with a certain source, % of matches with a treasure, where they come from and the list with the exact moment. |
+| **Treasures** | How many (featured and gizmos), % of matches with a treasure, where they come from, the list with the exact moment and who got them, and every treasure hunt prize by week. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
 | **Teammates** | Team chests, **top teammates**, the **per match** table and all your teammates (see below). |
 
@@ -133,12 +133,13 @@ Fortnite can record a **replay file** of every match on your PC. FCT reads those
 
 ## Treasures
 
-- **★★ Golden chest (certain).** When a chest gives a treasure hunt prize (cosmetic, music track, vehicle…), the server spawns a golden chest carrying the **prize id**, which the tool reads from the replay.
-- **★ Every treasure received (exact moment)**, with the chest it came from and **who opened it** (you or a teammate): squad treasures are shared, so all of them count, as on the post-match screen. When the item cannot be identified it shows as **"Treasure gizmo"**.
+- **★★ Featured treasure.** The prizes of the week (outfit, pickaxe, vehicle, jam track, loading screen…) and the Pirate Shop Access. The server sends their **id**, so they show up with their name and type.
+- **★ Treasure gizmo.** One of the five gizmos (Golden Firework, Portable Extractor, Sprite Locator, Lucky Locator, Extraction Accelerator); the replay does not say which.
+- Every treasure shows the exact moment, the chest it came from and **who opened it** (you or a teammate): squad treasures are shared, so all of them count, as on the post-match screen.
 - A treasure obtained from something other than a chest (loot cannon, ammo box…) is flagged with ⚑.
 - **Limit:** the replay only holds what the game sends to you. Once you are eliminated for good (no reboot) or you leave the match, the treasures the squad gets afterwards **are not in the replay** and cannot be counted; the match shows ⚠ in the report. Nothing on the PC keeps them (not even the game log); the only complete source is the post-match screen.
 
-The game only sends prize ids: `treasures.json` names them and can be edited with Notepad.
+Known prizes are already named. A new one shows up as "Featured treasure" and its id is added to `treasures.json`, where you can name it with Notepad.
 
 ## Profiles (several accounts on one PC)
 
