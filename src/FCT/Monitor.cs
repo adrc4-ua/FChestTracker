@@ -151,11 +151,29 @@ public sealed class Monitor
         _watcher?.Dispose();
     }
 
-    /// <summary>Mensaje de estado de la ventana (por ejemplo, el reanálisis tras una actualización).</summary>
+    /// <summary>
+    /// Mensaje de estado de la ventana (por ejemplo, el reanálisis tras una actualización). Ocupa el sitio de los
+    /// botones, así que se quita solo pasados unos segundos.
+    /// </summary>
     public void SetNotice(string? text)
     {
         _notice = text;
+        _noticeUntil = DateTime.UtcNow.AddSeconds(NoticeSeconds);
         RequestPublish();
+    }
+
+    private const int NoticeSeconds = 20;
+    private DateTime _noticeUntil;
+
+    /// <summary>Quita el aviso cuando caduca (los botones vuelven a verse). True si cambió algo.</summary>
+    private bool ExpireNotice()
+    {
+        if (_notice == null || DateTime.UtcNow < _noticeUntil)
+        {
+            return false;
+        }
+        _notice = null;
+        return true;
     }
 
     /// <summary>Cambia un ajuste y lo guarda. La ventana se actualiza enseguida.</summary>
@@ -367,8 +385,7 @@ public sealed class Monitor
                 CloseRequested?.Invoke();
                 return;
             }
-            _notice = L.F("No se pudo actualizar: {0}", "Update failed: {0}", error);
-            RequestPublish();
+            SetNotice(L.F("No se pudo actualizar: {0}", "Update failed: {0}", error));
         });
     }
 
@@ -409,7 +426,7 @@ public sealed class Monitor
                 catch (Exception ex)
                 {
                     ErrorLog.Write("Restablecer estadísticas", ex);
-                    _notice = L.F("No se pudo restablecer: {0}", "Could not reset: {0}", ex.Message);
+                    SetNotice(L.F("No se pudo restablecer: {0}", "Could not reset: {0}", ex.Message));
                 }
             }
 
@@ -435,6 +452,7 @@ public sealed class Monitor
             }
 
             changed |= CheckUpdate();
+            changed |= ExpireNotice();
             if (_reportRequested)
             {
                 _reportRequested = false;
