@@ -73,7 +73,7 @@ internal static class Theme
     public static void PaintCard(Graphics g, RectangleF rect, float radius, Color fill, bool hero = false, Color? edge = null, bool flat = false)
     {
         g.SmoothingMode = SmoothingMode.AntiAlias;
-        using var path = Shape.Rounded(rect, radius);
+        using var path = Rounded.Rect(rect, radius);
         using (var solid = new SolidBrush(fill))
         {
             g.FillPath(solid, path);

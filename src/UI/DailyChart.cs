@@ -27,7 +27,7 @@ public sealed class DailyChart : Control
         Invalidate();
     }
 
-    protected override void OnPaintBackground(PaintEventArgs e) => Backdrop.Paint(this, e.Graphics);
+    protected override void OnPaintBackground(PaintEventArgs e) => Backdrop.Fill(this, e.Graphics);
 
     /// <summary>Tope «redondo» de la escala (como NiceMax de la página): 1, 2, 2,5 o 5 por una potencia de 10.</summary>
     private static int NiceMax(int value)

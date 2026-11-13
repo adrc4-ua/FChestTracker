@@ -87,7 +87,7 @@ internal static partial class SvgIcon
                     var rx = a.TryGetValue("rx", out var rxs) ? Num(rxs) : 0f;
                     if (rx > 0)
                     {
-                        path.AddPath(FCT.UI.Shape.Rounded(r, rx), false);
+                        path.AddPath(FCT.UI.Rounded.Rect(r, rx), false);
                     }
                     else
                     {
