@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- El repositorio pasa a llamarse **Fortnite-Chest-Tracker** (antes FChestTracker): los enlaces de la app, de la página de estadísticas, de Configuración y de este README apuntan al nombre nuevo. Las copias ya instaladas siguen encontrando las actualizaciones, porque GitHub redirige el nombre antiguo.
+
 ## [4.4.1] - 2026-11-13
 
 - Corregido: una repetición muy corta justo después de una partida (entrar y salir) se quedaba también con la pantalla de tesoros de esa partida, y su tesoro se contaba dos veces. Al abrir FCT se corrige solo en los datos guardados.
@@ -167,28 +171,31 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
-[Sin publicar]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.2.1...HEAD
-[4.2.1]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.2.0...v4.2.1
-[4.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.1.0...v4.2.0
-[4.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v4.0.0...v4.1.0
-[4.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.7.0...v4.0.0
-[3.7.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.6.0...v3.7.0
-[3.6.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.5.0...v3.6.0
-[3.5.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.4.1...v3.5.0
-[3.4.1]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.4.0...v3.4.1
-[3.4.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.3.0...v3.4.0
-[3.3.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.2.0...v3.3.0
-[3.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.1.0...v3.2.0
-[3.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v3.0.0...v3.1.0
-[3.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.2.0...v3.0.0
-[2.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.1.0...v2.2.0
-[2.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.0.2...v2.1.0
-[2.0.2]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.5.0...v2.0.0
-[1.5.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.4.0...v1.5.0
-[1.4.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.3.0...v1.4.0
-[1.3.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/adrc4-ua/FortniteChestTracker/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/adrc4-ua/FortniteChestTracker/releases/tag/v1.0.0
+[Sin publicar]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.4.1...HEAD
+[4.4.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.4.0...v4.4.1
+[4.4.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.3.0...v4.4.0
+[4.3.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.2.1...v4.3.0
+[4.2.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.2.0...v4.2.1
+[4.2.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.1.0...v4.2.0
+[4.1.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.7.0...v4.0.0
+[3.7.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.5.0...v3.6.0
+[3.5.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.4.1...v3.5.0
+[3.4.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.4.0...v3.4.1
+[3.4.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.3.0...v3.4.0
+[3.3.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v2.2.0...v3.0.0
+[2.2.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v1.5.0...v2.0.0
+[1.5.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/tag/v1.0.0

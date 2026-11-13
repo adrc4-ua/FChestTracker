@@ -4,7 +4,7 @@
 
 # Fortnite Chest Tracker (FCT)
 
-[![version](https://img.shields.io/github/v/release/adrc4-ua/FortniteChestTracker?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/FortniteChestTracker/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/adrc4-ua/FortniteChestTracker?style=flat-square&label=licencia&color=555)](LICENSE)
+[![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/Fortnite-Chest-Tracker/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/adrc4-ua/Fortnite-Chest-Tracker?style=flat-square&label=licencia&color=555)](LICENSE)
 
 **Cuenta cada cofre que abres en Fortnite, partida tras partida: ventana, estadísticas, overlay sobre el juego y los cofres de tu equipo.**
 
