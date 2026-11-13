@@ -2,7 +2,7 @@
 
 **Español** · [English](README.en.md)
 
-# Contador de cofres de Fortnite
+# Fortnite Chest Tracker (FCT)
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=licencia&color=555)](LICENSE)
 
@@ -10,13 +10,13 @@
 
 <img src="docs/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/report-hero.png" alt="Informe" width="49%">
 
-[**⬇ Descargar ChestCounter.exe**](../../releases/latest) · Windows 10 / 11 · gratis · sin instalación · 10 idiomas
+[**⬇ Descargar FCT.exe**](../../releases/latest) · Windows 10 / 11 · gratis · sin instalación · 10 idiomas
 
 </div>
 
 ---
 
-ChestCounter lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva la cuenta de los cofres que abres, de los **tesoros de la caza del tesoro** y, si quieres, de los cofres de tus **compañeros de equipo**. Todo se guarda en tu PC: aunque Fortnite borre los replays, tu historial se conserva.
+FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva la cuenta de los cofres que abres, de los **tesoros de la caza del tesoro** y, si quieres, de los cofres de tus **compañeros de equipo**. Todo se guarda en tu PC: aunque Fortnite borre los replays, tu historial se conserva.
 
 - **Ventana principal**: total, última partida, hoy, mejor día, media, récord, tesoros, gráfico de 7 días y tu equipo.
 - **Informe** en el navegador, con pestañas: resumen, cofres, tesoros, partidas y compañeros.
@@ -28,18 +28,18 @@ ChestCounter lee las repeticiones (replays) que Fortnite guarda de cada partida 
 
 ## Primeros pasos
 
-1. Descarga **[`ChestCounter.exe`](../../releases/latest)**. Ese único archivo es todo lo que necesitas.
+1. Descarga **[`FCT.exe`](../../releases/latest)**. Ese único archivo es todo lo que necesitas.
 2. En Fortnite activa *Ajustes → Juego → Repeticiones → **Grabar repeticiones*** (y *Modos de equipos grandes* si los juegas). Sin repeticiones no hay nada que leer.
-3. Ejecuta `ChestCounter.exe`.
+3. Ejecuta `FCT.exe`.
    > Windows puede mostrar *"Windows protegió tu PC"* porque el exe no está firmado. Haz clic en *Más información → Ejecutar de todas formas*.
 4. La bienvenida te recuerda lo de las repeticiones y, si ya tienes replays en el PC, te deja **contarlos** o empezar **solo con las próximas partidas**.
 
 <p align="center"><img src="docs/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
 
-5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, informe, ajustes y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida el contador lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
+5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, informe, ajustes y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida FCT lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
 
 > [!TIP]
-> Las partidas que juegas con el contador cerrado se cuentan la próxima vez que lo abras, mientras Fortnite no haya borrado esos replays (guarda un número limitado). Para no tener que pensar en ello, activa **Abrir con Fortnite** en Ajustes.
+> Las partidas que juegas con FCT cerrado se cuentan la próxima vez que lo abras, mientras Fortnite no haya borrado esos replays (guarda un número limitado). Para no tener que pensar en ello, activa **Abrir con Fortnite** en Ajustes.
 
 ## La ventana principal
 
@@ -99,7 +99,7 @@ Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, ré
 
 Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. El overlay viene **desactivado**: actívalo con el botón **Overlay** o con Ctrl+Mayús+O.
 
-¿Transmites en directo? Mientras el contador está abierto, el mismo overlay está en **http://localhost:7373/** (cópialo desde **Ajustes**). En OBS, añade una **fuente de navegador** con esa dirección: tiene fondo transparente y se actualiza sola.
+¿Transmites en directo? Mientras FCT está abierto, el mismo overlay está en **http://localhost:7373/** (cópialo desde **Ajustes**). En OBS, añade una **fuente de navegador** con esa dirección: tiene fondo transparente y se actualiza sola.
 
 ### Atajos
 
@@ -114,16 +114,16 @@ Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Aj
 <p align="center"><img src="docs/settings.png" alt="Ajustes" width="620"></p>
 
 - **Idioma**: por defecto el de Windows; arriba puedes elegir otro (español, inglés, portugués, ruso, francés, alemán, italiano, polaco, turco o japonés).
-- **Abrir con Fortnite**: un pequeño proceso invisible abre el contador (minimizado) cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
+- **Abrir con Fortnite**: un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
 - **Abrir el informe al iniciar** (desactivado por defecto).
 - **Compañeros en el informe** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.
-- **Cofres antes del contador**: un estimado que se suma a tu total.
+- **Cofres antes de FCT**: un estimado que se suma a tu total.
 - **Actualizaciones**, **overlay para OBS**, **carpeta de replays** y **Restablecer estadísticas** (con copia de seguridad).
 
 ## Cómo funciona (y por qué es seguro)
 
-Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. ChestCounter lee esos archivos y nada más.
+Fortnite puede grabar un **archivo de repetición** de cada partida en tu PC. FCT lee esos archivos y nada más.
 
 - ✅ **Solo lee archivos de repetición**: los `.replay` de `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, en modo solo lectura.
 - ✅ **Sin modificar el juego**: no toca la carpeta de instalación de Fortnite.
@@ -146,7 +146,7 @@ No hay nombre que escribir: se cuenta al jugador que grabó cada replay. Si hay 
 
 ## Actualizaciones
 
-Al iniciarse, el contador busca en GitHub una versión nueva y, por defecto, la **instala sola** entre dos partidas (tu historial y tus ajustes se conservan). En Ajustes puedes elegir *Preguntar* o *Nunca* (ningún acceso a la red).
+Al iniciarse, FCT busca en GitHub una versión nueva y, por defecto, la **instala sola** entre dos partidas (tu historial y tus ajustes se conservan). En Ajustes puedes elegir *Preguntar* o *Nunca* (ningún acceso a la red).
 
 ## Tus datos
 
@@ -179,16 +179,16 @@ Todo se guarda en `%APPDATA%\ChestCounter`. **Tu historial no depende de los rep
 ## Opciones de línea de comandos
 
 ```
-ChestCounter.exe --demos <carpeta>   otra carpeta de repeticiones
-ChestCounter.exe --data <carpeta>    otra carpeta de datos
-ChestCounter.exe --once              analiza las repeticiones terminadas y se cierra
-ChestCounter.exe --reset-config      vuelve a hacer la configuración inicial
-ChestCounter.exe --overlay-preview <archivo.png>   guarda vistas previas del overlay y se cierra
+FCT.exe --demos <carpeta>   otra carpeta de repeticiones
+FCT.exe --data <carpeta>    otra carpeta de datos
+FCT.exe --once              analiza las repeticiones terminadas y se cierra
+FCT.exe --reset-config      vuelve a hacer la configuración inicial
+FCT.exe --overlay-preview <archivo.png>   guarda vistas previas del overlay y se cierra
 ```
 
 ## Compilar desde el código
 
-Instala el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) y haz doble clic en **`build.bat`**: el exe se genera en `dist\ChestCounter.exe`. GitHub Actions compila el exe en cada push y lo publica cuando se sube una etiqueta `v*`.
+Instala el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) y haz doble clic en **`build.bat`**: el exe se genera en `dist\FCT.exe`. GitHub Actions compila el exe en cada push y lo publica cuando se sube una etiqueta `v*`.
 
 ## Licencia y créditos
 

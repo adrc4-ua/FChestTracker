@@ -11,13 +11,23 @@ public static class AppInfo
     public static string RepoUrl => "https://github.com/" + Repo;
     public static string IssuesUrl => RepoUrl + "/issues";
 
-    /// <summary>Path of ChestCounter.exe when running as the published exe (null under "dotnet ChestCounter.dll").</summary>
+    /// <summary>Name of the app where there is room for it (window title, welcome, report).</summary>
+    public const string Name = "Fortnite Chest Tracker";
+    /// <summary>Short name, used in sentences, menus and file names.</summary>
+    public const string ShortName = "FCT";
+    /// <summary>File name of the exe published in the releases.</summary>
+    public const string ExeName = "FCT.exe";
+    /// <summary>Exe name of the releases before the rename (v1.0.0): still accepted by the updater.</summary>
+    public const string LegacyExeName = "ChestCounter.exe";
+
+    /// <summary>Path of the running exe when it is the published exe, whatever it is called (null under "dotnet FCT.dll").</summary>
     public static string? ExePath
     {
         get
         {
             var p = Environment.ProcessPath;
-            return p != null && Path.GetFileName(p).Equals("ChestCounter.exe", StringComparison.OrdinalIgnoreCase) ? p : null;
+            return p != null && Path.GetExtension(p).Equals(".exe", StringComparison.OrdinalIgnoreCase)
+                && !Path.GetFileNameWithoutExtension(p).Equals("dotnet", StringComparison.OrdinalIgnoreCase) ? p : null;
         }
     }
 

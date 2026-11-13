@@ -51,7 +51,7 @@ internal static class Program
             {
                 MessageBox.Show(L.T("Error inesperado. Los detalles están en errors.log, en la carpeta de datos.",
                         "Unexpected error. The details are in errors.log, in the data folder.") + "\n\n" + e.ExceptionObject,
-                    "ChestCounter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         };
 
@@ -79,7 +79,7 @@ internal static class Program
                 case "-h":
                 case "--help":
                     Console.WriteLine(L.Big("help", """
-                        Contador de cofres de Fortnite
+                        Fortnite Chest Tracker (FCT)
 
                         Opciones:
                           --demos <carpeta>   carpeta de los replays (por defecto %LOCALAPPDATA%\FortniteGame\Saved\Demos)
@@ -88,7 +88,7 @@ internal static class Program
                           --reset-config      vuelve a mostrar las preguntas iniciales
                           --overlay-preview <archivo.png>   guarda vistas previas del overlay y sale
                         """, """
-                        Fortnite Chest Counter
+                        Fortnite Chest Tracker (FCT)
 
                         Options:
                           --demos <folder>    replays folder (default %LOCALAPPDATA%\FortniteGame\Saved\Demos)
@@ -122,15 +122,15 @@ internal static class Program
                 }
                 return 0;
             }
-            var alreadyOpen = L.T("El contador de cofres ya está abierto: mira en la barra de tareas.",
-                "The chest counter is already open: look in the taskbar.");
+            var alreadyOpen = L.F("{0} ya está abierto: búscalo en el área de notificación (la flecha ^ de la barra de tareas).",
+                "{0} is already open: look for it in the notification area (the ^ arrow on the taskbar).", AppInfo.ShortName);
             if (cliMode)
             {
                 Console.WriteLine("  " + alreadyOpen);
             }
             else
             {
-                MessageBox.Show(alreadyOpen, "ChestCounter", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(alreadyOpen, AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             return 0;
         }
@@ -247,7 +247,7 @@ internal static class Program
                     L.F("Ya hay {0} en tu PC", "There are already {0} on your PC", L.Count(existing.Count, "replay", "replays", "replay", "replays")),
                     L.T("Puedes contarlos ahora o empezar solo con tus próximas partidas.", "You can count them now or start with your next matches only.")));
             }
-            var countThem = InfoDialog.Confirm(null, L.T("Bienvenido a ChestCounter", "Welcome to ChestCounter"),
+            var countThem = InfoDialog.Confirm(null, L.F("Bienvenido a {0}", "Welcome to {0}", AppInfo.Name),
                 L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays."),
                 points,
                 existing.Count > 0 ? L.T("Contarlos", "Count them") : L.T("Empezar", "Start"),
@@ -272,7 +272,7 @@ internal static class Program
                 MessageBox.Show(
                     L.T("La versión antigua (ChestTracker.exe) sigue abierta: ciérrala, o las dos contarían a la vez.",
                         "The old version (ChestTracker.exe) is still open: close it, otherwise both count at the same time."),
-                    "ChestCounter", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 foreach (var p in oldTool) p.Dispose();
             }
         }

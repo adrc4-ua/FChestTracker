@@ -72,7 +72,7 @@ public sealed class SettingsForm : Form
                 _fortnite.Checked = !_fortnite.Checked;
                 _loading = false;
                 MessageBox.Show(this,
-                    L.T("No se puede desde aquí: abre el contador con ChestCounter.exe.", "Not possible from here: open the counter with ChestCounter.exe."),
+                    L.F("No se puede desde aquí: abre {0} desde su archivo .exe.", "Not possible from here: open {0} from its .exe file.", AppInfo.ShortName),
                     L.T("Ajustes", "Settings"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         };
@@ -160,7 +160,7 @@ public sealed class SettingsForm : Form
 
         // Cofres de antes del contador: cifra grande en ámbar, editable, con − / +.
         var initial = AddCard(RightX, 40, RightW, 120, 16);
-        CardTitle(initial, L.T("Cofres antes del contador", "Chests before the counter"));
+        CardTitle(initial, L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName));
         _initial = new TextBox
         {
             BorderStyle = BorderStyle.None,
@@ -327,8 +327,8 @@ public sealed class SettingsForm : Form
             }
             _monitor.Change(c => c.Language = code);
             if (InfoDialog.Confirm(this, L.T("Idioma", "Language"),
-                    L.T("El nuevo idioma se aplica al reiniciar el contador. Tu historial y tus ajustes se conservan.",
-                        "The new language applies when the counter restarts. Your history and settings are kept."),
+                    L.F("El nuevo idioma se aplica al reiniciar {0}. Tu historial y tus ajustes se conservan.",
+                        "The new language applies when {0} restarts. Your history and settings are kept.", AppInfo.ShortName),
                     Array.Empty<InfoPoint>(),
                     L.T("Reiniciar ahora", "Restart now"), L.T("Más tarde", "Later")))
             {
@@ -527,8 +527,8 @@ public sealed class SettingsForm : Form
     private void ResetStats()
     {
         var answer = MessageBox.Show(this,
-            L.T("Se borrarán todas tus partidas, cofres y tesoros guardados, y los cofres de antes del contador. El contador empezará de cero con tu próxima partida (los replays que ya tienes no se vuelven a contar).\n\nSe guarda una copia de seguridad en la carpeta de tus datos.\n\n¿Restablecer las estadísticas?",
-                "All your saved matches, chests and treasures will be deleted, as well as the chests before the counter. The counter starts from zero with your next match (the replays you already have are not counted again).\n\nA backup copy is saved in your data folder.\n\nReset the statistics?"),
+            L.F("Se borrarán todas tus partidas, cofres y tesoros guardados, y los cofres de antes de {0}. {0} empezará de cero con tu próxima partida (los replays que ya tienes no se vuelven a contar).\n\nSe guarda una copia de seguridad en la carpeta de tus datos.\n\n¿Restablecer las estadísticas?",
+                "All your saved matches, chests and treasures will be deleted, as well as the chests before {0}. {0} starts from zero with your next match (the replays you already have are not counted again).\n\nA backup copy is saved in your data folder.\n\nReset the statistics?", AppInfo.ShortName),
             L.T("Restablecer estadísticas", "Reset statistics"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
         if (answer != DialogResult.Yes)
         {

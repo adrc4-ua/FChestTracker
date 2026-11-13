@@ -39,7 +39,7 @@ public static class FortniteWatch
 
     /// <summary>
     /// Turns "start with Fortnite" on or off: entry at Windows logon + standby started or stopped right away.
-    /// Returns false when it cannot be done (tool not run from ChestCounter.exe).
+    /// Returns false when it cannot be done (tool not run from its exe).
     /// </summary>
     public static bool Apply(bool enabled, string dataDir)
     {

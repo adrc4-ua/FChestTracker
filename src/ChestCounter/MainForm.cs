@@ -49,7 +49,7 @@ public sealed class MainForm : Form
         _monitor = monitor;
         _store = store;
 
-        Text = L.T("Contador de cofres", "Chest Counter") + " v" + AppInfo.VersionText;
+        Text = AppInfo.Name + " v" + AppInfo.VersionText;
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
@@ -62,7 +62,7 @@ public sealed class MainForm : Form
         Icon = AppIcon.Load();
 
         // Cabecera: título, perfil y distintivo.
-        Lbl(this, L.T("CONTADOR DE COFRES", "CHEST COUNTER"), 8.5f, FontStyle.Bold, Theme.Cyan, new Point(LeftX, 14), new Size(202, 18));
+        Lbl(this, AppInfo.Name.ToUpperInvariant(), 8.5f, FontStyle.Bold, Theme.Cyan, new Point(LeftX, 14), new Size(202, 18));
         _badgeCard = new Card { Location = new Point(484, 9), Size = new Size(96, 22), Radius = 11, BackColor = Theme.Panel, Visible = false };
         _badge = Lbl(_badgeCard, "", 8.0f, FontStyle.Bold, Theme.Mint, new Point(0, 0), new Size(96, 22), ContentAlignment.MiddleCenter);
         Controls.Add(_badgeCard);
@@ -157,7 +157,7 @@ public sealed class MainForm : Form
         // Icono en el área de notificación (la flecha hacia arriba de la barra de tareas): el programa sigue ahí
         // aunque la ventana esté oculta. Clic: abre la ventana; clic derecho: menú.
         var trayMenu = new ContextMenuStrip();
-        var openItem = new ToolStripMenuItem(L.T("Abrir el contador", "Open the counter"), null, (_, _) => ShowFromTray());
+        var openItem = new ToolStripMenuItem(L.F("Abrir {0}", "Open {0}", AppInfo.ShortName), null, (_, _) => ShowFromTray());
         openItem.Font = new Font(openItem.Font, FontStyle.Bold);
         trayMenu.Items.Add(openItem);
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
@@ -168,7 +168,7 @@ public sealed class MainForm : Form
         _tray = new NotifyIcon
         {
             Icon = Icon ?? SystemIcons.Application,
-            Text = L.T("Contador de cofres", "Chest Counter"),
+            Text = AppInfo.Name,
             ContextMenuStrip = trayMenu,
             Visible = true,
         };

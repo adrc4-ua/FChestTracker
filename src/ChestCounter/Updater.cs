@@ -6,7 +6,7 @@ namespace ChestCounter;
 public sealed record UpdateInfo(Version Version, string Tag, string AssetUrl, long Size, string? Sha256, string PageUrl);
 
 /// <summary>
-/// Checks the latest GitHub release and replaces ChestCounter.exe with it. The running exe is renamed (Windows allows
+/// Checks the latest GitHub release and replaces the running exe (FCT.exe, whatever its name) with it. The running exe is renamed (Windows allows
 /// that), the new one takes its place and is started; the old file is deleted at the next launch.
 /// This is the only network access of the tool, and it can be turned off in the settings.
 /// </summary>
@@ -18,7 +18,7 @@ public static class Updater
     private static HttpClient NewClient(TimeSpan timeout)
     {
         var http = new HttpClient { Timeout = timeout };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd($"ChestCounter/{AppInfo.VersionText}");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd($"{AppInfo.ShortName}/{AppInfo.VersionText}");
         http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
         return http;
     }
@@ -46,12 +46,11 @@ public static class Updater
             {
                 return null;
             }
-            foreach (var asset in root.GetProperty("assets").EnumerateArray())
+            // FCT.exe; ChestCounter.exe in releases published before the rename (also uploaded for v1.0.0, which only knows that name).
+            var assets = root.GetProperty("assets").EnumerateArray().ToList();
+            foreach (var asset in assets.Where(a => string.Equals(a.GetProperty("name").GetString(), AppInfo.ExeName, StringComparison.OrdinalIgnoreCase))
+                         .Concat(assets.Where(a => string.Equals(a.GetProperty("name").GetString(), AppInfo.LegacyExeName, StringComparison.OrdinalIgnoreCase))))
             {
-                if (!string.Equals(asset.GetProperty("name").GetString(), "ChestCounter.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
                 string? sha = null;
                 if (asset.TryGetProperty("digest", out var digest) && digest.GetString() is { } d && d.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase))
                 {
@@ -76,7 +75,7 @@ public static class Updater
         var exe = AppInfo.ExePath;
         if (exe == null)
         {
-            return L.T("La actualización solo es posible desde ChestCounter.exe", "Updating is only possible from ChestCounter.exe");
+            return L.F("La actualización solo es posible desde el archivo .exe de {0}", "Updating is only possible from the {0} .exe file", AppInfo.ShortName);
         }
         var download = exe + ".download";
         var old = exe + ".old";
@@ -140,7 +139,7 @@ public static class Updater
         {
             return;
         }
-        foreach (var f in Directory.EnumerateFiles(dir, "ChestCounter.exe.*"))
+        foreach (var f in Directory.EnumerateFiles(dir, Path.GetFileName(exe) + ".*"))
         {
             if (f.EndsWith(".old", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".download", StringComparison.OrdinalIgnoreCase))
             {

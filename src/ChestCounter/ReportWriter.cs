@@ -370,7 +370,7 @@ public static class ReportWriter
         string N(int n) => n.ToString("#,0", Loc);
 
         var sb = new StringBuilder();
-        var title = L.T("Contador de cofres", "Chest Counter");
+        var title = AppInfo.Name;
         var updated = L.F("Actualizado {0} · en directo", "Updated {0} · live",
             DateTime.Now.ToString(L.En ? "MMM d, yyyy HH:mm" : "dd/MM/yyyy HH:mm", Loc));
         var heading = player.Length > 0 ? H(player) : title;

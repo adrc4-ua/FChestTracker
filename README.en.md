@@ -2,7 +2,7 @@
 
 [Español](README.md) · **English**
 
-# Fortnite Chest Counter
+# Fortnite Chest Tracker (FCT)
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=version&color=e8b04b)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=downloads&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![license](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=license&color=555)](LICENSE)
 
@@ -10,13 +10,13 @@
 
 <img src="docs/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/report-hero.png" alt="Report" width="49%">
 
-[**⬇ Download ChestCounter.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · 10 languages
+[**⬇ Download FCT.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · 10 languages
 
 </div>
 
 ---
 
-ChestCounter reads the replays Fortnite saves of every match and keeps count of the chests you open, the **treasure hunt treasures** and, if you want, your **teammates'** chests. Everything is saved on your PC: even when Fortnite deletes the replays, your history is kept.
+FCT reads the replays Fortnite saves of every match and keeps count of the chests you open, the **treasure hunt treasures** and, if you want, your **teammates'** chests. Everything is saved on your PC: even when Fortnite deletes the replays, your history is kept.
 
 - **Main window**: total, last match, today, best day, average, best match, treasures, 7-day chart and your team.
 - **Report** in your browser, with tabs: overview, chests, treasures, matches and teammates.
@@ -28,18 +28,18 @@ ChestCounter reads the replays Fortnite saves of every match and keeps count of 
 
 ## Getting started
 
-1. Download **[`ChestCounter.exe`](../../releases/latest)**. That single file is all you need.
+1. Download **[`FCT.exe`](../../releases/latest)**. That single file is all you need.
 2. In Fortnite turn on *Settings → Game → Replays → **Record Replays*** (and *Large Team Modes* if you play them). Without replays there is nothing to read.
-3. Run `ChestCounter.exe`.
+3. Run `FCT.exe`.
    > Windows may show *"Windows protected your PC"* because the exe is not signed. Click *More info → Run anyway*.
 4. The welcome screen reminds you about replays and, if there are already replays on your PC, lets you **count them** or start with **your next matches only**.
 
 <p align="center"><img src="docs/setup.png" alt="First-run welcome" width="520"></p>
 
-5. Leave it running while you play. When it opens only the **overlay** shows: the main window stays in the background, with its icon in the notification area (the **^** arrow on the taskbar). Click the icon, or open the program again, to bring it to the front; right-click for overlay, report, settings and exit. On first use, or with the overlay turned off, the window opens as usual. During the match the counter reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
+5. Leave it running while you play. When it opens only the **overlay** shows: the main window stays in the background, with its icon in the notification area (the **^** arrow on the taskbar). Click the icon, or open the program again, to bring it to the front; right-click for overlay, report, settings and exit. On first use, or with the overlay turned off, the window opens as usual. During the match FCT reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
 
 > [!TIP]
-> Matches played while the counter is closed are counted next time you open it, as long as Fortnite has not deleted those replays (it keeps a limited number). To not think about it, turn on **Open with Fortnite** in Settings.
+> Matches played while FCT is closed are counted next time you open it, as long as Fortnite has not deleted those replays (it keeps a limited number). To not think about it, turn on **Open with Fortnite** in Settings.
 
 ## The main window
 
@@ -99,7 +99,7 @@ With **Add their chests to your total** (also off), your total, average, records
 
 To see it over the game, set Fortnite to **Windowed Fullscreen** (*Settings → Video → Window Mode*): in exclusive fullscreen Windows cannot draw on top. The overlay starts **off**: turn it on with the **Overlay** button or Ctrl+Shift+O.
 
-Streaming? While the counter is open, the same overlay is at **http://localhost:7373/** (copy it from **Settings**). In OBS, add a **browser source** with that address: transparent background, refreshes by itself.
+Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** (copy it from **Settings**). In OBS, add a **browser source** with that address: transparent background, refreshes by itself.
 
 ### Shortcuts
 
@@ -114,16 +114,16 @@ Streaming? While the counter is open, the same overlay is at **http://localhost:
 <p align="center"><img src="docs/settings.png" alt="Settings" width="620"></p>
 
 - **Language**: the Windows language by default; at the top you can pick another (Spanish, English, Portuguese, Russian, French, German, Italian, Polish, Turkish or Japanese).
-- **Open with Fortnite**: a small invisible process opens the counter (minimized) when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
+- **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
 - **Open the report at startup** (off by default).
 - **Teammates in the report** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
-- **Chests before the counter**: an estimate added to your total.
+- **Chests before FCT**: an estimate added to your total.
 - **Updates**, **overlay for OBS**, **replays folder** and **Reset statistics** (with a backup).
 
 ## How it works (and why it is safe)
 
-Fortnite can record a **replay file** of every match on your PC. ChestCounter reads those files and nothing else.
+Fortnite can record a **replay file** of every match on your PC. FCT reads those files and nothing else.
 
 - ✅ **Only reads replay files**: the `.replay` files in `%LOCALAPPDATA%\FortniteGame\Saved\Demos`, read-only.
 - ✅ **No game modification**: the Fortnite installation folder is never touched.
@@ -146,7 +146,7 @@ There is no name to type: the player who recorded each replay is counted. With r
 
 ## Updates
 
-At startup, the counter checks GitHub for a new version and, by default, **installs it by itself** between two matches (your history and settings are kept). In Settings you can choose *Ask* or *Never* (no network access).
+At startup, FCT checks GitHub for a new version and, by default, **installs it by itself** between two matches (your history and settings are kept). In Settings you can choose *Ask* or *Never* (no network access).
 
 ## Your data
 
@@ -179,16 +179,16 @@ Everything is saved in `%APPDATA%\ChestCounter`. **Your history does not depend 
 ## Command line options
 
 ```
-ChestCounter.exe --demos <folder>   another replays folder
-ChestCounter.exe --data <folder>    another data folder
-ChestCounter.exe --once             analyze the finished replays and quit
-ChestCounter.exe --reset-config     run the first-time setup again
-ChestCounter.exe --overlay-preview <file.png>   save overlay previews and quit
+FCT.exe --demos <folder>   another replays folder
+FCT.exe --data <folder>    another data folder
+FCT.exe --once             analyze the finished replays and quit
+FCT.exe --reset-config     run the first-time setup again
+FCT.exe --overlay-preview <file.png>   save overlay previews and quit
 ```
 
 ## Building from source
 
-Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) and double-click **`build.bat`**: the exe goes to `dist\ChestCounter.exe`. GitHub Actions builds the exe on every push and publishes it when a `v*` tag is pushed.
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) and double-click **`build.bat`**: the exe goes to `dist\FCT.exe`. GitHub Actions builds the exe on every push and publishes it when a `v*` tag is pushed.
 
 ## License and credits
 

@@ -297,7 +297,7 @@ public sealed class Monitor
         RestartWatcher();
     }
 
-    /// <summary>Abrir con Fortnite: crea o quita la entrada de inicio. Devuelve false si no se puede (no es ChestCounter.exe).</summary>
+    /// <summary>Abrir con Fortnite: crea o quita la entrada de inicio. Devuelve false si no se puede (no se ejecuta desde su .exe).</summary>
     public bool SetStartWithFortnite(bool on)
     {
         lock (_cfgGate)
@@ -467,7 +467,7 @@ public sealed class Monitor
 
         var notice = _installing
             ? L.T("Descargando la actualización…", "Downloading the update…")
-            : _notice ?? (_autoCloseAt != null ? L.T("Fortnite está cerrado: el contador se cierra en 30 s.", "Fortnite is closed: the counter closes in 30 s.") : null);
+            : _notice ?? (_autoCloseAt != null ? L.F("Fortnite está cerrado: {0} se cierra en 30 s.", "Fortnite is closed: {0} closes in 30 s.", AppInfo.ShortName) : null);
         var state = new MonitorState(view, Profiles.List(_data, _config), Profiles.Current(_data, _config)?.Key, _update, notice, _autoCloseAt != null, BuildStats())
         {
             Team = BuildTeam(),

@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title Building ChestCounter
+title Building Fortnite Chest Tracker (FCT)
 cd /d "%~dp0"
 
 where dotnet >nul 2>nul
@@ -24,6 +24,6 @@ if errorlevel 1 (
 )
 
 echo.
-echo Done! The file to share: %~dp0dist\ChestCounter.exe
+echo Done! The file to share: %~dp0dist\FCT.exe
 explorer dist
 pause
