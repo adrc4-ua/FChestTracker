@@ -68,7 +68,7 @@ public static class NativeOverlay
     private static WinEventDelegate? _winEvent; // keep the delegate alive
     private static readonly List<IntPtr> _winHooks = new();
 
-    private const int MinWidth = 170, Pad = 10, Stripe = 3, ColGap = 16, StatGap = 12;
+    private const int MinWidth = 170, Pad = 10, Stripe = 3, ColGap = 16, StatGap = 18; // StatGap: gap between stat columns (the gold line is in its middle)
 
     public static bool IsRunning => _hwnd != IntPtr.Zero;
 
@@ -610,8 +610,8 @@ public static class NativeOverlay
                 _statW[i] = Math.Max(TextWidth(hdc, _fontLabel, row.Label.ToUpperInvariant(), out _), valueW);
                 _statH = Math.Max(_statH, vh);
             }
-            // Equal columns, each one centred: as wide as the widest one.
-            var statsW = _statW.Length == 0 ? 0 : _statW.Length * _statW.Max() + (_statW.Length - 1) * S(StatGap);
+            // One compact block: each column as wide as its content, the same gap between them.
+            var statsW = _statW.Sum() + Math.Max(0, _statW.Length - 1) * S(StatGap);
 
             // Never shrinks: the overlay keeps the same size between a match in progress and the end of the match.
             var contentW = Math.Max(headerW, Math.Max(mainW, statsW + S(6)));
@@ -720,12 +720,13 @@ public static class NativeOverlay
         var cl = right - _chipW;
         var ct = mainY + (_mainH - _chipH) / 2;
         var statsY = mainY + _mainH + S(8);
-        // Stats: a compact block of equal columns, centred in the card (from the stripe to the right edge).
-        var colW = _statW.Length > 0 ? _statW.Max() : 0;
-        var blockW = v.Rows.Count * colW + Math.Max(0, v.Rows.Count - 1) * S(StatGap);
+        // Stats: one compact block centred in the card (from the stripe to the right edge). Each column as wide as its
+        // content and the same gap between them, with a light gold line in the middle of each gap.
+        var blockW = _statW.Sum() + Math.Max(0, _statW.Length - 1) * S(StatGap);
         var blockLeft = (S(Stripe) + rc.Right - blockW) / 2f;
-        float ColLeft(int i) => blockLeft + i * (colW + S(StatGap));
-        float ColCenter(int i) => ColLeft(i) + colW / 2f;
+        float ColLeft(int i) => blockLeft + _statW.Take(i).Sum() + i * S(StatGap);
+        float ColWidth(int i) => i < _statW.Length ? _statW[i] : 0;
+        float ColCenter(int i) => ColLeft(i) + ColWidth(i) / 2f;
         var pillL = _lockRect.Left - S(6) - _badgeW;
         var pillR = _lockRect.Left - S(6);
 
@@ -749,7 +750,7 @@ public static class NativeOverlay
             var bottom = statsY + 1 + S(7) + _captionH + S(1) + _statH - S(1);
             for (var i = 0; i < v.Rows.Count - 1; i++)
             {
-                var sx = (int)Math.Round(ColLeft(i) + colW + S(StatGap) / 2f);
+                var sx = (int)Math.Round(ColLeft(i) + ColWidth(i) + S(StatGap) / 2f);
                 var divider = new RECT { Left = sx, Top = top, Right = sx + 1, Bottom = bottom };
                 FillRect(hdc, ref divider, _brushBorder);
             }
@@ -851,7 +852,7 @@ public static class NativeOverlay
             {
                 var row = v.Rows[i];
                 var l = (int)Math.Round(ColLeft(i));
-                var r = (int)Math.Round(ColLeft(i) + colW);
+                var r = (int)Math.Round(ColLeft(i) + ColWidth(i));
                 Text(hdc, _fontLabel, muted, row.Label.ToUpperInvariant(), l - S(6), y, r + S(6), y + _captionH, DT_CENTER);
                 var vy = y + _captionH + S(1);
                 if (row.Treasure)
