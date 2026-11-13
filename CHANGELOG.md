@@ -4,14 +4,56 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- **Código reescrito y reorganizado por completo**, sin cambios de funcionamiento: cada parte en su sitio (lectura de repeticiones, estadísticas por pestañas, overlay, ventanas y controles), más fácil de leer y de ampliar. La página de estadísticas lleva su estilo y su script en archivos propios dentro del exe.
-- Ya no se trae la carpeta de datos de la v1.0.0 (cuando la app se llamaba ChestCounter): esa versión no podía actualizarse sola. Si alguien la tuviera, sus datos siguen en `%APPDATA%\ChestCounter`.
-- **Licencia: GNU GPL versión 3** (antes MIT; las versiones hasta la 4.4.1 siguen siendo MIT), con condiciones de atribución: quien distribuya FCT o algo basado en él debe publicar su código con la misma licencia, mencionar al autor y este repositorio y marcar sus cambios ([NOTICE.md](NOTICE.md)). Nuevo **Acerca de y licencia** en el menú del icono. ChestCounter aparece como el proyecto del que partió FCT y que le dio la idea.
-- **Desinstalar** desde Configuración (o `FCT.exe --uninstall`): FCT se cierra y borra el exe, la tarea programada de «Abrir con Fortnite», las entradas de inicio y los restos de actualizaciones, sin tener que desactivar nada antes. Tus datos se quedan en `%APPDATA%\FCT`.
-- **Avisos legales**: nuevo [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) con todo lo externo (FortniteReplayDecompressor, ChestCounter, .NET, Fortnite-API, fortnite.gg, SignPath) y sus licencias o condiciones; también va dentro del exe (`FCT.exe --licenses`). LICENSE, README y la política de firma de código lo detallan, con el aviso de marcas de Epic Games, cómo desinstalar y los metadatos del exe (producto, versión, copyright). Las notas de cada release enlazan la política de firma.
-- **Configuración más limpia**: sin el pie de «Código fuente»; las dos columnas acaban a la misma altura, con «Restablecer estadísticas» y «Cerrar» en la misma línea. Actualizaciones explica cada opción y el overlay para OBS cómo usarlo. El idioma, centrado en su botón, con la flecha del desplegable aparte.
-- **Abrir con Fortnite sin nada en marcha**: ya no hay un proceso invisible esperando desde el inicio de Windows ni aparece en «Aplicaciones de arranque». Ahora es una tarea programada de tu usuario (sin permisos de administrador) que salta cuando el antitrampas de Fortnite carga su driver, algo que Windows anota en su registro; un lanzador breve espera a que aparezca el juego, abre FCT y termina (con otro juego que use el mismo antitrampas se cierra sin hacer nada). Al abrir FCT se pasa solo al sistema nuevo y borra las entradas de inicio de versiones anteriores (también la de un nombre antiguo, «FortniteChestTracker»). Si la tarea no se pudiera crear, sigue funcionando como antes.
-- El repositorio pasa a llamarse **Fortnite-Chest-Tracker** (antes FChestTracker): los enlaces de la app, de la página de estadísticas, de Configuración y de este README apuntan al nombre nuevo. Las copias ya instaladas siguen encontrando las actualizaciones, porque GitHub redirige el nombre antiguo.
+## [5.2.1] - 2026-11-13
+
+- **Overlay**: eliminación de los atajos de teclado globales; la visibilidad y bloqueo se gestionan exclusivamente desde el botón nativo de la ventana principal y el icono de candado.
+- **Avisos legales depurados**: delimitación precisa entre [NOTICE.md](NOTICE.md) (licencia GPL-3 y términos de atribución), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) (librerías externas, servicios y marcas) y la política de privacidad de [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md).
+- **Documentación renovada**: [README.md](README.md) y [README.en.md](README.en.md) completamente reestructurados orientados al jugador, con nueva tabla visual de funciones, capturas actualizadas con datos demo, banner oficial en negro y oro, botón de descarga dorado y formato pulido.
+- Configuración de compilación afinada en `Directory.Build.props` (aislamiento de advertencias de dependencias externas).
+
+## [5.2.0] - 2026-11-13
+
+- **Reconstrucción modular completa de la interfaz de usuario**:
+  - Generador de la página de estadísticas dividido en una clase especializada por cada pestaña (`ResumenTab`, `CofresTab`, `TesorosTab`, `PartidasTab`, `CompanerosTab`, `ConfiguracionTab`). La página incluye sus estilos y scripts en recursos propios dentro del ejecutable.
+  - Controles de interfaz desacoplados en archivos individuales (`FitLabel`, `AppSwitch`, `AppPill`, `AppField`, `ProportionalLayout`, `GoldButton`, etc.).
+  - Overlay en el juego descompuesto en componentes independientes (`OverlayModel`, `OverlayScale`, `OverlayLayout`, `OverlayPainter`, `GameWindows`).
+  - Capas de renderizado del tema visual (`Theme`), marco de ventana (`WindowChrome`) y curva del gráfico semanal (`DailyChart`).
+  - Ventana principal (`MainForm`) y ventana de configuración (`SettingsForm`) estructuradas por módulos de estado, acciones y tarjetas.
+  - Nuevo icono oficial de la aplicación.
+  - Selección de repeticiones legibles como paso propio del Tracker y `StandbyWatcher` en su propia clase.
+
+## [5.1.0] - 2026-11-13
+
+- **Reescritura del análisis y monitorización de replays**:
+  - `Tracker` dividido por responsabilidades: vigilancia de carpeta, lectura en segundo plano, seguimiento de partida en curso y salida de consola.
+  - Análisis de repeticiones desacoplado en `Analysis/Replay` y modelos fuertemente tipados en `ReplayModels`, sobre la librería base con parches mínimos documentados.
+  - `AppMonitor` reescrito como coordinador: gestión separada de ajustes, cifras para la ventana, cálculo de partidas previas, detección del jugador activo y pantalla de tesoros.
+  - Arranque (`Program.cs`) modularizado: parser de opciones CLI, herramientas de consola, detección de instancia única y primer uso como unidades segregadas.
+
+## [5.0.0] - 2026-11-13
+
+Cambio mayor en el licenciamiento, compatibilidad heredada y arquitectura base:
+
+- **Licencia: GNU GPL versión 3** (las versiones anteriores hasta la 4.4.1 continúan bajo MIT), incorporando condiciones de atribución expresa y distribución con código fuente abierto ([NOTICE.md](NOTICE.md)). Nuevo diálogo y opción **Acerca de y licencia** en el menú contextual del icono de notificación. ChestCounter queda reconocido como el proyecto original del que partió la idea.
+- **Ruptura de compatibilidad heredada**: se retira la migración automática de la carpeta de datos de la v1.0.0 (`%APPDATA%\ChestCounter`). Los datos de versiones actuales se mantienen en `%APPDATA%\FCT`.
+- **Reescritura de la capa de datos y servidor local**:
+  - Modelos de datos (`MatchRecord`, `ChestRecord`, `TeammateRecord`, `TreasureRecord`) ordenados y consistentes con el formato `data.json`.
+  - Capas `Store` y `Config` desacopladas con lectura y escritura atómica y segura mediante `JsonFile`.
+  - Tipos de contenedor, artilugios y eventos de partida definidos en tablas de reglas estáticas; lectura de cabecera de repetición en un único recorrido.
+  - Servidor local HTTP simplificado (`LocalHttp`) con enrutamiento declarativo para OBS y estadísticas.
+  - Utilidades del sistema reorganizadas (`Log`, consola con API `Show/Erase`, modo de eficiencia).
+
+## [4.6.0] - 2026-11-13
+
+- **Desinstalador integrado**: opción de desinstalación limpia accesible desde Configuración y mediante CLI con `FCT.exe --uninstall`. Cierra el programa y elimina el ejecutable, la tarea programada, las entradas de registro y residuos de actualización, conservando de forma segura los datos del usuario en `%APPDATA%\FCT`.
+- **Configuración depurada**: interfaz sin el pie redundante de «Código fuente», columnas con altura simétrica, selector de idioma centrado con flecha desplegable independiente y explicaciones detalladas para actualizaciones y OBS.
+- **Avisos legales y licencias**: incorporación de [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) detallando licencias de terceros, orígenes, marcas registradas de Epic Games y servicios de API; comando `FCT.exe --licenses` para inspección en terminal.
+
+## [4.5.0] - 2026-11-13
+
+- **Abrir con Fortnite sin procesos en segundo plano**: sustitución del proceso residente en el inicio de Windows por una tarea programada del usuario (sin privilegios de administrador) activada por los eventos del controlador del antitrampas (`EasyAntiCheat_EOSSys` / `BEDaisy`).
+- **Lanzador inteligente**: arranque ultraligero que verifica procesos del juego y se cierra de inmediato (~0,1 s) si el evento procede de otro título que use el mismo antitrampas.
+- **Nuevo repositorio**: transición completa al nombre oficial **Fortnite-Chest-Tracker**, actualizando enlaces de descarga, badges, telemetría y documentación.
 
 ## [4.4.1] - 2026-11-13
 
@@ -178,7 +220,13 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
-[Sin publicar]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.4.1...HEAD
+[Sin publicar]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.2.1...HEAD
+[5.2.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.2.0...v5.2.1
+[5.2.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.1.0...v5.2.0
+[5.1.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.6.0...v5.0.0
+[4.6.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.5.0...v4.6.0
+[4.5.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.4.1...v4.5.0
 [4.4.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.4.0...v4.4.1
 [4.4.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v4.2.1...v4.3.0
