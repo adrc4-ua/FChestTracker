@@ -55,15 +55,15 @@ The window can be resized and maximized: everything grows in proportion.
 
 ## The report
 
-`report.html` opens in your browser (the **Report** button) and refreshes by itself. It always starts on **Overview**; the tabs are at the top:
+`report.html` opens in your browser (the **Report** button) and refreshes by itself. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Chest total, today, wins (and %), top 10s, matches, average, best match, best day, treasures, 30-day chart and the latest matches. |
+| **Overview** | Chests opened (and today's), wins, matches, average, best match, best day, a chart of the last 30 days, latest matches, **latest treasures** and, with teammates, their share and who you play with most. |
 | **Chests** | By chest type, other containers (ammo boxes, food boxes, loot cannons; shows whether they count) and a **by game mode** table. |
-| **Treasures** | How many (featured and gizmos), % of matches with a treasure, where they come from, the list with the exact moment and who got them, and every treasure hunt prize by week. |
+| **Treasures** | How many (featured and gizmos), % of matches with a treasure, the **treasure hunt** (this week's prizes and, folded, every week), where they come from and the list with the exact moment and who got them. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
-| **Teammates** | Team chests, **top teammates**, the **per match** table and all your teammates (see below). |
+| **Teammates** | Team chests, **top teammates** and, with a switch, **per match**, who you play with most and all your teammates (see below). |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the report" width="820"></p>
 
@@ -77,7 +77,7 @@ The window can be resized and maximized: everything grows in proportion.
 
 </details>
 
-It uses the window's colors (dark, or light when Windows is in light mode) and adapts to phones. The screenshots are in Spanish; the report follows the app's language.
+Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; the report follows the app's language.
 
 ## Teammates and team
 

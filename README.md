@@ -55,15 +55,15 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 
 ## El informe
 
-`report.html` se abre en tu navegador (botón **Informe**) y se actualiza solo. Empieza siempre en **Resumen**; arriba tienes las pestañas:
+`report.html` se abre en tu navegador (botón **Informe**) y se actualiza solo. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
 
 | Pestaña | Qué muestra |
 |---|---|
-| **Resumen** | Total de cofres, hoy, victorias (y %), top 10, partidas, media, récord, mejor día, tesoros, gráfico de 30 días y las últimas partidas. |
+| **Resumen** | Cofres abiertos (y los de hoy), victorias, partidas, media, récord, mejor día, gráfico de los últimos 30 días, últimas partidas, **últimos tesoros** y, con compañeros, lo que aportan y con quién más juegas. |
 | **Cofres** | Por tipo de cofre, otros contenedores (cajas de munición, de comida, cañones; indica si suman al total) y una tabla **por modo de juego**. |
-| **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, de dónde vienen, la lista con el momento exacto y quién los consiguió, y todos los premios de la caza del tesoro por semana. |
+| **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, la **caza del tesoro** (premios de la semana y, plegadas, todas las semanas), de dónde vienen y la lista con el momento exacto y quién los consiguió. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
-| **Compañeros** | Cofres del equipo, **top de compañeros**, la tabla **por partida** y todos tus compañeros (ver abajo). |
+| **Compañeros** | Cofres del equipo, **top de compañeros** y, con un selector, **por partida**, con quién más juegas y todos tus compañeros (ver abajo). |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros del informe" width="820"></p>
 
@@ -77,7 +77,7 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 
 </details>
 
-Usa los colores de la ventana (oscuro, o claro si Windows está en modo claro) y se adapta al móvil.
+Negro y dorado, como la ventana, y se adapta al móvil.
 
 ## Compañeros y equipo
 
