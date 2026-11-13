@@ -4,6 +4,10 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Sin logo en la interfaz** (solo en la barra de título): ventana principal con la estructura de antes (cofres y última partida, sus detalles, la semana; seis cifras en rejilla y los botones) y el estilo nuevo. El perfil es un texto, no un botón.
+- **Textos más cercanos y cortos** en la bienvenida, el aviso de versión nueva, «Partidas de antes» y los avisos de Configuración, con iconos con sentido. Restablecer estadísticas y otros avisos ya no usan el cuadro gris de Windows.
+- **Partidas de antes**: solo se pide el nombre de Epic y se buscan las partidas; fortnite.gg y el número a mano solo aparecen si no se encuentran o el perfil es privado. Arreglados los recuadros oscuros de los campos de texto.
+- **Por defecto activados**: overlay, compañeros en la ventana y en la página (Abrir con Fortnite ya lo estaba).
 - **Nuevo diseño de la app**, el de la página de estadísticas: negro y oro, tarjetas con velo dorado, los mismos iconos y el cofre del logo. Ventana principal reorganizada (cofres abiertos y última partida juntos, fila de cifras con icono, semana con su media, botones como el menú de la página); Configuración, bienvenida y diálogos con el mismo estilo.
 - Corregido: al aparecer un aviso o la tarjeta de equipo, la ventana podía mostrar el error «Parameter is not valid».
 - **Overlay**: solo se ve con Fortnite abierto (sin minimizar) en alguna pantalla; entonces se puede poner en cualquier pantalla y sitio. No se puede sacar por los bordes al arrastrarlo. Al cerrar Fortnite con la ventana de FCT a la vista, solo se va el overlay. Se enciende al abrir Fortnite.

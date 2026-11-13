@@ -51,7 +51,7 @@ public sealed class SettingsForm : ThemedForm
         var start = AddCard(LeftX, 40, LeftW, 170, 16);
         CardTitle(start, L.T("Opciones", "Options"));
         _fortnite = AddToggleRow(start, L.T("Abrir con Fortnite", "Open with Fortnite"),
-            L.T("Cuenta tus partidas sin pensar en ello", "Counts your matches on its own"), 30, config.StartWithFortnite);
+            L.T("Se abre solo cuando juegas", "Opens by itself when you play"), 30, config.StartWithFortnite);
         _fortnite.CheckedChanged += (_, _) =>
         {
             if (_loading)
@@ -63,15 +63,15 @@ public sealed class SettingsForm : ThemedForm
                 _loading = true;
                 _fortnite.Checked = !_fortnite.Checked;
                 _loading = false;
-                MessageBox.Show(this,
-                    L.F("No se puede desde aquí: abre {0} desde su archivo .exe.", "Not possible from here: open {0} from its .exe file.", AppInfo.ShortName),
-                    L.T("Configuración", "Settings"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                InfoDialog.Confirm(this, L.T("Desde aquí no se puede", "Not from here"),
+                    L.F("Para esto, abre {0} desde su archivo .exe.", "For this, open {0} from its .exe file.", AppInfo.ShortName),
+                    Array.Empty<InfoPoint>(), L.T("Vale", "OK"), null, Icons.Info);
             }
         };
         _report = AddToggleRow(start, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 70, config.OpenReportOnStart);
         _report.CheckedChanged += (_, _) => { if (!_loading) _monitor.Change(c => c.OpenReportOnStart = _report.Checked); };
         var mates = AddToggleRow(start, L.T("Compañeros en la ventana", "Teammates in the window"),
-            L.T("Sus cofres: hasta 1.087 m de ti", "Their chests: up to 1,087 m from you"), 98, config.ShowTeammates);
+            L.T("Sus cofres, si andan cerca de ti", "Their chests, if they're near you"), 98, config.ShowTeammates);
         mates.CheckedChanged += (_, _) =>
         {
             if (_loading)
@@ -79,10 +79,9 @@ public sealed class SettingsForm : ThemedForm
                 return;
             }
             if (mates.Checked && !InfoDialog.Confirm(this, L.T("Compañeros en la ventana", "Teammates in the window"),
-                    L.T("La ventana mostrará tu equipo y los cofres de cada compañero. Las estadísticas tienen su propia configuración.",
-                        "The window will show your team and each teammate's chests. Stats have their own settings."),
+                    L.T("Verás a tu equipo y los cofres que abre cada uno.", "You'll see your team and the chests each one opens."),
                     new[] { ExactPoint(), ApproxPoint() },
-                    L.T("Activar", "Turn on"), L.T("Cancelar", "Cancel")))
+                    L.T("Activar", "Turn on"), L.T("Cancelar", "Cancel"), Icons.Teammates))
             {
                 Revert(mates);
                 return;
@@ -97,15 +96,15 @@ public sealed class SettingsForm : ThemedForm
                 return;
             }
             if (addMates.Checked && !InfoDialog.Confirm(this, L.T("Sumar sus cofres a tu total", "Add their chests to your total"),
-                    L.T("Tu total, tu media, tus récords y el overlay incluirán también los cofres de tus compañeros.",
-                        "Your total, your average, your records and the overlay will also include your teammates' chests."),
+                    L.T("Tu total, tu media, tus récords y el overlay contarán también los cofres de tu equipo.",
+                        "Your total, average, records and overlay will also count your team's chests."),
                     new[]
                     {
                         ApproxPoint(),
-                        new InfoPoint("↺", Theme.Cyan, L.T("Tu historial no cambia", "Your history does not change"),
-                            L.T("Al desactivarlo vuelves a ver solo tus cofres.", "Turning it off shows only your chests again.")),
+                        new InfoPoint(Icons.Folder, Theme.GoldHi, L.T("No pierdes nada", "You don't lose anything"),
+                            L.T("Si lo quitas, vuelves a ver solo los tuyos.", "Turn it off and you'll see only yours again.")),
                     },
-                    L.T("Activar", "Turn on"), L.T("Cancelar", "Cancel")))
+                    L.T("Activar", "Turn on"), L.T("Cancelar", "Cancel"), Icons.Teammates))
             {
                 Revert(addMates);
                 return;
@@ -343,10 +342,9 @@ public sealed class SettingsForm : ThemedForm
             }
             _monitor.SetLanguage(code);
             if (InfoDialog.Confirm(this, L.T("Idioma", "Language"),
-                    L.F("El nuevo idioma se aplica al reiniciar {0}. Tu historial y tus ajustes se conservan.",
-                        "The new language applies when {0} restarts. Your history and settings are kept.", AppInfo.ShortName),
+                    L.F("El idioma cambia al reiniciar {0}. No pierdes nada.", "The language changes when {0} restarts. You don't lose anything.", AppInfo.ShortName),
                     Array.Empty<InfoPoint>(),
-                    L.T("Reiniciar ahora", "Restart now"), L.T("Más tarde", "Later")))
+                    L.T("Reiniciar ahora", "Restart now"), L.T("Más tarde", "Later"), Icons.Globe))
             {
                 Close();
                 _monitor.Restart();
@@ -385,14 +383,14 @@ public sealed class SettingsForm : ThemedForm
     }
 
     /// <summary>Lo que sí es exacto de los compañeros.</summary>
-    private static InfoPoint ExactPoint() => new("✓", Theme.Mint, L.T("Exacto", "Exact"),
+    private static InfoPoint ExactPoint() => new(Icons.Check, Theme.GoldHi, L.T("Esto es exacto", "This is exact"),
         L.T("Con quién juegas, partidas juntos y victorias.", "Who you play with, matches together and wins."));
 
     /// <summary>Lo que no: sus cofres, con la distancia medida en replays reales.</summary>
-    private static InfoPoint ApproxPoint() => new("≈", Theme.Amber, L.T("Aproximado: sus cofres", "Approximate: their chests"),
+    private static InfoPoint ApproxPoint() => new(Icons.Warning, Theme.GoldHi, L.T("Sus cofres son aproximados", "Their chests are approximate"),
         L.Big("teammatesRange",
-            "Fortnite solo graba lo que pasa a menos de 1.087 m de ti. Si un compañero se aleja más, sus cofres no se cuentan: son un mínimo, no su total.",
-            "Fortnite only records what happens within 1,087 m of you. If a teammate goes further, their chests are not counted: they are a minimum, not their total."));
+            "Fortnite solo graba lo que pasa cerca de ti (a menos de 1 km). Si un compañero se aleja, no vemos sus cofres: lo que sale es un mínimo.",
+            "Fortnite only records what happens near you (within about 1 km). If a teammate wanders off, we can't see their chests: what you see is a minimum."));
 
     /// <summary>Vuelve a poner el interruptor como estaba (se canceló el diálogo), sin guardar nada.</summary>
     private void Revert(ToggleSwitch toggle)
@@ -528,11 +526,16 @@ public sealed class SettingsForm : ThemedForm
     /// <summary>Pide confirmación y borra todo el historial (se guarda una copia de data.json antes).</summary>
     private void ResetStats()
     {
-        var answer = MessageBox.Show(this,
-            L.F("Se borrarán todas tus partidas, cofres y tesoros guardados, y los cofres de antes de {0}. {0} empezará de cero con tu próxima partida (los replays que ya tienes no se vuelven a contar).\n\nSe guarda una copia de seguridad en la carpeta de tus datos.\n\n¿Restablecer las estadísticas?",
-                "All your saved matches, chests and treasures will be deleted, as well as the chests before {0}. {0} starts from zero with your next match (the replays you already have are not counted again).\n\nA backup copy is saved in your data folder.\n\nReset the statistics?", AppInfo.ShortName),
-            L.T("Restablecer estadísticas", "Reset statistics"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
-        if (answer != DialogResult.Yes)
+        if (!InfoDialog.Confirm(this, L.T("¿Empezar de cero?", "Start from zero?"),
+                L.T("Se borran tus partidas, cofres y tesoros, y también los cofres de antes.", "Your matches, chests and treasures are deleted, and the earlier chests too."),
+                new[]
+                {
+                    new InfoPoint(Icons.Matches, Theme.GoldHi, L.T("Desde tu próxima partida", "From your next match"),
+                        L.T("Las partidas que ya tienes guardadas no se vuelven a contar.", "The matches you already have saved aren't counted again.")),
+                    new InfoPoint(Icons.Folder, Theme.GoldHi, L.T("Guardamos una copia", "We keep a copy"),
+                        L.T("Por si acaso, en la carpeta de tus datos.", "Just in case, in your data folder.")),
+                },
+                L.T("Borrar todo", "Delete everything"), L.T("Cancelar", "Cancel"), Icons.Warning))
         {
             return;
         }
@@ -540,8 +543,9 @@ public sealed class SettingsForm : ThemedForm
         _loading = true;
         _initial.Text = "0";
         _loading = false;
-        MessageBox.Show(this, L.F("Estadísticas restablecidas. Copia de seguridad: {0}", "Statistics reset. Backup copy: {0}", Path.GetFileName(backup)),
-            L.T("Restablecer estadísticas", "Reset statistics"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+        InfoDialog.Confirm(this, L.T("Listo, empezamos de cero", "Done, starting from zero"),
+            L.F("Tu copia está en la carpeta de tus datos: {0}", "Your copy is in your data folder: {0}", Path.GetFileName(backup)),
+            Array.Empty<InfoPoint>(), L.T("Vale", "OK"), null, Icons.Check);
     }
 
     private static ToggleSwitch AddToggleRow(Card card, string text, string? hint, int top, bool value)

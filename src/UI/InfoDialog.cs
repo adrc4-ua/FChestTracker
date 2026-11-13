@@ -4,19 +4,21 @@ using System.Windows.Forms;
 
 namespace FCT.UI;
 
-/// <summary>Un punto del diálogo: símbolo de color, título corto y explicación.</summary>
+/// <summary>
+/// Un punto del diálogo: icono (un SVG de <see cref="Icons"/>, o un símbolo corto), color, título corto y explicación.
+/// </summary>
 public sealed record InfoPoint(string Glyph, Color Color, string Title, string Text);
 
 /// <summary>
-/// Diálogo de confirmación con el estilo de la página (negro y oro: el cofre del logo, tarjeta con velo dorado,
+/// Diálogo de confirmación con el estilo de la página (negro y oro: cuadro de icono dorado, tarjeta con velo dorado,
 /// botón principal de oro), en lugar del cuadro gris de Windows. Devuelve true si se pulsa el botón principal.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class InfoDialog : ThemedForm
 {
-    private const int W = 440, Pad = 20, TextX = 72;
+    private const int W = 440, Pad = 20, TextX = 74;
 
-    private InfoDialog(string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, bool owned)
+    private InfoDialog(string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, bool owned, string? icon)
     {
         Text = title;
         AutoScaleMode = AutoScaleMode.Dpi;
@@ -29,13 +31,13 @@ public sealed class InfoDialog : ThemedForm
         StartPosition = owned ? FormStartPosition.CenterParent : FormStartPosition.CenterScreen;
         Icon = AppIcon.Load();
 
-        // Cabecera: el cofre del logo (con su brillo dorado), título en oro claro e introducción.
-        Controls.Add(new LogoBox { Location = new Point(Pad - 4, Pad - 6), Size = new Size(48, 48), GlowAlpha = 70 });
+        // Cabecera como las secciones de la página: cuadro de oro con el icono del tema, título en oro e introducción.
+        Controls.Add(new IconTile { IconSvg = icon ?? Icons.Info, Solid = true, Location = new Point(Pad, Pad), Size = new Size(42, 42) });
 
         var y = Pad - 1;
         y = AddText(this, title, Theme.Text(12f, FontStyle.Bold), Theme.GoldHi, TextX, y, W - TextX - Pad) + 4;
         y = AddText(this, intro, Theme.Text(9f), Theme.Muted, TextX, y, W - TextX - Pad);
-        y = Math.Max(y, Pad + 40) + 16;
+        y = Math.Max(y, Pad + 42) + 16;
 
         // Puntos, dentro de una tarjeta (sin puntos, no hay tarjeta).
         var card = new Card { Location = new Point(Pad, y), Radius = 16, BackColor = Theme.Card, Visible = points.Count > 0 };
@@ -43,21 +45,29 @@ public sealed class InfoDialog : ThemedForm
         var cy = 14;
         foreach (var p in points)
         {
-            var badge = new Card { Location = new Point(14, cy), Size = new Size(26, 26), Radius = 8, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine };
-            badge.Controls.Add(new Label
+            // Icono del punto en su cuadro dorado (como .gem en la página); un símbolo corto si no es un SVG.
+            if (p.Glyph.StartsWith("<svg", StringComparison.Ordinal))
             {
-                Text = p.Glyph,
-                Font = Theme.Text(10f, FontStyle.Bold),
-                ForeColor = p.Color,
-                BackColor = Color.Transparent,
-                Location = new Point(0, 0),
-                Size = new Size(26, 26),
-                TextAlign = ContentAlignment.MiddleCenter,
-            });
-            card.Controls.Add(badge);
-            var ty = AddText(card, p.Title, Theme.Text(9f, FontStyle.Bold), p.Color, 52, cy + 1, cardW - 52 - 14);
-            ty = AddText(card, p.Text, Theme.Text(8.75f), Theme.Ink, 52, ty, cardW - 52 - 14);
-            cy = Math.Max(ty, cy + 26) + 12;
+                card.Controls.Add(new IconTile { IconSvg = p.Glyph, Location = new Point(14, cy), Size = new Size(32, 32) });
+            }
+            else
+            {
+                var badge = new Card { Location = new Point(14, cy), Size = new Size(32, 32), Radius = 10, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine };
+                badge.Controls.Add(new Label
+                {
+                    Text = p.Glyph,
+                    Font = Theme.Text(11f, FontStyle.Bold),
+                    ForeColor = p.Color,
+                    BackColor = Color.Transparent,
+                    Location = new Point(0, 0),
+                    Size = new Size(32, 32),
+                    TextAlign = ContentAlignment.MiddleCenter,
+                });
+                card.Controls.Add(badge);
+            }
+            var ty = AddText(card, p.Title, Theme.Text(9.25f, FontStyle.Bold), p.Color, 58, cy, cardW - 58 - 14);
+            ty = AddText(card, p.Text, Theme.Text(8.75f), Theme.Muted, 58, ty, cardW - 58 - 14);
+            cy = Math.Max(ty, cy + 32) + 12;
         }
         card.Size = new Size(cardW, cy + 2);
         Controls.Add(card);
@@ -95,13 +105,14 @@ public sealed class InfoDialog : ThemedForm
     /// <summary>Muestra el diálogo. True si se pulsa el botón principal; false si se cancela o se cierra.</summary>
     /// <param name="owner">Ventana dueña, o null si aún no hay ninguna (se centra en la pantalla).</param>
     /// <param name="cancel">Texto del segundo botón, o null para mostrar solo el principal.</param>
-    public static bool Confirm(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel) =>
-        Ask(owner, title, intro, points, ok, cancel) == true;
+    /// <param name="icon">Icono de la cabecera (uno de <see cref="Icons"/>); null = información.</param>
+    public static bool Confirm(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, string? icon = null) =>
+        Ask(owner, title, intro, points, ok, cancel, icon) == true;
 
     /// <summary>Como <see cref="Confirm"/>, pero distingue cerrar la ventana (null) del segundo botón (false).</summary>
-    public static bool? Ask(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel)
+    public static bool? Ask(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, string? icon = null)
     {
-        using var dialog = new InfoDialog(title, intro, points, ok, cancel, owner != null);
+        using var dialog = new InfoDialog(title, intro, points, ok, cancel, owner != null, icon);
         return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) switch
         {
             DialogResult.OK => true,
@@ -119,11 +130,8 @@ public sealed class InfoDialog : ThemedForm
     /// <summary>Texto con salto de línea, del alto justo. Devuelve la coordenada de debajo.</summary>
     private int AddText(Control parent, string text, Font font, Color color, int x, int y, int width)
     {
-        // Se mide a 96 ppp: el escalado automático de la ventana ya agranda después todo junto.
-        var scale = DeviceDpi / 96f;
-        var measured = TextRenderer.MeasureText(text, font, new Size((int)(width * scale), int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
-        var height = (int)Math.Ceiling(measured.Height / scale) + 2;
-        parent.Controls.Add(new Label
+        // La etiqueta se mide sola con el ancho máximo: así nunca corta la última línea ni la última palabra.
+        var label = new Label
         {
             Text = text,
             Font = font,
@@ -131,8 +139,10 @@ public sealed class InfoDialog : ThemedForm
             BackColor = Color.Transparent,
             UseMnemonic = false,
             Location = new Point(x, y),
-            Size = new Size(width, height),
-        });
-        return y + height;
+            AutoSize = true,
+            MaximumSize = new Size(width, 0),
+        };
+        parent.Controls.Add(label);
+        return y + label.PreferredHeight + 2;
     }
 }

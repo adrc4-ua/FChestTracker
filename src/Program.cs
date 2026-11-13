@@ -252,9 +252,9 @@ internal static class Program
             // nueva (que vuelve a dar la bienvenida); si no, las actualizaciones pasan a «Preguntar».
             if (config.UpdateMode != "off" && AppInfo.ExePath != null && Updater.CheckAsync().GetAwaiter().GetResult() is { } newer)
             {
-                var download = InfoDialog.Ask(null, L.F("Hay una versión más reciente de {0}", "A newer version of {0} is available", AppInfo.ShortName),
-                    L.T("Te recomendamos descargarla antes de empezar: tarda unos segundos.", "We recommend downloading it before you start: it takes a few seconds."),
-                    Array.Empty<InfoPoint>(), L.T("Descargar", "Download"), L.T("Ahora no", "Not now"));
+                var download = InfoDialog.Ask(null, L.F("Hay una versión nueva de {0}", "There's a new version of {0}", AppInfo.ShortName),
+                    L.T("Tarda unos segundos. ¿La descargamos antes de empezar?", "It only takes a few seconds. Shall we get it before you start?"),
+                    Array.Empty<InfoPoint>(), L.T("Descargar", "Download"), L.T("Ahora no", "Not now"), Icons.Download);
                 if (download == null)
                 {
                     return 0; // ventana cerrada: no se guarda nada y la próxima vez vuelve a ser el primer uso
@@ -276,25 +276,26 @@ internal static class Program
                 }
             }
 
-            // Bienvenida (con el diseño de la app): grabar replays y, si ya hay replays, si contarlos.
+            // Bienvenida: qué hace, lo único que hay que activar en Fortnite y, si ya hay partidas guardadas, si contarlas.
             var existing = tracker.UnprocessedFiles().Where(f => ReplayHeaderProbe.IsLive(f.FullName) != true).ToList();
             var points = new List<InfoPoint>
             {
-                new("!", Theme.Amber, L.T("Activa «Grabar replays» en Fortnite", "Turn on \"Record Replays\" in Fortnite"),
-                    L.T("Ajustes → Juego → Replays → Grabar replays. Sin eso, Fortnite no guarda replays y no hay nada que contar.",
-                        "Settings → Game → Replays → Record Replays. Without it, Fortnite saves no replays and there is nothing to count.")),
+                new(Icons.RecordReplays, Theme.GoldHi, L.T("Activa las repeticiones en Fortnite", "Turn on replays in Fortnite"),
+                    L.T("Ajustes → Juego → Replays → «Grabar replays». Sin esto no hay nada que contar.",
+                        "Settings → Game → Replays → \"Record Replays\". Without it there's nothing to count.")),
+                existing.Count > 0
+                    ? new InfoPoint(Icons.Folder, Theme.GoldHi,
+                        L.F("Tienes {0} guardadas", "You have {0} saved", L.Count(existing.Count, "partida", "partidas", "match", "matches")),
+                        L.T("¿Las contamos ya? Si no, empezamos con las próximas.", "Shall we count them now? If not, we start with your next ones."))
+                    : new InfoPoint(Icons.Matches, Theme.GoldHi, L.T("Y a jugar", "Then just play"),
+                        L.T("Al acabar cada partida, tus cofres se suman solos.", "After each match, your chests are added up on their own.")),
             };
-            if (existing.Count > 0)
-            {
-                points.Add(new InfoPoint("↺", Theme.Cyan,
-                    L.F("Ya hay {0} en tu PC", "There are already {0} on your PC", L.Count(existing.Count, "replay", "replays", "replay", "replays")),
-                    L.T("Puedes contarlos ahora o empezar solo con tus próximas partidas.", "You can count them now or start with your next matches only.")));
-            }
-            var countThem = InfoDialog.Ask(null, L.F("Te damos la bienvenida a {0}", "Welcome to {0}", AppInfo.Name),
-                L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays."),
+            var countThem = InfoDialog.Ask(null, L.F("Te damos la bienvenida a {0}", "Welcome to {0}", AppInfo.ShortName),
+                L.T("Cuenta los cofres que abres en Fortnite, sin que tengas que hacer nada.", "It counts the chests you open in Fortnite, without you doing a thing."),
                 points,
-                existing.Count > 0 ? L.T("Contarlos", "Count them") : L.T("Empezar", "Start"),
-                existing.Count > 0 ? L.T("Solo las próximas", "Next matches only") : null);
+                existing.Count > 0 ? L.T("Contarlas", "Count them") : L.T("Empezar", "Start"),
+                existing.Count > 0 ? L.T("Solo las nuevas", "Only new ones") : null,
+                Icons.Sparkle);
             if (countThem == null)
             {
                 return 0; // ventana cerrada

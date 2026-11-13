@@ -87,7 +87,7 @@ Negro y dorado, como la ventana, y se adapta al móvil.
 
 ## Compañeros y equipo
 
-Actívalo en la **Configuración** de estadísticas (**Mostrar compañeros**) o, para la ventana, en **Configuración → Compañeros en la ventana** de la app (desactivados por defecto). Verás:
+Viene activado: en la página (**Configuración → Mostrar compañeros** de estadísticas) y en la ventana (**Configuración → Compañeros en la ventana** de la app); se puede quitar en cada sitio. Verás:
 
 - **Exacto**: con quién juegas, partidas juntos y victorias juntos.
 - **Aproximado**: los cofres de cada compañero. Salen de **tu** replay, y Fortnite solo graba lo que pasa **a menos de 1.087 m de ti** (medido en replays reales). Si un compañero se aleja más, sus cofres no se cuentan: son un **mínimo (≥)**.
@@ -128,7 +128,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.
 - **Cofres antes de FCT**: un estimado que se suma a tu total. Con **Estimar…** (también se pregunta la primera vez) eliges *solo repeticiones guardadas* o *repeticiones + estimación*:
-  - **Partidas de la temporada actual**: búscalas por tu nombre de Epic (si la versión puede consultarlas) o mira el número de la temporada en [fortnite.gg](https://fortnite.gg/stats) y escríbelo. Si tus estadísticas son privadas, se avisa de que por eso no se pueden consultar.
+  - **Partidas de la temporada actual**: se buscan con tu nombre de Epic. Solo si no se encuentran (o tu perfil es privado, y se avisa) se escriben a mano mirando [fortnite.gg](https://fortnite.gg/stats).
   - **Media de cofres por partida**: la de tus repeticiones junto con las **partidas nuevas** que juegues desde ese momento (eliges cuántas: 5 por defecto, **10 recomendado**; cuantas más, más acertada). Cada repetición pesa como una partida nueva, así que cuantas más repeticiones tengas, más cuentan. O escríbela a mano.
   - **Estimado** = media × (partidas de la temporada − repeticiones de esta temporada ya contadas; las de temporadas anteriores entran en la media pero no se restan). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.
 - **Actualizaciones**, **overlay para OBS**, **carpeta de replays** y **Restablecer estadísticas** (con copia de seguridad).

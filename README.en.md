@@ -36,7 +36,12 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 
 <p align="center"><img src="docs/images/setup.png" alt="First-run welcome" width="520"></p>
 
-5. Leave it running while you play. When it opens only the **overlay** shows: the main window stays in the background, with its icon in the notification area (the **^** arrow on the taskbar). Click the icon, or open the program again, to bring it to the front; right-click for overlay, report, settings and exit. On first use, or with the overlay turned off, the window opens as usual. During the match FCT reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
+5. Leave it running while you play:
+   - **With Fortnite open**, opening FCT shows only the **overlay** and the window stays in the background, with its icon in the notification area (the **^** arrow on the taskbar). Click the icon, or open the program again, to bring it to the front; right-click for overlay, stats, settings and exit.
+   - **Without Fortnite**, the window opens.
+   - The **window's X** keeps it in the background if Fortnite is open; otherwise it closes FCT. The **overlay's ✕** closes FCT completely.
+   - In the background, FCT closes by itself when Fortnite closes (once the last match is counted), or from **Exit** on its icon.
+    During the match FCT reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
 
 > [!TIP]
 > Matches played while FCT is closed are counted next time you open it, as long as Fortnite has not deleted those replays (it keeps a limited number). To not think about it, turn on **Open with Fortnite** in Settings.
@@ -82,7 +87,7 @@ Black and gold, like the window, and it adapts to phones. The screenshots are in
 
 ## Teammates and team
 
-Turn it on in the stats **Settings** (**Show teammates**) or, for the window, in the app's **Settings → Teammates in the window** (both off by default). You get:
+It's on by default: on the page (stats **Settings → Show teammates**) and in the window (the app's **Settings → Teammates in the window**); each can be turned off. You get:
 
 - **Exact**: who you play with, matches together and wins together.
 - **Approximate**: each teammate's chests. They come from **your** replay, and Fortnite only records what happens **within 1,087 m of you** (measured on real replays). If a teammate goes further, their chests are not counted: they are a **minimum (≥)**.
@@ -98,7 +103,7 @@ With **Add their chests to your total** (also off), your total, average, records
 - **Big numbers**: your chest **total** and, in the box, the **previous** match (or the **current** one, live, while you play).
 - **Today**, today's **average** per match, **previous** (during a match) and **treasures**.
 
-To see it over the game, set Fortnite to **Windowed Fullscreen** (*Settings → Video → Window Mode*): in exclusive fullscreen Windows cannot draw on top. The overlay starts **off**: turn it on with the **Overlay** button or Ctrl+Shift+O.
+To see it over the game, set Fortnite to **Windowed Fullscreen** (*Settings → Video → Window Mode*): in exclusive fullscreen Windows cannot draw on top. It only shows while Fortnite is open (not minimized) on some screen; then you can put it on any screen and spot, and it stays visible even if you use another window. It can't be dragged past the screen edges. It's on by default and turns on when Fortnite opens; turn it off with the **Overlay** button or Ctrl+Shift+O.
 
 Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** (copy it from **Settings**). In OBS, add a **browser source** with that address: transparent background, refreshes by itself.
 
@@ -118,12 +123,12 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
 - **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick another one (synced both ways with the stats page).
-- **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
+- **Open with Fortnite** (on from first use): a small invisible process opens FCT in the background when Fortnite starts, and FCT closes by itself when Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
 - **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
 - **Chests before FCT**: an estimate added to your total. With **Estimate…** (also asked the first time) you choose *saved replays only* or *replays + estimate*:
-  - **Matches this season**: look them up by your Epic name (if the build can) or read the season number on [fortnite.gg](https://fortnite.gg/stats) and type it. If your stats are private, it says that is why they cannot be looked up.
+  - **Matches this season**: looked up with your Epic name. Only if they can't be found (or your profile is private, which it tells you) do you type them in, reading them on [fortnite.gg](https://fortnite.gg/stats).
   - **Average chests per match**: that of your replays together with the **new matches** you play from then on (you choose how many: 5 by default, **10 recommended**; the more, the closer). Each replay weighs as much as a new match, so the more replays you have, the more they count. Or type it by hand.
   - **Estimate** = average × (matches this season − this season's replays already counted; replays from earlier seasons go into the average but are not subtracted). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). Until you play the new matches you see a provisional estimate. With no replays, the past is the estimate alone.
 - **Updates**, **overlay for OBS**, **replays folder** and **Reset statistics** (with a backup).

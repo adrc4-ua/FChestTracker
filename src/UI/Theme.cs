@@ -69,13 +69,20 @@ internal static class Theme
     /// Fondo de tarjeta de la página: un velo de oro arriba que se apaga a la mitad, sobre --card, y un borde de oro fino.
     /// <paramref name="hero"/>: la tarjeta principal (resplandor desde la esquina y borde más marcado).
     /// </summary>
-    public static void PaintCard(Graphics g, RectangleF rect, float radius, Color fill, bool hero = false, Color? edge = null)
+    /// <param name="flat">Sin velo ni brillo: un color liso (campos de texto, para que el cuadro de texto no se note).</param>
+    public static void PaintCard(Graphics g, RectangleF rect, float radius, Color fill, bool hero = false, Color? edge = null, bool flat = false)
     {
         g.SmoothingMode = SmoothingMode.AntiAlias;
         using var path = Shape.Rounded(rect, radius);
         using (var solid = new SolidBrush(fill))
         {
             g.FillPath(solid, path);
+        }
+        if (flat)
+        {
+            using var line = new Pen(edge ?? CardEdge, 1f);
+            g.DrawPath(line, path);
+            return;
         }
         var state = g.Save();
         g.SetClip(path, CombineMode.Intersect);

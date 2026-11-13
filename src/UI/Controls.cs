@@ -62,7 +62,7 @@ internal static class Backdrop
                 g.Clear(card.BackColor);
                 var state = g.Save();
                 g.TranslateTransform(-offset.X, -offset.Y);
-                Theme.PaintCard(g, new RectangleF(0.5f, 0.5f, card.Width - 1.5f, card.Height - 1.5f), card.Radius, card.BackColor, card.Hero, card.Edge);
+                Theme.PaintCard(g, new RectangleF(0.5f, 0.5f, card.Width - 1.5f, card.Height - 1.5f), card.Radius, card.BackColor, card.Hero, card.Edge, card.Flat);
                 g.Restore(state);
                 break;
             }
@@ -165,11 +165,15 @@ public sealed class Card : Panel
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Color? Edge { get; set; }
 
+    /// <summary>Color liso, sin velo dorado (fondo de los campos de texto).</summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public bool Flat { get; set; }
+
     protected override void OnPaintBackground(PaintEventArgs e) => Backdrop.Paint(this, e.Graphics);
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        Theme.PaintCard(e.Graphics, new RectangleF(0.5f, 0.5f, Width - 1.5f, Height - 1.5f), Radius, BackColor, Hero, Edge);
+        Theme.PaintCard(e.Graphics, new RectangleF(0.5f, 0.5f, Width - 1.5f, Height - 1.5f), Radius, BackColor, Hero, Edge, Flat);
     }
 }
 

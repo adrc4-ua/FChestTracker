@@ -34,8 +34,8 @@ public sealed class Config
     /// <summary>Locked overlay = click-through, cannot be moved (Ctrl+Shift+L to toggle).</summary>
     public bool OverlayLocked { get; set; }
 
-    /// <summary>Overlay shown on screen. Off by default: the player turns it on with the Overlay button or Ctrl+Shift+O.</summary>
-    public bool OverlayVisible { get; set; }
+    /// <summary>Overlay turned on (on by default; it is only on screen while Fortnite is open). Overlay button or Ctrl+Shift+O.</summary>
+    public bool OverlayVisible { get; set; } = true;
 
     /// <summary>Count the chests of the match in progress (re-reads the replay being recorded).</summary>
     public bool LiveUpdate { get; set; } = true;
@@ -58,10 +58,10 @@ public sealed class Config
     public bool CountLootCannons { get; set; }
 
     /// <summary>
-    /// Show the teammates section in the report (off by default): their chests come from the player's own replay,
-    /// which only holds what happens nearby, so they are a minimum.
+    /// Show the teammates (window card and report section). On by default; a config saved with it turned off keeps
+    /// it off. Their chests come from the player's own replay, which only holds what happens nearby, so they are a minimum.
     /// </summary>
-    public bool ShowTeammates { get; set; }
+    public bool ShowTeammates { get; set; } = true;
 
     /// <summary>
     /// Count only the matches played on or after this local date (null = all the replays, the default). The older
@@ -125,7 +125,7 @@ public sealed class Config
 /// <summary>Settings that only affect the Estadísticas page.</summary>
 public sealed class ReportSettings
 {
-    public bool ShowTeammates { get; set; }
+    public bool ShowTeammates { get; set; } = true; // sección Compañeros, activada por defecto
     public bool CountTeammateChests { get; set; }
     public bool CountAmmoBoxes { get; set; }
     public bool CountFoodBoxes { get; set; }
