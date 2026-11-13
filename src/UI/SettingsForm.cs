@@ -429,7 +429,10 @@ public sealed class SettingsForm : ThemedForm
     /// <summary>«Estimar…»: solo repeticiones o repeticiones + estimado; la cifra se pone ya si se puede calcular.</summary>
     private void EstimateEarlier()
     {
-        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate) is not { } choice)
+        // Las partidas guardadas cuentan igual que en la primera apertura (en la media y restadas de la temporada).
+        // Sin ninguna guardada todavía, la primera opción es «Empezar de cero», no «Solo las guardadas».
+        var noneSaved = _monitor.PreviewEstimate(1, HistoryEstimator.DefaultSample, null).Replays == 0;
+        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved) is not { } choice)
         {
             return;
         }
