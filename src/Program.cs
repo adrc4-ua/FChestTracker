@@ -120,7 +120,7 @@ internal static class Program
         var store = new Store(dataDir);
         ErrorLog.FilePath = store.ErrorLogPath;
 
-        // Una sola instancia por carpeta de datos: dos contarían las mismas partidas.
+        // Un solo FCT a la vez (sea cual sea la carpeta de datos): dos serían dos overlays y dos contadores.
         using var instance = new Mutex(false, AppInfo.InstanceMutexFor(dataDir));
         if (previewPath == null && diagnosePath == null && !AcquireInstance(instance, afterUpdate ? TimeSpan.FromSeconds(20) : TimeSpan.Zero))
         {
@@ -128,7 +128,8 @@ internal static class Program
             {
                 return 0; // abierto con Fortnite cuando ya estaba abierto: nada que hacer
             }
-            // Abierto otra vez a mano: el que ya está en marcha (quizá oculto en el área de notificación) muestra su ventana.
+            // Abierto otra vez a mano: no se abre otro. El que ya está en marcha (quizá oculto en el área de notificación)
+            // saca su ventana con un aviso de que ya estaba abierto.
             if (!cliMode && EventWaitHandle.TryOpenExisting(AppInfo.ShowEventFor(dataDir), out var showRunning))
             {
                 using (showRunning)
@@ -137,15 +138,17 @@ internal static class Program
                 }
                 return 0;
             }
-            var alreadyOpen = L.F("{0} ya está abierto: búscalo en el área de notificación (la flecha ^ de la barra de tareas).",
-                "{0} is already open: look for it in the notification area (the ^ arrow on the taskbar).", AppInfo.ShortName);
+            // Aún no puede sacar su ventana (está en la bienvenida, o arrancando): se avisa aquí.
+            var alreadyOpen = L.F("{0} ya está abierto. Solo puede haber uno a la vez: búscalo en el área de notificación (la flecha ^ de la barra de tareas).",
+                "{0} is already open. There can only be one at a time: look for it in the notification area (the ^ arrow on the taskbar).", AppInfo.ShortName);
             if (cliMode)
             {
                 Console.WriteLine("  " + alreadyOpen);
             }
             else
             {
-                MessageBox.Show(alreadyOpen, AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                InfoDialog.Confirm(null, L.F("{0} ya está abierto", "{0} is already open", AppInfo.ShortName), alreadyOpen,
+                    Array.Empty<InfoPoint>(), L.T("Vale", "OK"), null, Icons.Info);
             }
             return 0;
         }
@@ -358,7 +361,11 @@ internal static class Program
         using var showRequest = new EventWaitHandle(false, EventResetMode.AutoReset, AppInfo.ShowEventFor(dataDir));
         var showWait = ThreadPool.RegisterWaitForSingleObject(showRequest, (_, _) =>
         {
-            try { form.BeginInvoke(new Action(form.ShowFromTray)); }
+            try
+            {
+                form.BeginInvoke(new Action(form.ShowFromTray));
+                monitor.SetNotice(L.F("{0} ya estaba abierto: solo puede haber uno a la vez.", "{0} was already open: there can only be one at a time.", AppInfo.ShortName));
+            }
             catch (InvalidOperationException) { /* la ventana aún no existe o ya se cerró */ }
         }, null, Timeout.Infinite, executeOnlyOnce: false);
 

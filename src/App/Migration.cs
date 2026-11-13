@@ -57,7 +57,7 @@ internal static class Migration
         }
     }
 
-    /// <summary>The single-instance mutex of v1.0.0 for its data folder (same naming as <see cref="AppInfo.InstanceMutexFor"/>).</summary>
+    /// <summary>The single-instance mutex of v1.0.0 for its data folder (it used one per data folder).</summary>
     private static bool OldInstanceRunning(string oldFolder)
     {
         var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(oldFolder).TrimEnd('\\', '/').ToLowerInvariant()));

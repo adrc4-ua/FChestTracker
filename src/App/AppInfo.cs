@@ -30,14 +30,21 @@ public static class AppInfo
     }
 
     // Names of the per-user kernel objects that let the processes find each other.
-    /// <summary>One instance per data folder (the normal folder, or a test folder given with --data).</summary>
+    /// <summary>
+    /// One FCT at a time for the user, whatever its data folder: two would mean two overlays and two counters. Only the
+    /// automatic tests set FCT_SEPARATE_INSTANCES=1 to run copies with their own data folder (one per folder).
+    /// </summary>
     public static string InstanceMutexFor(string dataDir)
     {
+        if (Environment.GetEnvironmentVariable("FCT_SEPARATE_INSTANCES") != "1")
+        {
+            return @"Local\FCT.Instance";
+        }
         var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(dataDir).TrimEnd('\\', '/').ToLowerInvariant()));
         return @"Local\FCT.Instance." + Convert.ToHexString(hash, 0, 8);
     }
     /// <summary>Set by a second launch so that the running instance (maybe hidden in the tray) shows its window.</summary>
-    public static string ShowEventFor(string dataDir) => InstanceMutexFor(dataDir).Replace(".Instance.", ".Show.");
+    public static string ShowEventFor(string dataDir) => InstanceMutexFor(dataDir).Replace(".Instance", ".Show");
     public const string StandbyMutex = @"Local\FCT.Standby";
     public const string StandbyStopEvent = @"Local\FCT.StandbyStop";
 }

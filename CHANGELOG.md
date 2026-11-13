@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Un solo FCT a la vez**, sea cual sea la carpeta de datos (antes, uno por carpeta: podían salir dos overlays). Al abrirlo otra vez no se abre otro: el que ya está saca su ventana con el aviso «FCT ya estaba abierto»; si aún está en la bienvenida, el segundo lo avisa con su propio mensaje. Abierto por Fortnite estando ya abierto, se cierra sin decir nada.
 - **Overlay con el estilo de la app** (igual de sencillo): negro con el velo dorado de las tarjetas, borde y franja de oro (menta en directo), «◆ COFRES», cifras grandes con el degradado de oro, cápsula dorada para la partida, columnas centradas y la gema dorada para los tesoros. La versión para OBS, igual.
 - Configuración → Recalcular: sin ninguna partida guardada, la primera opción es «Empezar de cero» (como en la primera apertura). Comprobado que desde Configuración las partidas guardadas cuentan igual que en la primera apertura.
 - **Overlay más fiable**: solo cuenta una ventana de Fortnite que esté de verdad en pantalla (con tamaño real, dentro de un monitor y sin ocultar por Windows), así no aparece con Fortnite minimizado; comprueba cada 2 s desde su propio hilo, así se va al cerrar Fortnite aunque FCT esté leyendo repeticiones; y apagado a mano ya no se vuelve a encender al minimizar y restaurar Fortnite (solo al abrir un Fortnite nuevo).
