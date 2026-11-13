@@ -339,7 +339,7 @@ public static class NativeOverlay
         {
             _onLockChanged?.Invoke(locked);
             Console.WriteLine(locked
-                ? L.F("Overlay bloqueado: el ratón lo atraviesa. Clic en el candado{0} para desbloquearlo.",
+                ? L.F("Overlay bloqueado: el ratón lo atraviesa. Haz clic en el candado{0} para desbloquearlo.",
                       "Overlay locked: the mouse goes through it. Click the padlock{0} to unlock it.",
                       LockHotkeyRegistered ? L.T(" o Ctrl+Mayús+L", " or press Ctrl+Shift+L") : "")
                 : L.T("Overlay desbloqueado: arrastra con el botón izquierdo para moverlo; bloquéalo de nuevo con el candado.",

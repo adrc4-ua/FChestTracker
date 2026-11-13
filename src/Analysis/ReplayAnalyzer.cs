@@ -888,7 +888,7 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             }
             if (eliminatedAt is float ea)
             {
-                Diagnosis.Add(L.F("  ⚠ Eliminado a las {0} sin reinicio: un tesoro que consiga el escuadrón después de ese momento no deja rastro en el replay.",
+                Diagnosis.Add(L.F("  ⚠ Eliminación a las {0} sin reinicio: un tesoro que consiga el escuadrón después de ese momento no deja rastro en el replay.",
                     "  ⚠ Eliminated at {0} with no reboot: a treasure the squad gets after that moment leaves no trace in the replay.", Pretty.Clock(ea)));
             }
             foreach (var f in finds)

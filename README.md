@@ -10,7 +10,7 @@
 
 <img src="docs/images/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Informe" width="49%">
 
-[**⬇ Descargar FCT.exe**](../../releases/latest) · Windows 10 / 11 · gratis · sin instalación · 10 idiomas
+[**⬇ Descargar FCT.exe**](../../releases/latest) · Windows 10 / 11 · gratis · sin instalación · español e inglés
 
 </div>
 
@@ -63,7 +63,7 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 | **Cofres** | Por tipo de cofre, otros contenedores (cajas de munición, de comida, cañones; indica si suman al total) y una tabla **por modo de juego**. |
 | **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, la **caza del tesoro** (premios de la semana y, plegadas, todas las semanas), de dónde vienen y la lista con el momento exacto y quién los consiguió. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
-| **Compañeros** | Cofres del equipo, **top de compañeros** y, con un selector, **por partida**, con quién más juegas y todos tus compañeros (ver abajo). |
+| **Compañeros** | Cofres del equipo y una **clasificación** con selector: más cofres vistos, mejor media, récord, victorias juntos y todos tus compañeros (ver abajo). |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros del informe" width="820"></p>
 
@@ -86,7 +86,7 @@ Actívalo en **Ajustes → Compañeros en el informe** (desactivado por defecto)
 - **Exacto**: con quién juegas, partidas juntos y victorias juntos.
 - **Aproximado**: los cofres de cada compañero. Salen de **tu** replay, y Fortnite solo graba lo que pasa **a menos de 1.087 m de ti** (medido en replays reales). Si un compañero se aleja más, sus cofres no se cuentan: son un **mínimo (≥)**.
 - **Cofres del equipo**: tú + tus compañeros, en total y por partida, con el % que aporta cada uno; útil si buscáis un objeto aleatorio que sale de los cofres.
-- **Top de compañeros**: más cofres vistos, mejor media, récord en una partida y más victorias juntos.
+- **Clasificación**: más cofres vistos, mejor media, récord en una partida y victorias juntos (hasta 10 puestos), o la tabla con todos tus compañeros.
 
 Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, récords y overlay incluyen los cofres de tu equipo. Tu historial no cambia: al desactivarlo vuelves a ver solo los tuyos.
 
@@ -114,7 +114,7 @@ Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Aj
 
 <p align="center"><img src="docs/images/settings.png" alt="Ajustes" width="620"></p>
 
-- **Idioma**: por defecto el de Windows; arriba puedes elegir otro (español, inglés, portugués, ruso, francés, alemán, italiano, polaco, turco o japonés).
+- **Idioma**: por defecto el de Windows (español o inglés; inglés si es otro); arriba puedes elegir el otro.
 - **Abrir con Fortnite**: un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
 - **Abrir el informe al iniciar** (desactivado por defecto).
 - **Compañeros en el informe** y **Sumar sus cofres a tu total** (ver arriba).
@@ -206,14 +206,15 @@ src/                         la aplicación: FCT.csproj → FCT.exe
 ├─ Overlay/                  overlay sobre el juego y su versión para OBS
 ├─ Reporting/                informe HTML
 ├─ UI/                       ventana principal, ajustes y controles
-├─ Localization/             textos en los 10 idiomas
+├─ Localization/             idioma de la app; Languages/ para añadir idiomas (ver su README)
 └─ Assets/                   icono
 external/FortniteReplayDecompressor/   librería de replays (modificada: ver PATCHES.md)
+tools/i18n.cs                crea o actualiza el archivo de un idioma nuevo (dotnet run tools/i18n.cs -- <código>)
 docs/images/                 capturas de este README
 ```
 
 ## Licencia y créditos
 
-[MIT](LICENSE). Este proyecto parte de [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92. El análisis de los replays se basa en [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan (MIT), ligeramente modificado: ver [`lib/PATCHES.md`](lib/PATCHES.md).
+[MIT](LICENSE). Este proyecto parte de [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92. El análisis de los replays se basa en [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan (MIT), ligeramente modificado: ver [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md).
 
 Este proyecto no está afiliado a Epic Games, ni cuenta con su respaldo ni patrocinio. Fortnite es una marca registrada de Epic Games, Inc.

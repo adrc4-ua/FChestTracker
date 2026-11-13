@@ -72,9 +72,9 @@ public static class ReportWriter
 
         /* Cifras clave */
         .kpis{display:grid;grid-template-columns:minmax(0,1.9fr) repeat(5,minmax(0,1fr));gap:12px}
-        .kpi,.card,.mini-kpi,.mate,.board{background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 60%),var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .kpi,.card,.mini-kpi{background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 60%),var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
         .kpi{position:relative;padding:16px 18px;min-width:0;display:flex;flex-direction:column}
-        .kpi .ki{display:inline-flex;color:var(--gold);margin-bottom:10px}
+        .kpi .ki{display:flex;align-items:center;height:22px;color:var(--gold);margin-bottom:8px}
         .kpi .l{font-size:12.5px;font-weight:600;color:var(--muted)}
         .kpi .v{margin-top:2px;font-size:28px;font-weight:700;line-height:1.15;letter-spacing:-.025em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
         .kpi .v.gold{color:var(--gold)}
@@ -95,6 +95,8 @@ public static class ReportWriter
         .pad{padding:16px 18px}
         .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-top:0}
         .grid2 section{margin-top:0}
+        .grid2>section,.trow>section{display:flex;flex-direction:column}
+        .grid2>section>.card,.trow>section>.card{flex:1 1 auto}
 
         /* Evolución de cofres: curva a todo el ancho, textos y puntos encima */
         .evo{position:relative;height:clamp(140px,22vh,240px);margin:6px 8px 26px 44px}
@@ -113,9 +115,10 @@ public static class ReportWriter
 
         /* Resumen: últimas partidas y columna derecha */
         .duo{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(280px,1fr);gap:16px;margin-top:22px}
-        .duo>section{margin-top:0}
+        .duo>section,.stack>section{margin-top:0}
         .stack{display:flex;flex-direction:column;gap:16px;min-width:0}
-        .side-card{margin:0;padding:16px 18px}
+        .side-card{margin:0;padding:14px 18px}
+        .empty-side{margin:6px 0;text-align:center}
         .tl{list-style:none;margin:0;padding:0}
         .tl li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
         .tl li:first-child{border-top:0;padding-top:2px}
@@ -132,7 +135,7 @@ public static class ReportWriter
         .team2 .track{display:block;height:5px;margin-top:4px}
         .gemc{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:600}
         table.compact th,table.compact td{padding:9px 14px}
-        .trow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+        .trow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
         .trow>section{margin-top:22px}
         .trow .tiles{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
 
@@ -260,41 +263,31 @@ public static class ReportWriter
         table.matches tr.won td{background:rgba(232,176,75,.06)} table.matches tr.won td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
         .team{margin-top:4px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         td.foot{text-align:center;padding:14px 16px}
-        .mates{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-        .mate{padding:16px 18px;min-width:0}
         .who{display:flex;align-items:center;gap:12px;min-width:0}
-        .who .grow{min-width:0}
         .av{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:17px;color:#1a1305}
         .av.sm-av{width:26px;height:26px;font-size:12px}
         .who .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .mate .nm{font-size:15.5px}
-        .mate .st{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
-        .mate .st b{display:block;font-size:20px;line-height:1.2;font-variant-numeric:tabular-nums}
-        .mate .st b small{font-size:12px;font-weight:600;color:var(--muted);margin-right:2px}
-        .mate .st span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35}
-        .boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-        .board{padding:14px 16px 12px;min-width:0}
-        .board h3{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-        .board ol{list-style:none;margin:0;padding:0}
-        .board li{display:grid;grid-template-columns:22px 26px minmax(0,1fr) auto;align-items:center;gap:2px 8px;padding:5px 0;border-bottom:1px solid var(--line)}
+        .rank{padding:6px 24px}
+        .rank ol{list-style:none;margin:0;padding:0;display:grid;grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:56px}
+        .rank li{display:grid;grid-template-columns:24px 28px minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:11px 0 12px;border-top:1px solid var(--line)}
+        .rank li.t{border-top:0}
+        @media (max-width:860px){.rank{padding:4px 16px}.rank ol{grid-auto-flow:row;grid-template-columns:1fr;grid-template-rows:none!important}.rank li.t{border-top:1px solid var(--line)}.rank li:first-child{border-top:0}}
         .seg{display:flex;flex-wrap:wrap;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--bg2)}
         .seg button{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:7px;padding:6px 12px;cursor:pointer}
         .seg button:hover{color:var(--text)}
         .seg button[aria-selected="true"]{color:#1a1206;background:linear-gradient(180deg,var(--gold-hi),var(--gold))}
         .seg button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
-        .board li:last-child{border-bottom:none}
-        .board .rk{font-size:12px;font-weight:700;color:var(--faint);text-align:center;font-variant-numeric:tabular-nums}
-        .board .rk.medal{font-size:16px}
-        .board .who2{display:flex;flex-direction:column;min-width:0}
-        .board .who2 .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .board .who2 .sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .board li b{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
-        .board li b small{font-size:11px;font-weight:600;color:var(--muted);margin-right:2px}
-        .board li.first b{color:var(--gold-hi);font-size:17px}
-        .board .bar{grid-column:3/-1;height:4px;border-radius:2px;background:var(--bg2);overflow:hidden;box-shadow:none}
-        .board .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border-radius:2px}
-        .board li.first .bar i{background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
-        .bfoot{margin-top:8px;font-size:12px;color:var(--muted)}
+        .rank .rk{font-size:12px;font-weight:700;color:var(--faint);text-align:center;font-variant-numeric:tabular-nums}
+        .rank .rk.medal{font-size:16px}
+        .rank .who2{display:flex;flex-direction:column;min-width:0}
+        .rank .who2 .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .rank .who2 .sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .rank li b{font-size:15px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+        .rank li b small{font-size:11px;font-weight:600;color:var(--muted);margin-right:2px}
+        .rank li.first b{color:var(--gold-hi);font-size:17px}
+        .rank .bar{grid-column:3/-1;height:4px;border-radius:2px;background:var(--bg2);overflow:hidden;box-shadow:none}
+        .rank .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border-radius:2px}
+        .rank li.first .bar i{background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
         .mates-line{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:5px}
         .chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 3px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);font-size:12px;white-space:nowrap;max-width:100%}
         .matches .chip{padding-left:9px}
@@ -302,13 +295,6 @@ public static class ReportWriter
         .chip b{font-variant-numeric:tabular-nums}
         .chip .sm-av{width:20px;height:20px;font-size:10.5px}
         .mini-kpi b small{font-size:13px;font-weight:600;color:var(--muted);margin-right:2px}
-        .teambar{display:flex;align-items:center;justify-content:flex-end;gap:10px}
-        .teambar .tb{position:relative;width:90px;height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
-        .teambar .tb i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--gold-lo)}
-        .teambar .tb i.me{background:var(--gold);z-index:1}
-        .teambar b{min-width:44px;text-align:right}
-        .teambar b small{font-size:11px;color:var(--muted);margin-right:2px}
-        @media (max-width:520px){.teambar .tb{display:none}}
         @media (max-width:860px){.minis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.trow{grid-template-columns:1fr}}
         @media (max-width:1280px){.kpis{grid-template-columns:repeat(5,minmax(0,1fr))}.kpi.hero{grid-column:1/-1}}
         @media (max-width:1100px){.duo{grid-template-columns:1fr}}
@@ -335,11 +321,10 @@ public static class ReportWriter
           .duo>.stack{min-height:0;overflow:auto;padding-right:2px}
           .main>.panel:not([hidden]){overflow:auto}
           .segsec .segp:not([hidden]){flex:0 1 auto;min-height:0;overflow:auto}
-          .board ol{max-height:clamp(150px,28vh,300px);overflow:auto;padding-right:4px}
           .trow>section>.card{max-height:42vh;overflow:auto}
         }
-        .kpi .s::first-letter,.split span::first-letter,.mini-kpi span::first-letter,.sh .meta::first-letter,.mate .st span::first-letter,
-        .board .who2 .sub::first-letter,.bfoot::first-letter,.row>span::first-letter,.badge::first-letter,
+        .kpi .s::first-letter,.split span::first-letter,.mini-kpi span::first-letter,.sh .meta::first-letter,
+        .rank .who2 .sub::first-letter,.row>span::first-letter,.badge::first-letter,
         .chests+.sm::first-letter,td>.sm::first-letter,.tag::first-letter,.pchip::first-letter{text-transform:uppercase}
         @media (prefers-reduced-motion:reduce){.dot,.spin{animation:none}}
         """;
@@ -358,10 +343,11 @@ public static class ReportWriter
           b.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'||e.key==='ArrowDown'?1:e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:0;if(!k)return;e.preventDefault();var n=tabs[(i+k+tabs.length)%tabs.length];go(n.getAttribute('data-tab'));n.focus()})});
         [].forEach.call(d.querySelectorAll('[data-go]'),function(a){a.addEventListener('click',function(e){e.preventDefault();go(a.getAttribute('data-go'))})});
         [].forEach.call(d.querySelectorAll('.segsec'),function(sec){var bar=sec.querySelector('.seg'),meta=sec.querySelector('.sh .meta'),ps=[].slice.call(sec.querySelectorAll('.segp')),bs=[];
-          function pick(i){ps.forEach(function(p,j){p.hidden=j!==i;bs[j].setAttribute('aria-selected',j===i?'true':'false');bs[j].tabIndex=j===i?0:-1});meta.textContent=ps[i].getAttribute('data-meta');put('cc-seg',String(i),true)}
-          ps.forEach(function(p,i){var b=d.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=p.getAttribute('data-title');p.setAttribute('role','tabpanel');
-            b.addEventListener('click',function(){pick(i)});b.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!k)return;e.preventDefault();var n=(i+k+ps.length)%ps.length;pick(n);bs[n].focus()});bar.appendChild(b);bs.push(b)});
-          var s=+(get('cc-seg',true)||0);pick(s<ps.length?s:0)});
+          function pick(i,save){ps.forEach(function(p,j){p.hidden=j!==i;bs[j].setAttribute('aria-selected',j===i?'true':'false');bs[j].tabIndex=j===i?0:-1});meta.textContent=ps[i].getAttribute('data-meta');if(save)put('cc-seg',ps[i].getAttribute('data-key'),true)}
+          ps.forEach(function(p,i){var b=d.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=p.getAttribute('data-title');p.setAttribute('role','tabpanel');p._pick=function(){pick(i,true)};
+            b.addEventListener('click',function(){pick(i,true)});b.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!k)return;e.preventDefault();var n=(i+k+ps.length)%ps.length;pick(n,true);bs[n].focus()});bar.appendChild(b);bs.push(b)});
+          var k=get('cc-seg',true),s=0;ps.forEach(function(p,i){if(p.getAttribute('data-key')===k)s=i});pick(s,false)});
+        [].forEach.call(d.querySelectorAll('[data-seg]'),function(a){a.addEventListener('click',function(){var p=d.querySelector('.segp[data-key="'+a.getAttribute('data-seg')+'"]');if(p&&p._pick)p._pick()})});
         var y=get('cc-y',true);if(y)window.scrollTo(0,+y);addEventListener('pagehide',function(){put('cc-y',String(window.scrollY),true)});
         })();
         """;
@@ -468,10 +454,10 @@ public static class ReportWriter
     /// <summary>Últimos tesoros conseguidos (resumen): nombre, partida y tipo.</summary>
     private static string LatestTreasures(List<(MatchRecord m, TreasureFind f)> rows, Func<int, string> N)
     {
-        var sb = new StringBuilder($"""<section class="card side-card"><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div>""");
+        var sb = new StringBuilder($"""<section><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div><div class="card side-card">""");
         if (rows.Count == 0)
         {
-            sb.Append($"<p class=\"sm\">{L.T("Aún no has encontrado tesoros.", "No treasures yet.")}</p></section>");
+            sb.Append($"<p class=\"sm empty-side\">{L.T("Aún no has encontrado tesoros.", "No treasures yet.")}</p></div></section>");
             return sb.ToString();
         }
         sb.Append("<ul class=\"tl\">");
@@ -481,7 +467,7 @@ public static class ReportWriter
             var kind = featured ? (type != null ? $"{Prizes.Featured} · {type}" : Prizes.Featured) : type ?? L.T("Artilugio", "Gizmo");
             sb.Append($"<li><span class=\"gem{(featured ? " f" : "")}\">{GemIcon}</span><span class=\"tn\"><b>{H(name)}</b><small>{L.DateTimeShort(When(m))} · {H(kind)}</small></span></li>");
         }
-        sb.Append("</ul></section>");
+        sb.Append("</ul></div></section>");
         return sb.ToString();
     }
 
@@ -499,8 +485,8 @@ public static class ReportWriter
         var top = team.SelectMany(m => m.Teammates!).GroupBy(t => t.EpicId ?? t.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => (Name: g.Last().Name, Matches: g.Count())).OrderByDescending(x => x.Matches).First();
         return $"""
-            <section class="card side-card"><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2><a class="more" href="#companeros" data-go="companeros">{L.T("Ver todo", "See all")} →</a></div>
-            <div class="team2"><div><span class="sm">{L.T("Aportan tus compañeros", "From your teammates")}</span><b>≥ {share.ToString("0", Loc)}&nbsp;%</b><span class="track"><i style="width:{share.ToString("0.#", CultureInfo.InvariantCulture)}%"></i></span></div>
+            <section><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2><a class="more" href="#companeros" data-go="companeros" data-seg="todos">{L.T("Ver todo", "See all")} →</a></div>
+            <div class="card side-card team2"><div><span class="sm">{L.T("Aportan tus compañeros", "From your teammates")}</span><b>≥ {share.ToString("0", Loc)}&nbsp;%</b><span class="track"><i style="width:{share.ToString("0.#", CultureInfo.InvariantCulture)}%"></i></span></div>
             <div><span class="sm">{L.T("Con quién más juegas", "Who you play with most")}</span><b class="nm">{H(top.Name)}</b><span class="sm">{L.Count(top.Matches, "partida juntos", "partidas juntos", "match together", "matches together")}</span></div></div>
             </section>
             """;
@@ -584,9 +570,9 @@ public static class ReportWriter
               <div class="kpi hero">{(logo != null ? $"<img src=\"{logo}\" alt=\"\" width=\"88\" height=\"88\">" : "")}<div>
                 <div class="l">{L.T("Cofres abiertos", "Chests opened")}</div><div class="v">{N(totalChests)}</div>
                 <div class="s today">{todayLine}</div>{(notes.Count > 0 ? $"<div class=\"s\">{string.Join(" · ", notes)}</div>" : "")}</div></div>
-              {Kpi(KpiIcons["wins"], L.T("Victorias", "Wins"), N(wins), wins > 0 ? L.F("{0} % de tus partidas", "{0} % of your matches", winRate.ToString("0", Loc)) : "—", " gold")}
+              {Kpi(KpiIcons["wins"], L.T("Victorias", "Wins"), N(wins), wins > 0 ? L.F("{0} % de tus partidas", "{0} % of your matches", winRate.ToString("0", Loc)) : "—")}
               {Kpi(TabIcons["partidas"], L.T("Partidas", "Matches"), N(matches.Count), L.T("analizadas", "analyzed"))}
-              {Kpi(KpiIcons["avg"], L.T("Media", "Average"), avg.ToString("0.0", Loc), L.T("cofres por partida", "chests per match"), " gold")}
+              {Kpi(KpiIcons["avg"], L.T("Media", "Average"), avg.ToString("0.0", Loc), L.T("cofres por partida", "chests per match"))}
               {Kpi(KpiIcons["best"], L.T("Récord", "Best match"), N(best), L.T("cofres en una partida", "chests in one match"))}
               {Kpi(KpiIcons["day"], L.T("Mejor día", "Best day"), bestDay.Chests > 0 ? bestDay.Day.ToString(L.En ? "MMM d" : "d MMM", Loc) : "—", bestDay.Chests > 0 ? L.Count(bestDay.Chests, "cofre", "cofres", "chest", "chests") : "—")}
             </div>
@@ -695,7 +681,7 @@ public static class ReportWriter
             if (unusual.Count > 0)
             {
                 var kinds = H(string.Join(", ", unusual.Select(r => L.Name(r.f.SourceKind)).Distinct()));
-                sb.Append($"<div class=\"flag\"><span class=\"ic\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("de otra forma que con un cofre", "other than from a chest")}</b>: {kinds}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
+                sb.Append($"<div class=\"flag\"><span class=\"ic\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("sin abrir un cofre", "other than from a chest")}</b>: {kinds}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
             }
 
             var featured = treasureRows.Count(r => r.f.Featured);
@@ -739,7 +725,7 @@ public static class ReportWriter
         }
         else
         {
-            sb.Append($"<div class=\"card\"><div class=\"empty big\"><div class=\"star\">★</div>{L.T("Todavía no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
+            sb.Append($"<div class=\"card\"><div class=\"empty big\"><div class=\"star\">★</div>{L.T("Aún no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
             AppendTreasureHunt(sb, treasureRows);
         }
         sb.Append("</div>");
@@ -789,7 +775,7 @@ public static class ReportWriter
             // count can be lower than the post-match screen. Said here so that the difference has an explanation.
             if (m.EliminatedAtSeconds is float dead && m.Teammates is { Count: > 0 } && !m.TreasureScreenRead)
             {
-                treasure += $"<div class=\"sm\" title=\"{H(L.T("Tras tu eliminación definitiva, los tesoros que consiga el escuadrón no quedan en el replay: pueden faltar respecto a la pantalla de fin de partida.", "After your final elimination, the treasures the squad gets are not in the replay: some may be missing compared with the post-match screen."))}\">⚠ {H(L.F("Eliminado en el {0}: tesoros posteriores no visibles", "Eliminated at {0}: later treasures not visible", Pretty.Clock(dead)))}</div>";
+                treasure += $"<div class=\"sm\" title=\"{H(L.T("Tras tu eliminación definitiva, los tesoros que consiga el escuadrón no quedan en el replay: pueden faltar respecto a la pantalla de fin de partida.", "After your final elimination, the treasures the squad gets are not in the replay: some may be missing compared with the post-match screen."))}\">⚠ {H(L.F("Eliminación a los {0}: los tesoros posteriores no se ven", "Eliminated at {0}: later treasures not visible", Pretty.Clock(dead)))}</div>";
             }
             var placeClass = m.Placement switch { 1 => " win", > 0 and <= 10 => " top", _ => "" };
             var placeText = m.Placement == 1 ? "🏆 " + H(Pretty.Placement(m)) : H(Pretty.Placement(m));
@@ -944,84 +930,54 @@ public static class ReportWriter
             <section><div class="sh"><h2>{L.T("Cofres del equipo", "Team chests")}</h2></div>
             <div class="minis">
               <div class="mini-kpi"><b class="cy"><small>≥</small>{N(teamAll)}</b><span>{L.T("cofres del equipo en total", "team chests in total")}</span></div>
-              <div class="mini-kpi"><b class="cy"><small>≥</small>{Avg(teamAll, teamMatches.Count)}</b><span>{L.T("del equipo por partida", "per match for the team")}</span></div>
-              <div class="mini-kpi"><b class="acc">{Avg(teamMine, teamMatches.Count)}</b><span>{L.T("tuyos por partida", "yours per match")}</span></div>
+              <div class="mini-kpi"><b><small>≥</small>{Avg(teamAll, teamMatches.Count)}</b><span>{L.T("del equipo por partida", "per match for the team")}</span></div>
+              <div class="mini-kpi"><b>{Avg(teamMine, teamMatches.Count)}</b><span>{L.T("tuyos por partida", "yours per match")}</span></div>
               <div class="mini-kpi"><b><small>≥</small>{(teamAll > 0 ? (100.0 * teamMates / teamAll).ToString("0", Loc) : "0")} %</b><span>{L.T("aportan tus compañeros", "from your teammates")}</span></div>
             </div></section>
             """);
 
-        // Top de compañeros: clasificaciones de 5 puestos (cofres vistos, media, récord y victorias juntos).
+        // Clasificación: una sola sección con un selector (más cofres vistos, mejor media, récord, victorias juntos y
+        // la tabla con todos). Cada clasificación tiene hasta 10 puestos, repartidos en dos columnas.
         var medals = new[] { "🥇", "🥈", "🥉" };
-        void Board(StringBuilder b, string title, string? foot, List<(string Key, string Name, double Value, string Text, string Sub)> items)
+        string Games(int n) => L.Count(n, "partida", "partidas", "match", "matches");
+        void Ranking(string key, string title, string meta, List<(string Key, string Name, double Value, string Text, string Sub)> items)
         {
             if (items.Count == 0)
             {
                 return;
             }
             var max = Math.Max(0.0001, items.Max(i => i.Value));
-            b.Append($"<div class=\"board\"><h3>{title}</h3><ol>");
+            sb.Append($"<div class=\"segp card rank\" data-key=\"{key}\" data-title=\"{H(title)}\" data-meta=\"{H(meta)}\"><ol style=\"grid-template-rows:repeat({(items.Count + 1) / 2},auto)\">");
             for (var i = 0; i < items.Count; i++)
             {
                 var it = items[i];
-                var rank = i < medals.Length ? $"<span class=\"rk medal\">{medals[i]}</span>" : $"<span class=\"rk\">{i + 1}</span>";
+                var rank = i < medals.Length ? $"<span class=\"rk medal\" aria-label=\"{i + 1}\">{medals[i]}</span>" : $"<span class=\"rk\">{i + 1}</span>";
                 var w = (100.0 * it.Value / max).ToString("0.##", CultureInfo.InvariantCulture);
-                b.Append($"<li{(i == 0 ? " class=\"first\"" : "")}>{rank}<span class=\"av sm-av\" style=\"background:{Tone(it.Key)}\">{Initial(it.Name)}</span>"
+                var cls = (i == 0 ? "first t" : i == (items.Count + 1) / 2 ? "t" : "");
+                sb.Append($"<li{(cls.Length > 0 ? $" class=\"{cls}\"" : "")}>{rank}<span class=\"av sm-av\" style=\"background:{Tone(it.Key)}\">{Initial(it.Name)}</span>"
                     + $"<span class=\"who2\"><span class=\"nm\" title=\"{H(it.Name)}\">{H(it.Name)}</span><span class=\"sub\">{it.Sub}</span></span><b>{it.Text}</b>"
                     + $"<span class=\"bar\"><i style=\"width:{w}%\"></i></span></li>");
             }
-            b.Append("</ol>");
-            if (foot != null)
-            {
-                b.Append($"<div class=\"bfoot\">{foot}</div>");
-            }
-            b.Append("</div>");
-        }
-        string Games(int n) => L.Count(n, "partida", "partidas", "match", "matches");
-        var minAvg = all.Count(r => r.Matches >= 3) >= 3 ? 3 : 2;
-        var boards = new StringBuilder();
-        Board(boards, L.T("Más cofres vistos", "Most chests seen"), null, all.OrderByDescending(r => r.Chests).ThenByDescending(r => r.Matches).Take(5)
-            .Select(r => (r.Key, r.Name, (double)r.Chests, $"<small>≥</small>{N(r.Chests)}", Games(r.Matches))).ToList());
-        Board(boards, L.T("Mejor media por partida", "Best average per match"),
-            L.F("Tu media en partidas en equipo: {0}", "Your average in team matches: {0}", Avg(teamMine, teamMatches.Count)),
-            all.Where(r => r.Matches >= minAvg).OrderByDescending(r => (double)r.Chests / r.Matches).Take(5)
-                .Select(r => (r.Key, r.Name, (double)r.Chests / r.Matches, $"<small>≥</small>{((double)r.Chests / r.Matches).ToString("0.0", Loc)}", Games(r.Matches))).ToList());
-        Board(boards, L.T("Récord en una partida", "Best single match"), null, all.Where(r => r.Best > 0).OrderByDescending(r => r.Best).ThenByDescending(r => r.Matches).Take(5)
-            .Select(r => (r.Key, r.Name, (double)r.Best, $"<small>≥</small>{N(r.Best)}", L.T("cofres en una partida", "chests in one match"))).ToList());
-        Board(boards, L.T("Más victorias juntos", "Most wins together"), null, all.Where(r => r.Wins > 0).OrderByDescending(r => r.Wins).ThenBy(r => r.Matches).Take(5)
-            .Select(r => (r.Key, r.Name, (double)r.Wins, $"🏆 {N(r.Wins)}", L.F("{0} de {1}", "{0} of {1}", Pct(r.Wins, r.Matches), Games(r.Matches)))).ToList());
-        if (boards.Length > 0)
-        {
-            sb.Append($"""<section><div class="sh"><h2>{L.T("Top de compañeros", "Top teammates")}</h2><span class="meta">{L.T("cofres vistos: un mínimo", "chests seen: a minimum")}</span></div><div class="boards">{boards}</div></section>""");
+            sb.Append("</ol></div>");
         }
 
-        // Abajo, una sola sección con un selector: por partida, con quién más juegas y todos tus compañeros.
         sb.Append("<section class=\"fill segsec\"><div class=\"sh\"><div class=\"seg\" role=\"tablist\"></div><span class=\"meta\"></span></div>");
+        var minChests = L.T("cofres vistos: un mínimo", "chests seen: a minimum");
+        var minAvg = all.Count(r => r.Matches >= 3) >= 3 ? 3 : 2;
+        Ranking("cofres", L.T("Más cofres vistos", "Most chests seen"), minChests,
+            all.OrderByDescending(r => r.Chests).ThenByDescending(r => r.Matches).Take(10)
+                .Select(r => (r.Key, r.Name, (double)r.Chests, $"<small>≥</small>{N(r.Chests)}", Games(r.Matches))).ToList());
+        Ranking("media", L.T("Mejor media", "Best average"), L.F("{0} partidas juntos o más", "{0} matches together or more", minAvg),
+            all.Where(r => r.Matches >= minAvg).OrderByDescending(r => (double)r.Chests / r.Matches).Take(10)
+                .Select(r => (r.Key, r.Name, (double)r.Chests / r.Matches, $"<small>≥</small>{((double)r.Chests / r.Matches).ToString("0.0", Loc)}", Games(r.Matches))).ToList());
+        Ranking("record", L.T("Récord en una partida", "Best single match"), minChests,
+            all.Where(r => r.Best > 0).OrderByDescending(r => r.Best).ThenByDescending(r => r.Matches).Take(10)
+                .Select(r => (r.Key, r.Name, (double)r.Best, $"<small>≥</small>{N(r.Best)}", Games(r.Matches))).ToList());
+        Ranking("victorias", L.T("Victorias juntos", "Wins together"), L.Count(teamMatches.Count(m => m.Placement == 1), "victoria en equipo", "victorias en equipo", "team win", "team wins"),
+            all.Where(r => r.Wins > 0).OrderByDescending(r => r.Wins).ThenBy(r => r.Matches).Take(10)
+                .Select(r => (r.Key, r.Name, (double)r.Wins, $"🏆 {N(r.Wins)}", L.F("{0} de {1}", "{0} of {1}", Pct(r.Wins, r.Matches), Games(r.Matches)))).ToList());
 
-        // Por partida: tú, cada compañero y el equipo (las 30 más recientes con compañeros).
-        var recentTeam = teamMatches.Take(30).ToList();
-        if (recentTeam.Count > 0)
-        {
-            var teamMax = Math.Max(1, recentTeam.Max(m => m.OwnChests + m.TeammatesSeen(extraKinds)));
-            sb.Append($"""
-                <div class="segp card tw" data-title="{L.T("Por partida", "Per match")}" data-meta="{L.F("las {0} más recientes", "latest {0}", recentTeam.Count)}"><table><thead><tr><th>{L.T("Fecha", "Date")}</th><th>{L.T("Puesto", "Placement")}</th><th class="r">{L.T("Tú", "You")}</th><th>{L.T("Compañeros", "Teammates")}</th><th class="r">{L.T("Equipo", "Team")}</th></tr></thead><tbody>
-                """);
-            foreach (var m in recentTeam)
-            {
-                var mates = string.Concat(m.Teammates!.OrderByDescending(t => Seen(t)).Select(t =>
-                    $"<span class=\"chip\"><span class=\"av sm-av\" style=\"background:{Tone(t.EpicId ?? t.Name)}\">{Initial(t.Name)}</span><span class=\"cn\">{H(t.Name)}</span> <b>≥ {N(Seen(t))}</b></span>"));
-                var total = m.OwnChests + m.TeammatesSeen(extraKinds);
-                var placeClass = m.Placement switch { 1 => " win", > 0 and <= 10 => " top", _ => "" };
-                var place = m.Placement == 1 ? "🏆 " + H(Pretty.Placement(m)) : H(Pretty.Placement(m));
-                var w = (100.0 * total / teamMax).ToString("0.##", CultureInfo.InvariantCulture);
-                var mineW = (100.0 * m.OwnChests / teamMax).ToString("0.##", CultureInfo.InvariantCulture);
-                sb.Append($"<tr><td class=\"nw\">{L.DateTimeShort(When(m))}<div class=\"sm\">{H(Pretty.Playlist(m.Playlist))}</div></td><td><span class=\"badge{placeClass}\">{place}</span></td>"
-                    + $"<td class=\"r\"><b class=\"acc\">{N(m.OwnChests)}</b></td><td><div class=\"mates-line\">{mates}</div></td>"
-                    + $"<td><div class=\"teambar\"><span class=\"tb\"><i class=\"me\" style=\"width:{mineW}%\"></i><i style=\"width:{w}%\"></i></span><b class=\"cy\"><small>≥</small>{N(total)}</b></div></td></tr>");
-            }
-            sb.Append("</tbody></table></div>");
-        }
-
-        // Compañeros de relleno con una sola partida: se resumen en una línea en vez de una fila cada uno.
+        // Todos: los habituales (2 partidas o más); los de relleno con una sola partida se resumen en una línea.
         var rows = all.Where(r => r.Matches >= 2).ToList();
         var oneOff = all.Count - rows.Count;
         if (rows.Count == 0)
@@ -1029,30 +985,9 @@ public static class ReportWriter
             rows = all.Take(20).ToList();
             oneOff = Math.Max(0, all.Count - 20);
         }
-
-        // Los tres con los que más juegas, en tarjetas.
-
-        sb.Append($"""<div class="segp" data-title="{L.T("Con quién más juegas", "Who you play with most")}" data-meta="{L.Count(all.Count, "compañero", "compañeros", "teammate", "teammates")} · {L.Count(tracked, "partida en equipo", "partidas en equipo", "team match", "team matches")}"><div class="mates">""");
-        foreach (var r in rows.Take(3))
-        {
-            var avg = (double)r.Chests / r.Matches;
-            sb.Append($"""
-                <div class="mate">
-                  <div class="who"><div class="av" style="background:{Tone(r.Key)}">{Initial(r.Name)}</div>
-                    <div class="grow"><div class="nm" title="{H(r.Name)}">{H(r.Name)}</div><div class="sm">{L.Count(r.Matches, "partida juntos", "partidas juntos", "match together", "matches together")} · {L.F("aporta ≥ {0} del equipo", "brings ≥ {0} of the team", Pct(r.Chests, r.Team))}</div></div></div>
-                  <div class="st">
-                    <div><b class="acc">{N(r.Wins)}</b><span>{L.T("victorias", "wins")} · {Pct(r.Wins, r.Matches)}</span></div>
-                    <div><b><small>≥</small>{avg.ToString("0.0", Loc)}</b><span>{L.T("cofres por partida", "chests per match")}</span></div>
-                    <div><b class="cy">{((double)r.Mine / r.Matches).ToString("0.0", Loc)}</b><span>{L.T("tu media juntos", "your average together")}</span></div>
-                  </div>
-                </div>
-                """);
-        }
-        sb.Append("</div></div>");
-
         var maxAvg = Math.Max(0.1, rows.Max(r => (double)r.Chests / r.Matches));
         sb.Append($"""
-            <div class="segp card tw" data-title="{L.T("Todos tus compañeros", "All your teammates")}" data-meta="{L.T("2 partidas o más", "2 matches or more")}"><table><thead><tr><th>{L.T("Compañero", "Teammate")}</th><th class="r">{L.T("Partidas juntos", "Matches together")}</th><th class="r">{L.T("Victorias", "Wins")}</th><th class="r">{L.T("Cofres vistos", "Chests seen")}</th><th class="r">{L.T("Media", "Average")}</th><th class="r">{L.T("Récord", "Best")}</th><th class="r">{L.T("Aporta", "Share")}</th><th class="r">{L.T("Tu media", "Your average")}</th><th>{L.T("Última partida", "Last match")}</th></tr></thead><tbody>
+            <div class="segp card tw" data-key="todos" data-title="{L.T("Todos", "All")}" data-meta="{L.Count(all.Count, "compañero", "compañeros", "teammate", "teammates")} · {L.Count(tracked, "partida en equipo", "partidas en equipo", "team match", "team matches")}"><table><thead><tr><th>{L.T("Compañero", "Teammate")}</th><th class="r">{L.T("Partidas juntos", "Matches together")}</th><th class="r">{L.T("Victorias", "Wins")}</th><th class="r">{L.T("Cofres vistos", "Chests seen")}</th><th class="r">{L.T("Media", "Average")}</th><th class="r">{L.T("Aporta", "Share")}</th><th class="r">{L.T("Última partida", "Last match")}</th></tr></thead><tbody>
             """);
         foreach (var r in rows)
         {
@@ -1060,13 +995,13 @@ public static class ReportWriter
             var barW = (100.0 * avg / maxAvg).ToString("0.##", CultureInfo.InvariantCulture);
             var wins = r.Wins > 0 ? $"<span class=\"badge win\">🏆 {N(r.Wins)}</span> <span class=\"sm\">{Pct(r.Wins, r.Matches)}</span>" : "<span class=\"muted\">—</span>";
             sb.Append($"<tr><td><div class=\"who\"><span class=\"av sm-av\" style=\"background:{Tone(r.Key)}\">{Initial(r.Name)}</span><span class=\"nm\">{H(r.Name)}</span></div></td><td class=\"r\">{N(r.Matches)}</td><td class=\"r nw\">{wins}</td><td class=\"r nw\"><span class=\"sm\">≥</span> <b>{N(r.Chests)}</b></td>"
-                + $"<td><div class=\"chests\"><span class=\"mini\"><i style=\"width:{barW}%\"></i></span><b>{avg.ToString("0.0", Loc)}</b></div></td>"
-                + $"<td class=\"r\">{N(r.Best)}</td><td class=\"r nw\"><span class=\"sm\">≥</span> {Pct(r.Chests, r.Team)}</td><td class=\"r\">{((double)r.Mine / r.Matches).ToString("0.0", Loc)}</td><td class=\"nw sm\">{L.DateTimeShort(r.Last)}</td></tr>");
+                + $"<td class=\"r\"><div class=\"chests\"><span class=\"mini\"><i style=\"width:{barW}%\"></i></span><b>{avg.ToString("0.0", Loc)}</b></div></td>"
+                + $"<td class=\"r nw\"><span class=\"sm\">≥</span> {Pct(r.Chests, r.Team)}</td><td class=\"r nw sm\">{L.DateTimeShort(r.Last)}</td></tr>");
         }
         if (oneOff > 0)
         {
             var more = L.Count(oneOff, "compañero", "compañeros", "teammate", "teammates");
-            sb.Append($"<tr><td colspan=\"9\" class=\"sm foot\">{(all.Count(r => r.Matches >= 2) > 0
+            sb.Append($"<tr><td colspan=\"7\" class=\"sm foot\">{(all.Count(r => r.Matches >= 2) > 0
                 ? L.F("Y {0} con una sola partida (relleno de equipo), no mostrados.", "And {0} with a single match (team fill), not shown.", more)
                 : L.F("Y {0} más.", "And {0} more.", more))}</td></tr>");
         }

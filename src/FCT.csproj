@@ -25,6 +25,8 @@
   <ItemGroup>
     <!-- Also inside the exe as a resource: the report shows it as its logo. -->
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
+    <!-- Languages besides Spanish and English: one file per language (see Localization/Languages/README.md). -->
+    <EmbeddedResource Include="Localization\Languages\*.json" LogicalName="FCT.lang.%(Filename).json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />

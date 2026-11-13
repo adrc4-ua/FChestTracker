@@ -10,7 +10,7 @@
 
 <img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Report" width="49%">
 
-[**⬇ Download FCT.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · 10 languages
+[**⬇ Download FCT.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · Spanish and English
 
 </div>
 
@@ -63,7 +63,7 @@ The window can be resized and maximized: everything grows in proportion.
 | **Chests** | By chest type, other containers (ammo boxes, food boxes, loot cannons; shows whether they count) and a **by game mode** table. |
 | **Treasures** | How many (featured and gizmos), % of matches with a treasure, the **treasure hunt** (this week's prizes and, folded, every week), where they come from and the list with the exact moment and who got them. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
-| **Teammates** | Team chests, **top teammates** and, with a switch, **per match**, who you play with most and all your teammates (see below). |
+| **Teammates** | Team chests and a **ranking** with a switch: most chests seen, best average, best match, wins together and all your teammates (see below). |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the report" width="820"></p>
 
@@ -86,7 +86,7 @@ Turn it on in **Settings → Teammates in the report** (off by default). You get
 - **Exact**: who you play with, matches together and wins together.
 - **Approximate**: each teammate's chests. They come from **your** replay, and Fortnite only records what happens **within 1,087 m of you** (measured on real replays). If a teammate goes further, their chests are not counted: they are a **minimum (≥)**.
 - **Team chests**: you + your teammates, in total and per match, with each one's share; handy when you hunt for a random item that drops from chests.
-- **Top teammates**: most chests seen, best average, best single match and most wins together.
+- **Ranking**: most chests seen, best average, best single match and wins together (up to 10 places), or the table with all your teammates.
 
 With **Add their chests to your total** (also off), your total, average, records and overlay include your team's chests. Your history does not change: turning it off shows only yours again.
 
@@ -114,7 +114,7 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
-- **Language**: the Windows language by default; at the top you can pick another (Spanish, English, Portuguese, Russian, French, German, Italian, Polish, Turkish or Japanese).
+- **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick the other one.
 - **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
 - **Open the report at startup** (off by default).
 - **Teammates in the report** and **Add their chests to your total** (see above).
@@ -206,14 +206,15 @@ src/                         the app: FCT.csproj → FCT.exe
 ├─ Overlay/                  in-game overlay and its OBS version
 ├─ Reporting/                HTML report
 ├─ UI/                       main window, settings and controls
-├─ Localization/             texts in the 10 languages
+├─ Localization/             app language; Languages/ to add languages (see its README)
 └─ Assets/                   icon
 external/FortniteReplayDecompressor/   replay library (modified: see PATCHES.md)
+tools/i18n.cs                creates or updates the file of a new language (dotnet run tools/i18n.cs -- <code>)
 docs/images/                 screenshots of this README
 ```
 
 ## License and credits
 
-[MIT](LICENSE). This project started from [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92. Replay parsing is based on [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan (MIT), lightly modified: see [`lib/PATCHES.md`](lib/PATCHES.md).
+[MIT](LICENSE). This project started from [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92. Replay parsing is based on [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan (MIT), lightly modified: see [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md).
 
 This project is not affiliated with, endorsed or sponsored by Epic Games. Fortnite is a registered trademark of Epic Games, Inc.

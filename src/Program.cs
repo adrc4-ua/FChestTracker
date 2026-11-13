@@ -260,7 +260,7 @@ internal static class Program
                     L.F("Ya hay {0} en tu PC", "There are already {0} on your PC", L.Count(existing.Count, "replay", "replays", "replay", "replays")),
                     L.T("Puedes contarlos ahora o empezar solo con tus próximas partidas.", "You can count them now or start with your next matches only.")));
             }
-            var countThem = InfoDialog.Confirm(null, L.F("Bienvenido a {0}", "Welcome to {0}", AppInfo.Name),
+            var countThem = InfoDialog.Confirm(null, L.F("Te damos la bienvenida a {0}", "Welcome to {0}", AppInfo.Name),
                 L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays."),
                 points,
                 existing.Count > 0 ? L.T("Contarlos", "Count them") : L.T("Empezar", "Start"),

@@ -4,6 +4,9 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Idiomas: la app y el informe quedan en español (de España) e inglés. Los demás idiomas se añaden con un archivo JSON por idioma (`src/Localization/Languages/`), que se genera con `dotnet run tools/i18n.cs -- <código>`.
+- Compañeros: una sola clasificación con selector (más cofres vistos, mejor media, récord, victorias juntos y la tabla con todos, sin las columnas Récord y Tu media); se quitan la tabla «Por partida» y las tarjetas «Con quién más juegas».
+- Textos revisados: tono neutro y español de España («Te damos la bienvenida», «Haz clic», «destruidos»).
 - Pantalla de tesoros de fin de partida: FCT captura solo la ventana del juego (aunque esté tapada), reconoce los iconos, borra la imagen y pone nombre a cada artilugio; añade los tesoros que el replay no vio (tras tu eliminación) con hora y jugador desconocidos.
 - Requiere Windows 10 2004 o posterior (captura de ventanas de Windows).
 - Sin "sesiones": la ventana, el overlay y el informe muestran lo de **hoy** (cofres, partidas y media por partida de hoy).

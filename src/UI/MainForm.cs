@@ -101,7 +101,7 @@ public sealed class MainForm : Form
         // Última partida: cofres abiertos, con los detalles (rotos, tesoros, puesto, eliminaciones).
         var last = new Card { Location = new Point(LeftX, 149), Size = new Size(LeftW, 50), Radius = 12 };
         Lbl(last, L.T("Última partida", "Last match"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 6), new Size(70, 13));
-        // Más ancho que antes: "6 roto(s) · 1 tesoro · 3.º de 80 · 2 elim." se cortaba por la izquierda.
+        // Más ancho que antes: "6 destruido(s) · 1 tesoro · 3.º de 80 · 2 elim." se cortaba por la izquierda.
         _lastDetail = Lbl(last, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(84, 5), new Size(170, 15), ContentAlignment.MiddleRight);
         _lastValue = Lbl(last, "—", 11.5f, FontStyle.Bold, Theme.Amber, new Point(13, 22), new Size(243, 22));
         Controls.Add(last);
@@ -403,7 +403,7 @@ public sealed class MainForm : Form
         {
             _lastValue.Text = L.Count(lm.Chests, "cofre abierto", "cofres abiertos", "chest opened", "chests opened");
             var parts = new List<string>();
-            if (lm.Destroyed > 0) parts.Add(L.F("{0} roto(s)", "{0} destroyed", lm.Destroyed));
+            if (lm.Destroyed > 0) parts.Add(L.F("{0} destruido(s)", "{0} destroyed", lm.Destroyed));
             if (lm.Treasures > 0) parts.Add(L.Count(lm.Treasures, "tesoro", "tesoros", "treasure", "treasures"));
             if (lm.Placement is { } place) parts.Add(lm.Players is { } players ? $"{L.Ordinal(place)} {L.T("de", "of")} {players}" : L.Ordinal(place));
             if (lm.Eliminations is { } elim) parts.Add(L.F("{0} elim.", "{0} elim.", elim));
