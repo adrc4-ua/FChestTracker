@@ -614,7 +614,7 @@ public static class NativeOverlay
             var statsW = _statW.Length == 0 ? 0 : _statW.Length * _statW.Max() + (_statW.Length - 1) * S(StatGap);
 
             // Never shrinks: the overlay keeps the same size between a match in progress and the end of the match.
-            var contentW = Math.Max(headerW, Math.Max(mainW, statsW));
+            var contentW = Math.Max(headerW, Math.Max(mainW, statsW + S(6)));
             var w0 = Math.Max(_stableW, Math.Max(S(MinWidth), contentW + 2 * S(Pad) + S(Stripe)));
             _stableW = w0;
             var h = S(9) + _headerH + S(6) + _mainH + S(8);
@@ -720,7 +720,12 @@ public static class NativeOverlay
         var cl = right - _chipW;
         var ct = mainY + (_mainH - _chipH) / 2;
         var statsY = mainY + _mainH + S(8);
-        var slot = v.Rows.Count > 0 ? (right - x) / (float)v.Rows.Count : 0f;
+        // Stats: a compact block of equal columns, centred in the card (from the stripe to the right edge).
+        var colW = _statW.Length > 0 ? _statW.Max() : 0;
+        var blockW = v.Rows.Count * colW + Math.Max(0, v.Rows.Count - 1) * S(StatGap);
+        var blockLeft = (S(Stripe) + rc.Right - blockW) / 2f;
+        float ColLeft(int i) => blockLeft + i * (colW + S(StatGap));
+        float ColCenter(int i) => ColLeft(i) + colW / 2f;
         var pillL = _lockRect.Left - S(6) - _badgeW;
         var pillR = _lockRect.Left - S(6);
 
@@ -742,6 +747,7 @@ public static class NativeOverlay
         }
 
         // 2 · Gradients, icons and big numbers (GDI+).
+        var totalInk = System.Drawing.RectangleF.Empty;
         using (var g = System.Drawing.Graphics.FromHdc(hdc))
         {
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -784,7 +790,7 @@ public static class NativeOverlay
             }
 
             // Big numbers with the gold gradient: the total (deep) and the match (lighter; mint live, faint none).
-            BigNumber(g, v.Total, x - S(1), ty, null, true);
+            totalInk = BigNumber(g, v.Total, x - S(1), ty, null, true);
             var currentColor = v.Current == null ? System.Drawing.Color.FromArgb(90, 85, 75) : v.CurrentLive ? System.Drawing.Color.FromArgb(134, 214, 160) : (System.Drawing.Color?)null;
             BigNumber(g, v.Current ?? "—", cl, ct + S(3), currentColor, false, _chipW);
 
@@ -799,7 +805,7 @@ public static class NativeOverlay
                 var numberW = TextWidth(hdc, _fontStat, StatValue(row), out _);
                 var icon = _statH * 0.82f;
                 var total = icon + S(3) + numberW;
-                var cx = x + slot * (i + 0.5f);
+                var cx = ColCenter(i);
                 var vy = statsY + 1 + S(7) + _captionH + S(1);
                 FCT.UI.SvgIcon.Draw(g, FCT.UI.Icons.Treasure, new System.Drawing.RectangleF(cx - total / 2f, vy + (_statH - icon) / 2f, icon, icon), gold, 0.3f, 1.15f);
             }
@@ -822,7 +828,10 @@ public static class NativeOverlay
             var cr = _closeRect;
             DrawTextW(hdc, "\uE8BB", -1, ref cr, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
         }
-        Text(hdc, _fontCaption, muted, CaptionTotal.ToUpperInvariant(), x, ty + _bigH, x + _col1W + S(4), ty + _bigH + _captionH);
+        // TOTAL centred under the number (its real drawn width), never over the stripe.
+        var capW = TextWidth(hdc, _fontCaption, CaptionTotal.ToUpperInvariant(), out _);
+        var capLeft = Math.Max(S(Stripe) + S(3), (int)Math.Round((totalInk.IsEmpty ? x + _col1W / 2f : totalInk.Left + totalInk.Width / 2f) - capW / 2f));
+        Text(hdc, _fontCaption, muted, CaptionTotal.ToUpperInvariant(), capLeft, ty + _bigH, capLeft + capW + S(2), ty + _bigH + _captionH);
         Text(hdc, _fontCaption, v.CurrentLive ? mint : muted, v.CurrentCaption.ToUpperInvariant(), cl, ct + S(3) + _bigH, right, ct + S(3) + _bigH + _captionH, DT_CENTER);
 
         // Stats: equal columns, label and value centred in each.
@@ -832,8 +841,8 @@ public static class NativeOverlay
             for (var i = 0; i < v.Rows.Count; i++)
             {
                 var row = v.Rows[i];
-                var l = (int)Math.Round(x + slot * i);
-                var r = (int)Math.Round(x + slot * (i + 1));
+                var l = (int)Math.Round(ColLeft(i));
+                var r = (int)Math.Round(ColLeft(i) + colW);
                 Text(hdc, _fontLabel, muted, row.Label.ToUpperInvariant(), l - S(6), y, r + S(6), y + _captionH, DT_CENTER);
                 var vy = y + _captionH + S(1);
                 if (row.Treasure)
@@ -843,7 +852,7 @@ public static class NativeOverlay
                     var numberW = TextWidth(hdc, _fontStat, number, out _);
                     var icon = (int)Math.Round(_statH * 0.82f);
                     var total = icon + S(3) + numberW;
-                    var left = (int)Math.Round(x + slot * (i + 0.5f) - total / 2f) + icon + S(3);
+                    var left = (int)Math.Round(ColCenter(i) - total / 2f) + icon + S(3);
                     Text(hdc, _fontStat, Rgb(232, 176, 75), number, left, vy, left + numberW + S(2), vy + _statH);
                 }
                 else
@@ -858,7 +867,7 @@ public static class NativeOverlay
     /// A big number drawn as a shape: with the gold gradient (<paramref name="solid"/> null) or one colour, left-aligned
     /// at <paramref name="left"/> or centred in <paramref name="centerWidth"/>, vertically centred in the line of the big font.
     /// </summary>
-    private static void BigNumber(System.Drawing.Graphics g, string text, float left, float top, System.Drawing.Color? solid, bool deep, int centerWidth = 0)
+    private static System.Drawing.RectangleF BigNumber(System.Drawing.Graphics g, string text, float left, float top, System.Drawing.Color? solid, bool deep, int centerWidth = 0)
     {
         using var path = new System.Drawing.Drawing2D.GraphicsPath();
         using var family = new System.Drawing.FontFamily("Segoe UI");
@@ -880,6 +889,7 @@ public static class NativeOverlay
         {
             g.FillPath(brush, path);
         }
+        return bounds;
     }
 
     private static uint Rgb(byte r, byte g, byte b) => (uint)(r | (g << 8) | (b << 16));
