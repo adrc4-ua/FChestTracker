@@ -54,8 +54,14 @@ public sealed class AppMonitor
     /// <summary>Ajustes actuales (leer; los cambios se hacen con <see cref="Change"/>).</summary>
     public Config Config => _config;
 
-    /// <summary>Abierto por el proceso en espera de Fortnite: se cierra solo cuando Fortnite se cierra.</summary>
+    /// <summary>Abierto por el proceso en espera de Fortnite (arranca en segundo plano, con el overlay).</summary>
     public bool AutoMode { get; set; }
+
+    /// <summary>
+    /// La ventana está oculta (en el área de notificación) con Fortnite abierto. Así, al cerrarse Fortnite, el contador
+    /// se cierra solo en cuanto cuenta la última partida. Con la ventana a la vista no se cierra solo.
+    /// </summary>
+    public volatile bool InBackground;
 
     /// <summary>Se pone a true cuando hay que reiniciar la nueva versión.</summary>
     public bool RestartAfterUpdate { get; private set; }
@@ -646,10 +652,7 @@ public sealed class AppMonitor
                     // Partida en curso: se relee cada 15 s. Replay terminado: enseguida. Si no, un escaneo de respaldo.
                     _nextScan = DateTime.UtcNow.AddSeconds(_tracker.IsFinishing ? 2 : _tracker.HasPending ? 15 : (_watcher != null && !AutoMode ? 60 : 10));
                 }
-                if (AutoMode)
-                {
-                    changed |= CheckAutoClose();
-                }
+                changed |= CheckAutoClose();
             }
             catch (Exception ex)
             {
@@ -833,25 +836,29 @@ public sealed class AppMonitor
         return true;
     }
 
-    /// <summary>Opened with Fortnite: closes once Fortnite is closed and the last match is counted (5 min at most).</summary>
+    /// <summary>
+    /// En segundo plano (ventana oculta): al cerrarse Fortnite, el contador se cierra solo en cuanto cuenta la última
+    /// partida (5 min como mucho). Con la ventana a la vista, o con Fortnite abierto, no se cierra.
+    /// </summary>
     private bool CheckAutoClose()
     {
-        if (_keepOpenRequested)
-        {
-            _keepOpenRequested = false;
-            _autoCloseAt = null;
-            _fortniteClosedSince = null;
-            _closeRequested = false;
-            return true;
-        }
-
+        _keepOpenRequested = false;
         var now = DateTime.UtcNow;
+        if (!InBackground || _closeRequested)
+        {
+            _fortniteClosedSince = null;
+            return false;
+        }
+        // Mirar los procesos tiene un coste: cada 3 s basta.
+        if (now < _nextGameCheck)
+        {
+            return false;
+        }
+        _nextGameCheck = now.AddSeconds(3);
         if (FortniteWatch.IsFortniteRunning())
         {
-            var wasOffering = _autoCloseAt != null;
             _fortniteClosedSince = null;
-            _autoCloseAt = null;
-            return wasOffering;
+            return false;
         }
 
         _fortniteClosedSince ??= now;
@@ -860,19 +867,12 @@ public sealed class AppMonitor
         {
             return false;
         }
-
-        if (_autoCloseAt == null)
-        {
-            _autoCloseAt = now.AddSeconds(30);
-            return true;
-        }
-        if (now >= _autoCloseAt && !_closeRequested)
-        {
-            _closeRequested = true;
-            CloseRequested?.Invoke();
-        }
+        _closeRequested = true;
+        CloseRequested?.Invoke();
         return false;
     }
+
+    private DateTime _nextGameCheck;
 
     // ---- Piezas internas -------------------------------------------------------------------------
 
@@ -907,7 +907,9 @@ public sealed class AppMonitor
                 RequestPublish(); // el botón de la ventana cambia de color
             },
             // Botón de cerrar del overlay: cierra la aplicación entera (y con ella el overlay).
-            () => CloseRequested?.Invoke());
+            () => CloseRequested?.Invoke(),
+            // Solo en pantalla con Fortnite delante.
+            FortniteWatch.IsGameProcess);
     }
 
     /// <summary>Windows avisa cuando cambia un replay: no hace falta releer la carpeta todo el tiempo.</summary>

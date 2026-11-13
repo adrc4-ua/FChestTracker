@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Overlay**: solo se ve con Fortnite a la vista en su pantalla (con dos pantallas, usar la otra no lo oculta), se coloca en la pantalla de Fortnite y no se puede sacar por los bordes al arrastrarlo.
+- **Abrir y cerrar**: con Fortnite abierto, FCT arranca en segundo plano con el overlay; sin Fortnite, abre la ventana. La X de la ventana la deja en segundo plano si Fortnite está abierto (si no, cierra); la ✕ del overlay cierra FCT. En segundo plano se cierra solo al cerrar Fortnite, o desde Salir en el área de notificación.
 - La ventana avisa mientras lee una tanda de replays («Leyendo tus replays… 3 / 40»), como la página de estadísticas.
 - Primer uso: cerrar cualquiera de las ventanas iniciales cierra la app sin guardar nada; al volver a abrirla empieza de nuevo.
 - **Partidas de antes** (primer uso y Configuración → Cofres antes de FCT → Estimar…): *solo repeticiones guardadas* o *repeticiones + estimación*. Estimado = media × (partidas de la temporada actual − repeticiones de esta temporada que FCT ya cuenta). Partidas de la temporada buscadas en fortnite-api.com (si la versión lleva la clave) o escritas a mano desde fortnite.gg; aviso si las estadísticas son privadas. Media de tus repeticiones junto con las partidas nuevas que elijas jugar (5 por defecto, 10 recomendado; cada repetición pesa como una partida), o escrita a mano; redondeada hacia abajo solo sin repeticiones o con 100 o más.

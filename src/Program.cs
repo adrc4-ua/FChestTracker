@@ -330,12 +330,19 @@ internal static class Program
 
         // ---- Ventana -------------------------------------------------------------------------------------
         // Si el análisis cambió, los replays se vuelven a leer en silencio (sin duplicados): no hace falta avisar.
+        // Con Fortnite abierto (o abierto por él): se ve el overlay y la app queda en segundo plano. Sin Fortnite, se
+        // abre la ventana. El overlay solo aparece con Fortnite delante.
+        var fortniteOpen = auto || (OperatingSystem.IsWindows() && FortniteWatch.IsFortniteRunning());
+        if (fortniteOpen)
+        {
+            config.OverlayVisible = true;
+        }
         var monitor = new AppMonitor(store, config, data, tracker, dataDir) { AutoMode = auto };
 
         var form = new MainForm(monitor, store);
         monitor.CloseRequested += () =>
         {
-            try { form.BeginInvoke(new Action(form.Close)); }
+            try { form.BeginInvoke(new Action(form.ExitApp)); }
             catch (InvalidOperationException) { /* la ventana aún no existe */ }
         };
 
@@ -348,10 +355,9 @@ internal static class Program
         }, null, Timeout.Infinite, executeOnlyOnce: false);
 
         monitor.Start();
-        // Al abrir solo se ve el overlay: la ventana queda oculta (fuera de la barra de tareas) y se recupera desde el
-        // icono del área de notificación. Si el overlay está desactivado o no pudo arrancar, o es el primer uso
-        // (bienvenida), la ventana se muestra como siempre.
-        form.StartInBackground = !firstRun && monitor.OverlayVisible;
+        // Con Fortnite abierto solo se ve el overlay: la ventana queda oculta (fuera de la barra de tareas) y se recupera
+        // desde el icono del área de notificación. Sin Fortnite, o en el primer uso (bienvenida), se muestra la ventana.
+        form.StartInBackground = !firstRun && fortniteOpen && monitor.OverlayVisible;
         Application.Run(form);
         showWait.Unregister(null);
         monitor.Stop();

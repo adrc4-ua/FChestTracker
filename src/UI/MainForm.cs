@@ -165,7 +165,7 @@ public sealed class MainForm : Form
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Estadísticas", "Stats"), null, (_, _) => Open(_monitor.ReportTarget)));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Configuración", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
         trayMenu.Items.Add(new ToolStripSeparator());
-        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => Close()));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => ExitApp()));
         _tray = new NotifyIcon
         {
             Icon = Icon ?? SystemIcons.Application,
@@ -181,15 +181,32 @@ public sealed class MainForm : Form
         _scaleTimer.Tick += (_, _) => { _scaleTimer.Stop(); ApplyLayoutScale(); };
 
         monitor.Changed += OnChanged;
-        Shown += (_, _) =>
+        // Oculta (área de notificación) = en segundo plano: al cerrarse Fortnite, el contador se cierra solo.
+        VisibleChanged += (_, _) => _monitor.InBackground = !Visible;
+    }
+
+    private bool _exiting;
+
+    /// <summary>Cierra la app de verdad (menú «Salir», X del overlay, Fortnite cerrado, actualización).</summary>
+    internal void ExitApp()
+    {
+        _exiting = true;
+        Close();
+    }
+
+    /// <summary>
+    /// X de la ventana: con Fortnite abierto, la app pasa a segundo plano (sigue en el área de notificación, como
+    /// Spotify) y se cierra sola al cerrar Fortnite; sin Fortnite, se cierra con normalidad.
+    /// </summary>
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        if (!_exiting && e.CloseReason == CloseReason.UserClosing && OperatingSystem.IsWindows() && FortniteWatch.IsFortniteRunning())
         {
-            // Abierto con Fortnite: el juego conserva la pantalla. Si arrancó oculto, esta es la primera vez que se
-            // muestra y es porque el jugador la ha pedido: no se minimiza.
-            if (_monitor.AutoMode && !StartInBackground)
-            {
-                WindowState = FormWindowState.Minimized;
-            }
-        };
+            e.Cancel = true;
+            Hide();
+            return;
+        }
+        base.OnFormClosing(e);
     }
 
     private readonly NotifyIcon _tray;
@@ -213,6 +230,7 @@ public sealed class MainForm : Form
                 CreateHandle();
             }
             base.SetVisibleCore(false);
+            _monitor.InBackground = true;
             return;
         }
         base.SetVisibleCore(value);

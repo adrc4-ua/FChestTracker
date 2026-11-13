@@ -36,7 +36,12 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 
 <p align="center"><img src="docs/images/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
 
-5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, estadísticas, configuración y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida FCT lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
+5. Déjalo abierto mientras juegas:
+   - **Con Fortnite abierto**, al abrir FCT solo aparece el **overlay** y la ventana queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, estadísticas, configuración y salir.
+   - **Sin Fortnite**, se abre la ventana.
+   - La **X de la ventana** la deja en segundo plano si Fortnite está abierto; si no, cierra FCT. La **✕ del overlay** cierra FCT entero.
+   - En segundo plano, FCT se cierra solo al cerrar Fortnite (en cuanto cuenta la última partida), o desde **Salir** en su icono.
+    Durante la partida FCT lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
 
 > [!TIP]
 > Las partidas que juegas con FCT cerrado se cuentan la próxima vez que lo abras, mientras Fortnite no haya borrado esos replays (guarda un número limitado). Para no tener que pensar en ello, activa **Abrir con Fortnite** en Ajustes.
@@ -98,7 +103,7 @@ Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, ré
 - **Cifras grandes**: tu **total** de cofres y, en el recuadro, la partida **anterior** (o la **actual**, en directo, mientras juegas).
 - **Hoy**, **media** de hoy por partida, **anterior** (durante una partida) y **tesoros**.
 
-Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. El overlay viene **desactivado**: actívalo con el botón **Overlay** o con Ctrl+Mayús+O.
+Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. Solo se ve mientras Fortnite está a la vista en su pantalla (con dos pantallas, usar la otra no lo oculta) y se coloca en la pantalla de Fortnite; no se puede sacar por los bordes. Al abrir FCT con Fortnite abierto se enciende; lo apagas con el botón **Overlay** o con Ctrl+Mayús+O.
 
 ¿Transmites en directo? Mientras FCT está abierto, el mismo overlay está en **http://localhost:7373/** (cópialo desde **Configuración**). En OBS, añade una **fuente de navegador** con esa dirección: tiene fondo transparente y se actualiza sola.
 
@@ -118,7 +123,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 <p align="center"><img src="docs/images/settings.png" alt="Configuración" width="620"></p>
 
 - **Idioma**: por defecto el de Windows (español o inglés; inglés si es otro); arriba puedes elegir el otro (es bidireccional con el de la página de estadísticas).
-- **Abrir con Fortnite** (activado desde el primer uso): un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
+- **Abrir con Fortnite** (activado desde el primer uso): un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite, y FCT se cierra solo al cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
 - **Abrir estadísticas al iniciar** (desactivado por defecto).
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.

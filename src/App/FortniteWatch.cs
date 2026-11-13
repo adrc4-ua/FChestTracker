@@ -19,6 +19,20 @@ public static class FortniteWatch
     private static readonly string[] GameProcesses =
         { Environment.GetEnvironmentVariable("FCT_GAME_PROCESS") is { Length: > 0 } test ? test : "FortniteClient-Win64-Shipping" };
 
+    /// <summary>True when the process with this id is the game (the overlay only shows while the game is in front).</summary>
+    public static bool IsGameProcess(int pid)
+    {
+        try
+        {
+            using var p = Process.GetProcessById(pid);
+            return GameProcesses.Any(n => string.Equals(p.ProcessName, n, StringComparison.OrdinalIgnoreCase));
+        }
+        catch
+        {
+            return false; // ya no existe o sin permiso: no es el juego
+        }
+    }
+
     public static bool IsFortniteRunning()
     {
         foreach (var name in GameProcesses)

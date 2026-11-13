@@ -33,6 +33,14 @@ public static class NativeOverlay
     private static IntPtr _fontBig, _fontSmall, _brushBg;
     private static float _scale = 1f;
 
+    // Solo con el juego a la vista: _visible es lo que pide el jugador (botón, Ctrl+Mayús+O); _inGame, si el juego se
+    // ve en su pantalla (con dos pantallas, usar la otra no lo oculta). En pantalla solo cuando las dos se cumplen.
+    private static Func<int, bool>? _isGame; // id de proceso → ¿es el juego?
+    private static readonly Dictionary<uint, bool> _gamePids = new();
+    private static volatile bool _inGame = true;
+    private static WinEventDelegate? _winEvent; // keep the delegate alive
+    private static readonly List<IntPtr> _winHooks = new();
+
     private const int MinWidth = 170, Pad = 10, Stripe = 3, ColGap = 16, StatGap = 12;
 
     public static bool IsRunning => _hwnd != IntPtr.Zero;
@@ -46,11 +54,13 @@ public static class NativeOverlay
     /// <summary>Locked = click-through: the mouse goes through the overlay and it cannot be moved.</summary>
     public static bool IsLocked => _locked;
 
-    /// <summary>True when the overlay is on screen.</summary>
+    /// <summary>True when the overlay is turned on (it is on screen only while the game is in front, see <c>isGame</c>).</summary>
     public static bool IsVisible => _hwnd != IntPtr.Zero && _visible;
 
+    /// <param name="isGame">Given the process id of the window in front, whether it is the game: the overlay is only on
+    /// screen while the game is in front. Null = always (previews).</param>
     public static void Start(int? x, int? y, bool locked, Action<int, int> onMoved, Action<bool> onLockChanged,
-        bool visible = true, Action<bool>? onVisibleChanged = null, Action? onClose = null)
+        bool visible = true, Action<bool>? onVisibleChanged = null, Action? onClose = null, Func<int, bool>? isGame = null)
     {
         if (_thread != null)
         {
@@ -58,6 +68,7 @@ public static class NativeOverlay
         }
 
         _visible = visible;
+        _isGame = isGame;
         _onVisibleChanged = onVisibleChanged;
         _onClose = onClose;
 
@@ -220,7 +231,26 @@ public static class NativeOverlay
 
         ApplyLock(_hwnd, _locked, notify: false);
         Relayout(_hwnd);
-        if (_visible)
+        if (_isGame != null && !_offscreen)
+        {
+            // Windows avisa cuando cambia la ventana activa, se minimiza o restaura una ventana o se termina de mover
+            // una (sin temporizador): entonces se mira si el juego sigue a la vista.
+            _winEvent = (_, _, _, _, _, _, _) => FollowGame(_hwnd);
+            foreach (var (min, max) in new[] { (EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND), (EVENT_SYSTEM_MOVESIZEEND, EVENT_SYSTEM_MOVESIZEEND), (EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND) })
+            {
+                var hook = SetWinEventHook(min, max, IntPtr.Zero, _winEvent, 0, 0, WINEVENT_OUTOFCONTEXT);
+                if (hook != IntPtr.Zero)
+                {
+                    _winHooks.Add(hook);
+                }
+            }
+            _inGame = GameShown(_hwnd, out var screen);
+            if (_inGame)
+            {
+                MoveToScreen(_hwnd, screen);
+            }
+        }
+        if (_visible && _inGame)
         {
             ShowWindow(_hwnd, SW_SHOWNOACTIVATE);
         }
@@ -290,9 +320,27 @@ public static class NativeOverlay
                 }
                 else
                 {
-                    SetVisible(hwnd, !IsWindowVisible(hwnd));
+                    SetVisible(hwnd, !_visible);
                 }
                 return IntPtr.Zero;
+
+            case WM_MOVING:
+                // Arrastrándolo: no puede salir de la pantalla ni por un borde.
+                if (!_offscreen && lParam != IntPtr.Zero)
+                {
+                    var rc = Marshal.PtrToStructure<RECT>(lParam);
+                    var mi = new MONITORINFO { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
+                    if (GetMonitorInfoW(MonitorFromRect(ref rc, MONITOR_DEFAULTTONEAREST), ref mi))
+                    {
+                        var m = mi.rcMonitor;
+                        int w = rc.Right - rc.Left, h = rc.Bottom - rc.Top;
+                        var nx = Math.Max(m.Left, Math.Min(rc.Left, m.Right - w));
+                        var ny = Math.Max(m.Top, Math.Min(rc.Top, m.Bottom - h));
+                        Marshal.StructureToPtr(new RECT { Left = nx, Top = ny, Right = nx + w, Bottom = ny + h }, lParam, false);
+                    }
+                    return (IntPtr)1;
+                }
+                break;
 
             case WM_EXITSIZEMOVE:
                 if (GetWindowRect(hwnd, out var r))
@@ -302,7 +350,7 @@ public static class NativeOverlay
                 return IntPtr.Zero;
 
             case WM_APP_TOGGLE:
-                SetVisible(hwnd, !IsWindowVisible(hwnd));
+                SetVisible(hwnd, !_visible);
                 return IntPtr.Zero;
 
             case WM_APP_RELAYOUT:
@@ -318,6 +366,11 @@ public static class NativeOverlay
                 return IntPtr.Zero;
 
             case WM_DESTROY:
+                foreach (var hook in _winHooks)
+                {
+                    UnhookWinEvent(hook);
+                }
+                _winHooks.Clear();
                 UnregisterHotKey(hwnd, 1);
                 UnregisterHotKey(hwnd, 2);
                 PostQuitMessage(0);
@@ -347,10 +400,144 @@ public static class NativeOverlay
         }
     }
 
+    /// <summary>
+    /// El juego se ve en su pantalla: su ventana está abierta y sin minimizar, y ninguna ventana normal por encima tapa
+    /// buena parte de esa pantalla (un cuarto) ni el sitio del overlay. Da igual qué pantalla tenga el foco: con dos
+    /// pantallas, trabajar en la otra no lo oculta. No cuentan las ventanas de FCT, las «siempre encima» (otros
+    /// overlays, la barra de tareas) ni las auxiliares. <paramref name="screen"/>: la pantalla del juego.
+    /// </summary>
+    private static bool GameShown(IntPtr overlay, out RECT screen)
+    {
+        screen = default;
+        if (_isGame == null)
+        {
+            return true;
+        }
+        if (_gamePids.Count > 512)
+        {
+            _gamePids.Clear();
+        }
+        var own = (uint)Environment.ProcessId;
+        var game = IntPtr.Zero;
+        var above = new List<RECT>();
+        EnumWindows((h, _) => // de arriba abajo
+        {
+            if (!IsWindowVisible(h) || GetWindowThreadProcessId(h, out var pid) == 0 || pid == own)
+            {
+                return true;
+            }
+            if (!_gamePids.TryGetValue(pid, out var isGame))
+            {
+                _gamePids[pid] = isGame = _isGame((int)pid);
+            }
+            if (isGame)
+            {
+                if (IsIconic(h))
+                {
+                    return true; // minimizada: otra ventana del juego podría estar a la vista
+                }
+                game = h;
+                return false;
+            }
+            var ex = (uint)GetWindowLongW(h, GWL_EXSTYLE);
+            if (IsIconic(h) || (ex & (WS_EX_TOPMOST | WS_EX_TOOLWINDOW)) != 0 || Cloaked(h) || !GetWindowRect(h, out var r) || r.Right <= r.Left || r.Bottom <= r.Top)
+            {
+                return true;
+            }
+            above.Add(r);
+            return true;
+        }, IntPtr.Zero);
+        if (game == IntPtr.Zero)
+        {
+            return false;
+        }
+        var mi = new MONITORINFO { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
+        if (!GetMonitorInfoW(MonitorFromWindow(game, MONITOR_DEFAULTTONEAREST), ref mi))
+        {
+            return true;
+        }
+        screen = mi.rcMonitor;
+        GetWindowRect(overlay, out var ov);
+        var screenArea = (long)(screen.Right - screen.Left) * (screen.Bottom - screen.Top);
+        foreach (var r in above)
+        {
+            if (Overlap(r, screen) * 4 >= screenArea || Overlap(r, ov) > 0 && Overlap(ov, screen) > 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static long Overlap(RECT a, RECT b) =>
+        (long)Math.Max(0, Math.Min(a.Right, b.Right) - Math.Max(a.Left, b.Left)) * Math.Max(0, Math.Min(a.Bottom, b.Bottom) - Math.Max(a.Top, b.Top));
+
+    private static bool Cloaked(IntPtr h) => DwmGetWindowAttribute(h, DWMWA_CLOAKED, out var c, sizeof(int)) == 0 && c != 0;
+
+    /// <summary>El overlay va en la pantalla del juego: si está en otra, se pasa a la misma posición en la del juego.</summary>
+    private static void MoveToScreen(IntPtr hwnd, RECT screen)
+    {
+        if (screen.Right <= screen.Left || !GetWindowRect(hwnd, out var r))
+        {
+            return;
+        }
+        int cx = (r.Left + r.Right) / 2, cy = (r.Top + r.Bottom) / 2;
+        if (cx >= screen.Left && cx < screen.Right && cy >= screen.Top && cy < screen.Bottom)
+        {
+            return;
+        }
+        var mi = new MONITORINFO { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
+        var from = GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), ref mi) ? mi.rcMonitor : screen;
+        int w = r.Right - r.Left, h = r.Bottom - r.Top;
+        var nx = Math.Max(screen.Left, Math.Min(screen.Left + (r.Left - from.Left), screen.Right - w));
+        var ny = Math.Max(screen.Top, Math.Min(screen.Top + (r.Top - from.Top), screen.Bottom - h));
+        SetWindowPos(hwnd, HWND_TOPMOST, nx, ny, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
+        _onMoved?.Invoke(nx, ny);
+    }
+
+    private static void FollowGame(IntPtr hwnd)
+    {
+        var inGame = GameShown(hwnd, out var screen);
+        if (inGame)
+        {
+            MoveToScreen(hwnd, screen);
+        }
+        if (inGame == _inGame)
+        {
+            return;
+        }
+        _inGame = inGame;
+        if (!_visible)
+        {
+            return;
+        }
+        if (inGame)
+        {
+            ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+        else
+        {
+            ShowWindow(hwnd, SW_HIDE);
+        }
+    }
+
     private static void SetVisible(IntPtr hwnd, bool visible)
     {
         _visible = visible;
         _onVisibleChanged?.Invoke(visible);
+        if (visible && _isGame != null && !_offscreen)
+        {
+            _inGame = GameShown(hwnd, out var screen);
+            if (_inGame)
+            {
+                MoveToScreen(hwnd, screen);
+            }
+        }
+        if (visible && !_inGame)
+        {
+            return; // encendido: aparecerá en cuanto el juego esté delante
+        }
         if (visible)
         {
             ShowWindow(hwnd, SW_SHOWNOACTIVATE);
@@ -430,14 +617,14 @@ public static class NativeOverlay
             {
                 _lockRect = corner;
             }
-            // Keep it fully on its screen: on the right half of the screen it grows to the left, and it is
-            // pushed back inside when it would overflow (a wider overlay used to be cut by the screen edge).
+            // Keep it fully on its screen (the whole monitor: the game covers the taskbar): on the right half of the
+            // screen it grows to the left, and it is pushed back inside when it would overflow.
             GetWindowRect(hwnd, out var cur);
             int nx = cur.Left, ny = cur.Top;
             var mi = new MONITORINFO { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
             if (!_offscreen && GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), ref mi))
             {
-                var work = mi.rcWork;
+                var work = mi.rcMonitor;
                 if (cur.Right - cur.Left > 0 && (cur.Left + cur.Right) / 2 > (work.Left + work.Right) / 2)
                 {
                     nx = cur.Right - w0; // anchored on the right edge
@@ -686,6 +873,19 @@ public static class NativeOverlay
 
     private const uint MONITOR_DEFAULTTONEAREST = 2;
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
+    [DllImport("user32.dll")] private static extern IntPtr MonitorFromRect(ref RECT rect, uint flags);
+    private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc proc, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr hwnd);
+    [DllImport("user32.dll")] private static extern int GetWindowLongW(IntPtr hwnd, int index);
+    [DllImport("dwmapi.dll")] private static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out int value, int size);
+    private const int GWL_EXSTYLE = -20, DWMWA_CLOAKED = 14;
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint pid);
+    private delegate void WinEventDelegate(IntPtr hook, uint evt, IntPtr hwnd, int idObject, int idChild, uint thread, uint time);
+    [DllImport("user32.dll")] private static extern IntPtr SetWinEventHook(uint min, uint max, IntPtr module, WinEventDelegate proc, uint pid, uint thread, uint flags);
+    [DllImport("user32.dll")] private static extern bool UnhookWinEvent(IntPtr hook);
+    private const uint EVENT_SYSTEM_FOREGROUND = 0x0003, EVENT_SYSTEM_MOVESIZEEND = 0x000B, EVENT_SYSTEM_MINIMIZESTART = 0x0016,
+        EVENT_SYSTEM_MINIMIZEEND = 0x0017, WINEVENT_OUTOFCONTEXT = 0x0000, WM_MOVING = 0x0216;
     [DllImport("user32.dll")] private static extern bool GetMonitorInfoW(IntPtr monitor, ref MONITORINFO info);
     [DllImport("user32.dll")] private static extern bool UpdateWindow(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool PrintWindow(IntPtr hwnd, IntPtr hdc, uint flags);
