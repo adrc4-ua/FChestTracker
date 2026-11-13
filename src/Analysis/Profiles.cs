@@ -110,6 +110,10 @@ public static class Profiles
         };
     }
 
+    /// <summary>The counted matches of one profile (as shown: with the extras of the settings), whichever is shown.</summary>
+    public static List<MatchRecord> MatchesOf(TrackerData d, Config c, string key) =>
+        d.Matches.Where(m => Key(m) == key && Counted(m, c)).Select(m => Adjust(m, c)!).ToList();
+
     /// <summary>Local day a match was played on.</summary>
     public static DateTime Day(MatchRecord m) => When(m).ToLocalTime().Date;
 

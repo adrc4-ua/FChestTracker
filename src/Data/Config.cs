@@ -130,10 +130,28 @@ public sealed class Config
     }
 
     /// <summary>
-    /// Estimate of the chests before FCT (Configuración → Cofres antes de FCT → Estimar, or the first-run question).
-    /// Null = only the saved replays. Pending until there is an average to use; then written to <see cref="InitialChests"/>.
+    /// Estimate of the chests before FCT of each profile (Configuración → Recalcular, or the first-run question), by
+    /// profile key ("" = asked before the first match, moved to the profile of that match). No entry = only the saved
+    /// replays. Pending until there is an average to use; then written to <see cref="InitialChests"/> of that profile.
+    /// Several players on one PC each keep their own.
     /// </summary>
+    public Dictionary<string, HistoryEstimate> Estimates { get; set; } = new();
+
+    /// <summary>The single estimate of older versions: read once and moved to <see cref="Estimates"/>.</summary>
     public HistoryEstimate? Estimate { get; set; }
+
+    /// <summary>Moves the estimate of older versions (one for the whole PC) to its profile. True if something moved.</summary>
+    public bool MoveLegacyEstimate()
+    {
+        if (Estimate is not { } old)
+        {
+            return false;
+        }
+        var key = old.ProfileKey ?? Profile ?? "";
+        Estimates.TryAdd(key, old);
+        Estimate = null;
+        return true;
+    }
 
     /// <summary>Non-chest kinds the player chose to add to the chest total.</summary>
     public IReadOnlyCollection<string> ExtraKinds()

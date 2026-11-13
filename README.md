@@ -156,7 +156,12 @@ Los premios conocidos ya tienen nombre. Si aparece uno nuevo, sale como "Tesoro 
 
 ## Perfiles (varias cuentas en un PC)
 
-No hay nombre que escribir: se cuenta al jugador que grabó cada replay. Si hay replays de varias cuentas, cada una tiene su perfil y arriba a la derecha aparece un **desplegable** para elegir cuál se muestra.
+No hay nombre que escribir: se cuenta al jugador que grabó cada replay. Si en el PC juegan varias cuentas:
+
+- **Cada una tiene su perfil** con todo su historial, que se guarda aunque Fortnite borre los replays (también si ya tenía más de 100 contados). Nada se mezcla.
+- **FCT sigue al que juega**: cuando empieza o termina una partida de otra cuenta, la ventana, el overlay y las estadísticas pasan a su perfil y avisa («Ahora juega X»). La partida en directo de uno nunca se suma al otro.
+- Para ver otro perfil, elígelo en el **desplegable** de arriba a la derecha de la ventana: se respeta hasta la siguiente partida.
+- **Cofres antes de FCT** es de cada jugador: cada uno puede calcular sus partidas previas sin pisar las del otro.
 
 ## Actualizaciones
 

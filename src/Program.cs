@@ -159,6 +159,8 @@ internal static class Program
         config ??= new Config { DefaultsVersion = Config.CurrentDefaults };
         // Opciones que ahora vienen activadas (antes no): se encienden una vez en las configuraciones anteriores.
         config.ApplyNewDefaults();
+        // El estimado de versiones anteriores (uno para todo el PC) pasa a su perfil: cada jugador tiene el suyo.
+        config.MoveLegacyEstimate();
         L.Use(config.Language); // idioma elegido en Ajustes; sin elegir, el de Windows
 
         if (demosArg != null) config.DemosFolder = demosArg;
@@ -319,7 +321,8 @@ internal static class Program
             }
             if (earlier.Estimate)
             {
-                config.Estimate = new HistoryEstimate { TotalMatches = earlier.TotalMatches, SnapshotUtc = DateTime.UtcNow, Source = earlier.Source, SampleSize = earlier.Sample, ManualAverage = earlier.ManualAverage };
+                // Aún sin partidas: queda en "" y pasa al perfil de la primera partida que se cuente.
+                config.Estimates[""] = new HistoryEstimate { TotalMatches = earlier.TotalMatches, SnapshotUtc = DateTime.UtcNow, Source = earlier.Source, SampleSize = earlier.Sample, ManualAverage = earlier.ManualAverage };
             }
             // «Abrir con Fortnite» viene activado: se puede quitar en Configuración. Con la carpeta normal se registra ya
             // (solo desde el .exe); con otra (--data, pruebas) solo se guarda: el inicio de Windows es de la instalación normal.

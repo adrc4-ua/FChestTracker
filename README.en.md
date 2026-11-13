@@ -156,7 +156,12 @@ Known prizes are already named. A new one shows up as "Featured treasure" and it
 
 ## Profiles (several accounts on one PC)
 
-There is no name to type: the player who recorded each replay is counted. With replays from several accounts, each one gets its profile and a **drop-down** at the top right picks which one is shown.
+There is no name to type: the player who recorded each replay is counted. When several accounts play on the PC:
+
+- **Each one has its profile** with all its history, kept even when Fortnite deletes the replays (also with more than 100 already counted). Nothing gets mixed.
+- **FCT follows whoever is playing**: when a match of another account starts or ends, the window, overlay and stats switch to their profile and it tells you ("X is playing now"). One player's live match is never added to the other's.
+- To see another profile, pick it in the **drop-down** at the top right of the window: it stays until the next match.
+- **Chests before FCT** belongs to each player: each one can work out their earlier matches without overwriting the other's.
 
 ## Updates
 

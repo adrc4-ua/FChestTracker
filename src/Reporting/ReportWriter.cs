@@ -1257,7 +1257,7 @@ public static class ReportWriter
         {
             return "";
         }
-        return $"""<div class="profiles">{L.T("Otros perfiles en este PC: ", "Other profiles on this PC: ")}{string.Join(", ", others)} · {L.T("cambia de perfil en la configuración de la app", "switch profile in the app settings")}</div>""";
+        return $"""<div class="profiles">{L.T("Otros perfiles en este PC: ", "Other profiles on this PC: ")}{string.Join(", ", others)} · {L.T("FCT muestra al que juega; para ver otro, elígelo arriba a la derecha en la ventana de FCT", "FCT shows whoever is playing; to see another one, pick it at the top right of the FCT window")}</div>""";
     }
 
     /// <summary>Rewrites only the OBS overlay page (called on every live update).</summary>

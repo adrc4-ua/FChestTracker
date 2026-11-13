@@ -290,6 +290,12 @@ public sealed class Tracker
             {
                 _config.InitialChests[_config.Profile] = before;
             }
+            // The first-run estimate (asked before any match) belongs to this player too.
+            if (_config.Estimates.Remove("", out var pending) && !_config.Estimates.ContainsKey(_config.Profile))
+            {
+                pending.ProfileKey = _config.Profile;
+                _config.Estimates[_config.Profile] = pending;
+            }
             try { _store.SaveConfig(_config); } catch { /* ignore */ }
         }
 

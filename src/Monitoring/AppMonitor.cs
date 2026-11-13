@@ -251,7 +251,13 @@ public sealed class AppMonitor
         RequestPublish();
     }
 
-    public void SetProfile(string key) => Change(c => c.Profile = key);
+    /// <summary>Perfil elegido en la ventana: la página de estadísticas también pasa a ese jugador.</summary>
+    public void SetProfile(string key)
+    {
+        Change(c => c.Profile = key);
+        _reportRequested = true;
+        _wake.Set();
+    }
 
     /// <summary>Sumar o no al total las cajas de munición, de comida o los cañones de botín. Rehace las estadísticas enseguida.</summary>
     public void SetCountExtra(Action<Config> change)
@@ -388,7 +394,7 @@ public sealed class AppMonitor
         {
             lock (_cfgGate)
             {
-                return _config.Estimate;
+                return _config.Estimates.GetValueOrDefault(_shownKey ?? "");
             }
         }
     }
@@ -400,62 +406,138 @@ public sealed class AppMonitor
     /// </summary>
     public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
     {
+        // Del perfil mostrado: cada jugador del PC tiene su propio estimado.
         var key = _shownKey ?? "";
         Change(c =>
         {
             if (totalMatches is not int total)
             {
-                c.Estimate = null;
+                c.Estimates.Remove(key);
                 c.InitialChests.Remove(key);
                 return;
             }
-            c.Estimate = new HistoryEstimate { TotalMatches = total, SnapshotUtc = DateTime.UtcNow, Source = source, ProfileKey = _shownKey, SampleSize = sample, ManualAverage = manualAverage };
+            c.Estimates[key] = new HistoryEstimate { TotalMatches = total, SnapshotUtc = DateTime.UtcNow, Source = source, ProfileKey = _shownKey, SampleSize = sample, ManualAverage = manualAverage };
         });
         _reportRequested = true;
         _wake.Set();
     }
 
-    /// <summary>Calcula el estimado pendiente cuando ya se puede (repeticiones contadas o 5 partidas jugadas).</summary>
+    /// <summary>
+    /// Calcula los estimados pendientes cuando ya se puede (repeticiones contadas o partidas nuevas jugadas): el de cada
+    /// perfil con sus propias partidas, aunque no sea el que se muestra.
+    /// </summary>
     private bool ApplyEstimate()
     {
-        HistoryEstimate? e;
-        lock (_cfgGate)
-        {
-            e = _config.Estimate;
-        }
-        if (e == null || e.Done || !_scanned || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
+        if (!_scanned || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
         {
             return false;
         }
-        var key = e.ProfileKey ?? Profiles.Current(_data, _config)?.Key;
-        if (key == null)
+        List<(string Key, HistoryEstimate E)> pending;
+        lock (_cfgGate)
         {
-            return false; // aún no hay ninguna partida: no se sabe de qué perfil es
+            pending = _config.Estimates.Where(kv => !kv.Value.Done).Select(kv => (kv.Key, kv.Value)).ToList();
         }
-        var matches = Profiles.View(_data, _config).Matches.Where(m => Profiles.Key(m) == key).ToList();
-        if (HistoryEstimator.Compute(matches, e.TotalMatches, e.SnapshotUtc, e.SampleSize, e.ManualAverage).Chests is not int chests)
+        var applied = false;
+        foreach (var (entry, e) in pending)
+        {
+            // "" = preguntado antes de la primera partida: es del perfil que haya ahora (el de esa partida).
+            var key = entry.Length > 0 ? entry : Profiles.Current(_data, _config)?.Key;
+            if (key == null)
+            {
+                continue; // aún no hay ninguna partida: no se sabe de qué perfil es
+            }
+            var matches = Profiles.MatchesOf(_data, _config, key);
+            if (HistoryEstimator.Compute(matches, e.TotalMatches, e.SnapshotUtc, e.SampleSize, e.ManualAverage).Chests is not int chests)
+            {
+                continue;
+            }
+            lock (_cfgGate)
+            {
+                if (chests > 0)
+                {
+                    _config.InitialChests[key] = chests;
+                }
+                else
+                {
+                    _config.InitialChests.Remove(key);
+                }
+                e.ProfileKey = key;
+                e.Done = true;
+                if (entry != key)
+                {
+                    _config.Estimates.Remove(entry);
+                    _config.Estimates[key] = e;
+                }
+                SaveQuietly();
+            }
+            applied = true;
+            var several = Profiles.List(_data, _config).Count > 1;
+            var name = several ? Profiles.List(_data, _config).FirstOrDefault(p => p.Key == key)?.Name : null;
+            SetNotice(chests > 0
+                ? name != null
+                    ? L.F("Partidas de antes de {1}: ≈ {0} cofres estimados sumados a su total.", "{1}'s earlier matches: ≈ {0} estimated chests added to their total.", chests.ToString("#,0", L.Culture), name)
+                    : L.F("Partidas de antes: ≈ {0} cofres estimados sumados a tu total.", "Earlier matches: ≈ {0} estimated chests added to your total.", chests.ToString("#,0", L.Culture))
+                : L.T("Partidas de antes: tus repeticiones ya las cubren todas, no hace falta estimar.", "Earlier matches: your replays already cover them all, no estimate needed."));
+        }
+        if (applied)
+        {
+            _reportRequested = true;
+        }
+        return applied;
+    }
+
+    // ---- Varios jugadores en el mismo PC ------------------------------------------------------------------
+
+    /// <summary>La última partida vista (en directo o terminada): cuando cambia y es de otra cuenta, se sigue a ese jugador.</summary>
+    private string? _lastActivity;
+
+    /// <summary>
+    /// Sigue al jugador que está jugando: cuando aparece una partida nueva (en directo o recién terminada) de otra
+    /// cuenta con partidas contadas, se muestra su perfil y se avisa. Solo cambia con una partida nueva, así que el
+    /// perfil elegido a mano en la ventana se respeta hasta que alguien juegue. True si cambió algo.
+    /// </summary>
+    private bool FollowActivePlayer()
+    {
+        var live = _tracker.LiveMatch;
+        var newest = live ?? _data.Matches.Where(Profiles.IsSupportedVersion).MaxBy(m => m.MatchStartUtc ?? m.AnalyzedAtUtc);
+        if (newest == null)
         {
             return false;
         }
-        lock (_cfgGate)
+        var key = Profiles.Key(newest);
+        var activity = $"{key}|{newest.SessionId}|{newest.ReplayFile}";
+        if (_lastActivity == null)
         {
-            if (chests > 0)
-            {
-                _config.InitialChests[key] = chests;
-            }
-            else
-            {
-                _config.InitialChests.Remove(key);
-            }
-            e.ProfileKey = key;
-            e.Done = true;
-            SaveQuietly();
+            _lastActivity = activity; // al arrancar: lo que ya había no cambia el perfil elegido
+            return false;
         }
-        _reportRequested = true;
-        SetNotice(chests > 0
-            ? L.F("Partidas de antes: ≈ {0} cofres estimados sumados a tu total.", "Earlier matches: ≈ {0} estimated chests added to your total.", chests.ToString("#,0", L.Culture))
-            : L.T("Partidas de antes: tus repeticiones ya las cubren todas, no hace falta estimar.", "Earlier matches: your replays already cover them all, no estimate needed."));
+        if (activity == _lastActivity)
+        {
+            return false;
+        }
+        _lastActivity = activity;
+        var profiles = Profiles.List(_data, _config);
+        var current = Profiles.Current(_data, _config);
+        if (string.IsNullOrEmpty(key) || current?.Key == key || profiles.FirstOrDefault(p => p.Key == key) is not { } player)
+        {
+            return false; // el mismo jugador, o una cuenta aún sin partidas contadas (se sigue al terminar su primera)
+        }
+        Change(c => c.Profile = key);
+        _reportRequested = true; // la página de estadísticas también pasa a ese jugador
+        SetNotice(L.F("Ahora juega {0}: se muestra su perfil.", "{0} is playing now: showing their profile.", player.Name));
         return true;
+    }
+
+    /// <summary>La partida en curso, solo si es del perfil mostrado (la de otro jugador nunca se suma a este).</summary>
+    private MatchRecord? LiveOfShown()
+    {
+        var live = _tracker.LiveMatch;
+        if (live == null || !Profiles.Counted(live, _config))
+        {
+            return null;
+        }
+        var shownKey = Profiles.Current(_data, _config)?.Key;
+        return shownKey == null || Profiles.Key(live) == shownKey ? Profiles.Adjust(live, _config) : null;
     }
 
     /// <summary>Nombre del perfil mostrado, o null si aún no hay partidas.</summary>
@@ -660,6 +742,7 @@ public sealed class AppMonitor
                 ErrorLog.Write("Vigilancia", ex);
             }
 
+            changed |= FollowActivePlayer();
             changed |= ApplyEstimate();
             PollUpdates();
             changed |= CheckUpdate();
@@ -686,7 +769,7 @@ public sealed class AppMonitor
         _shownKey = shown?.Key;
         _shownName = shown?.Name;
         _profileMatches = Profiles.View(_data, _config).Matches;
-        var liveAdjusted = (_tracker.LiveMatch != null && Profiles.Counted(_tracker.LiveMatch, _config)) ? Profiles.Adjust(_tracker.LiveMatch, _config) : null;
+        var liveAdjusted = LiveOfShown();
         var view = OverlayModel.Build(Profiles.View(_data, _config), liveAdjusted, _tracker.IsLive && liveAdjusted != null, Profiles.InitialChests(_data, _config));
         ReportWriter.WriteOverlay(_store, view);
         ObsServer.Update(view);
@@ -714,7 +797,7 @@ public sealed class AppMonitor
     private ChestStats BuildStats()
     {
         var matches = Profiles.View(_data, _config).Matches;
-        var live = _tracker.IsLive && _tracker.LiveMatch != null && Profiles.Counted(_tracker.LiveMatch, _config) ? Profiles.Adjust(_tracker.LiveMatch, _config) : null;
+        var live = _tracker.IsLive ? LiveOfShown() : null;
         var today = DateTime.Now.Date;
 
         var perDay = new Dictionary<DateTime, int>();
@@ -760,7 +843,7 @@ public sealed class AppMonitor
             return null;
         }
         var kinds = _config.ExtraKinds();
-        var live = _tracker.IsLive && _tracker.LiveMatch != null && Profiles.Counted(_tracker.LiveMatch, _config) ? Profiles.Adjust(_tracker.LiveMatch, _config) : null;
+        var live = _tracker.IsLive ? LiveOfShown() : null;
         var m = live ?? Profiles.View(_data, _config).Matches.OrderByDescending(x => x.MatchStartUtc ?? x.AnalyzedAtUtc).FirstOrDefault();
         if (m == null)
         {
