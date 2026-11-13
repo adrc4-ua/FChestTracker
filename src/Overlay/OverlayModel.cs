@@ -1,62 +1,66 @@
 namespace FCT.Overlay;
 
-/// <summary>Construye lo que muestran la ventana, el overlay y la página OBS a partir de las partidas guardadas y la partida en curso.</summary>
+/// <summary>
+/// Builds the <see cref="OverlayView"/> shared by the main window, the game overlay and the OBS page, from the profile's
+/// matches and the match being played.
+/// </summary>
 public static class OverlayModel
 {
-    /// <summary>Texto del contador derecho entre dos partidas (también sirve para mantener el ancho del overlay).</summary>
+    /// <summary>Caption of the second number between matches (also the width the overlay reserves for it).</summary>
     public static string LastMatchCaption => L.T("anterior", "previous");
 
-    /// <summary>Icono del contador de tesoros (una gema).</summary>
     public const string TreasureIcon = "💎";
 
-    /// <param name="live">Cifras de la partida en curso, cuando el replay se pudo leer (null si no).</param>
-    /// <param name="inProgress">Hay una partida grabándose (aunque sus cifras aún no se puedan leer).</param>
-    /// <param name="initialChests">Cofres estimados de antes de usar la herramienta (solo se suman al total).</param>
-    public static OverlayView Build(TrackerData d, MatchRecord? live, bool inProgress, int initialChests = 0)
+    /// <param name="data">The profile's counted matches (see <see cref="Profiles.View"/>).</param>
+    /// <param name="live">Figures of the match in progress, when its replay could be read.</param>
+    /// <param name="inProgress">A match is being recorded, readable or not.</param>
+    /// <param name="initialChests">Chests before FCT: they only add to the total.</param>
+    public static OverlayView Build(TrackerData data, MatchRecord? live, bool inProgress, int initialChests = 0)
     {
         var liveChests = live?.ChestsOpened ?? 0;
-        var liveTreasures = live?.TreasureFinds.Count ?? 0;
+        var total = data.Matches.Sum(m => m.ChestsOpened) + liveChests + Math.Max(0, initialChests);
+        var latest = data.Matches.OrderByDescending(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).FirstOrDefault();
 
-        var total = d.Matches.Sum(m => m.ChestsOpened) + liveChests + Math.Max(0, initialChests);
-        var todayDate = DateTime.Now.Date;
-        var today = d.Matches.Where(m => (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date == todayDate).ToList();
         var rows = new List<OverlayRow>();
-
-        // Hoy: cofres, y debajo "n partidas · media x" (partidas terminadas hoy; la media es por partida de hoy).
-        // (el detalle solo lo usa la ventana principal; el overlay muestra la media en su propia columna).
-        string? todayDetail = null;
-        var avgText = "—";
-        if (today.Count > 0)
+        rows.AddRange(TodayRows(data, liveChests));
+        if (latest != null && (live != null || inProgress))
         {
-            var avg = (double)today.Sum(m => m.ChestsOpened) / today.Count;
-            avgText = Math.Round(avg, MidpointRounding.AwayFromZero).ToString("0", L.Culture);
-            todayDetail = $"{L.Count(today.Count, "partida", "partidas", "match", "matches")} · {L.T("media", "avg.")} {avgText}";
+            // Between matches the second number already is the previous match; during one it gets its own row.
+            rows.Add(new OverlayRow(L.T("Anterior", "Previous"), L.N(latest.ChestsOpened)));
         }
-        // Solo números en las columnas: la etiqueta ya dice qué son, y un número largo no choca con la columna de al lado.
-        rows.Add(new OverlayRow(L.T("Hoy", "Today"), L.N(today.Sum(m => m.ChestsOpened) + liveChests), Detail: todayDetail));
-        rows.Add(new OverlayRow(L.T("Media", "Avg."), avgText));
-
-        var last = d.Matches.OrderByDescending(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).FirstOrDefault();
-        // Entre partidas el contador derecho ya muestra la última partida: la fila solo aparece durante una partida.
-        if (last != null && (live != null || inProgress))
-        {
-            rows.Add(new OverlayRow(L.T("Anterior", "Previous"), L.N(last.ChestsOpened)));
-        }
-
-        var treasures = d.Matches.Sum(m => m.TreasureFinds.Count) + liveTreasures;
+        var treasures = data.Matches.Sum(m => m.TreasureFinds.Count) + (live?.TreasureFinds.Count ?? 0);
         rows.Add(new OverlayRow(L.T("Tesoros", "Treasures"), $"{TreasureIcon} {L.N(treasures)}", Treasure: true));
 
-        // Contador derecho: la partida en curso si se puede leer, "…" mientras no se pueda, si no la última partida.
+        var shownTotal = L.N(total);
         if (live != null)
         {
-            return new OverlayView(L.N(total), L.N(live.ChestsOpened), L.T("actual", "current"), true,
-                L.T("● EN DIRECTO", "● LIVE"), rows);
+            return new OverlayView(shownTotal, L.N(live.ChestsOpened), L.T("actual", "current"), true, L.T("● EN DIRECTO", "● LIVE"), rows);
         }
-        // Sin etiqueta en la cabecera: el contador derecho ya dice "en curso".
         if (inProgress)
         {
-            return new OverlayView(L.N(total), "…", L.T("en curso", "in progress"), true, null, rows);
+            return new OverlayView(shownTotal, "…", L.T("en curso", "in progress"), true, null, rows);
         }
-        return new OverlayView(L.N(total), last != null ? L.N(last.ChestsOpened) : null, LastMatchCaption, false, null, rows);
+        return new OverlayView(shownTotal, latest == null ? null : L.N(latest.ChestsOpened), LastMatchCaption, false, null, rows);
+    }
+
+    /// <summary>
+    /// "Hoy" (today's chests, the match in progress included) and "Media" (per finished match today). Values are bare
+    /// numbers so columns never collide; the window also shows "n partidas · media x" under today's figure.
+    /// </summary>
+    private static IEnumerable<OverlayRow> TodayRows(TrackerData data, int liveChests)
+    {
+        var today = DateTime.Now.Date;
+        var finished = data.Matches.Where(m => (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date == today).ToList();
+        var chests = finished.Sum(m => m.ChestsOpened);
+
+        var average = "—";
+        string? detail = null;
+        if (finished.Count > 0)
+        {
+            average = Math.Round((double)chests / finished.Count, MidpointRounding.AwayFromZero).ToString("0", L.Culture);
+            detail = $"{L.Count(finished.Count, "partida", "partidas", "match", "matches")} · {L.T("media", "avg.")} {average}";
+        }
+        yield return new OverlayRow(L.T("Hoy", "Today"), L.N(chests + liveChests), Detail: detail);
+        yield return new OverlayRow(L.T("Media", "Avg."), average);
     }
 }

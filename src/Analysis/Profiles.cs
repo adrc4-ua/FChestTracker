@@ -1,136 +1,133 @@
-using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace FCT.Analysis;
 
-/// <summary>An Epic account that recorded replays on this PC. Stats are kept per profile.</summary>
+/// <summary>One Epic account that has matches on this PC, with its counted totals.</summary>
 public sealed record Profile(string Key, string Name, int Matches, int Chests, DateTime LastPlayed);
 
 /// <summary>
-/// Replays saved on a PC are normally those of its player, so the replay owner (the recording player) is tracked.
-/// When several accounts recorded replays here, each one gets its own profile and the player picks the account
-/// they play on: the overlay and the report only show that profile.
+/// Several people can play on one PC: matches are grouped by account ("profile") and only the chosen profile is shown.
+/// This is also where "which matches count" is decided (season, "count from" date) and how a match is adjusted to the
+/// player's settings, so every screen agrees on the same numbers.
 /// </summary>
 public static class Profiles
 {
-    /// <summary>Minimum Fortnite major version counted for Chapter 7 Mini Season (v43.X).</summary>
+    /// <summary>Oldest Fortnite version counted: v43 (Chapter 7 mini season).</summary>
     public const int MinFortniteMajorVersion = 43;
 
-    /// <summary>
-    /// Extracts the Fortnite major version from the engine branch string (e.g. "++Fortnite+Release-43.00" -> 43).
-    /// </summary>
+    /// <summary>v43 came out in November 2026: matches without a readable version are judged by their date.</summary>
+    private static readonly DateTime FirstCountedDayUtc = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    private static readonly Regex VersionNumber = new(@"(?:Release-|v|\b)(?<major>\d+)\.\d+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    // ---- Identity and time ---------------------------------------------------------------------------------------------
+
+    /// <summary>The account a match belongs to: its Epic id (stable across renames), or else the player name.</summary>
+    public static string Key(MatchRecord match) => string.IsNullOrEmpty(match.EpicId) ? match.PlayerName ?? "" : match.EpicId;
+
+    private static DateTime PlayedUtc(MatchRecord match) => match.MatchStartUtc ?? match.AnalyzedAtUtc;
+
+    /// <summary>The local calendar day the match was played on.</summary>
+    public static DateTime Day(MatchRecord match) => PlayedUtc(match).ToLocalTime().Date;
+
+    // ---- Which matches count -----------------------------------------------------------------------------------------------
+
+    /// <summary>Major version from Fortnite's build string ("++Fortnite+Release-43.00" → 43), or null.</summary>
     public static int? ParseFortniteMajorVersion(string? version)
     {
         if (string.IsNullOrWhiteSpace(version))
         {
             return null;
         }
-
-        var match = Regex.Match(version, @"(?:Release-|v|\b)(\d+)\.(\d+)", RegexOptions.IgnoreCase);
-        if (match.Success && int.TryParse(match.Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var major))
-        {
-            return major;
-        }
-
-        return null;
+        var found = VersionNumber.Match(version);
+        return found.Success && int.TryParse(found.Groups["major"].ValueSpan, out var major) ? major : null;
     }
+
+    /// <summary>The match is from v43 or later (or, with no readable version, from November 2026 on).</summary>
+    public static bool IsSupportedVersion(MatchRecord? match)
+    {
+        if (match == null)
+        {
+            return false;
+        }
+        if (ParseFortniteMajorVersion(match.GameVersion) is { } major)
+        {
+            return major >= MinFortniteMajorVersion;
+        }
+        var played = PlayedUtc(match);
+        return played == default || played >= FirstCountedDayUtc;
+    }
+
+    /// <summary>Counts for the figures: a supported version and not before the "count from" date of the settings.</summary>
+    public static bool Counted(MatchRecord match, Config config) =>
+        IsSupportedVersion(match) && (config.CountFrom == null || Day(match) >= config.CountFrom.Value.Date);
+
+    /// <summary>The match as the settings count it (extra kinds, teammates' chests); see <see cref="MatchRecord.WithExtras"/>.</summary>
+    public static MatchRecord? Adjust(MatchRecord? match, Config config) =>
+        match?.WithExtras(config.ExtraKinds(), config.CountTeammateChests);
+
+    // ---- Profiles ------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// True when the match belongs to Fortnite version v43.X (Chapter 7 Mini Season) or later.
-    /// Matches from earlier versions (e.g. v42, v41...) are excluded from statistics.
+    /// Every account with counted matches, most recently played first. Without settings, only the version filter
+    /// applies and totals are the raw ones.
     /// </summary>
-    public static bool IsSupportedVersion(MatchRecord? m)
+    public static List<Profile> List(TrackerData data, Config? config = null)
     {
-        if (m == null)
+        var profiles = new List<Profile>();
+        foreach (var account in data.Matches.GroupBy(Key))
         {
-            return false;
-        }
-
-        var major = ParseFortniteMajorVersion(m.GameVersion);
-        if (major.HasValue)
-        {
-            return major.Value >= MinFortniteMajorVersion;
-        }
-
-        // If GameVersion is missing or unparseable, check match date (v43.00 launched in November 2026).
-        var when = m.MatchStartUtc ?? m.AnalyzedAtUtc;
-        if (when != default && when < new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>Stable key of a match's account: Epic id (survives a name change), else the display name.</summary>
-    public static string Key(MatchRecord m) => !string.IsNullOrEmpty(m.EpicId) ? m.EpicId : m.PlayerName ?? "";
-
-    public static List<Profile> List(TrackerData d, Config? c = null) => d.Matches
-        .GroupBy(Key)
-        .Select(g =>
-        {
-            var validMatches = g.Where(m => c == null ? IsSupportedVersion(m) : Counted(m, c)).ToList();
-            if (validMatches.Count == 0)
+            var counted = account.Where(m => config == null ? IsSupportedVersion(m) : Counted(m, config)).ToList();
+            if (counted.Count == 0)
             {
-                return null;
+                continue;
             }
-            var latest = validMatches.OrderByDescending(When).First();
-            var name = validMatches.OrderByDescending(When).Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n));
-            var chests = validMatches.Sum(m => (c != null ? Adjust(m, c)! : m).ChestsOpened);
-            return new Profile(g.Key, name ?? L.T("Cuenta desconocida", "Unknown account"), validMatches.Count, chests, When(latest));
-        })
-        .Where(p => p != null)
-        .Select(p => p!)
-        .OrderByDescending(p => p.LastPlayed)
-        .ToList();
-
-    private static DateTime When(MatchRecord m) => m.MatchStartUtc ?? m.AnalyzedAtUtc;
-
-    /// <summary>The selected profile when it exists, else the most recently played one (null = no match yet).</summary>
-    public static Profile? Current(TrackerData d, Config c)
-    {
-        var all = List(d, c);
-        return all.FirstOrDefault(p => p.Key == c.Profile) ?? all.FirstOrDefault();
+            var newestFirst = counted.OrderByDescending(PlayedUtc).ToList();
+            var name = newestFirst.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n))
+                       ?? L.T("Cuenta desconocida", "Unknown account");
+            var chests = counted.Sum(m => (config == null ? m : Adjust(m, config)!).ChestsOpened);
+            profiles.Add(new Profile(account.Key, name, counted.Count, chests, PlayedUtc(newestFirst[0])));
+        }
+        return profiles.OrderByDescending(p => p.LastPlayed).ToList();
     }
 
-    /// <summary>
-    /// The data of one profile only, as seen by the window, the overlay and the report. With the "count ammo
-    /// boxes / food boxes / loot cannons" settings, the matches are copies whose total includes them.
-    /// </summary>
-    public static TrackerData View(TrackerData d, Config c)
+    /// <summary>The profile chosen in the settings, or the most recently played one; null before any match.</summary>
+    public static Profile? Current(TrackerData data, Config config)
     {
-        var current = Current(d, c);
+        var profiles = List(data, config);
+        return profiles.Find(p => p.Key == config.Profile) ?? profiles.FirstOrDefault();
+    }
+
+    /// <summary>The counted, adjusted matches of one account.</summary>
+    public static List<MatchRecord> MatchesOf(TrackerData data, Config config, string key) =>
+        data.Matches.Where(m => Key(m) == key && Counted(m, config)).Select(m => Adjust(m, config)!).ToList();
+
+    /// <summary>
+    /// The history as every screen sees it: only the current profile's counted matches, adjusted to the settings.
+    /// A view, not a copy to save (it shares the processed-files table with the real history).
+    /// </summary>
+    public static TrackerData View(TrackerData data, Config config)
+    {
+        var shown = Current(data, config)?.Key;
         return new TrackerData
         {
-            Version = d.Version,
-            AnalyzerVersion = d.AnalyzerVersion,
-            CreatedUtc = d.CreatedUtc,
-            Matches = d.Matches.Where(m => (current == null || Key(m) == current.Key) && Counted(m, c)).Select(m => Adjust(m, c)!).ToList(),
-            ProcessedFiles = d.ProcessedFiles,
+            Version = data.Version,
+            AnalyzerVersion = data.AnalyzerVersion,
+            CreatedUtc = data.CreatedUtc,
+            ProcessedFiles = data.ProcessedFiles,
+            Matches = data.Matches.Where(m => (shown == null || Key(m) == shown) && Counted(m, config)).Select(m => Adjust(m, config)!).ToList(),
         };
     }
 
-    /// <summary>The counted matches of one profile (as shown: with the extras of the settings), whichever is shown.</summary>
-    public static List<MatchRecord> MatchesOf(TrackerData d, Config c, string key) =>
-        d.Matches.Where(m => Key(m) == key && Counted(m, c)).Select(m => Adjust(m, c)!).ToList();
+    // ---- Chests before FCT -------------------------------------------------------------------------------------------------------
 
-    /// <summary>Local day a match was played on.</summary>
-    public static DateTime Day(MatchRecord m) => When(m).ToLocalTime().Date;
+    /// <summary>Estimated chests before FCT of an account ("" or null: before the first match). Never negative.</summary>
+    public static int InitialChests(Config config, string? key) =>
+        config.InitialChests != null && config.InitialChests.TryGetValue(key ?? "", out var chests) && chests > 0 ? chests : 0;
 
-    /// <summary>True when the match counts for statistics (version v43.X+ and respects the "count from" date setting).</summary>
-    public static bool Counted(MatchRecord m, Config c) =>
-        IsSupportedVersion(m) && (c.CountFrom is not { } from || Day(m) >= from.Date);
+    public static int InitialChests(TrackerData data, Config config) => InitialChests(config, Current(data, config)?.Key);
 
-    /// <summary>A match as shown: its total also includes the non-chest kinds and, if chosen, the teammates' chests.</summary>
-    public static MatchRecord? Adjust(MatchRecord? m, Config c) => m?.WithExtras(c.ExtraKinds(), c.CountTeammateChests);
-
-    /// <summary>Estimated chests opened before the tool for a profile key ("" = before the first match).</summary>
-    public static int InitialChests(Config c, string? key) =>
-        c.InitialChests != null && c.InitialChests.TryGetValue(key ?? "", out var n) ? Math.Max(0, n) : 0;
-
-    /// <summary>Estimated chests opened before the tool for the profile shown.</summary>
-    public static int InitialChests(TrackerData d, Config c) => InitialChests(c, Current(d, c)?.Key);
-
-    public static string Describe(Profile p) =>
-        $"{p.Name}  ({L.Count(p.Matches, "partida", "partidas", "match", "matches")}, {L.Count(p.Chests, "cofre", "cofres", "chest", "chests")})";
+    /// <summary>"Name  (12 partidas, 240 cofres)" for the profile selector.</summary>
+    public static string Describe(Profile profile) =>
+        $"{profile.Name}  ({L.Count(profile.Matches, "partida", "partidas", "match", "matches")}, {L.Count(profile.Chests, "cofre", "cofres", "chest", "chests")})";
 }
