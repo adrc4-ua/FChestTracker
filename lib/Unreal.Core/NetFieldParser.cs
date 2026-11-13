@@ -245,7 +245,7 @@ public class NetFieldParser
     /// <returns>true if group should be parsed further, false otherwise</returns>
     public bool WillReadType(string group) { EnsureAlias(group); return NetFieldGroups.TryGetValue(group, out var _); }
 
-    // ChestCounter patch: lets the caller map unknown group paths (e.g. new chest blueprints)
+    // FCT patch: lets the caller map unknown group paths (e.g. new chest blueprints)
     // onto an already registered export group type.
     public static Func<string, string?>? AliasResolver { get; set; }
     private readonly HashSet<string> _aliasMisses = new();
@@ -274,7 +274,7 @@ public class NetFieldParser
     /// <returns>true if group should be parsed further, false otherwise</returns>
     public bool WillReadClassNetCache(string group) { EnsureClassNetCacheAlias(group); return _classNetCacheToNetFieldGroup.ContainsKey(group); }
 
-    // ChestCounter patch: same idea as AliasResolver, for ClassNetCaches (RPCs of blueprint subclasses).
+    // FCT patch: same idea as AliasResolver, for ClassNetCaches (RPCs of blueprint subclasses).
     public static Func<string, string?>? ClassNetCacheAliasResolver { get; set; }
     private readonly HashSet<string> _classNetCacheAliasMisses = new();
 

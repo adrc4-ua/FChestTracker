@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Tiny local web server (127.0.0.1 only) while the tool is open: OBS adds <see cref="Url"/> as a browser source.

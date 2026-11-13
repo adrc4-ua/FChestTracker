@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Runtime.Versioning;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Icono de la ventana: el mismo icono de cofre que lleva el exe (ApplicationIcon).</summary>
 [SupportedOSPlatform("windows")]

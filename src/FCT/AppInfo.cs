@@ -1,4 +1,4 @@
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Version, GitHub repository and names shared by the tool's processes.</summary>
 public static class AppInfo
@@ -17,8 +17,6 @@ public static class AppInfo
     public const string ShortName = "FCT";
     /// <summary>File name of the exe published in the releases.</summary>
     public const string ExeName = "FCT.exe";
-    /// <summary>Exe name of the releases before the rename (v1.0.0): still accepted by the updater.</summary>
-    public const string LegacyExeName = "ChestCounter.exe";
 
     /// <summary>Path of the running exe when it is the published exe, whatever it is called (null under "dotnet FCT.dll").</summary>
     public static string? ExePath
@@ -36,10 +34,10 @@ public static class AppInfo
     public static string InstanceMutexFor(string dataDir)
     {
         var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(dataDir).TrimEnd('\\', '/').ToLowerInvariant()));
-        return @"Local\ChestCounter.Instance." + Convert.ToHexString(hash, 0, 8);
+        return @"Local\FCT.Instance." + Convert.ToHexString(hash, 0, 8);
     }
     /// <summary>Set by a second launch so that the running instance (maybe hidden in the tray) shows its window.</summary>
     public static string ShowEventFor(string dataDir) => InstanceMutexFor(dataDir).Replace(".Instance.", ".Show.");
-    public const string StandbyMutex = @"Local\ChestCounter.Standby";
-    public const string StandbyStopEvent = @"Local\ChestCounter.StandbyStop";
+    public const string StandbyMutex = @"Local\FCT.Standby";
+    public const string StandbyStopEvent = @"Local\FCT.StandbyStop";
 }

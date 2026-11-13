@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Ajustes con el mismo aspecto que la ventana principal: dos columnas de tarjetas, títulos pequeños en gris y
@@ -496,7 +496,7 @@ public sealed class SettingsForm : Form
     }
     private static Image? LoadLogo(string name)
     {
-        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"ChestCounter.Assets.{name}.png");
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"FCT.Assets.{name}.png");
         if (stream == null)
         {
             return null;

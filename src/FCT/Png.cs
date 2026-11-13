@@ -1,6 +1,6 @@
 using System.IO.Compression;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Minimal PNG writer (no dependency), used to save overlay previews.</summary>
 public static class Png

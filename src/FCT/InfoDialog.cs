@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Un punto del diálogo: símbolo de color, título corto y explicación.</summary>
 public sealed record InfoPoint(string Glyph, Color Color, string Title, string Text);

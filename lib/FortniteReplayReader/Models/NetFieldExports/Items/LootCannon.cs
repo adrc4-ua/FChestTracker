@@ -6,13 +6,13 @@ using Unreal.Core.Models.Enums;
 namespace FortniteReplayReader.Models.NetFieldExports.Items;
 
 /// <summary>
-/// ChestCounter patch: loot cannons (interact, they fire loot on the ground). Every cannon blueprint's
+/// FCT patch: loot cannons (interact, they fire loot on the ground). Every cannon blueprint's
 /// ClassNetCache is aliased onto this one through NetFieldParser.ClassNetCacheAliasResolver.
 /// </summary>
 [NetFieldExportClassNetCache(LootCannonCache.Path, minimalParseMode: ParseMode.Minimal)]
 public class LootCannonCache
 {
-    public const string Path = "__ChestCounter.LootCannon_ClassNetCache";
+    public const string Path = "__FCT.LootCannon_ClassNetCache";
 
     [NetFieldExportRPC("FireLootCannon", LootCannonFired.Path, isFunction: true)]
     public LootCannonFired? FireLootCannon { get; set; }

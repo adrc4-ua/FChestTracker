@@ -15,7 +15,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: Publish
-        run: dotnet publish src/ChestCounter/ChestCounter.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
+        run: dotnet publish src/FCT/FCT.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
       - uses: actions/upload-artifact@v4
         with:
           name: FCT
@@ -47,11 +47,9 @@ jobs:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          # v1.0.0 (still called ChestCounter) only updates itself from an asset named ChestCounter.exe: same file, both names.
-          cp dist/FCT.exe dist/ChestCounter.exe
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$TAG" dist/FCT.exe dist/ChestCounter.exe --clobber --repo "$GITHUB_REPOSITORY"
+            gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
           else
             # No changelog in this app's releases: just the download.
-            gh release create "$TAG" dist/FCT.exe dist/ChestCounter.exe --title "Fortnite Chest Tracker $TAG" --notes "Descarga **FCT.exe** y ábrelo (Windows 10 / 11, sin instalación). Si ya lo tienes, se actualiza solo. (\`ChestCounter.exe\` es el mismo archivo, para que se actualicen las versiones anteriores.)" --latest --repo "$GITHUB_REPOSITORY"
+            gh release create "$TAG" dist/FCT.exe --title "Fortnite Chest Tracker $TAG" --notes "Descarga **FCT.exe** y ábrelo (Windows 10 / 11, sin instalación). Si ya lo tienes, se actualiza solo." --latest --repo "$GITHUB_REPOSITORY"
           fi

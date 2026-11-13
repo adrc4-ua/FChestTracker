@@ -6,7 +6,7 @@ using Unreal.Core.Models.Enums;
 namespace FortniteReplayReader.Models.NetFieldExports;
 
 /// <summary>
-/// ChestCounter patch: granted gameplay abilities (FastArray "ActivatableAbilities") of the recording player.
+/// FCT patch: granted gameplay abilities (FastArray "ActivatableAbilities") of the recording player.
 /// Treasure hunt prizes grant a "GA_TreasureHandler_*" ability, which tells exactly when a treasure was obtained.
 /// </summary>
 [NetFieldExportClassNetCache("FortAbilitySystemComponentAthena_ClassNetCache", minimalParseMode: ParseMode.Minimal)]

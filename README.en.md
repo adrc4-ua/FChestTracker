@@ -152,7 +152,7 @@ At startup, FCT checks GitHub for a new version and, by default, **installs it b
 
 ## Your data
 
-Everything is saved in `%APPDATA%\ChestCounter`. **Your history does not depend on the replays**: each match (with its chests, treasures and teammates) is saved to `data.json` as soon as it is read, and every statistic comes from there.
+Everything is saved in `%APPDATA%\FCT`. **Your history does not depend on the replays**: each match (with its chests, treasures and teammates) is saved to `data.json` as soon as it is read, and every statistic comes from there.
 
 | File | Contents |
 |---|---|

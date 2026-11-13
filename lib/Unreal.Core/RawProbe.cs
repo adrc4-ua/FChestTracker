@@ -1,7 +1,7 @@
 namespace Unreal.Core;
 
 /// <summary>
-/// ChestCounter patch: diagnostic probe. When <see cref="Sink"/> is set, the raw bits of every property / RPC / FastArray
+/// FCT patch: diagnostic probe. When <see cref="Sink"/> is set, the raw bits of every property / RPC / FastArray
 /// that the parser does NOT decode are handed to it, for groups whose path matches <see cref="Filter"/>.
 /// Used to discover where a piece of information lives in the replay. Null (disabled) by default.
 /// </summary>

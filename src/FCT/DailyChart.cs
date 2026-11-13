@@ -3,7 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Gráfico de barras verticales con los cofres de cada día. Las barras se reparten en el ancho disponible.</summary>
 [SupportedOSPlatform("windows")]

@@ -152,7 +152,7 @@ Al iniciarse, FCT busca en GitHub una versión nueva y, por defecto, la **instal
 
 ## Tus datos
 
-Todo se guarda en `%APPDATA%\ChestCounter`. **Tu historial no depende de los replays**: cada partida (con sus cofres, tesoros y compañeros) se guarda en `data.json` en cuanto se lee, y todas las estadísticas salen de ahí.
+Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: cada partida (con sus cofres, tesoros y compañeros) se guarda en `data.json` en cuanto se lee, y todas las estadísticas salen de ahí.
 
 | Archivo | Contenido |
 |---|---|

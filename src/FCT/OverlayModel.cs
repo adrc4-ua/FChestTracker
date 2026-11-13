@@ -1,4 +1,4 @@
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Construye lo que muestran la ventana, el overlay y la página OBS a partir de las partidas guardadas y la partida en curso.</summary>
 public static class OverlayModel

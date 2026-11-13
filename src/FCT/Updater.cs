@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace ChestCounter;
+namespace FCT;
 
 public sealed record UpdateInfo(Version Version, string Tag, string AssetUrl, long Size, string? Sha256, string PageUrl);
 
@@ -12,7 +12,7 @@ public sealed record UpdateInfo(Version Version, string Tag, string AssetUrl, lo
 /// </summary>
 public static class Updater
 {
-    private static string ApiUrl => Environment.GetEnvironmentVariable("CHESTCOUNTER_UPDATE_API")
+    private static string ApiUrl => Environment.GetEnvironmentVariable("FCT_UPDATE_API")
         ?? $"https://api.github.com/repos/{AppInfo.Repo}/releases/latest";
 
     private static HttpClient NewClient(TimeSpan timeout)
@@ -46,10 +46,8 @@ public static class Updater
             {
                 return null;
             }
-            // FCT.exe; ChestCounter.exe in releases published before the rename (also uploaded for v1.0.0, which only knows that name).
-            var assets = root.GetProperty("assets").EnumerateArray().ToList();
-            foreach (var asset in assets.Where(a => string.Equals(a.GetProperty("name").GetString(), AppInfo.ExeName, StringComparison.OrdinalIgnoreCase))
-                         .Concat(assets.Where(a => string.Equals(a.GetProperty("name").GetString(), AppInfo.LegacyExeName, StringComparison.OrdinalIgnoreCase))))
+            foreach (var asset in root.GetProperty("assets").EnumerateArray()
+                         .Where(a => string.Equals(a.GetProperty("name").GetString(), AppInfo.ExeName, StringComparison.OrdinalIgnoreCase)))
             {
                 string? sha = null;
                 if (asset.TryGetProperty("digest", out var digest) && digest.GetString() is { } d && d.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase))

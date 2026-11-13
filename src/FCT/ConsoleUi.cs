@@ -1,4 +1,4 @@
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Salida de consola para los modos de línea de comandos (--once, --help, --overlay-preview). La ventana

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Vigila la carpeta de replays de Fortnite, analiza una vez cada replay terminado y acumula los resultados.
@@ -26,18 +26,6 @@ public sealed class Tracker
         _store = store;
         _config = config;
         _data = data;
-
-        // Antes de la versión 1.1, las partidas de otras cuentas se rechazaban (valor antiguo "autre joueur"): ahora tienen su propio perfil.
-        foreach (var key in _data.ProcessedFiles.Where(kv => kv.Value.StartsWith("autre joueur", StringComparison.Ordinal)).Select(kv => kv.Key).ToList())
-        {
-            _data.ProcessedFiles.Remove(key);
-        }
-
-        // Historial de versiones anteriores a la 2.0.9: nombres internos en francés -> nombres actuales.
-        if (_data.UpgradeNames())
-        {
-            try { _store.SaveData(_data); } catch { /* se guardará con el próximo cambio */ }
-        }
     }
 
     public TrackerData Data => _data;
@@ -246,7 +234,7 @@ public sealed class Tracker
 
         if (!record.IsBattleRoyale)
         {
-            // Also drop a record left by an older version of the tool for this replay.
+            // Also drop a record of this replay left by a previous analysis.
             _data.Matches.RemoveAll(m => m.SessionId == record.SessionId);
             _data.ProcessedFiles[key] = "other mode";
             _store.SaveData(_data);
@@ -513,7 +501,7 @@ public sealed class Tracker
         catch (Exception ex)
         {
             _liveParsedUtc = DateTime.UtcNow; // try again at the next interval
-            if (Environment.GetEnvironmentVariable("CHESTCOUNTER_DEBUG") is { Length: > 0 })
+            if (Environment.GetEnvironmentVariable("FCT_DEBUG") is { Length: > 0 })
             {
                 Console.Error.WriteLine($"DBG live parse failed: {ex}");
             }
@@ -575,8 +563,8 @@ public sealed class Tracker
 
         foreach (var find in m.TreasureFinds)
         {
-            Console.ForegroundColor = find.FromGoldenChest ? ConsoleColor.Yellow : ConsoleColor.Cyan;
-            Console.WriteLine($"   {(find.FromGoldenChest ? "★★" : "★")} {L.T("Tesoro obtenido: ", "Treasure obtained: ")}{find.DisplayName} ({Pretty.Obtained(find)})");
+            Console.ForegroundColor = find.FromPrizeChest ? ConsoleColor.Yellow : ConsoleColor.Cyan;
+            Console.WriteLine($"   {(find.FromPrizeChest ? "★★" : "★")} {L.T("Tesoro obtenido: ", "Treasure obtained: ")}{find.DisplayName} ({Pretty.Obtained(find)})");
             if (!find.SourceIsChest)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;

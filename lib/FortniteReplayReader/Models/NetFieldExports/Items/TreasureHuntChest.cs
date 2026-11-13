@@ -6,7 +6,7 @@ using Unreal.Core.Models.Enums;
 namespace FortniteReplayReader.Models.NetFieldExports.Items;
 
 /// <summary>
-/// ChestCounter patch: golden "treasure" chest animation actor spawned by the treasure hunt when a chest pays out.
+/// FCT patch: golden "treasure" chest animation actor spawned by the treasure hunt when a chest pays out.
 /// </summary>
 [NetFieldExportGroup("/DelilahTreasureHuntGameplay/Gameplay/Actors/BGA_DelilahTreasureHuntAnimatedChest.BGA_DelilahTreasureHuntAnimatedChest_C", minimalParseMode: ParseMode.Minimal)]
 public class TreasureHuntChest : INetFieldExportGroup

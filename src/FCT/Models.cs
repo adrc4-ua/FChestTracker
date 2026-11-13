@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ChestCounter;
+namespace FCT;
 
 public sealed class ChestRecord
 {
@@ -20,7 +20,7 @@ public sealed class TreasureFind
     public string DisplayName => Prizes.Describe(this).Name;
 
     /// <summary>Featured treasure (cosmetic, vehicle, shop access…: the server names it) rather than a treasure gizmo.</summary>
-    public bool Featured => FromGoldenChest || (PrizeId != null && !TreasureNames.IsGizmoKey(PrizeId));
+    public bool Featured => FromPrizeChest || (PrizeId != null && !TreasureNames.IsGizmoKey(PrizeId));
 
     public const string FinderSelf = "self", FinderTeammate = "teammate", FinderUnknown = "unknown";
 
@@ -43,24 +43,24 @@ public sealed class TreasureFind
 
     public string Item { get; set; } = "";
     public string RawItem { get; set; } = "";
-    /// <summary>Prize id sent by the server with the golden chest, e.g. "DelilahPrize:dpid_item4".</summary>
+    /// <summary>Prize id sent by the server with a featured treasure, e.g. "DelilahPrize:dpid_item4" (gizmos: an internal "Unknown:…" key).</summary>
     public string? PrizeId { get; set; }
-    /// <summary>True when detected from the golden treasure chest itself.</summary>
-    public bool FromGoldenChest { get; set; }
+    /// <summary>True when detected from the treasure hunt chest itself (it carries the prize id).</summary>
+    public bool FromPrizeChest { get; set; }
     /// <summary>True when detected only from the prize handler (exact time, item unknown unless sent at that moment).</summary>
     public bool FromPrizeHandler { get; set; }
-    /// <summary>True when the time is exact (golden chest or prize handler), false when estimated.</summary>
+    /// <summary>True when the time is exact (featured treasure chest or prize handler), false when estimated.</summary>
     public bool TimeExact { get; set; }
     /// <summary>True when the source chest was destroyed rather than opened.</summary>
     public bool SourceDestroyed { get; set; }
     public string SourceLabel => SourceDestroyed ? $"{L.Name(SourceKind)} ({L.T("destruido", "destroyed")})" : L.Name(SourceKind);
-    /// <summary>When it was obtained (replay seconds). Exact for golden chests, estimated otherwise.</summary>
+    /// <summary>When it was obtained (replay seconds).</summary>
     public float? ObtainedAtSeconds { get; set; }
     /// <summary>Kind of container / interaction it came from (Chest, Loot cannon...).</summary>
     public string SourceKind { get; set; } = "";
     public string SourceBlueprint { get; set; } = "";
     public bool SourceIsChest { get; set; } = true;
-    /// <summary>True when the source is known for sure (golden chest), false when it is the last interaction before use.</summary>
+    /// <summary>True when the source chest is known for sure (same moment as the prize), false when it is only close in time.</summary>
     public bool SourceCertain { get; set; }
     /// <summary>For estimated sources: other (non-chest) interactions between the source and the first use.</summary>
     public List<string> AlsoPossible { get; set; } = new();
@@ -175,13 +175,11 @@ public sealed class Config
 
     /// <summary>
     /// "auto" (install new versions between matches, default), "prompt" (offer them) or "off" (never check GitHub).
-    /// Saved under a new name since 2.0.21: everyone moved to automatic updates once; later choices are kept.
     /// </summary>
     [JsonPropertyName("Updates")]
     public string UpdateMode { get; set; } = "auto";
     /// <summary>
-    /// Open the report when the tool starts (off by default). Saved under a new name: the old key defaulted to on
-    /// while doing nothing, so old configs must not suddenly start opening the browser.
+    /// Open the report when the tool starts (off by default).
     /// </summary>
     [JsonPropertyName("OpenReportAtStartup")]
     public bool OpenReportOnStart { get; set; }
@@ -244,64 +242,6 @@ public sealed class Config
 
 public sealed class TrackerData
 {
-    /// <summary>
-    /// Converts the internal names written by versions before 2.0.9 (in French) to the current ones.
-    /// Returns true when something changed (the history must be saved).
-    /// </summary>
-    public bool UpgradeNames()
-    {
-        var changed = false;
-        string Up(string value)
-        {
-            var current = L.Upgrade(value);
-            changed |= !ReferenceEquals(current, value) && current != value;
-            return current;
-        }
-        void UpList(List<string> list)
-        {
-            for (var i = 0; i < list.Count; i++)
-            {
-                list[i] = Up(list[i]);
-            }
-        }
-
-        foreach (var m in Matches)
-        {
-            if (m.NotTrackedOwner != null)
-            {
-                m.NotTrackedOwner = Up(m.NotTrackedOwner);
-            }
-            foreach (var c in m.Chests)
-            {
-                c.Kind = Up(c.Kind);
-                UpList(c.Items);
-                UpList(c.TreasureItems);
-            }
-            foreach (var f in m.TreasureFinds)
-            {
-                f.Item = Up(f.Item);
-                f.SourceKind = Up(f.SourceKind);
-                UpList(f.AlsoPossible);
-            }
-            if (m.OtherInteractions.Keys.Any(k => L.Upgrade(k) != k))
-            {
-                var merged = new Dictionary<string, int>();
-                foreach (var kv in m.OtherInteractions)
-                {
-                    var key = Up(kv.Key);
-                    merged[key] = merged.GetValueOrDefault(key) + kv.Value;
-                }
-                m.OtherInteractions = merged;
-            }
-        }
-        foreach (var key in ProcessedFiles.Where(kv => kv.Value == "autre mode").Select(kv => kv.Key).ToList())
-        {
-            ProcessedFiles[key] = "other mode";
-            changed = true;
-        }
-        return changed;
-    }
-
     public int Version { get; set; } = 1;
     public int AnalyzerVersion { get; set; } = 1;
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
@@ -323,28 +263,9 @@ public sealed class Store
 
     public string Folder { get; }
 
-    /// <summary>
-    /// %APPDATA%\ChestCounter. The tool was called ChestTracker before version 1.1: its folder is moved
-    /// (history, settings and treasure names are kept).
-    /// </summary>
-    public static string DefaultFolder()
-    {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var folder = Path.Combine(appData, "ChestCounter");
-        var old = Path.Combine(appData, "ChestTracker");
-        try
-        {
-            if (!Directory.Exists(folder) && File.Exists(Path.Combine(old, "data.json")))
-            {
-                Directory.Move(old, folder);
-            }
-        }
-        catch
-        {
-            // the old folder is in use (old version still running): start fresh, nothing is lost
-        }
-        return folder;
-    }
+    /// <summary>%APPDATA%\FCT.</summary>
+    public static string DefaultFolder() =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppInfo.ShortName);
 
     public string ConfigPath => Path.Combine(Folder, "config.json");
 
@@ -365,10 +286,6 @@ public sealed class Store
         if (names == null)
         {
             names = new Dictionary<string, string>();
-            Save(PrizeNamesPath, names);
-        }
-        else if (CleanPrizeNames(names))
-        {
             Save(PrizeNamesPath, names);
         }
 
@@ -400,58 +317,10 @@ public sealed class Store
         return added;
     }
 
-    /// <summary>
-    /// Drops what earlier versions wrote by themselves: empty names (including the "Unknown:…" key of every gizmo) and
-    /// the default names (now in <see cref="Prizes"/>, marked with "?" when unverified). Keeps the player's own names.
-    /// </summary>
-    private static bool CleanPrizeNames(Dictionary<string, string> names)
-    {
-        string[] oldDefaults =
-        {
-            "Solid Gold Gauntlets (pickaxe) ?", "Plunder in Paradise (loading screen)", "Mercedes-AMG G 63 'G-Wagon' (vehicle) ?", "NO TRESPASSING (jam track)",
-            "Solid Gold Gauntlets (pico) ?", "Plunder in Paradise (pantalla de carga)", "Mercedes-AMG G 63 'G-Wagon' (vehículo) ?", "NO TRESPASSING (pista musical)",
-            "Guanteletes de A$AP Rocky de oro macizo (pico) ?", "Mercedes-AMG G 63 (vehículo) ?", "No Trespassing (pista musical)",
-        };
-        var drop = names.Where(kv => string.IsNullOrWhiteSpace(kv.Value) || kv.Value.TrimEnd().EndsWith('?')
-                                     || oldDefaults.Contains(kv.Value.Trim(), StringComparer.OrdinalIgnoreCase))
-            .Select(kv => kv.Key).ToList();
-        foreach (var key in drop)
-        {
-            names.Remove(key);
-        }
-        return drop.Count > 0;
-    }
-
     public Store(string folder)
     {
         Folder = folder;
         Directory.CreateDirectory(folder);
-        MigrateFileNames();
-    }
-
-    /// <summary>Versions before 1.1 used other file names: keep the user's treasure names, drop the old generated pages.</summary>
-    private void MigrateFileNames()
-    {
-        try
-        {
-            var oldPrizes = Path.Combine(Folder, "tresors.json");
-            if (File.Exists(oldPrizes) && !File.Exists(PrizeNamesPath))
-            {
-                File.Move(oldPrizes, PrizeNamesPath);
-            }
-            foreach (var generated in new[] { "rapport.html", "parties.csv" })
-            {
-                var path = Path.Combine(Folder, generated);
-                if (File.Exists(path))
-                {
-                    File.Delete(path); // regenerated as report.html / matches.csv
-                }
-            }
-        }
-        catch
-        {
-            // not critical: the old files simply stay there
-        }
     }
 
     public Config? LoadConfig() => Load<Config>(ConfigPath);

@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>An Epic account that recorded replays on this PC. Stats are kept per profile.</summary>
 public sealed record Profile(string Key, string Name, int Matches, int Chests, DateTime LastPlayed);

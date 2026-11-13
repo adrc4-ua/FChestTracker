@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// The exe is a Windows application, so that the "start with Fortnite" standby process has no window at all.

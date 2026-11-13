@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>errors.log in the data folder: full details of unreadable replays and crashes, to attach to a bug report.</summary>
 public static class ErrorLog

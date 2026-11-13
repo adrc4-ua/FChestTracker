@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Rewards of the treasure hunt ("Treasure Hunters", Chapter 7, 1 Nov – 5 Dec 2026): every chest has a small chance
@@ -94,8 +94,8 @@ public static class Prizes
 
     public static string Featured => L.T("Tesoro destacado", "Featured treasure");
 
-    // "Mercedes-AMG G 63 (vehículo) ?" (old treasures.json format): name, type in brackets, "?" = not verified.
-    private static readonly Regex Legacy = new(@"^\s*(?<name>.*?)\s*(\((?<type>[^()]*)\))?\s*\??\s*$", RegexOptions.Compiled);
+    // A name from treasures.json may carry its type in brackets: "Name (type)".
+    private static readonly Regex NameAndType = new(@"^\s*(?<name>.*?)\s*(\((?<type>[^()]*)\))?\s*\??\s*$", RegexOptions.Compiled);
 
     /// <summary>Display of one treasure: clean name, type (or null) and whether it is a featured treasure.</summary>
     public static (string Name, string? Type, bool Featured) Describe(TreasureFind f, DateTime? matchLocal = null)
@@ -107,7 +107,7 @@ public static class Prizes
             // The player's own name in treasures.json wins; then the catalogue; else a generic name.
             if (TreasureNames.PrizeNames.TryGetValue(f.PrizeId!, out var custom) && !string.IsNullOrWhiteSpace(custom))
             {
-                var m = Legacy.Match(custom);
+                var m = NameAndType.Match(custom);
                 var name = m.Groups["name"].Value;
                 var known = ByName(name);
                 return (name.Length > 0 ? name : custom.Trim(), known != null ? TypeName(known.Type) : NullIfEmpty(m.Groups["type"].Value), true);
@@ -121,7 +121,7 @@ public static class Prizes
         {
             return (custom2, TypeName(Kind.Gizmo), false);
         }
-        var item = L.Upgrade(f.Item);
+        var item = TreasureNames.GizmoName(f.Item);
         return ByName(item) is { Type: Kind.Gizmo } g ? (g.Name, TypeName(Kind.Gizmo), false) : (L.Name(TreasureNames.UnknownGizmo), null, false);
     }
 

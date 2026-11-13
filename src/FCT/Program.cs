@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
-using ChestCounter;
+using FCT;
 
 /// <summary>
 /// Punto de entrada. Main lleva [STAThread]: Windows exige un hilo STA para el portapapeles y los diálogos
@@ -83,7 +83,7 @@ internal static class Program
 
                         Opciones:
                           --demos <carpeta>   carpeta de los replays (por defecto %LOCALAPPDATA%\FortniteGame\Saved\Demos)
-                          --data <carpeta>    carpeta de los datos (por defecto %APPDATA%\ChestCounter)
+                          --data <carpeta>    carpeta de los datos (por defecto %APPDATA%\FCT)
                           --once              analiza los replays terminados, muestra el resumen y sale (sin ventana)
                           --reset-config      vuelve a mostrar las preguntas iniciales
                           --overlay-preview <archivo.png>   guarda vistas previas del overlay y sale
@@ -92,7 +92,7 @@ internal static class Program
 
                         Options:
                           --demos <folder>    replays folder (default %LOCALAPPDATA%\FortniteGame\Saved\Demos)
-                          --data <folder>     data folder (default %APPDATA%\ChestCounter)
+                          --data <folder>     data folder (default %APPDATA%\FCT)
                           --once              analyze the finished replays, show the summary and quit (no window)
                           --reset-config      show the first-run questions again
                           --overlay-preview <file.png>   save previews of the overlay and quit
@@ -101,7 +101,18 @@ internal static class Program
             }
         }
 
-        dataDir ??= Store.DefaultFolder();
+        if (dataDir == null)
+        {
+            dataDir = Store.DefaultFolder();
+            if (!Migration.MoveDataFolder(dataDir, TimeSpan.FromSeconds(afterUpdate ? 20 : 3)))
+            {
+                var closeOld = L.T("Cierra la versión anterior del contador para que FCT pueda traer tu historial, y vuelve a abrir FCT.",
+                    "Close the previous version of the counter so that FCT can bring your history over, then open FCT again.");
+                if (cliMode) Console.WriteLine("  " + closeOld);
+                else MessageBox.Show(closeOld, AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return 0;
+            }
+        }
         var store = new Store(dataDir);
         ErrorLog.FilePath = store.ErrorLogPath;
 
@@ -180,7 +191,7 @@ internal static class Program
         if (diagnosePath != null)
         {
             // Diagnóstico: lee un replay (o los de una carpeta) sin guardar nada y muestra, partida a partida, las
-            // señales independientes del replay (cofres, concesiones del premio, cofres dorados) y lo que no cuadra.
+            // señales independientes del replay (cofres, concesiones del premio, tesoros destacados) y lo que no cuadra.
             store.LoadPrizeNames();
             var files = Directory.Exists(diagnosePath)
                 ? new DirectoryInfo(diagnosePath).GetFiles("*.replay").OrderBy(f => f.Name).ToList()
@@ -267,18 +278,10 @@ internal static class Program
             {
                 FortniteWatch.Apply(true, dataDir); // sigue la ruta del exe si se movió o se actualizó
             }
-            if (Process.GetProcessesByName("ChestTracker") is { Length: > 0 } oldTool)
-            {
-                MessageBox.Show(
-                    L.T("La versión antigua (ChestTracker.exe) sigue abierta: ciérrala, o las dos contarían a la vez.",
-                        "The old version (ChestTracker.exe) is still open: close it, otherwise both count at the same time."),
-                    AppInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                foreach (var p in oldTool) p.Dispose();
-            }
         }
 
         // ---- Ventana -------------------------------------------------------------------------------------
-        var monitor = new ChestCounter.Monitor(store, config, data, tracker, dataDir) { AutoMode = auto };
+        var monitor = new FCT.Monitor(store, config, data, tracker, dataDir) { AutoMode = auto };
         if (reanalyzing)
         {
             monitor.SetNotice(L.T("Nueva versión del análisis: se vuelven a leer los replays (sin duplicados).",

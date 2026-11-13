@@ -975,7 +975,7 @@ public class BitReader : FBitArchive
 
     public override void SetTempEnd(int size, FBitArchiveEndIndex index)
     {
-        // ChestCounter patch: always save the current end, even on overflow. Otherwise the matching
+        // FCT patch: always save the current end, even on overflow. Otherwise the matching
         // RestoreTempEnd restores a stale end left by an earlier packet and the read position can move
         // backwards, re-reading the same bunches forever (parse timeout on some replays).
         _tempLastBit[(int)index] = LastBit;

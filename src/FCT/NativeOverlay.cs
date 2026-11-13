@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Small always-on-top counter window drawn with plain Win32/GDI (no WinForms needed).
@@ -178,8 +178,8 @@ public static class NativeOverlay
         var screenDc = GetDC(IntPtr.Zero);
         _scale = GetDeviceCaps(screenDc, LOGPIXELSY) / 96f;
         ReleaseDC(IntPtr.Zero, screenDc);
-        // Desarrollo (capturas del README con --overlay-preview): CHESTCOUNTER_OVERLAY_SCALE fuerza la escala.
-        if (float.TryParse(Environment.GetEnvironmentVariable("CHESTCOUNTER_OVERLAY_SCALE"), System.Globalization.NumberStyles.Float,
+        // Desarrollo (capturas del README con --overlay-preview): FCT_OVERLAY_SCALE fuerza la escala.
+        if (float.TryParse(Environment.GetEnvironmentVariable("FCT_OVERLAY_SCALE"), System.Globalization.NumberStyles.Float,
                 System.Globalization.CultureInfo.InvariantCulture, out var forced) && forced is > 0.5f and < 5f)
         {
             _scale = forced;
@@ -211,7 +211,7 @@ public static class NativeOverlay
             hInstance = hInstance,
             hCursor = LoadCursorW(IntPtr.Zero, IDC_SIZEALL),
             hbrBackground = _brushBg,
-            lpszClassName = "ChestCounterOverlay",
+            lpszClassName = "FCTOverlay",
         };
         if (RegisterClassExW(ref wc) == 0)
         {

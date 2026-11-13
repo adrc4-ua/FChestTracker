@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Idioma de la aplicación. Por defecto el de Windows entre los soportados (ver <see cref="Supported"/>; si no es
@@ -40,7 +40,7 @@ public static class L
     /// <summary>
     /// Código del idioma actual ("es", "en", "pt", "ru", "fr", "de", "it", "pl", "tr" o "ja").
     /// Por defecto el de Windows; <see cref="Use"/> aplica el elegido en Ajustes. Para probar: la variable
-    /// CHESTCOUNTER_LANG fuerza el idioma por encima de todo.
+    /// FCT_LANG fuerza el idioma por encima de todo.
     /// </summary>
     public static string Code { get; private set; } = Detect();
 
@@ -55,7 +55,7 @@ public static class L
     /// </summary>
     private static int Slot = Array.IndexOf(Supported, Code) - 2;
 
-    /// <summary>Idioma de Windows (o el forzado con CHESTCOUNTER_LANG), sin tener en cuenta lo elegido en Ajustes.</summary>
+    /// <summary>Idioma de Windows (o el forzado con FCT_LANG), sin tener en cuenta lo elegido en Ajustes.</summary>
     public static string SystemCode => Detect();
 
     /// <summary>
@@ -64,7 +64,7 @@ public static class L
     /// </summary>
     public static void Use(string? code)
     {
-        var chosen = Environment.GetEnvironmentVariable("CHESTCOUNTER_LANG") is { Length: > 0 } || code == null || Array.IndexOf(Supported, code) < 0
+        var chosen = Environment.GetEnvironmentVariable("FCT_LANG") is { Length: > 0 } || code == null || Array.IndexOf(Supported, code) < 0
             ? Detect()
             : code;
         Code = chosen;
@@ -74,7 +74,7 @@ public static class L
 
     private static string Detect()
     {
-        var code = Environment.GetEnvironmentVariable("CHESTCOUNTER_LANG") is { Length: > 0 } forced
+        var code = Environment.GetEnvironmentVariable("FCT_LANG") is { Length: > 0 } forced
             ? forced
             : CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         code = code.Length >= 2 ? code[..2].ToLowerInvariant() : "";
@@ -154,37 +154,6 @@ public static class L
         ["unknown"] = ("Desconocido", "Unknown"),
     };
 
-    /// <summary>
-    /// Nombres internos de versiones anteriores a la 2.0.9 (estaban en francés) -> nombre interno actual.
-    /// Solo se usa para convertir el historial antiguo al abrirlo.
-    /// </summary>
-    private static readonly Dictionary<string, string> Legacy = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["Coffre"] = "Chest",
-        ["Coffre rare"] = "Rare chest",
-        ["Coffre enterré"] = "Buried chest",
-        ["Coffre d'extraction / reliques"] = "Extraction / relic chest",
-        ["Coffre des affiches d'esprit"] = "Spirit poster chest",
-        ["Autre coffre"] = "Other chest",
-        ["Canon à butin"] = "Loot cannon",
-        ["Caisse de munitions"] = "Ammo box",
-        ["Caisse de nourriture"] = "Food box",
-        ["Autre conteneur"] = "Other container",
-        ["Trésor"] = "Treasure",
-        ["Trésor (type inconnu)"] = "Treasure (unknown type)",
-        ["Gizmo de trésor"] = "Treasure gizmo",
-        ["Feu d'artifice doré"] = "Golden firework",
-        ["Extracteur portable"] = "Portable extractor",
-        ["Localisateur d'esprit"] = "Sprite Locator",
-        ["Spirit locator"] = "Sprite Locator", // nombre equivocado de versiones anteriores
-        ["Localisateur chanceux"] = "Lucky locator",
-        ["Accélérateur d'extraction"] = "Extraction accelerator",
-        ["inconnu"] = "unknown",
-    };
-
-    /// <summary>Nombre interno actual de un nombre guardado por una versión anterior (o el mismo si no cambió).</summary>
-    public static string Upgrade(string stored) => Legacy.TryGetValue(stored, out var current) ? current : stored;
-
     /// <summary>Nombre mostrado de un tipo de cofre u objeto guardado en data.json.</summary>
     public static string Name(string? stored)
     {
@@ -192,6 +161,6 @@ public static class L
         {
             return stored ?? "";
         }
-        return Names.TryGetValue(Upgrade(stored), out var pair) ? T(pair.Es, pair.En) : stored;
+        return Names.TryGetValue(stored, out var pair) ? T(pair.Es, pair.En) : stored;
     }
 }

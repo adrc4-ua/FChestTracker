@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace ChestCounter;
+namespace FCT;
 
 public static class Pretty
 {
@@ -120,13 +120,11 @@ public static class ReportWriter
 
     private static DateTime When(MatchRecord m) => (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime();
 
-    // Paleta negro + oro (dorado del tesoro), solo oscura. Los nombres antiguos de las variables (--cyan, --amber…)
-    // apuntan a tonos de oro para que todas las piezas sigan la misma paleta.
+    // Paleta negro + oro, solo oscura.
     private const string Style = """
         :root{color-scheme:dark;--bg:#08080a;--bg2:#111114;--card:#121215;--card2:#17171b;--ink:#f3eee3;--muted:#968f80;--faint:#5a554b;--line:#1f1e1d;--line2:#2c2a26;
           --gold:#e8b04b;--gold-hi:#f8d98f;--gold-lo:#8a6524;--gold-soft:rgba(232,176,75,.10);--gold-line:rgba(232,176,75,.30);
-          --cyan:var(--gold);--cyan-soft:var(--gold-soft);--amber:var(--gold-hi);--amber-soft:rgba(248,217,143,.09);--mint:#d8c28f;--mint-soft:rgba(216,194,143,.10);
-          --rose:var(--gold);--rose-soft:var(--gold-soft);--blue:var(--gold-lo);
+          --champ:#d8c28f;--champ-soft:rgba(216,194,143,.10);
           --t1:#e8b04b;--t2:#f8d98f;--t3:#c48a2c;--t4:#d8c28f;--t5:#a9853f;
           --radius:18px;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 18px 40px -18px rgba(0,0,0,.7)}
         *{box-sizing:border-box}
@@ -225,7 +223,7 @@ public static class ReportWriter
         .sm{font-size:12.5px;color:var(--muted)}
         .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted);border:1px solid var(--line2)}
         .badge.win{background:var(--gold-soft);color:var(--gold-hi);border-color:var(--gold-line)}
-        .badge.top{background:var(--mint-soft);color:var(--mint);border-color:rgba(216,194,143,.25)}
+        .badge.top{background:var(--champ-soft);color:var(--champ);border-color:rgba(216,194,143,.25)}
         .badge.mode{background:transparent;border:1px solid var(--line2);color:var(--ink);font-weight:500}
         .chests{display:flex;align-items:center;justify-content:flex-end;gap:10px}
         .chests .mini{width:70px;height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
@@ -295,7 +293,7 @@ public static class ReportWriter
         .more:hover{background:var(--gold-soft)}
 
         /* Piezas comunes */
-        .split b.acc{color:var(--gold-hi)} .split b.mnt{color:var(--mint)}
+        .split b.acc{color:var(--gold-hi)} .split b.mnt{color:var(--champ)}
         .row.rose .track i{background:linear-gradient(90deg,var(--gold-lo),var(--gold))}
         .row.off .track i{background:var(--line2)}
         .row .lbl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}

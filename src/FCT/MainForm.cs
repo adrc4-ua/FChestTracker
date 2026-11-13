@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// Ventana principal, horizontal 16:9 (592×332): total y partida actual, última partida, gráfico de 7 días,

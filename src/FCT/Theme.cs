@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Paleta y estilo de la interfaz: azul noche con acentos cian y ámbar.</summary>
 [SupportedOSPlatform("windows")]

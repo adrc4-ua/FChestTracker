@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>
 /// "Start with Fortnite". Windows cannot start a program when another one starts (not without admin rights), so a
@@ -14,10 +14,10 @@ namespace ChestCounter;
 public static class FortniteWatch
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunValue = "ChestCounter";
-    // CHESTCOUNTER_GAME_PROCESS: another process name, to test the standby without Fortnite.
+    private const string RunValue = AppInfo.ShortName;
+    // FCT_GAME_PROCESS: another process name, to test the standby without Fortnite.
     private static readonly string[] GameProcesses =
-        { Environment.GetEnvironmentVariable("CHESTCOUNTER_GAME_PROCESS") is { Length: > 0 } test ? test : "FortniteClient-Win64-Shipping" };
+        { Environment.GetEnvironmentVariable("FCT_GAME_PROCESS") is { Length: > 0 } test ? test : "FortniteClient-Win64-Shipping" };
 
     public static bool IsFortniteRunning()
     {

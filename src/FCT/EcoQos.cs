@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Windows 10 1709+ / 11 power throttling ("efficiency mode"): lets Windows run the tool on efficient cores at low clocks.</summary>
 internal static class EcoQos

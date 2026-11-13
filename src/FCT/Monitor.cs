@@ -1,6 +1,6 @@
 using System.Runtime.Versioning;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Lo que muestra la ventana.</summary>
 public sealed record MonitorState(OverlayView View, IReadOnlyList<Profile> Profiles, string? CurrentKey, UpdateInfo? Update, string? Notice, bool AutoCloseOffer, ChestStats Stats)

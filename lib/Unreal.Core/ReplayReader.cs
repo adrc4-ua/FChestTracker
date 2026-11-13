@@ -57,7 +57,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
 
     public static float CurrentTime;
 
-    /// <summary>ChestCounter patch: true when the file ended in the middle of a chunk (replay still being written).</summary>
+    /// <summary>FCT patch: true when the file ended in the middle of a chunk (replay still being written).</summary>
     public bool IsPartialReplay { get; protected set; }
     protected NetGuidCache _netGuidCache;
     protected NetFieldParser _netFieldParser;
@@ -313,7 +313,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
     {
         while (!archive.AtEnd())
         {
-            // ChestCounter patch: a replay still being recorded can end in the middle of a chunk. Stop at the
+            // FCT patch: a replay still being recorded can end in the middle of a chunk. Stop at the
             // last complete chunk instead of reading past the end.
             if (archive is BinaryReader whole && whole.Length - archive.Position < 8)
             {
@@ -347,9 +347,9 @@ public abstract class ReplayReader<T> where T : Replay, new()
                 }
                 catch (System.Security.Cryptography.CryptographicException ex) when (Replay.Info?.IsLive == true)
                 {
-                    // ChestCounter patch: replay being recorded, a data chunk that cannot be decrypted (yet): stop here.
+                    // FCT patch: replay being recorded, a data chunk that cannot be decrypted (yet): stop here.
                     _logger?.LogWarning("Live replay: data chunk {index} at offset {offset} ({size} bytes) could not be decrypted: {message}", replayDataIndex, offset, chunkSize, ex.Message);
-                    if (Environment.GetEnvironmentVariable("CHESTCOUNTER_DEBUG") is { Length: > 0 })
+                    if (Environment.GetEnvironmentVariable("FCT_DEBUG") is { Length: > 0 })
                     {
                         Console.Error.WriteLine($"DBG live chunk {replayDataIndex} offset={offset} size={chunkSize} undecryptable");
                     }
@@ -373,7 +373,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
                 }
                 catch (System.Security.Cryptography.CryptographicException ex) when (Replay.Info?.IsLive == true)
                 {
-                    // ChestCounter patch: in a replay being recorded some event chunks are not final yet
+                    // FCT patch: in a replay being recorded some event chunks are not final yet
                     // (they cannot be decrypted until the match ends). Skip them; the data chunks are fine.
                     _logger?.LogInformation("Live replay: event chunk at offset {offset} skipped: {message}", offset, ex.Message);
                 }
@@ -619,7 +619,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
             throw new InvalidReplayException("Completed replay is marked encrypted but has no key!");
         }
 
-        // ChestCounter patch: Fortnite writes the key from the start, so a replay being recorded can be read.
+        // FCT patch: Fortnite writes the key from the start, so a replay being recorded can be read.
         if (info.IsLive && info.IsEncrypted && info.EncryptionKey.Length == 0)
         {
             _logger?.LogError("ReadReplayInfo: Replay is marked encrypted but not yet marked as completed!");
@@ -1499,7 +1499,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
                         }
                         else
                         {
-                            // ChestCounter patch: when RawProbe asks for this field, give it the raw FastArray payload
+                            // FCT patch: when RawProbe asks for this field, give it the raw FastArray payload
                             // instead of the generic NetDelta decoding (wrong for ActivatableAbilities: garbage indices).
                             if (RawProbe.Matches(classNetCache.PathName + "." + fieldCache.Name))
                             {
@@ -1540,7 +1540,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
         return true;
     }
 
-    /// <summary>ChestCounter patch: hands the remaining bits of a field payload to <see cref="RawProbe"/>.</summary>
+    /// <summary>FCT patch: hands the remaining bits of a field payload to <see cref="RawProbe"/>.</summary>
     private static void ProbeField(uint channelIndex, string group, string field, FBitArchive archive)
     {
         if (RawProbe.Sink == null || !RawProbe.Matches(group + "." + field))
@@ -1555,7 +1555,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
     }
 
     /// <summary>
-    /// ChestCounter patch: reads a bunch of a group the parser does not know, without decoding it,
+    /// FCT patch: reads a bunch of a group the parser does not know, without decoding it,
     /// and hands every property / ClassNetCache field payload to <see cref="RawProbe"/>.
     /// </summary>
     private bool ProbeReplicatorBunch(DataBunch bunch, FBitArchive archive, NetFieldExportGroup group, bool bHasRepLayout)
@@ -2427,7 +2427,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
     /// <summary>
     /// Notifies when a new actor channel is created.
     /// </summary>
-    /// <summary>ChestCounter patch: called the first time an object path is sent in the replay.</summary>
+    /// <summary>FCT patch: called the first time an object path is sent in the replay.</summary>
     protected virtual void OnNetGuidExported(uint netGuid, string pathName)
     {
     }

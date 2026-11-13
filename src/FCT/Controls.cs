@@ -4,7 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 
-namespace ChestCounter;
+namespace FCT;
 
 /// <summary>Figuras redondeadas para los controles dibujados a mano.</summary>
 internal static class Shape
