@@ -282,7 +282,11 @@ public static class NativeOverlay
                     _winHooks.Add(hook);
                 }
             }
+            // And every 2 s on this same thread: Fortnite closed or crashed without changing the window in front sends
+            // no event. (On the overlay's own thread: never delayed by a long replay analysis.)
+            SetTimer(_hwnd, (UIntPtr)GameTimer, 2000, IntPtr.Zero);
             _inGame = GameOpen();
+            _lastGamePid = _gamePid; // el Fortnite que ya estaba abierto al arrancar no cuenta como «nuevo»
         }
         if (_visible && _inGame)
         {
@@ -398,6 +402,10 @@ public static class NativeOverlay
                 }
                 return IntPtr.Zero;
 
+            case WM_TIMER when (long)wParam == GameTimer:
+                FollowGame(hwnd);
+                return IntPtr.Zero;
+
             case WM_APP_RECHECK:
                 FollowGame(hwnd);
                 return IntPtr.Zero;
@@ -453,8 +461,12 @@ public static class NativeOverlay
     /// Fortnite está abierto y sin minimizar en alguna pantalla. Entonces el overlay se ve en la pantalla y el sitio
     /// donde el jugador lo haya puesto (también en otra pantalla), aunque esté usando otra ventana.
     /// </summary>
+    /// <summary>Process id of the game whose window is on screen (0 = none): a new id is a new launch of Fortnite.</summary>
+    private static uint _gamePid, _lastGamePid;
+
     private static bool GameOpen()
     {
+        _gamePid = 0;
         if (_isGame == null)
         {
             return true;
@@ -475,7 +487,15 @@ public static class NativeOverlay
             {
                 _gamePids[pid] = isGame = _isGame((int)pid);
             }
-            open = isGame;
+            // A window of the game that is really on screen: not a tiny or auxiliary one, inside some monitor (Windows
+            // moves a minimized window far off screen) and not hidden by Windows (cloaked).
+            open = isGame && GetWindowRect(h, out var r) && r.Right - r.Left >= 200 && r.Bottom - r.Top >= 150
+                && MonitorFromWindow(h, MONITOR_DEFAULTTONULL) != IntPtr.Zero
+                && !(DwmGetWindowAttribute(h, DWMWA_CLOAKED, out var cloaked, sizeof(int)) == 0 && cloaked != 0);
+            if (open)
+            {
+                _gamePid = pid;
+            }
             return !open;
         }, IntPtr.Zero);
         return open;
@@ -489,11 +509,16 @@ public static class NativeOverlay
             return;
         }
         _inGame = inGame;
-        if (inGame && !_visible)
+        if (inGame && _gamePid != _lastGamePid)
         {
-            // Fortnite se acaba de abrir: el overlay se enciende (apagado a mano, sigue así hasta la próxima vez).
-            _visible = true;
-            _onVisibleChanged?.Invoke(true);
+            // Un Fortnite nuevo (otro proceso): el overlay se enciende. Restaurar la ventana del mismo Fortnite no lo
+            // enciende: si se apagó a mano, sigue apagado hasta la próxima vez que se abra Fortnite.
+            _lastGamePid = _gamePid;
+            if (!_visible)
+            {
+                _visible = true;
+                _onVisibleChanged?.Invoke(true);
+            }
         }
         if (!_visible)
         {
@@ -859,6 +884,9 @@ public static class NativeOverlay
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromRect(ref RECT rect, uint flags);
     [DllImport("user32.dll")] private static extern uint GetDpiForWindow(IntPtr hwnd);
+    [DllImport("dwmapi.dll")] private static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out int value, int size);
+    private const int DWMWA_CLOAKED = 14, GameTimer = 3;
+    private const uint MONITOR_DEFAULTTONULL = 0;
     private const uint WM_DPICHANGED = 0x02E0;
     private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
     [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc proc, IntPtr lParam);
