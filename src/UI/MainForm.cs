@@ -147,11 +147,11 @@ public sealed class MainForm : Form
         Controls.Add(_update);
 
         // Botones de acción.
-        _overlayButton = Action(L.T("Overlay", "Overlay"), RightX, 80);
+        _overlayButton = Action(L.T("Overlay", "Overlay"), RightX, 76);
         _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
-        _reportButton = Action(L.T("Resumen", "Summary"), RightX + 86, 86);
+        _reportButton = Action(L.T("Estadísticas", "Stats"), RightX + 82, 94);
         _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
-        _settingsButton = Action(L.T("Configuración", "Settings"), RightX + 178, RightW - 178);
+        _settingsButton = Action(L.T("Configuración", "Settings"), RightX + 182, RightW - 182);
         _settingsButton.Click += (_, _) => OpenSettings();
 
         // Icono en el área de notificación (la flecha hacia arriba de la barra de tareas): el programa sigue ahí
@@ -161,7 +161,7 @@ public sealed class MainForm : Form
         openItem.Font = new Font(openItem.Font, FontStyle.Bold);
         trayMenu.Items.Add(openItem);
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
-        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Resumen", "Summary"), null, (_, _) => Open(_monitor.ReportTarget)));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Estadísticas", "Stats"), null, (_, _) => Open(_monitor.ReportTarget)));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Configuración", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
         trayMenu.Items.Add(new ToolStripSeparator());
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => Close()));
@@ -561,7 +561,7 @@ public sealed class MainForm : Form
         }
         catch
         {
-            // el informe aún no existe o no hay navegador: nada que hacer
+            // las estadísticas aún no existen o no hay navegador: nada que hacer
         }
     }
 

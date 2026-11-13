@@ -241,7 +241,7 @@ internal static class Program
             tracker.Scan(ignoreQuietPeriod: true);
             ReportWriter.WriteAll(store, config, data);
             tracker.PrintSummary();
-            Console.WriteLine(L.F("  Resumen: {0}", "  Summary: {0}", store.ReportPath));
+            Console.WriteLine(L.F("  Estadísticas: {0}", "  Stats: {0}", store.ReportPath));
             return 0;
         }
 

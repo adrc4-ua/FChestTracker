@@ -8,7 +8,7 @@ namespace FCT.Overlay;
 /// Tiny local web server (127.0.0.1 only) while the tool is open.
 /// <list type="bullet">
 /// <item>"/" is the overlay page for OBS (it refreshes itself every 2 s without flicker), "/view" its content.</item>
-/// <item>"/informe" is the report, so that its Settings page can change settings: "POST /api/ajuste".</item>
+/// <item>"/estadisticas" is the stats page, so that its Settings page can change settings: "POST /api/ajuste".</item>
 /// </list>
 /// Only requests addressed to localhost / 127.0.0.1 are answered (protection against DNS rebinding). Settings changes
 /// also need the "X-FCT" header, which another website cannot send here without a CORS preflight that this server
@@ -27,13 +27,13 @@ public static class ObsServer
     /// <summary>Address to paste in OBS, or null when the server could not start.</summary>
     public static string? Url { get; private set; }
 
-    /// <summary>Address of the report served by the app (its Settings page works there), or null.</summary>
-    public static string? ReportUrl => Url != null ? Url + "informe" : null;
+    /// <summary>Address of the stats page served by the app (its Settings page works there), or null.</summary>
+    public static string? ReportUrl => Url != null ? Url + "estadisticas" : null;
 
-    /// <summary>The report file served at "/informe".</summary>
+    /// <summary>The stats file served at "/estadisticas".</summary>
     public static string? ReportFile { get; set; }
 
-    /// <summary>Applies a setting changed on the Resumen page: (key, value) → accepted.</summary>
+    /// <summary>Applies a setting changed on the Estadísticas page: (key, value) → accepted.</summary>
     public static Func<string, string, bool>? Settings { get; set; }
 
     /// <summary>Starts on the first free port from <paramref name="port"/> (a few tries). Safe to call twice.</summary>
@@ -201,10 +201,10 @@ public static class ObsServer
                 return ("200 OK", html, ReportWriter.OverlayLivePage(_view));
             case ("GET", "/view"):
                 return ("200 OK", html, _view);
-            case ("GET", "/informe"):
+            case ("GET", "/estadisticas"):
                 return ReportFile != null && File.Exists(ReportFile)
                     ? ("200 OK", html, File.ReadAllText(ReportFile))
-                    : ("404 Not Found", "text/plain", "report not ready");
+                    : ("404 Not Found", "text/plain", "stats page not ready");
             case ("GET", "/api/ping"):
                 return ("200 OK", json, "{\"ok\":true}");
             case ("POST", "/api/ajuste"):

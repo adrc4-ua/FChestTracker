@@ -6,9 +6,9 @@
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=version&color=e8b04b)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=downloads&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![license](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=license&color=555)](LICENSE)
 
-**Counts every chest you open in Fortnite, match after match: window, summary, in-game overlay and your team's chests.**
+**Counts every chest you open in Fortnite, match after match: window, stats, in-game overlay and your team's chests.**
 
-<img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Summary" width="49%">
+<img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Stats" width="49%">
 
 [**⬇ Download FCT.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · Spanish and English
 
@@ -19,7 +19,7 @@
 FCT reads the replays Fortnite saves of every match and keeps count of the chests you open, the **treasure hunt treasures** and, if you want, your **teammates'** chests. Everything is saved on your PC: even when Fortnite deletes the replays, your history is kept.
 
 - **Main window**: total, last match, today, best day, average, best match, treasures, this week's chart and your team.
-- **Summary** in your browser, with tabs: overview, chests, treasures, matches, teammates and settings.
+- **Stats** in your browser, with tabs: overview, chests, treasures, matches, teammates and settings.
 - **Overlay** on top of the game and an **OBS page**.
 - **Teammates**: who you play with, wins together, each one's chests per match and a leaderboard.
 - **Safe**: it only reads replay files; it never touches the game or its memory.
@@ -49,13 +49,13 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 - **Right**: today, best day, average, best match, history (saved matches and since when) and treasures.
 - **This week**: a chart with each day's chests, Monday to Sunday.
 - **Team** (with *Teammates* on): your chests and each teammate's in the current or last match, the team total and their share.
-- **Buttons**: **Overlay** (green dot = on), **Summary** and **Settings**. With several accounts on the PC, a profile picker shows up at the top.
+- **Buttons**: **Overlay** (green dot = on), **Stats** and **Settings**. With several accounts on the PC, a profile picker shows up at the top.
 
 The window can be resized and maximized: everything grows in proportion.
 
-## The summary
+## Stats
 
-The summary opens in your browser (the **Summary** button), served by FCT at `http://localhost:7373/informe`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `report.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
+The stats page opens in your browser (the **Stats** button), served by FCT at `http://localhost:7373/estadisticas`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `report.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
 
 | Tab | What it shows |
 |---|---|
@@ -64,9 +64,9 @@ The summary opens in your browser (the **Summary** button), served by FCT at `ht
 | **Treasures** | How many (featured and gizmos), % of matches with a treasure, **treasures available now** (this week's and, with a button, the five weeks in a row), where you get your treasures and the list with the exact moment and who got them. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
 | **Teammates** | Team chests, the table of **all your teammates** (sorts by matches, wins, chests, average…) and the top 5 for most chests opened and best single match (see below). |
-| **Settings** | The summary's own, which only change this page: its language (no restart), show teammates and add their chests, and what counts as a chest. Also the FCT version and links to GitHub. |
+| **Settings** | The stats page's own, which only change this page: its language (no restart), show teammates and add their chests, and what counts as a chest. Also the FCT version and links to GitHub. |
 
-<p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the summary" width="820"></p>
+<p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of stats" width="820"></p>
 
 <details>
 <summary><b>See the other tabs</b></summary>
@@ -78,11 +78,11 @@ The summary opens in your browser (the **Summary** button), served by FCT at `ht
 
 </details>
 
-Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; the summary follows its own language setting (the app's by default).
+Black and gold, like the window, and it adapts to phones. The screenshots are in Spanish; the stats page follows its own language setting (the app's by default).
 
 ## Teammates and team
 
-Turn it on in the summary's **Settings** (**Show teammates**) or, for the window, in the app's **Settings → Teammates in the window** (both off by default). You get:
+Turn it on in the stats **Settings** (**Show teammates**) or, for the window, in the app's **Settings → Teammates in the window** (both off by default). You get:
 
 - **Exact**: who you play with, matches together and wins together.
 - **Approximate**: each teammate's chests. They come from **your** replay, and Fortnite only records what happens **within 1,087 m of you** (measured on real replays). If a teammate goes further, their chests are not counted: they are a **minimum (≥)**.
@@ -113,13 +113,13 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 
 ## Settings
 
-The app's (the **Settings** button) change the window and the overlay; the summary has its own, in its **Settings** tab.
+The app's (the **Settings** button) change the window and the overlay; the stats page has its own, in its **Settings** tab.
 
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
 - **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick the other one.
 - **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
-- **Open the summary at startup** (off by default).
+- **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
 - **Chests before FCT**: an estimate added to your total.
@@ -161,7 +161,7 @@ Everything is saved in `%APPDATA%\FCT`. **Your history does not depend on the re
 | File | Contents |
 |---|---|
 | `data.json` | Your whole history. **Back it up** if you change PC. |
-| `report.html` | The summary. |
+| `report.html` | The stats page. |
 | `matches.csv` | One line per match, for Excel or Google Sheets. |
 | `config.json` | Settings, profile, replays folder and overlay position. |
 | `treasures.json` | Names of the treasure hunt prizes. |
@@ -207,7 +207,7 @@ src/                         the app: FCT.csproj → FCT.exe
 ├─ Monitoring/               the background process (watches replays, overlay and updates)
 ├─ PostMatch/                post-match treasure screen: game window capture and icon reading
 ├─ Overlay/                  in-game overlay and its OBS version
-├─ Reporting/                summary (HTML)
+├─ Reporting/                stats page (HTML)
 ├─ UI/                       main window, settings and controls
 ├─ Localization/             app language; Languages/ to add languages (see its README)
 └─ Assets/                   icon

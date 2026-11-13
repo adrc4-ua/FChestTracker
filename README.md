@@ -6,9 +6,9 @@
 
 [![version](https://img.shields.io/github/v/release/adrc4-ua/FChestTracker?style=flat-square&label=versión&color=e8b04b)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/FChestTracker/total?style=flat-square&label=descargas&color=e8b04b)](../../releases) ![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-3a7bd5?style=flat-square) [![licencia](https://img.shields.io/github/license/adrc4-ua/FChestTracker?style=flat-square&label=licencia&color=555)](LICENSE)
 
-**Cuenta cada cofre que abres en Fortnite, partida tras partida: ventana, resumen, overlay sobre el juego y los cofres de tu equipo.**
+**Cuenta cada cofre que abres en Fortnite, partida tras partida: ventana, estadísticas, overlay sobre el juego y los cofres de tu equipo.**
 
-<img src="docs/images/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Resumen" width="49%">
+<img src="docs/images/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Estadísticas" width="49%">
 
 [**⬇ Descargar FCT.exe**](../../releases/latest) · Windows 10 / 11 · gratis · sin instalación · español e inglés
 
@@ -19,7 +19,7 @@
 FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva la cuenta de los cofres que abres, de los **tesoros de la caza del tesoro** y, si quieres, de los cofres de tus **compañeros de equipo**. Todo se guarda en tu PC: aunque Fortnite borre los replays, tu historial se conserva.
 
 - **Ventana principal**: total, última partida, hoy, mejor día, media, récord, tesoros, gráfico de la semana y tu equipo.
-- **Resumen** en el navegador, con pestañas: resumen, cofres, tesoros, partidas, compañeros y configuración.
+- **Estadísticas** en el navegador, con pestañas: resumen, cofres, tesoros, partidas, compañeros y configuración.
 - **Overlay** sobre el juego y **página para OBS**.
 - **Compañeros**: con quién juegas, victorias juntos, cofres de cada uno por partida y un top.
 - **Seguro**: solo lee archivos de replay; no toca el juego ni su memoria.
@@ -36,7 +36,7 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 
 <p align="center"><img src="docs/images/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
 
-5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, informe, ajustes y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida FCT lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
+5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, estadísticas, configuración y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida FCT lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
 
 > [!TIP]
 > Las partidas que juegas con FCT cerrado se cuentan la próxima vez que lo abras, mientras Fortnite no haya borrado esos replays (guarda un número limitado). Para no tener que pensar en ello, activa **Abrir con Fortnite** en Ajustes.
@@ -49,13 +49,13 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 - **A la derecha**: hoy, el mejor día, la media, la mejor partida, el histórico (partidas guardadas y desde cuándo) y los tesoros.
 - **Esta semana**: un gráfico con los cofres de cada día, de lunes a domingo.
 - **Equipo** (con *Compañeros* activado): tus cofres y los de cada compañero en la partida actual o la última, el total del equipo y lo que aportan ellos.
-- **Botones**: **Overlay** (punto verde = activado), **Resumen** y **Configuración**. Si hay varias cuentas en el PC, arriba aparece un selector de perfil.
+- **Botones**: **Overlay** (punto verde = activado), **Estadísticas** y **Configuración**. Si hay varias cuentas en el PC, arriba aparece un selector de perfil.
 
 La ventana se puede redimensionar y maximizar: todo crece en proporción.
 
-## El resumen
+## Las estadísticas
 
-El resumen se abre en tu navegador (botón **Resumen**), servido por FCT en `http://localhost:7373/informe`, y se actualiza solo; si cierras FCT, la página avisa en vez de dar error. También queda guardado como `report.html`. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
+La página de estadísticas se abre en tu navegador (botón **Estadísticas**), servida por FCT en `http://localhost:7373/estadisticas`, y se actualiza sola; si cierras FCT, la página avisa en vez de dar error. También queda guardada como `report.html`. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
 
 | Pestaña | Qué muestra |
 |---|---|
@@ -64,9 +64,9 @@ El resumen se abre en tu navegador (botón **Resumen**), servido por FCT en `htt
 | **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, **tesoros disponibles actualmente** (los de la semana y, con un botón, las cinco semanas en una fila), dónde consigues tus tesoros y la lista con el momento exacto y quién los consiguió. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
 | **Compañeros** | Cofres del equipo, la tabla de **todos tus compañeros** (se ordena por partidas, victorias, cofres, media…) y el top 5 de más cofres abiertos y récord en una partida (ver abajo). |
-| **Configuración** | La del resumen, que solo cambia esta página: su idioma (sin reiniciar), mostrar compañeros y sumar sus cofres, y qué contar como cofre. También la versión de FCT y enlaces a GitHub. |
+| **Configuración** | La de las estadísticas, que solo cambia esta página: su idioma (sin reiniciar), mostrar compañeros y sumar sus cofres, y qué contar como cofre. También la versión de FCT y enlaces a GitHub. |
 
-<p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros del resumen" width="820"></p>
+<p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros de estadísticas" width="820"></p>
 
 <details>
 <summary><b>Ver las demás pestañas</b></summary>
@@ -82,7 +82,7 @@ Negro y dorado, como la ventana, y se adapta al móvil.
 
 ## Compañeros y equipo
 
-Actívalo en la **Configuración** del resumen (**Mostrar compañeros**) o, para la ventana, en **Configuración → Compañeros en la ventana** de la app (desactivados por defecto). Verás:
+Actívalo en la **Configuración** de estadísticas (**Mostrar compañeros**) o, para la ventana, en **Configuración → Compañeros en la ventana** de la app (desactivados por defecto). Verás:
 
 - **Exacto**: con quién juegas, partidas juntos y victorias juntos.
 - **Aproximado**: los cofres de cada compañero. Salen de **tu** replay, y Fortnite solo graba lo que pasa **a menos de 1.087 m de ti** (medido en replays reales). Si un compañero se aleja más, sus cofres no se cuentan: son un **mínimo (≥)**.
@@ -113,13 +113,13 @@ Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Aj
 
 ## Configuración
 
-La de la app (botón **Configuración**) cambia la ventana y el overlay; el resumen tiene la suya, en su pestaña **Configuración**.
+La de la app (botón **Configuración**) cambia la ventana y el overlay; la página de estadísticas tiene la suya, en su pestaña **Configuración**.
 
 <p align="center"><img src="docs/images/settings.png" alt="Configuración" width="620"></p>
 
 - **Idioma**: por defecto el de Windows (español o inglés; inglés si es otro); arriba puedes elegir el otro.
 - **Abrir con Fortnite** (activado desde el primer uso): un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
-- **Abrir el resumen al iniciar** (desactivado por defecto).
+- **Abrir estadísticas al iniciar** (desactivado por defecto).
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.
 - **Cofres antes de FCT**: un estimado que se suma a tu total.
@@ -163,7 +163,7 @@ Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: c
 | Archivo | Contenido |
 |---|---|
 | `data.json` | Tu historial completo. **Haz copia de seguridad** si cambias de PC. |
-| `report.html` | El resumen. |
+| `report.html` | Las estadísticas. |
 | `matches.csv` | Una línea por partida, para Excel o Google Sheets. |
 | `config.json` | Configuración de la app y del resumen, perfil, carpeta de replays y posición del overlay. |
 | `treasures.json` | Nombres de los premios de la caza del tesoro. |
@@ -209,7 +209,7 @@ src/                         la aplicación: FCT.csproj → FCT.exe
 ├─ Monitoring/               el proceso en segundo plano (vigila replays, overlay y actualizaciones)
 ├─ PostMatch/                pantalla de tesoros de fin de partida: captura de la ventana del juego y lectura de iconos
 ├─ Overlay/                  overlay sobre el juego y su versión para OBS
-├─ Reporting/                resumen (HTML)
+├─ Reporting/                estadísticas (HTML)
 ├─ UI/                       ventana principal, configuración y controles
 ├─ Localization/             idioma de la app; Languages/ para añadir idiomas (ver su README)
 └─ Assets/                   icono

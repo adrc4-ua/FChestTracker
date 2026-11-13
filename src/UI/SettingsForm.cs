@@ -74,7 +74,7 @@ public sealed class SettingsForm : Form
                     L.T("Configuración", "Settings"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         };
-        _report = AddToggleRow(start, L.T("Abrir el resumen al iniciar", "Open the summary at startup"), null, 64, config.OpenReportOnStart);
+        _report = AddToggleRow(start, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 64, config.OpenReportOnStart);
         _report.CheckedChanged += (_, _) => { if (!_loading) _monitor.Change(c => c.OpenReportOnStart = _report.Checked); };
         var mates = AddToggleRow(start, L.T("Compañeros en la ventana", "Teammates in the window"),
             L.T("Sus cofres: hasta 1.087 m de ti", "Their chests: up to 1,087 m from you"), 94, config.ShowTeammates);
@@ -85,8 +85,8 @@ public sealed class SettingsForm : Form
                 return;
             }
             if (mates.Checked && !InfoDialog.Confirm(this, L.T("Compañeros en la ventana", "Teammates in the window"),
-                    L.T("La ventana mostrará tu equipo y los cofres de cada compañero. El resumen tiene su propia configuración.",
-                        "The window will show your team and each teammate's chests. The summary has its own settings."),
+                    L.T("La ventana mostrará tu equipo y los cofres de cada compañero. Las estadísticas tienen su propia configuración.",
+                        "The window will show your team and each teammate's chests. Stats have their own settings."),
                     new[] { ExactPoint(), ApproxPoint() },
                     L.T("Activar", "Turn on"), L.T("Cancelar", "Cancel")))
             {

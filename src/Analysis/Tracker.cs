@@ -570,8 +570,8 @@ public sealed class Tracker
             if (!find.SourceIsChest)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine(L.F("   ⚑ Origen inusual: {0}{1} [{2}] → anotado en el informe",
-                    "   ⚑ Unusual source: {0}{1} [{2}] → noted in the report",
+                Console.WriteLine(L.F("   ⚑ Origen inusual: {0}{1} [{2}] → anotado en las estadísticas",
+                    "   ⚑ Unusual source: {0}{1} [{2}] → noted in stats",
                     find.SourceLabel, find.SourceCertain ? "" : L.T(" (probable)", " (likely)"), find.SourceBlueprint));
             }
             Console.ResetColor();

@@ -399,7 +399,7 @@ public static class ReportWriter
         @media (prefers-reduced-motion:reduce){.dot,.spin{animation:none}}
         """;
 
-    // Pestañas del informe. Se abre siempre en Resumen; la pestaña elegida y la posición solo se recuerdan en esa
+    // Pestañas de estadísticas. Se abre siempre en Resumen; la pestaña elegida y la posición solo se recuerdan en esa
     // pestaña del navegador mientras la página se recarga sola. Sin JavaScript se ven todas las secciones seguidas.
     private const string TabsScript = """
         (function(){var d=document,b=d.body,tabs=[].slice.call(d.querySelectorAll('[data-tab]'));if(!tabs.length)return;d.documentElement.classList.add('js');
@@ -424,7 +424,7 @@ public static class ReportWriter
             rows.forEach(function(r){body.appendChild(r)});ths.forEach(function(h,j){if(j===i)h.setAttribute('aria-sort',desc?'descending':'ascending');else h.removeAttribute('aria-sort')});put('cc-sort',i+(desc?'d':'a'),true)}
           ths.forEach(function(h,i){h.querySelector('button').addEventListener('click',function(){var cur=h.getAttribute('aria-sort');sort(i,cur?cur==='ascending':h.getAttribute('data-type')==='n')})});
           var s=get('cc-sort',true);if(s&&ths[parseInt(s,10)])sort(parseInt(s,10),s.slice(-1)==='d')});
-        // Ajustes: solo se pueden cambiar cuando el informe lo sirve FCT.
+        // Ajustes: solo se pueden cambiar cuando las estadísticas las sirve FCT.
         var toast=d.querySelector('.toast'),tt;
         function say(m,bad){if(!toast)return;toast.textContent=m;toast.className='toast'+(bad?' bad':'');toast.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toast.hidden=true},2600)}
         var ctl=[].slice.call(d.querySelectorAll('[data-key]'));
@@ -630,7 +630,7 @@ public static class ReportWriter
     };
 
     /// <summary>
-    /// Pestaña «Configuración» del Resumen: solo cambia lo que se ve en esta página (idioma, compañeros, qué cuenta como
+    /// Pestaña «Configuración» de Estadísticas: solo cambia lo que se ve en esta página (idioma, compañeros, qué cuenta como
     /// cofre); la ventana y el overlay tienen la suya en la app. Se cambia aquí mismo cuando la página la sirve FCT
     /// (http://localhost); abierta como archivo, se ve pero no se cambia. Aquí, y solo aquí, se ve la versión.
     /// </summary>
@@ -651,11 +651,11 @@ public static class ReportWriter
             langs.Append($"""<option value="{code}"{(r.Language == code ? " selected" : "")}>{H(name)}</option>""");
         }
         var offline = ObsServer.ReportUrl is { } url
-            ? L.T("Abre el resumen con el botón Resumen de FCT para cambiar la configuración aquí.", "Open the summary with the FCT Summary button to change the settings here.") + $" <a href=\"{url}\">{L.T("Abrir", "Open")} →</a>"
+            ? L.T("Abre las estadísticas con el botón Estadísticas de FCT para cambiar la configuración aquí.", "Open stats with the FCT Stats button to change the settings here.") + $" <a href=\"{url}\">{L.T("Abrir", "Open")} →</a>"
             : L.T("Abre FCT para cambiar la configuración aquí.", "Open FCT to change the settings here.");
         var logo = AppLogo.DataUri is { } l ? $"<img src=\"{l}\" alt=\"\" width=\"76\" height=\"76\">" : "";
         return $"""
-            {PageHeader("ajustes", L.T("Configuración", "Settings"), L.T("Solo cambia lo que ves en este resumen; la app tiene la suya", "Only changes what you see in this summary; the app has its own"))}
+            {PageHeader("ajustes", L.T("Configuración", "Settings"), L.T("Solo cambia lo que ves en estas estadísticas; la app tiene la suya", "Only changes what you see in these stats; the app has its own"))}
             <p class="offline-note" hidden>{offline}</p>
             <div class="card abouthero">
               {logo}<div class="ai"><b>{AppInfo.Name}</b><span class="ver">{L.F("Versión {0}", "Version {0}", AppInfo.VersionText)}</span><small>{L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays.")}</small></div>
@@ -663,7 +663,7 @@ public static class ReportWriter
             </div>
             <div class="setgrid">
               <section><div class="sh"><h2>{L.T("Idioma", "Language")}</h2></div><div class="card set">
-                {Row("lang", L.T("Idioma del resumen", "Summary language"), L.T("Se aplica al momento, sin reiniciar", "Applied right away, no restart"), $"<select class=\"sel\" data-key=\"lang\" aria-label=\"{H(L.T("Idioma del resumen", "Summary language"))}\">{langs}</select>", " col")}
+                {Row("lang", L.T("Idioma de las estadísticas", "Stats language"), L.T("Se aplica al momento, sin reiniciar", "Applied right away, no restart"), $"<select class=\"sel\" data-key=\"lang\" aria-label=\"{H(L.T("Idioma de las estadísticas", "Stats language"))}\">{langs}</select>", " col")}
               </div></section>
               <section><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2></div><div class="card set">
                 {Toggle("mates", "teammates", r.ShowTeammates, L.T("Mostrar compañeros", "Show teammates"), L.T("Con quién juegas y sus cofres (hasta 1.087 m de ti)", "Who you play with and their chests (up to 1,087 m from you)"))}
@@ -726,7 +726,7 @@ public static class ReportWriter
             tabs.Add(("companeros", L.T("Compañeros", "Teammates"), mates.Value.Count > 0 ? N(mates.Value.Count) : null));
         }
         sb.Append($"""<aside class="side"><div class="brand">{(logo != null ? $"<img src=\"{logo}\" alt=\"\" width=\"52\" height=\"52\">" : $"<span class=\"bl\">{ChestIcon}</span>")}<div class="bn"><span>Fortnite</span><b>Chest Tracker</b></div></div>""");
-        sb.Append($"""<nav class="nav" role="tablist" aria-label="{L.T("Secciones del resumen", "Summary sections")}" aria-orientation="vertical">""");
+        sb.Append($"""<nav class="nav" role="tablist" aria-label="{L.T("Secciones de estadísticas", "Stats sections")}" aria-orientation="vertical">""");
         foreach (var (id, label, count) in tabs)
         {
             var countText = count != null ? $"<span class=\"c\" aria-label=\"{H(L.F("{0} en total", "{0} in total", count))}\">{count}</span>" : "";

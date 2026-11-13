@@ -238,21 +238,21 @@ public sealed class AppMonitor
 
     public void SetProfile(string key) => Change(c => c.Profile = key);
 
-    /// <summary>Sumar o no al total las cajas de munición, de comida o los cañones de botín. Rehace el informe enseguida.</summary>
+    /// <summary>Sumar o no al total las cajas de munición, de comida o los cañones de botín. Rehace las estadísticas enseguida.</summary>
     public void SetCountExtra(Action<Config> change)
     {
         _reportRequested = true;
         Change(change);
     }
 
-    /// <summary>Sumar o no a tu total los cofres abiertos de tus compañeros. Rehace el informe enseguida.</summary>
+    /// <summary>Sumar o no a tu total los cofres abiertos de tus compañeros. Rehace las estadísticas enseguida.</summary>
     public void SetCountTeammates(bool count)
     {
         _reportRequested = true;
         Change(c => c.CountTeammateChests = count);
     }
 
-    /// <summary>Contar solo desde una fecha (null = todas las partidas). Rehace el informe enseguida.</summary>
+    /// <summary>Contar solo desde una fecha (null = todas las partidas). Rehace las estadísticas enseguida.</summary>
     public void SetCountFrom(DateTime? from)
     {
         _reportRequested = true;
@@ -348,7 +348,7 @@ public sealed class AppMonitor
         }
     }
 
-    /// <summary>Guarda el estimado de cofres de antes para el perfil mostrado y rehace el informe.</summary>
+    /// <summary>Guarda el estimado de cofres de antes para el perfil mostrado y rehace las estadísticas.</summary>
     public void SetInitialChests(int count)
     {
         var key = _shownKey ?? "";
@@ -368,8 +368,8 @@ public sealed class AppMonitor
     }
 
     /// <summary>
-    /// Al arrancar, antes de leer replays: rehace el informe (si no, tras actualizar seguiría el de la versión anterior
-    /// hasta la próxima partida) y lo abre si está activado «Abrir el informe al iniciar». No se abre cuando el contador
+    /// Al arrancar, antes de leer replays: rehace las estadísticas (si no, tras actualizar seguirían las de la versión anterior
+    /// hasta la próxima partida) y las abre si está activado «Abrir estadísticas al iniciar». No se abre cuando el contador
     /// arranca solo con Fortnite, para no tapar el juego.
     /// </summary>
     private void WriteReportAtStart()
@@ -383,7 +383,7 @@ public sealed class AppMonitor
             }
             catch
             {
-                // sin navegador: el botón «Informe» de la ventana sigue funcionando
+                // sin navegador: el botón «Estadísticas» de la ventana sigue funcionando
             }
         }
     }
@@ -581,7 +581,7 @@ public sealed class AppMonitor
 
     /// <summary>
     /// Estadísticas del perfil mostrado sobre todo su historial guardado (no solo los replays que siguen en disco),
-    /// con la partida en curso incluida. Son las mismas cifras que el informe.
+    /// con la partida en curso incluida. Son las mismas cifras que la página de estadísticas.
     /// </summary>
     private ChestStats BuildStats()
     {
