@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Buscar partidas (fortnite-api.com)**: una cuenta sin partidas esta temporada ya no sale como «no encontramos a nadie con ese nombre» (son 0 partidas); mensajes propios para demasiadas búsquedas a la vez (límite de 180 por minuto) y clave no válida. Probado con distintos nombres: mayúsculas, espacios, perfiles privados, nombres inexistentes y caracteres raros.
+- Textos: «Calcular partidas previas» en la primera apertura y el diálogo; «Recalcular» en Configuración. Estadísticas vuelve a ir en blanco, como los otros botones.
 - Ventana: el botón Estadísticas es como los demás, con las letras en oro; las cifras de las seis tarjetas, algo más arriba. Gráfico semanal con textos nítidos y la cifra siempre encima de su punto.
 - Overlay: textos más nítidos (ningún texto por debajo de 9 px) y a la escala del monitor donde está, también al moverlo a otra pantalla.
 - **Tesoros que la repetición no ve** (conseguidos después de morir): la pantalla de fin de partida los suma siempre, con su nombre si se lee y sin él si no; una tarjeta ilegible ya no hace perder la pantalla entera, y también se suman los tesoros destacados. Cada pantalla se asocia solo a su partida: antes, una partida sin pantalla leída podía quedarse con la de la siguiente.
@@ -18,7 +20,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 ## [4.2.0] - 2026-11-12
 
 - **Esta semana** con el gráfico de la página: curva dorada con relleno, escala, media discontinua y puntos (hoy en blanco). Tarjeta principal con las cifras centradas.
-- Configuración → Cofres antes de FCT: cifra entre `−` y `+`, y el botón **Calcular las de antes** como en la primera apertura.
+- Configuración → Cofres antes de FCT: cifra entre `−` y `+`, y el botón **Recalcular** (abre el mismo diálogo de la primera apertura, «Calcular partidas previas»).
 - **Abrir con Fortnite** activado por defecto (también una vez en instalaciones previas al actualizar; luego se respeta lo que elijas). Una copia de prueba (`--data`) ya no cambia el inicio de Windows al activarlo.
 
 ## [4.1.0] - 2026-11-12

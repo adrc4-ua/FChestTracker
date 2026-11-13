@@ -179,7 +179,8 @@ public sealed class SettingsForm : ThemedForm
         // Calcularlos (nombre de Epic y media de cofres), como en la primera apertura.
         var estimate = new PillButton
         {
-            Text = L.T("Calcular las de antes", "Work out the rest"), IconSvg = Icons.Calc, Location = new Point(13, rowY + rowH + 8), Size = new Size(RightW - 26, 32),
+            // «Recalcular»: aquí el cálculo ya se hizo (o se puede rehacer); el diálogo se llama igual que en la primera apertura.
+            Text = L.T("Recalcular", "Recalculate"), IconSvg = Icons.Calc, Location = new Point(13, rowY + rowH + 8), Size = new Size(RightW - 26, 32),
             Radius = 11, Font = Theme.Text(8.75f, FontStyle.Bold),
         };
         estimate.Click += (_, _) => EstimateEarlier();

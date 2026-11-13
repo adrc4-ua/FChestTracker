@@ -127,7 +127,7 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 - **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
-- **Chests before FCT**: an estimate added to your total. With **Work out the rest** (also asked the first time) you choose *Start from zero* / *Only saved ones* or *Work out the rest*:
+- **Chests before FCT**: an estimate added to your total. It's asked the first time and can be redone in **Settings → Recalculate**: you choose *Start from zero* / *Only saved ones* or *Work out earlier matches*:
   - **Matches this season**: looked up with your Epic name. Only if they can't be found (or your profile is private, which it tells you) do you type them in, reading them on [fortnite.gg](https://fortnite.gg/stats).
   - **Average chests per match**: that of your replays together with the **new matches** you play from then on (you choose how many: 5 by default, **10 recommended**; the more, the closer). Each replay weighs as much as a new match, so the more replays you have, the more they count. Or type it by hand.
   - **Estimate** = average × (matches this season − this season's replays already counted; replays from earlier seasons go into the average but are not subtracted). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). Until you play the new matches you see a provisional estimate. With no replays, the past is the estimate alone.

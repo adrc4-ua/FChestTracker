@@ -127,7 +127,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 - **Abrir estadísticas al iniciar** (desactivado por defecto).
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.
-- **Cofres antes de FCT**: un estimado que se suma a tu total. Con **Calcular las de antes** (también se pregunta la primera vez) eliges *Empezar de cero* / *Solo las guardadas* o *Calcular las de antes*:
+- **Cofres antes de FCT**: un estimado que se suma a tu total. Se pregunta la primera vez y se puede rehacer en **Configuración → Recalcular**: eliges *Empezar de cero* / *Solo las guardadas* o *Calcular partidas previas*:
   - **Partidas de la temporada actual**: se buscan con tu nombre de Epic. Solo si no se encuentran (o tu perfil es privado, y se avisa) se escriben a mano mirando [fortnite.gg](https://fortnite.gg/stats).
   - **Media de cofres por partida**: la de tus repeticiones junto con las **partidas nuevas** que juegues desde ese momento (eliges cuántas: 5 por defecto, **10 recomendado**; cuantas más, más acertada). Cada repetición pesa como una partida nueva, así que cuantas más repeticiones tengas, más cuentan. O escríbela a mano.
   - **Estimado** = media × (partidas de la temporada − repeticiones de esta temporada ya contadas; las de temporadas anteriores entran en la media pero no se restan). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.

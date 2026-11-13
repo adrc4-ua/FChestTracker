@@ -152,7 +152,6 @@ public sealed class MainForm : ThemedForm
 
         // ---- Botones: como el menú de la página (Estadísticas con las letras en oro) -------------------------------
         _reportButton = Nav(L.T("Estadísticas", "Stats"), Icons.Summary, RightX, NavY);
-        _reportButton.ForeColor = Theme.GoldBase; // igual que los otros, solo con las letras en oro
         _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
         _overlayButton = Nav(L.T("Overlay", "Overlay"), Icons.Overlay, RightX, NavY + NavH + NavGap);
         _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();

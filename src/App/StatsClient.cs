@@ -10,7 +10,18 @@ namespace FCT.App;
 /// </summary>
 public static class StatsClient
 {
-    public enum Outcome { Ok, Private, NotFound, NoKey, Failed }
+    /// <summary>
+    /// What fortnite-api.com answered (checked by hand, 2026-11-12):
+    /// <list type="bullet">
+    /// <item>200: the stats. The name does not care about case; spaces around it make it «not found» (it is trimmed).</item>
+    /// <item>403 «stats are not public»: <see cref="Private"/>.</item>
+    /// <item>404 «account does not exist»: <see cref="NotFound"/>. 404 «didnt play any match yet» (the account exists
+    /// but has no match in the window, e.g. none this season): <see cref="Ok"/> with 0 matches.</item>
+    /// <item>429: too many lookups (180 a minute per key, shared by every copy of the app): <see cref="Busy"/>.</item>
+    /// <item>401: missing or wrong key: <see cref="NoKey"/>. Anything else, or no connection: <see cref="Failed"/>.</item>
+    /// </list>
+    /// </summary>
+    public enum Outcome { Ok, Private, NotFound, NoKey, Busy, Failed }
 
     public sealed record Answer(Outcome Outcome, int Matches = 0, string? Name = null);
 
@@ -43,14 +54,20 @@ public static class StatsClient
             http.DefaultRequestHeaders.UserAgent.ParseAdd($"{AppInfo.ShortName}/{AppInfo.VersionText}");
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", key);
             using var response = await http.GetAsync(url);
-            switch ((int)response.StatusCode)
-            {
-                case 403: return new Answer(Outcome.Private);
-                case 404: return new Answer(Outcome.NotFound);
-            }
             if (!response.IsSuccessStatusCode)
             {
-                return new Answer(Outcome.Failed);
+                var error = await ErrorText(response);
+                return (int)response.StatusCode switch
+                {
+                    403 => new Answer(Outcome.Private),
+                    // The account exists, it just has no match in the window (this season): 0, not «not found».
+                    404 when error.Contains("didnt play", StringComparison.OrdinalIgnoreCase) || error.Contains("didn't play", StringComparison.OrdinalIgnoreCase)
+                        => new Answer(Outcome.Ok, 0, null),
+                    404 => new Answer(Outcome.NotFound),
+                    429 => new Answer(Outcome.Busy),
+                    401 => new Answer(Outcome.NoKey),
+                    _ => new Answer(Outcome.Failed),
+                };
             }
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var data = doc.RootElement.GetProperty("data");
@@ -64,6 +81,20 @@ public static class StatsClient
         catch
         {
             return new Answer(Outcome.Failed);
+        }
+    }
+
+    /// <summary>The «error» text of an error answer ({"status":404,"error":"..."}), or "".</summary>
+    private static async Task<string> ErrorText(HttpResponseMessage response)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            return doc.RootElement.TryGetProperty("error", out var e) ? e.GetString() ?? "" : "";
+        }
+        catch
+        {
+            return "";
         }
     }
 }

@@ -95,7 +95,7 @@ public sealed class EstimateDialog : ThemedForm
         _onlyReplays = fromScratch
             ? Pill(this, L.T("Empezar de cero", "Start from zero"), new Point(Pad, y), new Size(half, 38), 9f, Icons.Sparkle)
             : Pill(this, L.T("Solo las guardadas", "Only saved ones"), new Point(Pad, y), new Size(half, 38), 9f, Icons.Folder);
-        _withEstimate = Pill(this, L.T("Calcular las de antes", "Work out the rest"), new Point(Pad + half + 8, y), new Size(half, 38), 9f, Icons.Calc);
+        _withEstimate = Pill(this, L.T("Calcular partidas previas", "Work out earlier matches"), new Point(Pad + half + 8, y), new Size(half, 38), 9f, Icons.Calc);
         _onlyReplays.Click += (_, _) => SelectMode(false);
         _withEstimate.Click += (_, _) => SelectMode(true);
         y += 38 + 14;
@@ -362,6 +362,11 @@ public sealed class EstimateDialog : ThemedForm
             _resultText.Text = text;
         }
         string Matches(int n) => L.Count(n, "partida", "partidas", "match", "matches");
+        if (total <= 0 && _found)
+        {
+            Show("0", L.T("Esta temporada no hay partidas de antes que sumar.", "There are no earlier matches to add this season."));
+            return;
+        }
         if (total <= 0)
         {
             Show("—", StatsClient.Available && !_manualTotal
@@ -422,8 +427,9 @@ public sealed class EstimateDialog : ThemedForm
             _manualTotal = false;
             _total.Text = answer.Matches.ToString(CultureInfo.InvariantCulture);
             _source = "api";
-            ShowStatus(true, L.F("{0}: {1} esta temporada", "{0}: {1} this season", answer.Name ?? _name.Text.Trim(),
-                L.Count(answer.Matches, "partida", "partidas", "match", "matches")));
+            ShowStatus(true, answer.Matches > 0
+                ? L.F("{0}: {1} esta temporada", "{0}: {1} this season", answer.Name ?? _name.Text.Trim(), L.Count(answer.Matches, "partida", "partidas", "match", "matches"))
+                : L.F("{0}: aún no ha jugado esta temporada", "{0}: no matches this season yet", answer.Name ?? _name.Text.Trim()));
         }
         else
         {
@@ -434,6 +440,7 @@ public sealed class EstimateDialog : ThemedForm
             {
                 StatsClient.Outcome.Private => L.T("Tu perfil de Fortnite es privado, así que no podemos ver tus partidas.", "Your Fortnite profile is private, so we can't see your matches."),
                 StatsClient.Outcome.NotFound => L.T("No encontramos a nadie con ese nombre. Revísalo o escríbelas tú.", "We couldn't find anyone with that name. Check it, or type them in yourself."),
+                StatsClient.Outcome.Busy => L.T("Hay muchas búsquedas ahora mismo. Prueba en un minuto o escríbelas tú.", "Lots of lookups right now. Try again in a minute, or type them in yourself."),
                 _ => L.T("Ahora mismo no podemos buscarlas.", "We can't look them up right now."),
             });
         }
