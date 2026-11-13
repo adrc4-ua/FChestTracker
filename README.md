@@ -4,9 +4,9 @@
 
 **Español** · [English](README.en.md)
 
-[![versión](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=versi%C3%B3n&color=e8b04b&labelColor=121215)](../../releases/latest) [![descargas](https://img.shields.io/github/downloads/adrc4-ua/Fortnite-Chest-Tracker/total?style=for-the-badge&label=descargas&color=e8b04b&labelColor=121215)](../../releases) ![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215) ![gratis](https://img.shields.io/badge/gratis-sin%20anuncios-e8b04b?style=for-the-badge&labelColor=121215)
+[![versión](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=versi%C3%B3n&color=e8b04b&labelColor=121215)](../../releases/latest) ![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
 
-### [⬇&nbsp; Descargar FCT.exe](../../releases/latest)
+<a href="../../releases/latest"><img src="docs/images/download-es.png" alt="Descargar FCT.exe" width="380"></a>
 
 Un solo archivo · sin instalación · español e inglés
 
@@ -18,24 +18,24 @@ Un solo archivo · sin instalación · español e inglés
 
 <br>
 
-## ✨ Qué hace
+## Qué hace
 
 FCT cuenta **cada cofre que abres en Fortnite**, partida a partida, sin que tengas que hacer nada: juegas y él lleva la cuenta.
 
 |   |   |
 |---|---|
-| 🧰 **Tu total de cofres** | De siempre, de hoy, tu mejor día, tu récord y tu media por partida. |
-| 🎮 **Overlay en el juego** | Tus cofres encima de Fortnite, y en directo mientras juegas. |
-| 📊 **Estadísticas** | Una página con gráficos, tus partidas, tus tesoros y tu equipo. |
-| 💎 **Tesoros** | Los de la caza del tesoro: cuáles has conseguido y cuáles hay esta semana. |
-| 👥 **Compañeros** | Con quién juegas más y cuántos cofres abre cada uno. |
-| 📺 **Para streamers** | El mismo overlay listo para OBS, con fondo transparente. |
+| **Tu total de cofres** | De siempre, de hoy, tu mejor día, tu récord y tu media por partida. |
+| **Overlay en el juego** | Tus cofres encima de Fortnite, y en directo mientras juegas. |
+| **Estadísticas** | Una página con gráficos, tus partidas, tus tesoros y tu equipo. |
+| **Tesoros** | Los de la caza del tesoro: cuáles has conseguido y cuáles hay esta semana. |
+| **Compañeros** | Con quién juegas más y cuántos cofres abre cada uno. |
+| **Para streamers** | El mismo overlay listo para OBS, con fondo transparente. |
 
 Tu historial se queda guardado en tu PC.
 
 <br>
 
-## 🚀 Empezar en 3 pasos
+## Empezar en 3 pasos
 
 1. **Descarga [`FCT.exe`](../../releases/latest)** y ábrelo. No hay que instalar nada.
 2. **Activa las repeticiones en Fortnite:** *Ajustes → Juego → Repeticiones → Grabar repeticiones*. Es lo que FCT lee para contar.
@@ -46,7 +46,7 @@ Tu historial se queda guardado en tu PC.
 
 <br>
 
-## 🎮 El overlay
+## El overlay
 
 <div align="center">
 <img src="docs/images/overlay-live-es.png" alt="Overlay durante una partida" width="360">&nbsp;&nbsp;
@@ -64,24 +64,24 @@ Tu historial se queda guardado en tu PC.
 
 <br>
 
-## 📊 Tus estadísticas
+## Tus estadísticas
 
 Pulsa **Estadísticas** en FCT y se abren en tu navegador. Se actualizan solas mientras juegas.
 
 <img src="docs/images/stats-summary-es.png" alt="Resumen de estadísticas" width="100%">
 
-**💎 Tesoros** · los que has conseguido, de dónde salieron y los premios de esta semana.
+**Tesoros** · los que has conseguido, de dónde salieron y los premios de esta semana.
 
 <img src="docs/images/stats-treasures-es.png" alt="Tesoros" width="100%">
 
-**👥 Compañeros** · con quién juegas, victorias juntos y quién abre más cofres.
+**Compañeros** · con quién juegas, victorias juntos y quién abre más cofres.
 
 <img src="docs/images/stats-teammates-es.png" alt="Compañeros" width="100%">
 
 
 <br>
 
-## ⚙️ Configuración
+## Configuración
 
 <img src="docs/images/settings-es.png" alt="Configuración" width="520" align="right">
 
@@ -98,22 +98,22 @@ Los cambios se guardan al momento:
 
 <br>
 
-## 🛡️ ¿Es seguro?
+## ¿Es seguro?
 
 Sí. FCT **lee las repeticiones** que Fortnite guarda en tu PC, igual que si las abrieras tú:
 
-- ✅ No toca el juego ni su memoria, y no interactúa con el antitrampas.
-- ✅ Al acabar la partida mira la pantalla de tesoros para saber cuáles te tocaron; esa imagen se descarta al momento y nunca se guarda.
-- ✅ Sin cuentas ni inicio de sesión, y sin anuncios.
-- ✅ Nada sale de tu PC. Solo se conecta para buscar actualizaciones y, si tú lo pides, para calcular tus cofres de antes de FCT.
-- ✅ Gasta muy poco: casi no hace nada entre partida y partida.
+- No toca el juego ni su memoria, y no interactúa con el antitrampas.
+- Al acabar la partida mira la pantalla de tesoros para saber cuáles te tocaron; esa imagen se descarta al momento y nunca se guarda.
+- Sin cuentas ni inicio de sesión, y sin anuncios.
+- Nada sale de tu PC. Solo se conecta para buscar actualizaciones y, si tú lo pides, para calcular tus cofres de antes de FCT.
+- Gasta muy poco: casi no hace nada entre partida y partida.
 
 > [!TIP]
 > **¿Prefieres comprobarlo tú?** Todo el código está en este repositorio. Pásaselo a la IA que uses (ChatGPT, Claude, Gemini…) y pregúntale si hace algo raro. FCT nació para una cosa: saber cuántos cofres abres.
 
 <br>
 
-## ❓ Preguntas rápidas
+## Preguntas rápidas
 
 <details>
 <summary><b>No me cuenta las partidas</b></summary>
@@ -155,7 +155,7 @@ Sí. FCT **lee las repeticiones** que Fortnite guarda en tu PC, igual que si las
 ---
 
 <details>
-<summary><b>🛠️ Para desarrolladores</b></summary>
+<summary><b>Para desarrolladores</b></summary>
 <br>
 
 Compila con el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) haciendo doble clic en `build.bat` (genera `dist\FCT.exe`), o abre `FCT.slnx`. Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md).
@@ -169,7 +169,7 @@ FCT.exe --uninstall         quita FCT de Windows (tus datos se quedan)
 ```
 </details>
 
-## 📜 Licencia y créditos
+## Licencia y créditos
 
 **Fortnite Chest Tracker** · Copyright © 2026 Adrián Ruiz · Software libre con licencia [GPL-3.0](LICENSE) y las condiciones de atribución de [NOTICE.md](NOTICE.md): puedes usarlo, modificarlo y compartirlo, pero si publicas algo basado en él debes mantener esta licencia, mencionar al autor y este repositorio e indicar tus cambios. Las versiones hasta la 4.4.1 se publicaron con licencia MIT.
 

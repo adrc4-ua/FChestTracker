@@ -4,9 +4,9 @@
 
 [Español](README.md) · **English**
 
-[![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=version&color=e8b04b&labelColor=121215)](../../releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/Fortnite-Chest-Tracker/total?style=for-the-badge&label=downloads&color=e8b04b&labelColor=121215)](../../releases) ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215) ![free](https://img.shields.io/badge/free-no%20ads-e8b04b?style=for-the-badge&labelColor=121215)
+[![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=version&color=e8b04b&labelColor=121215)](../../releases/latest) ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
 
-### [⬇&nbsp; Download FCT.exe](../../releases/latest)
+<a href="../../releases/latest"><img src="docs/images/download-en.png" alt="Download FCT.exe" width="380"></a>
 
 One file · nothing to install · English and Spanish
 
@@ -18,24 +18,24 @@ One file · nothing to install · English and Spanish
 
 <br>
 
-## ✨ What it does
+## What it does
 
 FCT counts **every chest you open in Fortnite**, match after match, without you doing anything: you play, it keeps count.
 
 |   |   |
 |---|---|
-| 🧰 **Your chest total** | All time, today, your best day, your record and your average per match. |
-| 🎮 **In-game overlay** | Your chests on top of Fortnite, live while you play. |
-| 📊 **Stats** | A page with charts, your matches, your treasures and your team. |
-| 💎 **Treasures** | The treasure hunt ones: which you got and which are out this week. |
-| 👥 **Teammates** | Who you play with most and how many chests each one opens. |
-| 📺 **For streamers** | The same overlay, ready for OBS with a transparent background. |
+| **Your chest total** | All time, today, your best day, your record and your average per match. |
+| **In-game overlay** | Your chests on top of Fortnite, live while you play. |
+| **Stats** | A page with charts, your matches, your treasures and your team. |
+| **Treasures** | The treasure hunt ones: which you got and which are out this week. |
+| **Teammates** | Who you play with most and how many chests each one opens. |
+| **For streamers** | The same overlay, ready for OBS with a transparent background. |
 
 Your history stays saved on your PC.
 
 <br>
 
-## 🚀 Start in 3 steps
+## Start in 3 steps
 
 1. **Download [`FCT.exe`](../../releases/latest)** and open it. Nothing to install.
 2. **Turn on replays in Fortnite:** *Settings → Game → Replays → Record Replays*. That is what FCT reads to count.
@@ -46,7 +46,7 @@ Your history stays saved on your PC.
 
 <br>
 
-## 🎮 The overlay
+## The overlay
 
 <div align="center">
 <img src="docs/images/overlay-live-en.png" alt="Overlay during a match" width="360">&nbsp;&nbsp;
@@ -64,24 +64,24 @@ Your history stays saved on your PC.
 
 <br>
 
-## 📊 Your stats
+## Your stats
 
 Click **Stats** in FCT and they open in your browser. They update by themselves while you play.
 
 <img src="docs/images/stats-summary-en.png" alt="Stats overview" width="100%">
 
-**💎 Treasures** · the ones you got, where they came from and this week's prizes.
+**Treasures** · the ones you got, where they came from and this week's prizes.
 
 <img src="docs/images/stats-treasures-en.png" alt="Treasures" width="100%">
 
-**👥 Teammates** · who you play with, wins together and who opens the most chests.
+**Teammates** · who you play with, wins together and who opens the most chests.
 
 <img src="docs/images/stats-teammates-en.png" alt="Teammates" width="100%">
 
 
 <br>
 
-## ⚙️ Settings
+## Settings
 
 <img src="docs/images/settings-en.png" alt="Settings" width="520" align="right">
 
@@ -98,22 +98,22 @@ Changes are saved right away:
 
 <br>
 
-## 🛡️ Is it safe?
+## Is it safe?
 
 Yes. FCT **reads the replays** Fortnite saves on your PC, just like opening them yourself:
 
-- ✅ It does not touch the game or its memory, and does not interact with the anti-cheat.
-- ✅ At the end of a match it looks at the treasure screen to see which ones you got; that image is dropped at once and never saved.
-- ✅ No accounts, no login and no ads.
-- ✅ Nothing leaves your PC. It only connects to look for updates and, if you ask, to work out your chests from before FCT.
-- ✅ Very light: it barely does anything between matches.
+- It does not touch the game or its memory, and does not interact with the anti-cheat.
+- At the end of a match it looks at the treasure screen to see which ones you got; that image is dropped at once and never saved.
+- No accounts, no login and no ads.
+- Nothing leaves your PC. It only connects to look for updates and, if you ask, to work out your chests from before FCT.
+- Very light: it barely does anything between matches.
 
 > [!TIP]
 > **Rather check it yourself?** All the code is in this repository. Give it to the AI you use (ChatGPT, Claude, Gemini…) and ask whether it does anything odd. FCT was made for one thing: knowing how many chests you open.
 
 <br>
 
-## ❓ Quick questions
+## Quick questions
 
 <details>
 <summary><b>My matches are not counted</b></summary>
@@ -155,7 +155,7 @@ Yes. FCT **reads the replays** Fortnite saves on your PC, just like opening them
 ---
 
 <details>
-<summary><b>🛠️ For developers</b></summary>
+<summary><b>For developers</b></summary>
 <br>
 
 Build with the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) by double-clicking `build.bat` (it makes `dist\FCT.exe`), or open `FCT.slnx`. What changed in each version is in the [CHANGELOG](CHANGELOG.md) (in Spanish).
@@ -169,7 +169,7 @@ FCT.exe --uninstall         remove FCT from Windows (your data stays)
 ```
 </details>
 
-## 📜 License and credits
+## License and credits
 
 **Fortnite Chest Tracker** · Copyright © 2026 Adrián Ruiz · Free software under the [GPL-3.0](LICENSE) license with the attribution terms in [NOTICE.md](NOTICE.md): you can use, change and share it, but if you publish something based on it you must keep this license, credit the author and this repository, and mark your changes. Versions up to 4.4.1 were released under the MIT license.
 
