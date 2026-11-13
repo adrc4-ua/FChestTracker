@@ -18,7 +18,7 @@
 
 FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva la cuenta de los cofres que abres, de los **tesoros de la caza del tesoro** y, si quieres, de los cofres de tus **compañeros de equipo**. Todo se guarda en tu PC: aunque Fortnite borre los replays, tu historial se conserva.
 
-- **Ventana principal**: total, última partida, hoy, mejor día, media, récord, tesoros, gráfico de 7 días y tu equipo.
+- **Ventana principal**: total, última partida, hoy, mejor día, media, récord, tesoros, gráfico de la semana y tu equipo.
 - **Informe** en el navegador, con pestañas: resumen, cofres, tesoros, partidas y compañeros.
 - **Overlay** sobre el juego y **página para OBS**.
 - **Compañeros**: con quién juegas, victorias juntos, cofres de cada uno por partida y un top.
@@ -45,9 +45,9 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 
 <p align="center"><img src="docs/images/main.png" alt="Ventana principal" width="680"></p>
 
-- **Arriba a la izquierda**: tu total de cofres, la última partida (o la actual, en verde, mientras juegas) y la sesión.
+- **Arriba a la izquierda**: tu total de cofres, la última partida (o la actual, en verde, mientras juegas) y lo de hoy (cofres, partidas y media).
 - **A la derecha**: hoy, el mejor día, la media, la mejor partida, el histórico (partidas guardadas y desde cuándo) y los tesoros.
-- **Últimos 7 días**: un gráfico con los cofres de cada día.
+- **Esta semana**: un gráfico con los cofres de cada día, de lunes a domingo.
 - **Equipo** (con *Compañeros* activado): tus cofres y los de cada compañero en la partida actual o la última, el total del equipo y lo que aportan ellos.
 - **Botones**: **Overlay** (punto verde = activado), **Informe** y **Ajustes**. Si hay varias cuentas en el PC, arriba aparece un selector de perfil.
 
@@ -59,7 +59,7 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 
 | Pestaña | Qué muestra |
 |---|---|
-| **Resumen** | Total de cofres, sesión, victorias (y %), top 10, partidas, media, récord, mejor día, tesoros, gráfico de 30 días y las últimas partidas. |
+| **Resumen** | Total de cofres, hoy, victorias (y %), top 10, partidas, media, récord, mejor día, tesoros, gráfico de 30 días y las últimas partidas. |
 | **Cofres** | Por tipo de cofre, otros contenedores (cajas de munición, de comida, cañones; indica si suman al total) y una tabla **por modo de juego**. |
 | **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, de dónde vienen, la lista con el momento exacto y quién los consiguió, y todos los premios de la caza del tesoro por semana. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
@@ -95,7 +95,7 @@ Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, ré
 <p align="center"><img src="docs/images/overlay-espera.png" alt="Overlay entre dos partidas" width="300">&nbsp;&nbsp;<img src="docs/images/overlay-en-vivo.png" alt="Overlay en directo durante una partida" width="300"></p>
 
 - **Cifras grandes**: tu **total** de cofres y, en el recuadro, la partida **anterior** (o la **actual**, en directo, mientras juegas).
-- **Sesión**, **media** de la sesión, **anterior** (durante una partida) y **tesoros**.
+- **Hoy**, **media** de hoy por partida, **anterior** (durante una partida) y **tesoros**.
 
 Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Ajustes → Vídeo → Modo de ventana*): en pantalla completa exclusiva, Windows no puede dibujar nada encima. El overlay viene **desactivado**: actívalo con el botón **Overlay** o con Ctrl+Mayús+O.
 

@@ -18,21 +18,22 @@ public static class OverlayModel
         var liveTreasures = live?.TreasureFinds.Count ?? 0;
 
         var total = d.Matches.Sum(m => m.ChestsOpened) + liveChests + Math.Max(0, initialChests);
-        var session = d.Matches.Where(ReportWriter.IsThisSession).ToList();
+        var todayDate = DateTime.Now.Date;
+        var today = d.Matches.Where(m => (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date == todayDate).ToList();
         var rows = new List<OverlayRow>();
 
-        // Sesión: cofres, y debajo "n partidas · media x" (partidas terminadas de esta sesión).
+        // Hoy: cofres, y debajo "n partidas · media x" (partidas terminadas hoy; la media es por partida de hoy).
         // (el detalle solo lo usa la ventana principal; el overlay muestra la media en su propia columna).
-        string? sessionDetail = null;
+        string? todayDetail = null;
         var avgText = "—";
-        if (session.Count > 0)
+        if (today.Count > 0)
         {
-            var avg = (double)session.Sum(m => m.ChestsOpened) / session.Count;
+            var avg = (double)today.Sum(m => m.ChestsOpened) / today.Count;
             avgText = Math.Round(avg, MidpointRounding.AwayFromZero).ToString("0", L.Culture);
-            sessionDetail = $"{L.Count(session.Count, "partida", "partidas", "match", "matches")} · {L.T("media", "avg.")} {avgText}";
+            todayDetail = $"{L.Count(today.Count, "partida", "partidas", "match", "matches")} · {L.T("media", "avg.")} {avgText}";
         }
         // Solo números en las columnas: la etiqueta ya dice qué son, y un número largo no choca con la columna de al lado.
-        rows.Add(new OverlayRow(L.T("Sesión", "Session"), L.N(session.Sum(m => m.ChestsOpened) + liveChests), Detail: sessionDetail));
+        rows.Add(new OverlayRow(L.T("Hoy", "Today"), L.N(today.Sum(m => m.ChestsOpened) + liveChests), Detail: todayDetail));
         rows.Add(new OverlayRow(L.T("Media", "Avg."), avgText));
 
         var last = d.Matches.OrderByDescending(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).FirstOrDefault();

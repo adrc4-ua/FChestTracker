@@ -48,5 +48,5 @@ public sealed record ChestStats(int Matches, double Average, int BestMatch, int 
 /// <summary>Cifras de la última partida: cofres abiertos (incluidos los destruidos), tesoros, puesto y eliminaciones.</summary>
 public sealed record LastMatchSummary(int Chests, int Destroyed, int Treasures, int? Placement, int? Players, int? Eliminations);
 
-/// <summary>Cofres de un día concreto.</summary>
-public sealed record DayChests(DateTime Day, int Chests);
+/// <summary>Cofres de un día concreto. <paramref name="Future"/>: el día aún no ha llegado (resto de la semana).</summary>
+public sealed record DayChests(DateTime Day, int Chests, bool Future = false);

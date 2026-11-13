@@ -20,6 +20,10 @@
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Also inside the exe as a resource: the report shows it as its logo. -->
+    <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />
   </ItemGroup>
 </Project>

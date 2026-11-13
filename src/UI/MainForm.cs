@@ -23,7 +23,7 @@ public sealed class MainForm : Form
     private readonly Label _totalCap;
     private readonly Label _current;
     private readonly Label _currentCap;
-    private readonly Label _session;
+    private readonly Label _today;
     private readonly Label _statToday, _statBestDay, _statAverage, _statBestMatch, _statMatches, _statTreasures;
     private readonly Label _statTodayCap, _statBestDayCap, _statAverageCap, _statBestMatchCap, _statMatchesCap, _statTreasuresCap;
     private readonly Card _noticeCard;
@@ -96,7 +96,7 @@ public sealed class MainForm : Form
         hero.Controls.Add(new Panel { BackColor = Theme.CardEdge, Location = new Point(138, 15), Size = new Size(1, 70) });
         _current = Lbl(hero, "—", 28f, FontStyle.Bold, Theme.Amber, new Point(151, 6), new Size(110, 50));
         _currentCap = Lbl(hero, L.T("última partida", "last match"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(153, 59), new Size(110, 16));
-        _session = Lbl(hero, "", 8.0f, FontStyle.Regular, Theme.Ink, new Point(15, 77), new Size(243, 16));
+        _today = Lbl(hero, "", 8.0f, FontStyle.Regular, Theme.Ink, new Point(15, 77), new Size(243, 16));
 
         // Última partida: cofres abiertos, con los detalles (rotos, tesoros, puesto, eliminaciones).
         var last = new Card { Location = new Point(LeftX, 149), Size = new Size(LeftW, 50), Radius = 12 };
@@ -108,7 +108,7 @@ public sealed class MainForm : Form
 
         // Gráfico de los últimos 7 días.
         var daily = new Card { Location = new Point(LeftX, 206), Size = new Size(LeftW, 120), Radius = 14 };
-        Lbl(daily, L.T("Últimos 7 días", "Last 7 days"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(13, 7), new Size(184, 13));
+        Lbl(daily, L.T("Esta semana", "This week"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(13, 7), new Size(184, 13));
         _daily = new DailyChart { Location = new Point(9, 24), Size = new Size(246, 90), BackColor = Theme.Card };
         daily.Controls.Add(_daily);
         Controls.Add(daily);
@@ -375,12 +375,12 @@ public sealed class MainForm : Form
         _badge.Text = v.Badge ?? "";
         _badgeCard.Visible = !string.IsNullOrEmpty(v.Badge);
 
-        // Línea de sesión: la primera fila del modelo (cofres y, detrás, partidas y media).
-        var session = v.Rows.FirstOrDefault();
-        var sessionChests = session != null && int.TryParse(session.Value, System.Globalization.NumberStyles.None, L.Culture, out var n)
+        // Línea de hoy: la primera fila del modelo (cofres y, detrás, partidas y media de hoy).
+        var today = v.Rows.FirstOrDefault();
+        var todayChests = today != null && int.TryParse(today.Value, System.Globalization.NumberStyles.None, L.Culture, out var n)
             ? L.Count(n, "cofre", "cofres", "chest", "chests")
-            : session?.Value;
-        _session.Text = session == null ? "" : $"{L.T("Sesión", "Session")}: {sessionChests}" + (session.Detail != null ? $"  ·  {session.Detail}" : "");
+            : today?.Value;
+        _today.Text = today == null ? "" : $"{L.T("Hoy", "Today")}: {todayChests}" + (today.Detail != null ? $"  ·  {today.Detail}" : "");
 
         var st = s.Stats;
         _statToday.Text = L.N(st.Today);

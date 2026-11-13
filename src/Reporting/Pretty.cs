@@ -32,7 +32,7 @@ public static class Pretty
         }
         if (place == 1)
         {
-            return L.T("¡Victoria Real!", "Victory Royale!");
+            return L.T("Victoria", "Victory");
         }
         var ordinal = L.Ordinal(place);
         return m.TotalPlayers is int total && total > 0

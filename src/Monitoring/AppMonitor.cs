@@ -524,24 +524,28 @@ public sealed class AppMonitor
             m.Placement, m.TotalPlayers, m.Eliminations);
     }
 
-    /// <summary>Cofres de los últimos 7 días del perfil mostrado (todas sus partidas, no solo las 100 últimas).</summary>
+    /// <summary>
+    /// Cofres de cada día de esta semana, de lunes a domingo, del perfil mostrado (todas sus partidas, no solo las
+    /// 100 últimas). Los días que aún no han llegado van marcados como futuros.
+    /// </summary>
     private List<DayChests> BuildLastDays(DateTime today, MatchRecord? live)
     {
         const int days = 7;
-        var first = today.AddDays(-(days - 1));
+        var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        var sunday = monday.AddDays(days - 1);
         var sums = new Dictionary<DateTime, int>();
         var all = Profiles.View(_data, _config).Matches.Append(live).OfType<MatchRecord>();
         foreach (var m in all)
         {
             var day = (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date;
-            if (day >= first && day <= today)
+            if (day >= monday && day <= sunday)
             {
                 sums[day] = sums.GetValueOrDefault(day) + m.ChestsOpened;
             }
         }
         return Enumerable.Range(0, days)
-            .Select(i => first.AddDays(i))
-            .Select(d => new DayChests(d, sums.GetValueOrDefault(d)))
+            .Select(i => monday.AddDays(i))
+            .Select(d => new DayChests(d, sums.GetValueOrDefault(d), Future: d > today))
             .ToList();
     }
 

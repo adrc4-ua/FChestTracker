@@ -4,6 +4,9 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Sin "sesiones": la ventana, el overlay y el informe muestran lo de **hoy** (cofres, partidas y media por partida de hoy).
+- Ventana: el gráfico es la semana actual, de lunes a domingo.
+- Informe: logo de la app, pestañas más grandes con iconos, estado "En directo", textos unificados (mayúscula inicial, versalitas solo en etiquetas) y "Victoria" en vez de "Victoria Real".
 - Informe: sin pie de página; la caza del tesoro pasa al Resumen (premios de la semana como fichas, el resto plegado).
 - Estructura del proyecto: la aplicación en `src/` (`FCT.csproj`) con el código por carpetas (`App`, `Analysis`, `Data`, `Monitoring`, `Overlay`, `Reporting`, `UI`, `Localization`), librería de replays en `external/`, solución `FCT.slnx`.
 

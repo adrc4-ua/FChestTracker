@@ -61,10 +61,11 @@ public sealed class DailyChart : Control
         using var centerFar = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Far };
         using var centerNear = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
 
+        // Semana de lunes a domingo: hoy en cian; los días que aún no han llegado, solo con la línea base y sin cifra.
         for (var i = 0; i < _days.Count; i++)
         {
             var d = _days[i];
-            var isToday = i == _days.Count - 1;
+            var isToday = d.Day == DateTime.Now.Date;
             var x = i * slot;
             var cx = x + slot / 2f;
             var h = max > 0 ? d.Chests / (float)max * maxBar : 0f;
@@ -81,9 +82,12 @@ public sealed class DailyChart : Control
                 g.FillRectangle(brushEmpty, cx - barWidth / 2f, baseline - 2f, barWidth, 2f);
             }
 
-            // Cifra encima de cada barra.
-            g.DrawString(L.N(d.Chests), fontValue, brushValue,
-                new RectangleF(x, baseline - h - valueH - 2f, slot, valueH), centerFar);
+            // Cifra encima de cada barra (no en los días que aún no han llegado).
+            if (!d.Future)
+            {
+                g.DrawString(L.N(d.Chests), fontValue, brushValue,
+                    new RectangleF(x, baseline - h - valueH - 2f, slot, valueH), centerFar);
+            }
 
             // Día abreviado debajo (lun, mar…).
             var name = d.Day.ToString("ddd", L.Culture);

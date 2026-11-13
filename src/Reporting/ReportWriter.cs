@@ -6,22 +6,8 @@ namespace FCT.Reporting;
 
 public static class ReportWriter
 {
-    public static readonly DateTime SessionStartUtc = DateTime.UtcNow;
-
     /// <summary>Set while several replays are being analyzed: the report shows a loading card and refreshes faster.</summary>
     public static volatile ScanProgress? Progress;
-
-    /// <summary>A match belongs to this session if it ended after the tool was started (backlog replays do not count).</summary>
-    public static bool IsThisSession(MatchRecord m)
-    {
-        var start = m.MatchStartUtc ?? m.AnalyzedAtUtc;
-        if (start.Kind == DateTimeKind.Unspecified)
-        {
-            start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
-        }
-        var end = start.ToUniversalTime().AddSeconds(m.DurationSeconds ?? 0);
-        return end >= SessionStartUtc.AddMinutes(-2);
-    }
 
     private static CultureInfo Loc => L.Culture;
 
@@ -71,11 +57,13 @@ public static class ReportWriter
         /* Cabecera */
         .masthead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding-bottom:22px;margin-bottom:8px}
         .brand{display:flex;align-items:center;gap:14px;min-width:0}
-        .logo{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;color:#1a1305;
+        img.logo{width:48px;height:48px;flex:none;border-radius:12px;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(232,176,75,.35))}
+        div.logo{width:48px;height:48px;flex:none;border-radius:14px;display:grid;place-items:center;color:#1a1305;
           background:linear-gradient(140deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));box-shadow:0 8px 24px -8px rgba(232,176,75,.55)}
         .eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
         h1{margin:0;font-size:26px;line-height:1.2;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
-        .upd{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border:1px solid var(--line2);border-radius:99px;background:rgba(18,18,21,.7);color:var(--muted);font-size:12.5px}
+        .upd{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid var(--line2);border-radius:99px;background:rgba(18,18,21,.7);color:var(--muted);font-size:12.5px}
+        .upd b{color:var(--ink);font-weight:600} .upd .sep{color:var(--faint)}
         .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 var(--gold);animation:pulse 2.2s ease-out infinite}
         @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,176,75,.55)}70%{box-shadow:0 0 0 7px rgba(232,176,75,0)}100%{box-shadow:0 0 0 0 rgba(232,176,75,0)}}
         .profiles{margin:0 0 22px;font-size:13px;color:var(--muted)}
@@ -94,7 +82,7 @@ public static class ReportWriter
         .kpi .acc,.kpi .ros,.kpi .mnt{color:var(--gold)}
         .split{display:flex;gap:28px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line2)}
         .split b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
-        .split span{font-size:12px;color:var(--muted)}
+        .split span{display:block;font-size:12px;color:var(--muted)}
 
         /* Secciones */
         section{margin-top:32px}
@@ -152,7 +140,7 @@ public static class ReportWriter
         tbody tr:hover td{background:rgba(232,176,75,.035)}
         .r{text-align:right} .nw{white-space:nowrap}
         .sm{font-size:12.5px;color:var(--muted)}
-        .badge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted);border:1px solid var(--line2)}
+        .badge{display:inline-block;line-height:1.5;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted);border:1px solid var(--line2)}
         .badge.win{background:var(--gold-soft);color:var(--gold-hi);border-color:var(--gold-line)}
         .badge.top{background:var(--champ-soft);color:var(--champ);border-color:rgba(216,194,143,.25)}
         .badge.mode{background:transparent;border:1px solid var(--line2);color:var(--ink);font-weight:500}
@@ -221,8 +209,9 @@ public static class ReportWriter
           background:rgba(18,18,21,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line2);border-radius:14px;box-shadow:0 10px 30px -12px rgba(0,0,0,.8)}
         .tabs::-webkit-scrollbar{display:none}
         html:not(.js) .tabs{display:none}
-        .tab{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:10px;
-          cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:background .15s,color .15s}
+        .tab{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;min-height:42px;padding:9px 16px;border-radius:10px;
+          cursor:pointer;display:inline-flex;align-items:center;gap:9px;white-space:nowrap;transition:background .15s,color .15s}
+        .tab .ti{flex:none;opacity:.8} .tab[aria-selected="true"] .ti{opacity:1}
         .tab:hover{color:var(--ink);background:rgba(255,255,255,.04)}
         .tab[aria-selected="true"]{color:#1a1305;background:linear-gradient(180deg,var(--gold-hi),var(--gold))}
         .tab .c{font-size:11.5px;font-weight:700;padding:0 7px;border-radius:99px;background:var(--bg2);color:var(--muted);font-variant-numeric:tabular-nums}
@@ -243,7 +232,7 @@ public static class ReportWriter
         .minis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:28px}
         .mini-kpi{padding:16px 18px;min-width:0}
         .mini-kpi b{display:block;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-        .mini-kpi span{font-size:12.5px;color:var(--muted)}
+        .mini-kpi span{display:block;font-size:12.5px;color:var(--muted)}
         .ros,.acc,.cy{color:var(--gold)}
         .flag{margin:0 0 20px}
         .empty.big{padding:56px 24px;font-size:14.5px}
@@ -301,6 +290,10 @@ public static class ReportWriter
         @media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.kpi.hero .v{font-size:54px}}
         @media (max-width:520px){main{padding:22px 16px 40px}.kpis{grid-template-columns:1fr 1fr}.kpi.hero{grid-row:auto}.kpi .v{font-size:24px}
           .kpi.hero .v{font-size:46px}th,td{padding:10px 12px}.chests .mini{display:none}.yaxis,.plot{height:150px}.tabs{top:6px}.plot,.xaxis{gap:2px}.col,.xaxis span{min-width:0}}
+        .kpi .s::first-letter,.split span::first-letter,.mini-kpi span::first-letter,.sh .meta::first-letter,.mate .st span::first-letter,
+        .board .who2 .sub::first-letter,.bfoot::first-letter,.profiles::first-letter,.note::first-letter,.row>span::first-letter,.badge::first-letter,
+        .chests+.sm::first-letter,td>.sm::first-letter,.tag::first-letter,.pchip::first-letter{text-transform:uppercase}
+        @media (max-width:520px){.tab{padding:9px 12px}.tab span:not(.c){display:none}.tab[aria-selected="true"] span:not(.c){display:inline}}
         @media (prefers-reduced-motion:reduce){.dot,.spin{animation:none}}
         """;
 
@@ -323,6 +316,17 @@ public static class ReportWriter
 
     private const string ChestIcon = """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><rect x="3" y="10" width="18" height="10" rx="2"/><path d="M3 14h18"/><rect x="10" y="12" width="4" height="4" rx="1"/></svg>""";
 
+    // Iconos de las pestañas (trazo, 18 px, color del texto).
+    private const string IconSvg = """<svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
+    private static readonly Dictionary<string, string> TabIcons = new()
+    {
+        ["resumen"] = IconSvg + """<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>""",
+        ["cofres"] = IconSvg + """<path d="M4 10V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><rect x="3" y="10" width="18" height="10" rx="2"/><path d="M3 14h18"/><rect x="10" y="12" width="4" height="4" rx="1"/></svg>""",
+        ["tesoros"] = IconSvg + """<path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l3 6 3-6M12 21 9 9m3 12 3-12"/></svg>""",
+        ["partidas"] = IconSvg + """<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>""",
+        ["companeros"] = IconSvg + """<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14a6.5 6.5 0 0 1 3 6"/></svg>""",
+    };
+
     public static string Report(Config config, TrackerData data, IReadOnlyList<Profile> profiles, int initialChests = 0)
     {
         var progress = Progress;
@@ -332,27 +336,27 @@ public static class ReportWriter
         var avg = matches.Count > 0 ? (double)countedChests / matches.Count : 0;
         var best = matches.Count > 0 ? matches.Max(m => m.ChestsOpened) : 0;
         var treasures = matches.Sum(m => m.TreasureFinds.Count);
-        var sessionMatches = matches.Where(IsThisSession).ToList();
-        var session = sessionMatches.Sum(m => m.ChestsOpened);
+        var todayMatches = matches.Where(m => When(m).Date == DateTime.Now.Date).ToList();
+        var todayChests = todayMatches.Sum(m => m.ChestsOpened);
         var wins = matches.Count(m => m.Placement == 1);
         var player = matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
         string N(int n) => n.ToString("#,0", Loc);
 
         var sb = new StringBuilder();
         var title = AppInfo.Name;
-        var updated = L.F("Actualizado {0} · en directo", "Updated {0} · live",
-            DateTime.Now.ToString(L.En ? "MMM d, yyyy HH:mm" : "dd/MM/yyyy HH:mm", Loc));
+        var updated = L.F("Actualizado {0}", "Updated {0}", DateTime.Now.ToString(L.En ? "MMM d, HH:mm" : "dd/MM, HH:mm", Loc));
+        var logo = AppLogo.DataUri;
         var heading = player.Length > 0 ? H(player) : title;
         sb.Append($"""
             <!doctype html><html lang="{L.Code}"><head><meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1">
             <meta name="color-scheme" content="dark">
             <meta http-equiv="refresh" content="{(progress != null ? 2 : 15)}">
-            <title>{title}{(player.Length > 0 ? " · " + H(player) : "")}</title><style>{Style}</style></head><body><main>
+            <title>{title}{(player.Length > 0 ? " · " + H(player) : "")}</title>{(logo != null ? $"<link rel=\"icon\" href=\"{logo}\">" : "")}<style>{Style}</style></head><body><main>
             <header class="masthead">
-              <div class="brand"><div class="logo">{ChestIcon}</div>
-                <div><div class="eyebrow">{(player.Length > 0 ? title : L.T("Informe", "Report"))}</div><h1>{heading}</h1></div></div>
-              <div class="upd"><span class="dot"></span>{updated}</div>
+              <div class="brand">{(logo != null ? $"<img class=\"logo\" src=\"{logo}\" alt=\"\" width=\"48\" height=\"48\">" : $"<div class=\"logo\">{ChestIcon}</div>")}
+                <div><div class="eyebrow">{title}</div><h1>{heading}</h1></div></div>
+              <div class="upd" role="status"><span class="dot" aria-hidden="true"></span><b>{L.T("En directo", "Live")}</b><span class="sep" aria-hidden="true">·</span>{updated}</div>
             </header>
             {LoadingCard(progress)}{ProfilesLine(profiles, player)}
             """);
@@ -380,7 +384,8 @@ public static class ReportWriter
         sb.Append($"""<nav class="tabs" role="tablist" aria-label="{L.T("Secciones del informe", "Report sections")}">""");
         foreach (var (id, label, count) in tabs)
         {
-            sb.Append($"""<button class="tab" role="tab" type="button" id="tab-{id}" data-tab="{id}" aria-controls="t-{id}">{label}{(count != null ? $"<span class=\"c\">{count}</span>" : "")}</button>""");
+            var countText = count != null ? $"<span class=\"c\" aria-label=\"{H(L.F("{0} en total", "{0} in total", count))}\">{count}</span>" : "";
+            sb.Append($"""<button class="tab" role="tab" type="button" id="tab-{id}" data-tab="{id}" aria-controls="t-{id}">{TabIcons.GetValueOrDefault(id)}<span>{label}</span>{countText}</button>""");
         }
         sb.Append("</nav>");
 
@@ -400,8 +405,8 @@ public static class ReportWriter
               <div class="kpi hero">
                 <div><div class="l">{L.T("Cofres en total", "Total chests")}</div><div class="v">{N(totalChests)}</div><div class="s">{initialNote}</div></div>
                 <div class="split">
-                  <div><b>{N(session)}</b><span>{L.T("en esta sesión", "this session")}{(sessionMatches.Count > 0 ? " · " + L.Count(sessionMatches.Count, "partida", "partidas", "match", "matches") : "")}</span></div>
-                  <div><b class="acc">{N(wins)}</b><span>{L.T(wins == 1 ? "victoria real" : "victorias reales", wins == 1 ? "Victory Royale" : "Victory Royales")}{(wins > 0 ? $" · {winRate.ToString("0", Loc)} %" : "")}</span></div>
+                  <div><b>{N(todayChests)}</b><span>{L.T("hoy", "today")}{(todayMatches.Count > 0 ? " · " + L.Count(todayMatches.Count, "partida", "partidas", "match", "matches") : "")}</span></div>
+                  <div><b class="acc">{N(wins)}</b><span>{L.T(wins == 1 ? "victoria" : "victorias", wins == 1 ? "win" : "wins")}{(wins > 0 ? $" · {winRate.ToString("0", Loc)} %" : "")}</span></div>
                   <div><b class="mnt">{N(top10)}</b><span>{L.T("top 10 sin ganar", "top 10 without winning")}</span></div>
                 </div>
               </div>
@@ -624,7 +629,7 @@ public static class ReportWriter
             // count can be lower than the post-match screen. Said here so that the difference has an explanation.
             if (m.EliminatedAtSeconds is float dead && m.Teammates is { Count: > 0 })
             {
-                treasure += $"<div class=\"sm\" title=\"{H(L.T("Tras tu eliminación definitiva, los tesoros que consiga el escuadrón no quedan en el replay: pueden faltar respecto a la pantalla de fin de partida.", "After your final elimination, the treasures the squad gets are not in the replay: some may be missing compared with the post-match screen."))}\">⚠ {H(L.F("eliminado {0}, tesoros posteriores no visibles", "eliminated {0}, later treasures not visible", Pretty.Clock(dead)))}</div>";
+                treasure += $"<div class=\"sm\" title=\"{H(L.T("Tras tu eliminación definitiva, los tesoros que consiga el escuadrón no quedan en el replay: pueden faltar respecto a la pantalla de fin de partida.", "After your final elimination, the treasures the squad gets are not in the replay: some may be missing compared with the post-match screen."))}\">⚠ {H(L.F("Eliminado en el {0}: tesoros posteriores no visibles", "Eliminated at {0}: later treasures not visible", Pretty.Clock(dead)))}</div>";
             }
             var placeClass = m.Placement switch { 1 => " win", > 0 and <= 10 => " top", _ => "" };
             var placeText = m.Placement == 1 ? "🏆 " + H(Pretty.Placement(m)) : H(Pretty.Placement(m));
@@ -952,7 +957,7 @@ public static class ReportWriter
         {
             return "";
         }
-        return $"""<div class="profiles">{L.T("Otros perfiles en este PC: ", "Other profiles on this PC: ")}{string.Join(", ", others)} · {L.T("cambia de perfil desde los ajustes de la herramienta", "switch profile from the tool's settings")}</div>""";
+        return $"""<div class="profiles">{L.T("Otros perfiles en este PC: ", "Other profiles on this PC: ")}{string.Join(", ", others)} · {L.T("cambia de perfil en Ajustes", "switch profile in Settings")}</div>""";
     }
 
     /// <summary>Rewrites only the OBS overlay page (called on every live update).</summary>

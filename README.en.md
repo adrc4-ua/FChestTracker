@@ -18,7 +18,7 @@
 
 FCT reads the replays Fortnite saves of every match and keeps count of the chests you open, the **treasure hunt treasures** and, if you want, your **teammates'** chests. Everything is saved on your PC: even when Fortnite deletes the replays, your history is kept.
 
-- **Main window**: total, last match, today, best day, average, best match, treasures, 7-day chart and your team.
+- **Main window**: total, last match, today, best day, average, best match, treasures, this week's chart and your team.
 - **Report** in your browser, with tabs: overview, chests, treasures, matches and teammates.
 - **Overlay** on top of the game and an **OBS page**.
 - **Teammates**: who you play with, wins together, each one's chests per match and a leaderboard.
@@ -45,9 +45,9 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 
 <p align="center"><img src="docs/images/main.png" alt="Main window" width="680"></p>
 
-- **Top left**: your chest total, the last match (or the current one, in green, while you play) and the session.
+- **Top left**: your chest total, the last match (or the current one, in green, while you play) and today (chests, matches and average).
 - **Right**: today, best day, average, best match, history (saved matches and since when) and treasures.
-- **Last 7 days**: a chart with each day's chests.
+- **This week**: a chart with each day's chests, Monday to Sunday.
 - **Team** (with *Teammates* on): your chests and each teammate's in the current or last match, the team total and their share.
 - **Buttons**: **Overlay** (green dot = on), **Report** and **Settings**. With several accounts on the PC, a profile picker shows up at the top.
 
@@ -59,7 +59,7 @@ The window can be resized and maximized: everything grows in proportion.
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Chest total, session, Victory Royales (and %), top 10s, matches, average, best match, best day, treasures, 30-day chart and the latest matches. |
+| **Overview** | Chest total, today, wins (and %), top 10s, matches, average, best match, best day, treasures, 30-day chart and the latest matches. |
 | **Chests** | By chest type, other containers (ammo boxes, food boxes, loot cannons; shows whether they count) and a **by game mode** table. |
 | **Treasures** | How many (featured and gizmos), % of matches with a treasure, where they come from, the list with the exact moment and who got them, and every treasure hunt prize by week. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
@@ -95,7 +95,7 @@ With **Add their chests to your total** (also off), your total, average, records
 <p align="center"><img src="docs/images/overlay-espera.png" alt="Overlay between two matches" width="300">&nbsp;&nbsp;<img src="docs/images/overlay-en-vivo.png" alt="Overlay live during a match" width="300"></p>
 
 - **Big numbers**: your chest **total** and, in the box, the **previous** match (or the **current** one, live, while you play).
-- **Session**, session **average**, **previous** (during a match) and **treasures**.
+- **Today**, today's **average** per match, **previous** (during a match) and **treasures**.
 
 To see it over the game, set Fortnite to **Windowed Fullscreen** (*Settings → Video → Window Mode*): in exclusive fullscreen Windows cannot draw on top. The overlay starts **off**: turn it on with the **Overlay** button or Ctrl+Shift+O.
 
