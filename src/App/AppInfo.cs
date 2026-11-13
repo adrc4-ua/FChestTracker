@@ -1,67 +1,78 @@
+using System.Security.Cryptography;
+using System.Text;
+
 namespace FCT.App;
 
-/// <summary>Version, GitHub repository and names shared by the tool's processes.</summary>
+/// <summary>Who FCT is: names, version, repository, where its exe is, and the names its processes meet under.</summary>
 public static class AppInfo
 {
-    public static Version Version { get; } = typeof(AppInfo).Assembly.GetName().Version ?? new Version(1, 0, 0);
-
-    public static string VersionText => $"{Version.Major}.{Version.Minor}.{Math.Max(0, Version.Build)}";
-
-    public const string Repo = "adrc4-ua/Fortnite-Chest-Tracker";
-    public static string RepoUrl => "https://github.com/" + Repo;
-    public static string IssuesUrl => RepoUrl + "/issues";
-
-    /// <summary>Name of the app where there is room for it (window title, welcome, report).</summary>
+    /// <summary>Long name, where there is room (window title, welcome, stats page).</summary>
     public const string Name = "Fortnite Chest Tracker";
-    /// <summary>Short name, used in sentences, menus and file names.</summary>
+
+    /// <summary>Short name, for sentences, menus and files.</summary>
     public const string ShortName = "FCT";
-    /// <summary>File name of the exe published in the releases.</summary>
+
+    /// <summary>The exe attached to every release.</summary>
     public const string ExeName = "FCT.exe";
 
-    /// <summary>Path of the running exe when it is the published exe, whatever it is called (null under "dotnet FCT.dll").</summary>
+    public const string Repo = "adrc4-ua/Fortnite-Chest-Tracker";
+    public static string RepoUrl => $"https://github.com/{Repo}";
+    public static string IssuesUrl => $"{RepoUrl}/issues";
+
+    public static Version Version { get; } = typeof(AppInfo).Assembly.GetName().Version ?? new Version(1, 0, 0);
+
+    /// <summary>"4.4.1".</summary>
+    public static string VersionText => $"{Version.Major}.{Version.Minor}.{(Version.Build < 0 ? 0 : Version.Build)}";
+
+    /// <summary>The running .exe, whatever its file name; null when run through "dotnet" (tests, development).</summary>
     public static string? ExePath
     {
         get
         {
-            var p = Environment.ProcessPath;
-            return p != null && Path.GetExtension(p).Equals(".exe", StringComparison.OrdinalIgnoreCase)
-                && !Path.GetFileNameWithoutExtension(p).Equals("dotnet", StringComparison.OrdinalIgnoreCase) ? p : null;
+            var process = Environment.ProcessPath;
+            var isOwnExe = process != null
+                && string.Equals(Path.GetExtension(process), ".exe", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(Path.GetFileNameWithoutExtension(process), "dotnet", StringComparison.OrdinalIgnoreCase);
+            return isOwnExe ? process : null;
         }
     }
 
-    // Names of the per-user kernel objects that let the processes find each other.
-    /// <summary>
-    /// One FCT at a time for the user, whatever its data folder: two would mean two overlays and two counters. Only the
-    /// automatic tests set FCT_SEPARATE_INSTANCES=1 to run copies with their own data folder (one per folder).
-    /// </summary>
-    public static string InstanceMutexFor(string dataDir)
-    {
-        if (Environment.GetEnvironmentVariable("FCT_SEPARATE_INSTANCES") != "1")
-        {
-            return @"Local\FCT.Instance";
-        }
-        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(dataDir).TrimEnd('\\', '/').ToLowerInvariant()));
-        return @"Local\FCT.Instance." + Convert.ToHexString(hash, 0, 8);
-    }
-    /// <summary>Set by a second launch so that the running instance (maybe hidden in the tray) shows its window.</summary>
-    public static string ShowEventFor(string dataDir) => InstanceMutexFor(dataDir).Replace(".Instance", ".Show");
+    // ---- Names of the kernel objects shared by FCT's processes (per Windows session) -------------------------------------
+
     public const string StandbyMutex = @"Local\FCT.Standby";
     public const string StandbyStopEvent = @"Local\FCT.StandbyStop";
 
-    /// <summary>--licenses: copyright and terms (NOTICE.md), third-party notices and the GPL-3.0 text, embedded in the exe.</summary>
+    /// <summary>
+    /// The single-instance mutex. One FCT per user, whatever the data folder (two would show two overlays); only the
+    /// automated tests set FCT_SEPARATE_INSTANCES=1 to get one per data folder.
+    /// </summary>
+    public static string InstanceMutexFor(string dataDir)
+    {
+        const string shared = @"Local\FCT.Instance";
+        if (Environment.GetEnvironmentVariable("FCT_SEPARATE_INSTANCES") != "1")
+        {
+            return shared;
+        }
+        var folder = Path.GetFullPath(dataDir).TrimEnd('\\', '/').ToLowerInvariant();
+        return $"{shared}.{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(folder)), 0, 8)}";
+    }
+
+    /// <summary>Signalled by a second launch so the running FCT (maybe only in the tray) brings its window up.</summary>
+    public static string ShowEventFor(string dataDir) => InstanceMutexFor(dataDir).Replace(".Instance", ".Show");
+
+    // ---- Legal texts -------------------------------------------------------------------------------------------------------
+
+    /// <summary>FCT.exe --licenses: NOTICE.md, THIRD_PARTY_NOTICES.md and the GPL text, all embedded in the exe.</summary>
     public static int PrintLicenses()
     {
-        var assembly = typeof(AppInfo).Assembly;
-        foreach (var name in new[] { "FCT.NOTICE.md", "FCT.THIRD_PARTY_NOTICES.md", "FCT.LICENSE" })
+        foreach (var resource in new[] { "FCT.NOTICE.md", "FCT.THIRD_PARTY_NOTICES.md", "FCT.LICENSE" })
         {
-            using var stream = assembly.GetManifestResourceStream(name);
-            if (stream == null)
+            using var text = typeof(AppInfo).Assembly.GetManifestResourceStream(resource);
+            if (text != null)
             {
-                continue;
+                Console.WriteLine(new StreamReader(text).ReadToEnd());
+                Console.WriteLine();
             }
-            using var reader = new StreamReader(stream);
-            Console.WriteLine(reader.ReadToEnd());
-            Console.WriteLine();
         }
         Console.WriteLine(RepoUrl);
         return 0;
