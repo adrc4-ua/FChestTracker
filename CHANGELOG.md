@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- Tesoros: en «Todas las semanas», se quita la ficha con el recuento total de artilugios.
 - La página de estadísticas (antes «Informe» / «Resumen») pasa a llamarse **Estadísticas** en toda la aplicación, la consola y la documentación, y ahora se sirve en `http://localhost:7373/estadisticas` (`http://localhost:7373/estadisticas#resumen`).
 
 ## [3.4.1] - 2026-11-12

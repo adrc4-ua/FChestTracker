@@ -1046,15 +1046,12 @@ public static class ReportWriter
         }
 
         // Cualquier semana: acceso a la tienda y los artilugios.
-        var gizmos = rows.Count(r => !r.f.Featured);
         var chips = Prizes.All.Where(p => p.Week == 0).Select(p =>
         {
             var n = got.GetValueOrDefault(Prizes.Shown(p));
             return $"<span class=\"pchip{(n > 0 ? " got" : "")}\"><i>{Icon(p)}</i>{H(Prizes.Shown(p))}{(n > 0 ? $" <b>×{n}</b>" : "")}</span>";
         });
-        sb.Append($"""<div class="always"><span class="al">{L.T("Todas las semanas", "Every week")}</span>{string.Concat(chips)}"""
-                  + (gizmos > 0 ? $"""<span class="pchip got">★ {L.Count(gizmos, "artilugio", "artilugios", "gizmo", "gizmos")}</span>""" : "")
-                  + "</div>");
+        sb.Append($"""<div class="always"><span class="al">{L.T("Todas las semanas", "Every week")}</span>{string.Concat(chips)}</div>""");
         sb.Append($"""<button class="wtoggle" type="button" aria-expanded="false" aria-controls="weeks" data-open="{H(L.T("Ver todas las semanas", "See every week"))}" data-close="{H(L.T("Ocultar las semanas", "Hide the weeks"))}">{L.T("Ver todas las semanas", "See every week")}</button>""");
         sb.Append("</div></section>");
 
