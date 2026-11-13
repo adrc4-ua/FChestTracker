@@ -100,8 +100,9 @@ public sealed class MainForm : Form
 
         // Última partida: cofres abiertos, con los detalles (rotos, tesoros, puesto, eliminaciones).
         var last = new Card { Location = new Point(LeftX, 149), Size = new Size(LeftW, 50), Radius = 12 };
-        Lbl(last, L.T("Última partida", "Last match"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 6), new Size(101, 13));
-        _lastDetail = Lbl(last, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(101, 5), new Size(153, 15), ContentAlignment.MiddleRight);
+        Lbl(last, L.T("Última partida", "Last match"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 6), new Size(70, 13));
+        // Más ancho que antes: "6 roto(s) · 1 tesoro · 3.º de 80 · 2 elim." se cortaba por la izquierda.
+        _lastDetail = Lbl(last, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(84, 5), new Size(170, 15), ContentAlignment.MiddleRight);
         _lastValue = Lbl(last, "—", 11.5f, FontStyle.Bold, Theme.Amber, new Point(13, 22), new Size(243, 22));
         Controls.Add(last);
 

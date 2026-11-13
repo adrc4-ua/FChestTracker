@@ -795,8 +795,9 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
                 .FirstOrDefault();
             var mine = source != null && targetPawns.Contains(source.SearcherPawn!.Value);
             var kind = source != null ? ChestKinds.Classify(source.Label) : "unknown";
-            // Same instant as the search (or the dig of a buried chest): certain. Only close to it: likely.
-            var exact = source != null && (Math.Abs(source.Time - h) <= 0.5f || (kind == ChestKinds.Buried && source.Time >= h));
+            // Same instant as the search (or the dig of a buried chest): certain. Only close to it: likely. A chest that
+            // is destroyed reports it a little before the grant (0.6 s measured on a teammate's chest), hence 1 s.
+            var exact = source != null && (Math.Abs(source.Time - h) <= 1f || (kind == ChestKinds.Buried && source.Time >= h));
             if (debug1)
             {
                 Console.Error.WriteLine($"DBG decide {h,7:F1}s {(source == null ? "NO-SEARCH" : mine ? "MINE" : "TEAMMATE " + matePawnNames[source.SearcherPawn!.Value])}"
