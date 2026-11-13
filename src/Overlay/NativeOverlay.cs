@@ -744,6 +744,15 @@ public static class NativeOverlay
         {
             var line = new RECT { Left = x, Top = statsY, Right = right, Bottom = statsY + 1 };
             FillRect(hdc, ref line, _brushLine);
+            // A light gold line between the columns (the app's thin gold border colour), in the middle of each gap.
+            var top = statsY + 1 + S(8);
+            var bottom = statsY + 1 + S(7) + _captionH + S(1) + _statH - S(1);
+            for (var i = 0; i < v.Rows.Count - 1; i++)
+            {
+                var sx = (int)Math.Round(ColLeft(i) + colW + S(StatGap) / 2f);
+                var divider = new RECT { Left = sx, Top = top, Right = sx + 1, Bottom = bottom };
+                FillRect(hdc, ref divider, _brushBorder);
+            }
         }
 
         // 2 · Gradients, icons and big numbers (GDI+).

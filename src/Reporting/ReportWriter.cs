@@ -1294,7 +1294,7 @@ public static class ReportWriter
         .chip{min-width:84px;padding:5px 12px;border-radius:12px;background:rgba(232,176,75,.10);border:1px solid rgba(232,176,75,.30);text-align:center}
         .chip.live .big{background:none;color:#86d6a0}.chip.live .cap{color:#86d6a0}.chip.none .big{background:none;color:#5a554b}
         .stats{display:flex;justify-content:space-around;gap:14px;border-top:1px solid #2c2a26;padding-top:7px}
-        .stat{text-align:center}.stat .cap{font-size:10px}.stat b{display:block;font-size:16px;font-weight:700}
+        .stat{text-align:center;flex:1}.stat+.stat{border-left:1px solid rgba(232,176,75,.30)}.stat .cap{font-size:10px}.stat b{display:block;font-size:16px;font-weight:700}
         .stat.t b{color:#e8b04b;display:flex;align-items:center;justify-content:center;gap:4px}.stat.t svg{width:15px;height:15px}
         .stat small{display:block;font-size:11px;font-weight:600;color:#968f80}
         svg .f{fill:currentColor;fill-opacity:.3}
