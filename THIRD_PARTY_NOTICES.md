@@ -1,13 +1,13 @@
 # Third-party notices · Avisos de terceros
 
 Fortnite Chest Tracker (FCT), Copyright (C) 2026 Adrián Ruiz, is released under the [GNU GPL version 3](LICENSE)
-with the additional terms in [NOTICE.md](NOTICE.md) (versions up to 4.4.1: MIT). This file lists everything external
-the project includes, is based on or connects to, with its license or terms; the third-party parts keep their own
-licenses. It is also embedded in `FCT.exe` (`FCT.exe --licenses` prints it).
+with the additional terms in [NOTICE.md](NOTICE.md) (versions up to 4.4.1: MIT). This file lists the third-party code
+FCT includes, with its license, and where the project comes from; the third-party parts keep their own licenses. What
+FCT connects to is in the [privacy policy](CODE_SIGNING_POLICY.md#privacy-policy). It is also embedded in `FCT.exe` (`FCT.exe --licenses` prints it).
 
 *FCT, Copyright (C) 2026 Adrián Ruiz, se publica con la licencia GNU GPL versión 3 con las condiciones adicionales de
-NOTICE.md (hasta la 4.4.1: MIT). Este archivo recoge todo lo externo que el proyecto incluye, en lo que se basa o a lo
-que se conecta, con su licencia o condiciones; las partes de terceros conservan sus propias licencias. También va
+NOTICE.md (hasta la 4.4.1: MIT). Este archivo recoge el código de terceros que incluye FCT, con su licencia, y de dónde viene el
+proyecto; las partes de terceros conservan sus propias licencias. A qué se conecta FCT está en la política de privacidad. También va
 dentro de `FCT.exe` (`FCT.exe --licenses` lo muestra).*
 
 ---
@@ -23,42 +23,16 @@ dentro de `FCT.exe` (`FCT.exe --licenses` lo muestra).*
 ## 2. Origin of the project · Origen del proyecto
 
 FCT started as a fork of [ChestCounter](https://github.com/xdoofy92/ChestCounter), by xdoofy92, which gave it its
-starting idea: counting the chests opened in Fortnite from the game's replay files. FCT has grown separately since then
-(treasures and the end-of-match screen, teammates, profiles, estimate of earlier matches, interface, overlay, start with
-Fortnite, distribution…), and from the version after 4.4.1 all of its code is its own: no ChestCounter code is included,
-so FCT does not carry ChestCounter's license. Versions up to 4.4.1 did include ChestCounter code, under its MIT license
-(© 2026 LED-N), and those copies keep that notice.
-The first commit of this repository, "Base de código añadida", is the ChestCounter code FCT started from, with its MIT
-license and copyright notice; FCT's own work begins with the commits after it.
+idea: counting the chests opened in Fortnite from the game's replay files. From the version after 4.4.1 all of FCT's
+code is its own. Versions up to 4.4.1, and the first commit of this repository ("Base de código añadida"), include
+ChestCounter code under its MIT license (© 2026 LED-N), with its notice.
 
-*FCT empezó como un fork de ChestCounter, de xdoofy92, que le dio la idea de partida: contar los cofres abiertos en
-Fortnite a partir de las repeticiones del juego. Desde entonces FCT ha crecido por su cuenta (tesoros y pantalla de fin de
-partida, compañeros, perfiles, estimado de partidas previas, interfaz, overlay, apertura con Fortnite, distribución…) y,
-desde la versión siguiente a la 4.4.1, todo su código es propio: no incluye código de ChestCounter, así que FCT no lleva
-su licencia. Las versiones hasta la 4.4.1 sí incluían código de ChestCounter, con su licencia MIT (© 2026 LED-N), y esas
-copias conservan ese aviso. El primer commit de este repositorio, «Base de código añadida», es el código de ChestCounter
-del que partió FCT, con su licencia MIT y su aviso de copyright; el trabajo propio de FCT empieza en los commits
-siguientes.*
+*FCT empezó como un fork de ChestCounter, de xdoofy92, que le dio la idea: contar los cofres abiertos en Fortnite a partir
+de las repeticiones del juego. Desde la versión siguiente a la 4.4.1 todo el código de FCT es propio. Las versiones hasta
+la 4.4.1, y el primer commit de este repositorio («Base de código añadida»), incluyen código de ChestCounter con su
+licencia MIT (© 2026 LED-N) y su aviso.*
 
-## 3. Online services · Servicios en línea
-
-FCT has no login, no telemetry and no analytics. It only connects to these services, as described in the
-[privacy policy](CODE_SIGNING_POLICY.md#privacy-policy):
-
-| Service | When | What is sent |
-|---|---|---|
-| [GitHub](https://github.com) (api.github.com) | To check for and download new versions of FCT. Can be turned off (*Settings → Updates → Never*). | Nothing about the player: a standard request for the latest release of this repository. |
-| [Fortnite-API](https://fortnite-api.com) ([docs](https://dash.fortnite-api.com/)) | Only when the player asks for it, to estimate the chests opened before using FCT: it looks up the player's Battle Royale matches **in the current season** (public stats). | The Epic account id or name the player confirms, nothing else. Requests carry the project's own free API key, as Fortnite-API requires for stats. Fortnite-API is a non-official service, not endorsed by Epic Games; FCT is not affiliated with it. If the profile is private or the lookup fails, the player can type the number instead. |
-| [fortnite.gg](https://fortnite.gg/stats) | Never contacted by FCT. It is only **suggested** as a website the player can visit by themselves to read their number of matches and type it by hand, when the lookup above fails. | Nothing. FCT does not access, scrape or automate fortnite.gg in any way, and is not affiliated with it. |
-
-The stats page and the OBS overlay are served on the player's own PC (`localhost`) and never leave it.
-
-## 4. Code signing · Firma del código
-
-Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by
-[SignPath Foundation](https://signpath.org/). See the [code signing policy](CODE_SIGNING_POLICY.md).
-
-## 5. Trademarks · Marcas
+## 3. Trademarks · Marcas
 
 Fortnite Chest Tracker is an independent fan project. It is not affiliated with, endorsed, sponsored or approved by
 Epic Games, Inc. Fortnite, Epic Games and their logos are trademarks or registered trademarks of Epic Games, Inc. in
@@ -70,7 +44,8 @@ list of running programs; it does not modify the game, read its memory or intera
 respaldo, patrocinio o aprobación. Fortnite, Epic Games y sus logotipos son marcas comerciales o registradas de Epic
 Games, Inc. en EE. UU. y otros países.*
 
-GitHub is a trademark of GitHub, Inc. SignPath is a trademark of SignPath GmbH. Other names belong to their owners.
+Fortnite-API and fortnite.gg are unofficial services, not related to this project. GitHub is a trademark of GitHub,
+Inc. SignPath is a trademark of SignPath GmbH. Other names belong to their owners.
 
 ---
 

@@ -37,8 +37,9 @@ or the person installing or operating it. In detail:
 - **Updates:** it asks GitHub (api.github.com) whether there is a newer release and downloads it from GitHub. This can
   be turned off in *Settings → Updates → Never*.
 - **Earlier matches:** only when the user asks for it (estimate of the chests opened before using FCT), it asks
-  [Fortnite-API](https://fortnite-api.com) for the user's matches in the current season, sending the Epic account id or
-  name confirmed by the user, and nothing else.
+  [Fortnite-API](https://fortnite-api.com), an unofficial service, for the user's public Battle Royale stats of the
+  current season, sending the Epic account id or name confirmed by the user, and nothing else. If that fails, FCT
+  suggests [fortnite.gg](https://fortnite.gg/stats) as a website to look the number up by hand; FCT never contacts it.
 - **Stats page and OBS overlay:** served on the user's own PC (`localhost`) only; nothing leaves the computer.
 
 It has no login, no telemetry and no analytics. Everything it records stays in the user's data folder

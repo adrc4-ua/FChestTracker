@@ -51,7 +51,7 @@ license, which is the GPL-3.0 with the additional terms above.
 - **You cannot** make a closed-source version, remove the credit, or present your version as the original FCT.
 - The GPL allows charging for copies, but whoever receives them gets the same rights, including the source code and
   the right to share it for free. No other restriction can be added on top of the GPL (its section 10).
-- The author keeps the copyright of his code and every right the law gives him, including the right to act against
+- The author keeps the copyright of the code and every right the law grants, including the right to act against
   any use that breaks these terms.
 
 ## Earlier versions
@@ -59,18 +59,10 @@ license, which is the GPL-3.0 with the additional terms above.
 Versions up to and including **4.4.1** were published under the MIT license: those copies remain under the MIT
 license. The license above applies from the version after 4.4.1 on.
 
-## Third-party code
+## Third-party code and trademarks
 
-- FCT started as a fork of [ChestCounter](https://github.com/xdoofy92/ChestCounter) (xdoofy92), the project that gave it
-  its idea. All of FCT's code is now its own; versions up to 4.4.1 included ChestCounter code under its MIT license
-  (Copyright (c) 2026 LED-N), and those copies keep that notice.
-- [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) (Copyright (c) 2020-2026 Shiqan,
-  MIT) and the .NET runtime (MIT): see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-## Trademarks
-
-Fortnite Chest Tracker is an independent fan project, not affiliated with, endorsed, sponsored or approved by Epic
-Games, Inc. Fortnite and Epic Games are trademarks or registered trademarks of Epic Games, Inc.
+The code of others that FCT includes, the project's origin and the trademark notice are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
 
@@ -104,7 +96,4 @@ la ley, incluido el de actuar contra cualquier uso que incumpla estas condicione
 **Versiones anteriores:** hasta la **4.4.1** incluida se publicaron con licencia MIT, y esas copias siguen siendo MIT.
 Esta licencia rige desde la versión siguiente.
 
-**Origen y código de terceros:** FCT empezó como un fork de ChestCounter (xdoofy92), el proyecto que le dio la idea;
-hoy todo su código es propio (hasta la 4.4.1 incluía código de ChestCounter, con su licencia MIT, © 2026 LED-N).
-FortniteReplayDecompressor (© Shiqan, MIT) y .NET (MIT). Todo en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-FCT no está afiliado a Epic Games; Fortnite es una marca registrada de Epic Games, Inc.
+**Código de terceros y marcas:** en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
