@@ -76,9 +76,6 @@ public class BinaryReader : FArchive
 
     public override bool AtEnd() => _position >= _length;
 
-    /// <summary>FCT patch: total size, used to stop at the last complete chunk of a replay being written.</summary>
-    public int Length => _length;
-
     public override bool CanRead(int count) => _position + count < _length;
 
     public override T[] ReadArray<T>(Func<T> func1)

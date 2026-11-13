@@ -87,8 +87,7 @@ public class NetGuidCache
             exportGroup.PathName = exportGroup.PathName.RemoveAllPathPrefixes();
         }
 
-        // FCT patch: an actor whose export group arrives a moment after the actor itself was cached as
-        // "failed" for good, and every later update of it was dropped. A new group may resolve those paths: retry them.
+        // FCT: an actor can arrive before its group; once a new group is known, earlier failures deserve another look.
         if (!NetFieldExportGroupMap.ContainsKey(group))
         {
             _failedPaths.Clear();
@@ -145,9 +144,6 @@ public class NetGuidCache
     /// </summary>
     /// <param name="netguid"></param>
     /// <returns><see cref="NetFieldExportGroup"/></returns>
-    private static readonly System.Text.RegularExpressions.Regex StaticInstanceSuffix =
-        new(@"(_UAID_.*|_[0-9a-f]{16}_\d+)$", System.Text.RegularExpressions.RegexOptions.Compiled);
-
     public NetFieldExportGroup? GetNetFieldExportGroup(uint? netguid)
     {
         if (!netguid.HasValue)
@@ -210,23 +206,9 @@ public class NetGuidCache
                 }
             }
 
-            // FCT patch: level placed actors whose instance name is not their class name, e.g.
-            // "Tiered_Chest_Athena47_UAID_387C..._1632776713" or "Tiered_Chest_Athena5_6e02a0a859c897db_11" (class
-            // Tiered_Chest_Athena_C). Strip the UAID / instance hash part and the number suffix and accept only an exact
-            // "<name>_C" class, so a wrong layout is never used.
-            var baseName = StaticInstanceSuffix.Replace(path.RemoveAllPathPrefixes(), "").CleanPathSuffix();
-            if (baseName.Length > 0)
+            if (FindByInstanceName(netguid.Value, path) is { } placed)
             {
-                var className = baseName + "_C";
-                foreach (var groupPathKvp in NetFieldExportGroupMap)
-                {
-                    if (_cleanedPaths.TryGetValue(groupPathKvp.Value.PathNameIndex, out var groupPathFixed) && groupPathFixed == className)
-                    {
-                        NetFieldExportGroupMapPathFixed[netguid.Value] = groupPathKvp.Value;
-                        _archTypeToExportGroup[netguid.Value] = groupPathKvp.Value;
-                        return groupPathKvp.Value;
-                    }
-                }
+                return placed;
             }
 
             _failedPaths.Add(path);
@@ -306,9 +288,8 @@ public class NetGuidCache
     /// <summary>
     /// Empty the NetGuidCache
     /// </summary>
-    public static bool KeepOnCleanup;
     public void Cleanup()
-    { if (KeepOnCleanup) return;
+    {
         NetFieldExportGroupIndexToGroup.Clear();
         NetFieldExportGroupMap.Clear();
         NetGuidToPathName.Clear();
@@ -320,5 +301,36 @@ public class NetGuidCache
         _cleanedPaths.Clear();
         _cleanedClassNetCache.Clear();
         _failedPaths.Clear();
+    }
+
+    // ---- Added for Fortnite Chest Tracker (see PATCHES.md) ----------------------------------------------------------
+
+    /// <summary>Instance tails of level-placed actors: "_UAID_…" or "_&lt;16 hex digits&gt;_&lt;number&gt;".</summary>
+    private static readonly System.Text.RegularExpressions.Regex InstanceTail =
+        new(@"(_UAID_.*|_[0-9a-f]{16}_\d+)$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>
+    /// A level-placed actor is named after its class plus an instance tail ("Tiered_Chest_Athena47_UAID_…" for the class
+    /// "Tiered_Chest_Athena_C"). Without the tail and the trailing number, only a group of exactly that class is
+    /// accepted, so a look-alike layout is never used.
+    /// </summary>
+    private NetFieldExportGroup? FindByInstanceName(uint netguid, string path)
+    {
+        var className = InstanceTail.Replace(path.RemoveAllPathPrefixes(), "").CleanPathSuffix();
+        if (className.Length == 0)
+        {
+            return null;
+        }
+        className += "_C";
+        foreach (var candidate in NetFieldExportGroupMap.Values)
+        {
+            if (_cleanedPaths.TryGetValue(candidate.PathNameIndex, out var cleaned) && cleaned == className)
+            {
+                NetFieldExportGroupMapPathFixed[netguid] = candidate;
+                _archTypeToExportGroup[netguid] = candidate;
+                return candidate;
+            }
+        }
+        return null;
     }
 }

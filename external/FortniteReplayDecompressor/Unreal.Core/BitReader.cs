@@ -975,11 +975,9 @@ public class BitReader : FBitArchive
 
     public override void SetTempEnd(int size, FBitArchiveEndIndex index)
     {
-        // FCT patch: always save the current end, even on overflow. Otherwise the matching
-        // RestoreTempEnd restores a stale end left by an earlier packet and the read position can move
-        // backwards, re-reading the same bunches forever (parse timeout on some replays).
+        // FCT: remember the current end before anything can fail. Otherwise a failed call leaves an older saved end in
+        // place, the matching RestoreTempEnd moves the position backwards, and the same bunches are read again forever.
         _tempLastBit[(int)index] = LastBit;
-
         var setPosition = Position + size;
         if (size < 0 || setPosition > LastBit)
         {

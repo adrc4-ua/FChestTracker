@@ -8,5 +8,6 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/FCT.csproj" />
+    <Project Path="src/ReplayModels/FCT.ReplayReader.Models.csproj" />
   </Folder>
 </Solution>

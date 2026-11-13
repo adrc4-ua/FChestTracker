@@ -211,7 +211,7 @@ public class ReplayReader : Unreal.Core.ReplayReader<FortniteReplay>
         _logger?.LogDebug("Unknown event {group} ({metadata}) of size {sizeInBytes}", info.Group, info.Metadata, info.SizeInBytes);
         if (IsDebugMode)
         {
-            // patched: ignore unknown events
+            throw new UnknownEventException($"Unknown event {info.Group} ({info.Metadata}) of size {info.SizeInBytes}");
         }
     }
 

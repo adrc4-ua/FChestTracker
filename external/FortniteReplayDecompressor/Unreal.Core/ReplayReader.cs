@@ -55,10 +55,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
     protected ParseMode _parseMode;
     protected bool IsDebugMode => _parseMode == ParseMode.Debug;
 
-    public static float CurrentTime;
-
-    /// <summary>FCT patch: true when the file ended in the middle of a chunk (replay still being written).</summary>
-    public bool IsPartialReplay { get; protected set; }
     protected NetGuidCache _netGuidCache;
     protected NetFieldParser _netFieldParser;
 
@@ -313,24 +309,9 @@ public abstract class ReplayReader<T> where T : Replay, new()
     {
         while (!archive.AtEnd())
         {
-            // FCT patch: a replay still being recorded can end in the middle of a chunk. Stop at the
-            // last complete chunk instead of reading past the end.
-            if (archive is BinaryReader whole && whole.Length - archive.Position < 8)
-            {
-                IsPartialReplay = true;
-                return;
-            }
-
             var chunkType = archive.ReadUInt32AsEnum<ReplayChunkType>();
             var chunkSize = archive.ReadInt32();
             var offset = archive.Position;
-
-            if (archive is BinaryReader full && chunkSize > 0 && (long)offset + chunkSize > full.Length)
-            {
-                _logger?.LogInformation("Incomplete chunk ({chunkType}) at offset {offset}: replay still being written.", chunkType, offset);
-                IsPartialReplay = true;
-                return;
-            }
 
             if (chunkSize <= 0 || (long)chunkSize + offset > int.MaxValue)
             {
@@ -341,21 +322,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
 
             if (chunkType == ReplayChunkType.ReplayData && _parseMode > ParseMode.EventsOnly)
             {
-                try
-                {
-                    ReadReplayData(archive, chunkSize);
-                }
-                catch (System.Security.Cryptography.CryptographicException ex) when (Replay.Info?.IsLive == true)
-                {
-                    // FCT patch: replay being recorded, a data chunk that cannot be decrypted (yet): stop here.
-                    _logger?.LogWarning("Live replay: data chunk {index} at offset {offset} ({size} bytes) could not be decrypted: {message}", replayDataIndex, offset, chunkSize, ex.Message);
-                    if (Environment.GetEnvironmentVariable("FCT_DEBUG") is { Length: > 0 })
-                    {
-                        Console.Error.WriteLine($"DBG live chunk {replayDataIndex} offset={offset} size={chunkSize} undecryptable");
-                    }
-                    IsPartialReplay = true;
-                    return;
-                }
+                ReadReplayData(archive, chunkSize);
             }
 
             else if (chunkType == ReplayChunkType.Checkpoint)
@@ -367,16 +334,7 @@ public abstract class ReplayReader<T> where T : Replay, new()
 
             else if (chunkType == ReplayChunkType.Event)
             {
-                try
-                {
-                    ReadEvent(archive);
-                }
-                catch (System.Security.Cryptography.CryptographicException ex) when (Replay.Info?.IsLive == true)
-                {
-                    // FCT patch: in a replay being recorded some event chunks are not final yet
-                    // (they cannot be decrypted until the match ends). Skip them; the data chunks are fine.
-                    _logger?.LogInformation("Live replay: event chunk at offset {offset} skipped: {message}", offset, ex.Message);
-                }
+                ReadEvent(archive);
             }
 
             else if (chunkType == ReplayChunkType.Header)
@@ -619,7 +577,8 @@ public abstract class ReplayReader<T> where T : Replay, new()
             throw new InvalidReplayException("Completed replay is marked encrypted but has no key!");
         }
 
-        // FCT patch: Fortnite writes the key from the start, so a replay being recorded can be read.
+        // FCT: Fortnite writes the key of a replay from the start, so one still being recorded can already be read;
+        // only a live replay without its key is refused.
         if (info.IsLive && info.IsEncrypted && info.EncryptionKey.Length == 0)
         {
             _logger?.LogError("ReadReplayInfo: Replay is marked encrypted but not yet marked as completed!");
@@ -855,7 +814,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
         }
 
         var timeSeconds = archive.ReadSingle();
-        CurrentTime = timeSeconds;
         _logger?.LogDebug("ReadDemoFrameIntoPlaybackPackets at {}", timeSeconds);
 
         if (archive.NetworkVersion >= NetworkVersionHistory.HISTORY_LEVEL_STREAMING_FIXES)
@@ -1012,7 +970,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
                 if (isExportingNetGUIDBunch)
                 {
                     _netGuidCache.NetGuidToPathName[netGuid.Value] = pathName.RemoveAllPathPrefixes();
-                    OnNetGuidExported(netGuid.Value, pathName);
                 }
 
                 return netGuid;
@@ -1397,22 +1354,8 @@ public abstract class ReplayReader<T> where T : Replay, new()
 
         if (netFieldExportGroup is null)
         {
-            _logger?.LogInformation("Failed group for repObject {} ({})", repObject, repObject is uint ro && _netGuidCache.TryGetPathName(ro, out var rp) ? rp : "?");
-            if (RawProbe.Sink != null)
-            {
-                var objectName = repObject is uint rpo && _netGuidCache.TryGetPathName(rpo, out var probePath) ? probePath : $"guid:{repObject}";
-                var left = archive.GetBitsLeft();
-                if (left > 0 && RawProbe.Matches("?" + objectName))
-                {
-                    RawProbe.Sink(bunch.ChIndex, "?" + objectName, bHasRepLayout ? "raw+replayout" : "raw", archive.ReadBits(left).ToArray(), left);
-                }
-            }
+            //_logger?.LogWarning($"Failed group. {bunch.ChIndex}");
             return true;
-        }
-
-        if (RawProbe.Sink != null && !_netFieldParser.WillReadType(netFieldExportGroup.PathName) && RawProbe.Matches(netFieldExportGroup.PathName))
-        {
-            return ProbeReplicatorBunch(bunch, archive, netFieldExportGroup, bHasRepLayout);
         }
 
         // Handle replayout properties
@@ -1452,7 +1395,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
                 if (fieldCache == null)
                 {
                     _logger?.LogInformation("ReceivedBunch: FieldCache == nullptr: {}", classNetCache.PathName);
-                    ProbeField(bunch.ChIndex, classNetCache.PathName, "?", archive);
                     continue;
                 }
 
@@ -1471,7 +1413,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
 
                 if (!_netFieldParser.WillReadClassNetCache(classNetCache.PathName))
                 {
-                    ProbeField(bunch.ChIndex, classNetCache.PathName, fieldCache.Name, archive);
                     continue;
                 }
 
@@ -1499,14 +1440,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
                         }
                         else
                         {
-                            // FCT patch: when RawProbe asks for this field, give it the raw FastArray payload
-                            // instead of the generic NetDelta decoding (wrong for ActivatableAbilities: garbage indices).
-                            if (RawProbe.Matches(classNetCache.PathName + "." + fieldCache.Name))
-                            {
-                                ProbeField(bunch.ChIndex, classNetCache.PathName, fieldCache.Name, archive);
-                                continue;
-                            }
-
                             var group = _netGuidCache.GetNetFieldExportGroup(classNetProperty.PathName);
                             if (group is null || !_netFieldParser.WillReadType(group.PathName))
                             {
@@ -1525,7 +1458,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
                 else
                 {
                     _logger?.LogDebug("Skipping struct {name} from group {pathName}", fieldCache.Name, classNetCache.PathName);
-                    ProbeField(bunch.ChIndex, classNetCache.PathName, fieldCache.Name, archive);
                 }
             }
             finally
@@ -1534,85 +1466,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
                 {
                     archive.RestoreTempEnd(FBitArchiveEndIndex.FIELD_HEADER_PAYLOAD);
                 }
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>FCT patch: hands the remaining bits of a field payload to <see cref="RawProbe"/>.</summary>
-    private static void ProbeField(uint channelIndex, string group, string field, FBitArchive archive)
-    {
-        if (RawProbe.Sink == null || !RawProbe.Matches(group + "." + field))
-        {
-            return;
-        }
-        var bits = archive.GetBitsLeft();
-        if (bits > 0)
-        {
-            RawProbe.Sink(channelIndex, group, field, archive.ReadBits(bits).ToArray(), bits);
-        }
-    }
-
-    /// <summary>
-    /// FCT patch: reads a bunch of a group the parser does not know, without decoding it,
-    /// and hands every property / ClassNetCache field payload to <see cref="RawProbe"/>.
-    /// </summary>
-    private bool ProbeReplicatorBunch(DataBunch bunch, FBitArchive archive, NetFieldExportGroup group, bool bHasRepLayout)
-    {
-        if (bHasRepLayout)
-        {
-            archive.ReadBit(); // property checksum flag
-            while (true)
-            {
-                var handle = archive.ReadIntPacked();
-                if (handle == 0 || archive.IsError)
-                {
-                    break;
-                }
-                handle--;
-                var numBits = archive.ReadIntPacked();
-                if (archive.IsError || numBits > archive.GetBitsLeft())
-                {
-                    return false;
-                }
-                if (numBits == 0)
-                {
-                    continue;
-                }
-                var name = group.IsValidIndex(handle) ? group.NetFieldExports[handle]?.Name ?? $"#{handle}" : $"#{handle}";
-                RawProbe.Sink!(bunch.ChIndex, group.PathName, name, archive.ReadBits(numBits).ToArray(), (int)numBits);
-            }
-        }
-
-        if (archive.AtEnd())
-        {
-            return true;
-        }
-
-        if (!_netGuidCache.TryGetClassNetCache(group.PathName, out var classNetCache, bunch.Archive.EngineNetworkVersion >= EngineNetworkVersionHistory.HISTORY_CLASSNETCACHE_FULLNAME))
-        {
-            return false;
-        }
-
-        while (ReadFieldHeaderAndPayload(archive, classNetCache, out var fieldCache, out var payload))
-        {
-            if (payload is null)
-            {
-                continue;
-            }
-            archive.SetTempEnd((int)payload, FBitArchiveEndIndex.FIELD_HEADER_PAYLOAD);
-            try
-            {
-                var bits = archive.GetBitsLeft();
-                if (bits > 0 && !archive.IsError)
-                {
-                    RawProbe.Sink!(bunch.ChIndex, classNetCache.PathName, fieldCache?.Name ?? "?", archive.ReadBits(bits).ToArray(), bits);
-                }
-            }
-            finally
-            {
-                archive.RestoreTempEnd(FBitArchiveEndIndex.FIELD_HEADER_PAYLOAD);
             }
         }
 
@@ -2427,11 +2280,6 @@ public abstract class ReplayReader<T> where T : Replay, new()
     /// <summary>
     /// Notifies when a new actor channel is created.
     /// </summary>
-    /// <summary>FCT patch: called the first time an object path is sent in the replay.</summary>
-    protected virtual void OnNetGuidExported(uint netGuid, string pathName)
-    {
-    }
-
     protected virtual void OnChannelOpened(uint channelIndex, NetworkGUID? actor)
     {
 

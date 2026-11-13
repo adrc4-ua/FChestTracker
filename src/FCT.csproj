@@ -44,6 +44,10 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
+    <!-- FCT's replay models are their own assembly (see ReplayModels/): not compiled into FCT.exe's. -->
+    <Compile Remove="ReplayModels\**" />
+    <None Remove="ReplayModels\**" />
+    <ProjectReference Include="ReplayModels\FCT.ReplayReader.Models.csproj" />
     <ProjectReference Include="..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />
   </ItemGroup>
 </Project>

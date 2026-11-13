@@ -1,0 +1,8 @@
+<Project>
+  <!-- Added for Fortnite Chest Tracker: build settings for the replay library, kept outside its own project files. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <!-- Warnings of the original code, left as they are: unreachable code, obsolete members, nullability. -->
+    <NoWarn>$(NoWarn);CS0162;CS0618;CS8714;CS8762</NoWarn>
+  </PropertyGroup>
+</Project>

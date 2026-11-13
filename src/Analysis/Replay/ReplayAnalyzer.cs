@@ -1,0 +1,70 @@
+namespace FCT.Analysis;
+
+/// <summary>
+/// Reads one .replay and returns its <see cref="MatchRecord"/>: <see cref="SignalReader"/> gathers what happened,
+/// <see cref="MatchAssembly"/> decides whose match it is and what they got, and <see cref="MatchDiagnosis"/> explains it
+/// on request (--diagnose).
+/// </summary>
+public sealed class ReplayAnalyzer
+{
+    /// <summary>
+    /// Raise it whenever the analysis changes, so saved matches whose replay still exists are read again.
+    /// 16: final elimination recorded. 15: every treasure grant read, squad treasures with their finder.
+    /// 14: chests behind instance names, refilled chests.
+    /// </summary>
+    public const int CurrentVersion = 16;
+
+    /// <summary>Set to an empty list before <see cref="Analyze"/> to receive the cross-check of the match (--diagnose).</summary>
+    public List<string>? Diagnosis { get; set; }
+
+    /// <param name="username">Epic name(s) to track, comma-separated; empty tracks the player who recorded the replay.</param>
+    public MatchRecord Analyze(Stream stream, string file, string? username)
+    {
+        var signals = new ReplaySignals();
+        var replay = new SignalReader(signals).Read(stream);
+        var match = new MatchAssembly(replay, signals, username);
+        if (Diagnosis != null)
+        {
+            MatchDiagnosis.Write(match, Diagnosis);
+        }
+        return Record(match, file);
+    }
+
+    private static MatchRecord Record(MatchAssembly match, string file)
+    {
+        var replay = match.Replay;
+        var info = replay.Info;
+        var recorderState = replay.GameData?.RecorderId;
+        var recorded = recorderState != null && match.TargetStates.Contains(recorderState.Value);
+        var playlist = replay.GameData?.CurrentPlaylist;
+        return new MatchRecord
+        {
+            SessionId = replay.GameData?.GameSessionId ?? $"{info?.Timestamp:O}-{Path.GetFileName(file)}",
+            ReplayFile = Path.GetFileName(file),
+            AnalyzedAtUtc = DateTime.UtcNow,
+            AnalyzerVersion = CurrentVersion,
+            MatchStartUtc = replay.GameData?.UtcTimeStartedMatch ?? info?.Timestamp,
+            DurationSeconds = info == null ? null : (int)(info.LengthInMs / 1000),
+            Playlist = playlist,
+            GameVersion = replay.Header?.Branch,
+            IsBattleRoyale = !string.IsNullOrEmpty(playlist) || match.Chests.Count > 0,
+
+            PlayerName = match.Target?.PlayerName,
+            EpicId = match.Target?.EpicId,
+            TrackedByUsername = match.MatchedByName,
+            NotTrackedOwner = match.NotTracked ? match.Recorder?.PlayerName ?? "unknown" : null,
+            IsReplayOwner = recorded,
+            Placement = match.Target?.Placement ?? (recorded ? (int?)replay.TeamStats?.Position : null),
+            TotalPlayers = (int?)replay.TeamStats?.TotalPlayers,
+            Eliminations = recorded ? (int?)replay.Stats?.Eliminations : null,
+
+            ChestsOpened = match.Chests.Count,
+            AmmoBoxesOpened = match.Others.GetValueOrDefault(ChestKinds.AmmoBox),
+            OtherContainersOpened = match.Others.Where(o => o.Key != ChestKinds.AmmoBox).Sum(o => o.Value),
+            OtherInteractions = match.Others,
+            Chests = match.Chests,
+            TreasureFinds = match.Treasures,
+            Teammates = match.Teammates,
+        };
+    }
+}

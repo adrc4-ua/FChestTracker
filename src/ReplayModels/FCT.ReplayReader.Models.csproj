@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    FCT's own replay models (the replay library's parser loads models from assemblies whose name contains
+    "ReplayReader", so they can live here instead of inside the library).
+  -->
+  <PropertyGroup>
+    <AssemblyName>FCT.ReplayReader.Models</AssemblyName>
+    <RootNamespace>FCT.ReplayModels</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />
+  </ItemGroup>
+</Project>

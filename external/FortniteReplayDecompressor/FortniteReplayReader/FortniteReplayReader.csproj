@@ -2,17 +2,21 @@
   <PropertyGroup>
     <AssemblyName>FortniteReplayReader</AssemblyName>
     <RootNamespace>FortniteReplayReader</RootNamespace>
-    <!-- Nullability warning of the upstream FortniteReplayBuilder.cs. -->
-    <NoWarn>$(NoWarn);CS8714</NoWarn>
+    <Description>Fortnite Replay reader</Description>
+    <PackageTags>Fortnite Unreal Engine Replay Reader</PackageTags>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Unreal.Core\Unreal.Core.csproj" />
     <ProjectReference Include="..\Unreal.Encryption\Unreal.Encryption.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(OfflineBuild)' == 'true'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(OfflineBuild)' != 'true'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
   </ItemGroup>
 </Project>

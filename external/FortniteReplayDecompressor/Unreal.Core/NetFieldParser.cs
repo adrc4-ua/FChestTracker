@@ -243,57 +243,14 @@ public class NetFieldParser
     /// </summary>
     /// <param name="group"></param>
     /// <returns>true if group should be parsed further, false otherwise</returns>
-    public bool WillReadType(string group) { EnsureAlias(group); return NetFieldGroups.TryGetValue(group, out var _); }
-
-    // FCT patch: lets the caller map unknown group paths (e.g. new chest blueprints)
-    // onto an already registered export group type.
-    public static Func<string, string?>? AliasResolver { get; set; }
-    private readonly HashSet<string> _aliasMisses = new();
-
-    private void EnsureAlias(string group)
-    {
-        if (AliasResolver is null || string.IsNullOrEmpty(group) || _aliasMisses.Contains(group) || NetFieldGroups.TryGetValue(group, out var _))
-        {
-            return;
-        }
-
-        var target = AliasResolver(group);
-        if (target != null && NetFieldGroups.TryGetValue(target, out var info))
-        {
-            NetFieldGroups.Add(group, info);
-            return;
-        }
-
-        _aliasMisses.Add(group);
-    }
+    public bool WillReadType(string group) => NetFieldGroups.TryGetValue(group, out var _) || AdoptAlias(group);
 
     /// <summary>
     /// Returns whether or not this <paramref name="group"/> is marked to be parsed.
     /// </summary>
     /// <param name="group"></param>
     /// <returns>true if group should be parsed further, false otherwise</returns>
-    public bool WillReadClassNetCache(string group) { EnsureClassNetCacheAlias(group); return _classNetCacheToNetFieldGroup.ContainsKey(group); }
-
-    // FCT patch: same idea as AliasResolver, for ClassNetCaches (RPCs of blueprint subclasses).
-    public static Func<string, string?>? ClassNetCacheAliasResolver { get; set; }
-    private readonly HashSet<string> _classNetCacheAliasMisses = new();
-
-    private void EnsureClassNetCacheAlias(string group)
-    {
-        if (ClassNetCacheAliasResolver is null || string.IsNullOrEmpty(group) || _classNetCacheAliasMisses.Contains(group) || _classNetCacheToNetFieldGroup.ContainsKey(group))
-        {
-            return;
-        }
-
-        var target = ClassNetCacheAliasResolver(group);
-        if (target != null && _classNetCacheToNetFieldGroup.TryGetValue(target, out var info))
-        {
-            _classNetCacheToNetFieldGroup[group] = info;
-            return;
-        }
-
-        _classNetCacheAliasMisses.Add(group);
-    }
+    public bool WillReadClassNetCache(string group) => _classNetCacheToNetFieldGroup.ContainsKey(group) || AdoptClassNetCacheAlias(group);
 
     /// <summary>
     /// Returns whether or not the property of this classnetcache was found.
@@ -303,7 +260,7 @@ public class NetFieldParser
     public bool TryGetClassNetCacheProperty(string property, string group, [NotNullWhen(returnValue: true)] out ClassNetCachePropertyInfo? info)
     {
         info = null;
-        EnsureClassNetCacheAlias(group);
+        WillReadClassNetCache(group); // FCT: an aliased ClassNetCache is registered on first use
         if (_classNetCacheToNetFieldGroup.TryGetValue(group, out var groupInfo))
         {
             return groupInfo.Properties.TryGetValue(property, out info);
@@ -328,7 +285,7 @@ public class NetFieldParser
 
         if (exportGroup.GroupId == -1)
         {
-            EnsureAlias(exportGroup.PathName);
+            WillReadType(exportGroup.PathName); // FCT: an aliased group is registered on first use
             if (!NetFieldGroups.TryGetIndex(exportGroup.PathName, out var groupIndex))
             {
                 exportGroup.GroupId = -2;
@@ -622,8 +579,7 @@ public class NetFieldParser
     /// <returns></returns>
     public INetFieldExportGroup? CreateType(string group)
     {
-        EnsureAlias(group);
-        if (!NetFieldGroups.TryGetValue(group, out var exportGroup))
+        if (!NetFieldGroups.TryGetValue(group, out var exportGroup) && !(AdoptAlias(group) && NetFieldGroups.TryGetValue(group, out exportGroup)))
         {
             return null;
         }
@@ -696,5 +652,41 @@ public class NetFieldParser
         //Single instance
         internal INetFieldExportGroup Instance { get; set; }
         internal List<NetFieldInfo> ChangedProperties { get; set; }
+    }
+
+    // ---- Added for Fortnite Chest Tracker (see PATCHES.md) ----------------------------------------------------------
+
+    private readonly HashSet<string> _noAlias = new();
+
+    /// <summary>Registers <paramref name="group"/> under the type of its <see cref="ReplayAliases.Group"/> target.</summary>
+    private bool AdoptAlias(string group)
+    {
+        if (ReplayAliases.Group is not { } resolve || string.IsNullOrEmpty(group) || _noAlias.Contains(group))
+        {
+            return false;
+        }
+        if (resolve(group) is { } target && NetFieldGroups.TryGetValue(target, out var targetInfo))
+        {
+            NetFieldGroups.Add(group, targetInfo);
+            return true;
+        }
+        _noAlias.Add(group);
+        return false;
+    }
+
+    /// <summary>Same for ClassNetCaches (<see cref="ReplayAliases.ClassNetCache"/>).</summary>
+    private bool AdoptClassNetCacheAlias(string group)
+    {
+        if (ReplayAliases.ClassNetCache is not { } resolve || string.IsNullOrEmpty(group) || _noAlias.Contains("cnc:" + group))
+        {
+            return false;
+        }
+        if (resolve(group) is { } target && _classNetCacheToNetFieldGroup.TryGetValue(target, out var targetInfo))
+        {
+            _classNetCacheToNetFieldGroup[group] = targetInfo;
+            return true;
+        }
+        _noAlias.Add("cnc:" + group);
+        return false;
     }
 }

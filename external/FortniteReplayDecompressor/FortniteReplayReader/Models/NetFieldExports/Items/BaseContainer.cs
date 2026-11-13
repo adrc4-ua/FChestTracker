@@ -52,6 +52,7 @@ public abstract class BaseContainer : INetFieldExportGroup
     [NetFieldExport("ReplicatedLootTier", RepLayoutCmdType.PropertyInt)]
     public int ReplicatedLootTier { get; set; }
 
+    // FCT: who searched (or broke) it, and nullable flags so "not sent in this update" differs from false.
     [NetFieldExport("SearchingPawn", RepLayoutCmdType.PropertyObject)]
     public uint? SearchingPawn { get; set; }
 
