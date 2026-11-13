@@ -108,6 +108,7 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 | **Ctrl+Shift+O** | Show / hide the overlay. Works anywhere, even in game. |
 | **Ctrl+Shift+L** | Lock / unlock the overlay. **Locked**: clicks go through and it does not move. **Unlocked**: drag it with the left button. |
 | Right-click on the overlay | Hide it. |
+| Overlay **✕** button (right of the padlock) | Close FCT (the app and the overlay). |
 
 ## Settings
 

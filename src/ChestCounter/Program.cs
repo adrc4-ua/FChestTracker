@@ -162,7 +162,7 @@ internal static class Program
             {
                 return 1;
             }
-            NativeOverlay.Start(-20000, -20000, false, (_, _) => { }, _ => { });
+            NativeOverlay.Start(-20000, -20000, false, (_, _) => { }, _ => { }, onClose: () => { });
             var fakeLive = new MatchRecord { ChestsOpened = 12, TreasureFinds = { new TreasureFind { Item = "Treasure" } } };
             // "En vivo" primero: el overlay no encoge (ancho estable), así las tres vistas salen del mismo tamaño, como en el juego.
             foreach (var (suffix, live, inProgress) in new[] { ("-en-vivo", fakeLive, true), ("-en-curso", (MatchRecord?)null, true), ("-espera", null, false) })

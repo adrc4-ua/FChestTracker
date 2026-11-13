@@ -40,6 +40,8 @@ public static class NativeOverlay
     private static bool _offscreen;
     private static int _stableW;
     private static RECT _lockRect; // lock button, client coordinates
+    private static RECT _closeRect; // close button (closes the whole app), right of the lock
+    private static Action? _onClose;
     private static IntPtr _fontIcon;
     private static WndProcDelegate? _wndProc; // keep the delegate alive
     private static IntPtr _fontBig, _fontSmall, _brushBg;
@@ -62,7 +64,7 @@ public static class NativeOverlay
     public static bool IsVisible => _hwnd != IntPtr.Zero && _visible;
 
     public static void Start(int? x, int? y, bool locked, Action<int, int> onMoved, Action<bool> onLockChanged,
-        bool visible = true, Action<bool>? onVisibleChanged = null)
+        bool visible = true, Action<bool>? onVisibleChanged = null, Action? onClose = null)
     {
         if (_thread != null)
         {
@@ -71,6 +73,7 @@ public static class NativeOverlay
 
         _visible = visible;
         _onVisibleChanged = onVisibleChanged;
+        _onClose = onClose;
 
         _onMoved = onMoved;
         _offscreen = x <= -10000; // --overlay-preview: never brought back on screen
@@ -255,13 +258,12 @@ public static class NativeOverlay
         {
             case WM_NCHITTEST:
             {
-                // Lock button = normal client area (clickable); everywhere else = caption (drag to move).
+                // Lock and close buttons = normal client area (clickable); everywhere else = caption (drag to move).
                 // When locked the rest of the window is click-through so the game still receives the mouse.
                 GetWindowRect(hwnd, out var wr);
                 var px = (short)((long)lParam & 0xFFFF) - wr.Left;
                 var py = (short)(((long)lParam >> 16) & 0xFFFF) - wr.Top;
-                var onButton = px >= _lockRect.Left && px < _lockRect.Right && py >= _lockRect.Top && py < _lockRect.Bottom;
-                if (onButton)
+                if (Inside(_lockRect, px, py) || (_onClose != null && Inside(_closeRect, px, py)))
                 {
                     return (IntPtr)HTCLIENT;
                 }
@@ -277,7 +279,14 @@ public static class NativeOverlay
                 break;
 
             case WM_LBUTTONUP:
-                ApplyLock(hwnd, !_locked, notify: true);
+                if (_onClose != null && Inside(_closeRect, (short)((long)lParam & 0xFFFF), (short)(((long)lParam >> 16) & 0xFFFF)))
+                {
+                    _onClose(); // closes the app; the overlay goes with it
+                }
+                else
+                {
+                    ApplyLock(hwnd, !_locked, notify: true);
+                }
                 return IntPtr.Zero;
 
             case WM_APP_LOCK:
@@ -330,6 +339,8 @@ public static class NativeOverlay
         }
         return DefWindowProcW(hwnd, msg, wParam, lParam);
     }
+
+    private static bool Inside(RECT r, int x, int y) => x >= r.Left && x < r.Right && y >= r.Top && y < r.Bottom;
 
     /// <summary>Locked: click-through except the lock button (HTTRANSPARENT in WM_NCHITTEST). Unlocked: drag to move.</summary>
     private static void ApplyLock(IntPtr hwnd, bool locked, bool notify)
@@ -390,7 +401,8 @@ public static class NativeOverlay
         {
             // Header: "COFRES" ... [● EN DIRECTO] [lock]
             _badgeW = v.Badge != null ? TextWidth(hdc, _fontHeader, BadgeText(v.Badge), out _) + S(22) : 0;
-            var headerW = TextWidth(hdc, _fontHeader, Header, out _headerH) + S(10) + _badgeW + S(24);
+            var buttons = _onClose != null ? S(44) : S(24); // lock (+ close)
+            var headerW = TextWidth(hdc, _fontHeader, Header, out _headerH) + S(10) + _badgeW + buttons;
 
             // Big total on the left, current / last match in a rounded chip on the right.
             _col1W = Math.Max(TextWidth(hdc, _fontBig, v.Total, out _bigH), TextWidth(hdc, _fontCaption, CaptionTotal.ToUpperInvariant(), out _captionH));
@@ -421,7 +433,17 @@ public static class NativeOverlay
             {
                 h += 1 + S(7) + _captionH + S(1) + _statH + S(9);
             }
-            _lockRect = new RECT { Left = w0 - S(Pad) - S(14), Top = S(4), Right = w0 - S(4), Bottom = S(9) + _headerH + S(4) };
+            // Header buttons on the right: [lock] [close]. Without a close action the lock keeps the corner.
+            var corner = new RECT { Left = w0 - S(Pad) - S(14), Top = S(4), Right = w0 - S(4), Bottom = S(9) + _headerH + S(4) };
+            if (_onClose != null)
+            {
+                _closeRect = corner;
+                _lockRect = new RECT { Left = corner.Left - S(22), Top = corner.Top, Right = corner.Left - S(2), Bottom = corner.Bottom };
+            }
+            else
+            {
+                _lockRect = corner;
+            }
             // Keep it fully on its screen: on the right half of the screen it grows to the left, and it is
             // pushed back inside when it would overflow (a wider overlay used to be cut by the screen edge).
             GetWindowRect(hwnd, out var cur);
@@ -524,6 +546,13 @@ public static class NativeOverlay
         SetTextColor(hdc, _locked ? Rgb(86, 96, 114) : Rgb(200, 206, 218));
         var lr = _lockRect;
         DrawTextW(hdc, _locked ? "\uE72E" : "\uE785", -1, ref lr, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
+        if (_onClose != null)
+        {
+            // Close (Segoe MDL2 Assets E8BB = ChromeClose): closes the app and the overlay.
+            SetTextColor(hdc, Rgb(200, 206, 218));
+            var cr = _closeRect;
+            DrawTextW(hdc, "\uE8BB", -1, ref cr, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
+        }
         y += _headerH + S(6);
 
         // Total (left) and current / last match chip (right).

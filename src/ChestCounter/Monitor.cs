@@ -673,7 +673,9 @@ public sealed class Monitor
                     SaveQuietly();
                 }
                 RequestPublish(); // el botón de la ventana cambia de color
-            });
+            },
+            // Botón de cerrar del overlay: cierra la aplicación entera (y con ella el overlay).
+            () => CloseRequested?.Invoke());
     }
 
     /// <summary>Windows avisa cuando cambia un replay: no hace falta releer la carpeta todo el tiempo.</summary>

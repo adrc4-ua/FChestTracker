@@ -108,6 +108,7 @@ Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Aj
 | **Ctrl+Mayús+O** | Mostrar / ocultar el overlay. Funciona en cualquier sitio, incluso en el juego. |
 | **Ctrl+Mayús+L** | Bloquear / desbloquear el overlay. **Bloqueado**: el ratón lo atraviesa y no se mueve. **Desbloqueado**: arrástralo con el botón izquierdo. |
 | Clic derecho en el overlay | Ocultarlo. |
+| Botón **✕** del overlay (a la derecha del candado) | Cerrar FCT (la aplicación y el overlay). |
 
 ## Ajustes
 
