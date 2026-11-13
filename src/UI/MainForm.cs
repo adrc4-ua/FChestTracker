@@ -49,7 +49,7 @@ public sealed class MainForm : Form
         _monitor = monitor;
         _store = store;
 
-        Text = AppInfo.Name + " v" + AppInfo.VersionText;
+        Text = AppInfo.Name;
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
@@ -113,7 +113,7 @@ public sealed class MainForm : Form
         daily.Controls.Add(_daily);
         Controls.Add(daily);
 
-        // Equipo (con «Compañeros» activado): tus cofres y los vistos de cada compañero en la partida actual o la última.
+        // Equipo (con «Compañeros» activado): tus cofres y los abiertos de cada compañero en la partida actual o la última.
         // Solo se ve con la opción activada; entonces la ventana crece para hacerle sitio.
         _teamCard = new Card { Location = new Point(LeftX, 334), Size = new Size(RightX + RightW - LeftX, 74), Radius = 14, Visible = false };
         _teamTitle = Lbl(_teamCard, L.T("Equipo", "Team"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 7), new Size(250, 14));
@@ -150,7 +150,7 @@ public sealed class MainForm : Form
         _overlayButton = Action(L.T("Overlay", "Overlay"), RightX);
         _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
         _reportButton = Action(L.T("Informe", "Report"), RightX + 95);
-        _reportButton.Click += (_, _) => Open(_store.ReportPath);
+        _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
         _settingsButton = Action(L.T("Ajustes", "Settings"), RightX + 190);
         _settingsButton.Click += (_, _) => OpenSettings();
 
@@ -161,7 +161,7 @@ public sealed class MainForm : Form
         openItem.Font = new Font(openItem.Font, FontStyle.Bold);
         trayMenu.Items.Add(openItem);
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
-        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Informe", "Report"), null, (_, _) => Open(_store.ReportPath)));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Informe", "Report"), null, (_, _) => Open(_monitor.ReportTarget)));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Ajustes", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
         trayMenu.Items.Add(new ToolStripSeparator());
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => Close()));
@@ -452,8 +452,7 @@ public sealed class MainForm : Form
         _update.Visible = s.Update != null;
         if (s.Update != null)
         {
-            _update.Text = L.F("Instalar la versión {0} (tienes la {1})", "Install version {0} (you have {1})",
-                s.Update.Version.ToString(3), AppInfo.VersionText);
+            _update.Text = L.T("Instalar la actualización", "Install the update");
         }
         _notice.Text = s.Notice ?? "";
         _notice.Cursor = s.AutoCloseOffer ? Cursors.Hand : Cursors.Default;
@@ -465,7 +464,7 @@ public sealed class MainForm : Form
     }
 
     /// <summary>
-    /// Tarjeta «Equipo»: tus cofres y los vistos de cada compañero (un mínimo: el replay solo tiene lo que pasa cerca
+    /// Tarjeta «Equipo»: tus cofres y los abiertos de cada compañero (un mínimo: el replay solo tiene lo que pasa cerca
     /// de ti). Sin datos de equipo (opción desactivada) la tarjeta se oculta y la ventana vuelve a su tamaño.
     /// </summary>
     private void RenderTeam(TeamSummary? team)

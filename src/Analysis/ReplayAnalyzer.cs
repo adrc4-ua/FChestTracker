@@ -106,9 +106,6 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
     private readonly HashSet<uint> _equipChannelsSeen = new();
     private readonly Dictionary<uint, uint> _pawnToPlayerState = new();
     private readonly Dictionary<uint, int> _playerStateToPlayerId = new();
-    /// <summary>First time each pawn was seen, and when it started dying (eliminated, not just downed).</summary>
-    private readonly Dictionary<uint, float> _pawnSeenAt = new();
-    private readonly Dictionary<uint, float> _pawnDyingAt = new();
 
     // Treasure prize handler abilities ("GA_TreasureHandler_*"): class netguid -> name.
     private readonly Dictionary<uint, string> _treasureHandlerGuids = new();
@@ -517,11 +514,6 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
                 if (pawnId != null && pawn.PlayerState is uint ps && ps != 0)
                 {
                     _pawnToPlayerState[pawnId.Value] = ps;
-                    _pawnSeenAt.TryAdd(pawnId.Value, Now);
-                }
-                if (pawnId != null && pawn.bIsDying == true)
-                {
-                    _pawnDyingAt.TryAdd(pawnId.Value, Now);
                 }
                 if (pawnId != null && DebugLevel == "1" && (pawn.bIsDBNO != null || pawn.bIsDying != null))
                 {
@@ -843,12 +835,6 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
 
         finds.Sort((a, b) => (a.ObtainedAtSeconds ?? float.MaxValue).CompareTo(b.ObtainedAtSeconds ?? float.MaxValue));
 
-        // Eliminated for good (no later pawn): the ability system of the player stops replicating (measured: last
-        // change about 18 s after death), so a treasure found by a teammate after that moment leaves no prize grant
-        // in the replay. Recorded to explain a count lower than the post-match screen.
-        var lastPawnSeen = targetPawns.Select(p => _pawnSeenAt.GetValueOrDefault(p)).DefaultIfEmpty(0).Max();
-        var deadAt = targetPawns.Where(p => _pawnDyingAt.ContainsKey(p)).Select(p => _pawnDyingAt[p]).DefaultIfEmpty(-1f).Max();
-        float? eliminatedAt = isRecorderTarget && deadAt >= 0 && deadAt >= lastPawnSeen ? MathF.Round(deadAt, 1) : null;
 
         // --- Diagnosis (--diagnose): the independent signals of the replay side by side, and what does not match ----
         if (Diagnosis != null)
@@ -876,7 +862,7 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             }
             foreach (var mate in teammates)
             {
-                Diagnosis.Add(L.F("  Compañero {0}: ≥ {1} cofres vistos", "  Teammate {0}: ≥ {1} chests seen", mate.Name, mate.ChestsSeen));
+                Diagnosis.Add(L.F("  Compañero {0}: ≥ {1} cofres abiertos", "  Teammate {0}: ≥ {1} chests opened", mate.Name, mate.ChestsSeen));
             }
             Diagnosis.Add(L.F("Señales de tesoro: {0} concesión(es) del premio a ti · {1} tesoro(s) destacado(s) del escuadrón · {2} de rivales (no cuentan)",
                 "Treasure signals: {0} prize grant(s) to you · {1} featured treasure(s) of the squad · {2} of opponents (not counted)",
@@ -885,11 +871,6 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             {
                 Diagnosis.Add(L.T("  ⚠ El replay no lo grabó el jugador contado: las concesiones del premio no se ven, solo los tesoros destacados.",
                     "  ⚠ The replay was not recorded by the counted player: prize grants are not visible, only featured treasures."));
-            }
-            if (eliminatedAt is float ea)
-            {
-                Diagnosis.Add(L.F("  ⚠ Eliminación a las {0} sin reinicio: un tesoro que consiga el escuadrón después de ese momento no deja rastro en el replay.",
-                    "  ⚠ Eliminated at {0} with no reboot: a treasure the squad gets after that moment leaves no trace in the replay.", Pretty.Clock(ea)));
             }
             foreach (var f in finds)
             {
@@ -944,7 +925,6 @@ public sealed class ReplayAnalyzer : FortniteReplayReader.ReplayReader
             Chests = chests,
             TreasureFinds = finds,
             Teammates = teammates,
-            EliminatedAtSeconds = eliminatedAt,
         };
     }
 }

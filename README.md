@@ -55,15 +55,16 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 
 ## El informe
 
-`report.html` se abre en tu navegador (botón **Informe**) y se actualiza solo. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
+El informe se abre en tu navegador (botón **Informe**), servido por FCT en `http://localhost:7373/informe`, y se actualiza solo; si cierras FCT, la página avisa en vez de dar error. También queda guardado como `report.html`. Empieza siempre en **Resumen**; las pestañas están en el menú de la izquierda. En un PC cada pestaña cabe en la pantalla: las listas largas se desplazan dentro de su propio recuadro.
 
 | Pestaña | Qué muestra |
 |---|---|
-| **Resumen** | Cofres abiertos (y los de hoy), victorias, partidas, media, récord, mejor día, gráfico de los últimos 30 días, últimas partidas, **últimos tesoros** y, con compañeros, lo que aportan y con quién más juegas. |
-| **Cofres** | Por tipo de cofre, otros contenedores (cajas de munición, de comida, cañones; indica si suman al total) y una tabla **por modo de juego**. |
-| **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, la **caza del tesoro** (premios de la semana y, plegadas, todas las semanas), de dónde vienen y la lista con el momento exacto y quién los consiguió. |
+| **Resumen** | Cofres abiertos (y los de hoy), victorias, partidas, media, récord, mejor día, gráfico de los últimos 30 días, últimas partidas, **últimos tesoros** (con el icono de cada objeto) y, con compañeros, lo que aportan y con quién más juegas. |
+| **Cofres** | Por tipo de cofre, otros contenedores (cajas de munición, de comida, cañones; indica si suman al total) y una tabla **por modo de juego** con los tesoros de cada modo. |
+| **Tesoros** | Cuántos (destacados y artilugios), % de partidas con tesoro, **tesoros disponibles actualmente** (los de la semana y, con un botón, las cinco semanas en una fila), dónde consigues tus tesoros y la lista con el momento exacto y quién los consiguió. |
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
-| **Compañeros** | Cofres del equipo y una **clasificación** con selector: más cofres vistos, mejor media, récord, victorias juntos y todos tus compañeros (ver abajo). |
+| **Compañeros** | Cofres del equipo, la tabla de **todos tus compañeros** (se ordena por partidas, victorias, cofres, media…) y el top 5 de más cofres abiertos y récord en una partida (ver abajo). |
+| **Ajustes** | Idioma, abrir con Fortnite, abrir el informe al iniciar, actualizaciones, compañeros, qué contar como cofre, la versión de FCT y enlaces a GitHub. Se aplican al momento. |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros del informe" width="820"></p>
 
@@ -86,7 +87,7 @@ Actívalo en **Ajustes → Compañeros en el informe** (desactivado por defecto)
 - **Exacto**: con quién juegas, partidas juntos y victorias juntos.
 - **Aproximado**: los cofres de cada compañero. Salen de **tu** replay, y Fortnite solo graba lo que pasa **a menos de 1.087 m de ti** (medido en replays reales). Si un compañero se aleja más, sus cofres no se cuentan: son un **mínimo (≥)**.
 - **Cofres del equipo**: tú + tus compañeros, en total y por partida, con el % que aporta cada uno; útil si buscáis un objeto aleatorio que sale de los cofres.
-- **Clasificación**: más cofres vistos, mejor media, récord en una partida y victorias juntos (hasta 10 puestos), o la tabla con todos tus compañeros.
+- **Todos tus compañeros**: partidas juntos, victorias, cofres abiertos, media y lo que aportan; toca una columna para ordenar. Al lado, el top 5 de más cofres abiertos y de récord en una partida.
 
 Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, récords y overlay incluyen los cofres de tu equipo. Tu historial no cambia: al desactivarlo vuelves a ver solo los tuyos.
 

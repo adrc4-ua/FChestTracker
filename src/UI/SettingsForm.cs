@@ -49,8 +49,6 @@ public sealed class SettingsForm : Form
 
         // Cabecera, como en la ventana principal.
         Lbl(this, L.T("AJUSTES", "SETTINGS"), 8.5f, FontStyle.Bold, Theme.Cyan, new Point(LeftX, 14), new Size(200, 18));
-        Lbl(this, L.F("Versión {0}", "Version {0}", AppInfo.VersionText), 8.0f, FontStyle.Regular, Theme.Muted,
-            new Point(RightX + 180, 13), new Size(RightW - 180, 18), ContentAlignment.TopRight);
         AddLanguagePicker(config.Language, new Point(RightX, 9));
 
         // ---- Columna izquierda ---------------------------------------------------------------

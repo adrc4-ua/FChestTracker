@@ -47,7 +47,9 @@ public static class ReportWriter
         *{box-sizing:border-box}
         html{background:var(--bg)}
         body{margin:0;color:var(--ink);font:14px/1.55 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;
-          background:radial-gradient(900px 420px at 50% -160px,rgba(232,176,75,.13),transparent 70%),var(--bg);background-attachment:fixed;min-height:100vh}
+          background:radial-gradient(900px 420px at 50% -160px,rgba(232,176,75,.17),transparent 70%),radial-gradient(700px 520px at 105% 105%,rgba(232,176,75,.08),transparent 70%),var(--bg);background-attachment:fixed;min-height:100vh}
+        [hidden]{display:none!important}
+        svg .f{fill:currentColor;fill-opacity:.22}
         .num{font-variant-numeric:tabular-nums}
         .muted{color:var(--muted)}
         .gold{color:var(--gold)}
@@ -61,23 +63,25 @@ public static class ReportWriter
         .brand .bl{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--gold);background:var(--gold-soft)}
         .bn{display:flex;flex-direction:column;line-height:1.2;min-width:0}
         .bn span{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
-        .bn b{font-size:16px;letter-spacing:-.01em}
+        .bn b{font-size:16px;letter-spacing:-.01em;background:linear-gradient(90deg,var(--gold-hi),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
         .main{min-width:0;padding:26px 30px 34px}
         .ph{display:flex;align-items:center;gap:14px;margin:0 0 20px;padding-bottom:16px;border-bottom:1px solid var(--line2)}
-        .phi{width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;color:var(--gold);background:var(--gold-soft);border:1px solid var(--gold-line)}
+        .phi{width:42px;height:42px;flex:none;border-radius:12px;display:grid;place-items:center;color:#1a1206;background:linear-gradient(180deg,var(--gold-hi),var(--gold));box-shadow:0 8px 22px -8px rgba(232,176,75,.7)}
+        .phi svg .f{fill-opacity:.35}
         .phi svg{width:22px;height:22px}
-        .ph h1{margin:0;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.02em}
+        .ph h1{margin:0;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.02em;background:linear-gradient(180deg,#fff7e4,var(--gold-hi));-webkit-background-clip:text;background-clip:text;color:transparent}
         .ph p{margin:3px 0 0;font-size:13px;color:var(--muted)}
         .ph p::first-letter{text-transform:uppercase}
 
         /* Cifras clave */
         .kpis{display:grid;grid-template-columns:minmax(0,1.9fr) repeat(5,minmax(0,1fr));gap:12px}
-        .kpi,.card,.mini-kpi{background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 60%),var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .kpi,.card,.mini-kpi{background:linear-gradient(180deg,rgba(232,176,75,.05),rgba(232,176,75,0) 55%),var(--card);border:1px solid rgba(232,176,75,.14);border-radius:var(--radius);box-shadow:var(--shadow)}
         .kpi{position:relative;padding:16px 18px;min-width:0;display:flex;flex-direction:column}
-        .kpi .ki{display:flex;align-items:center;height:22px;color:var(--gold);margin-bottom:8px}
+        .kpi .ki{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px;color:var(--gold-hi);background:linear-gradient(180deg,rgba(232,176,75,.22),rgba(232,176,75,.07));border:1px solid var(--gold-line);position:absolute;top:14px;right:14px}
+        .kpi .l{padding-right:40px}
         .kpi .l{font-size:12.5px;font-weight:600;color:var(--muted)}
         .kpi .v{margin-top:2px;font-size:28px;font-weight:700;line-height:1.15;letter-spacing:-.025em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-        .kpi .v.gold{color:var(--gold)}
+        .kpi .v,.mini-kpi b{background:linear-gradient(180deg,var(--gold-hi),var(--gold) 75%);-webkit-background-clip:text;background-clip:text;color:transparent}
         .kpi .s{margin-top:4px;font-size:12px;color:var(--muted)}
         .kpi.hero{flex-direction:row;align-items:center;gap:18px;overflow:hidden;border-color:var(--gold-line);
           background:radial-gradient(420px 220px at 0% 0%,rgba(232,176,75,.17),transparent 70%),var(--card)}
@@ -99,7 +103,7 @@ public static class ReportWriter
         .grid2>section>.card,.trow>section>.card{flex:1 1 auto}
 
         /* Evolución de cofres: curva a todo el ancho, textos y puntos encima */
-        .evo{position:relative;height:clamp(140px,22vh,240px);margin:6px 8px 26px 44px}
+        .evo{position:relative;height:clamp(120px,20vh,240px);margin:6px 8px 26px 44px}
         .evo svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
         .evo .area{fill:url(#evoFill)}
         .evo .line{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px rgba(232,176,75,.45))}
@@ -122,22 +126,25 @@ public static class ReportWriter
         .tl{list-style:none;margin:0;padding:0}
         .tl li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
         .tl li:first-child{border-top:0;padding-top:2px}
-        .gem{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;color:var(--muted);background:var(--bg2);border:1px solid var(--line2)}
+        .gem{width:36px;height:36px;flex:none;border-radius:11px;display:grid;place-items:center;color:var(--gold);background:var(--bg2);border:1px solid rgba(232,176,75,.2)}
         .gem.f{color:var(--gold-hi);background:var(--gold-soft);border-color:var(--gold-line)}
         .tn{display:flex;flex-direction:column;min-width:0}
         .tn b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .tn small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .team2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .teamstrip{margin-top:16px}
+        .team2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:16px;padding:11px 18px;color:inherit;text-decoration:none;transition:border-color .15s}
+        .team2:hover{border-color:var(--gold-line)} .team2:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+        .team2 .go{color:var(--gold);font-size:18px;font-weight:700}
         .team2>div{display:flex;flex-direction:column;gap:4px;min-width:0}
         .team2>div+div{padding-left:16px;border-left:1px solid var(--line2)}
-        .team2 b{font-size:24px;line-height:1.15;color:var(--gold)}
+        .team2 b{font-size:20px;line-height:1.15;color:var(--gold)}
         .team2 b.nm{font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .team2 .track{display:block;height:5px;margin-top:4px}
         .gemc{display:inline-flex;align-items:center;gap:5px;color:var(--gold);font-weight:600}
         table.compact th,table.compact td{padding:9px 14px}
         .trow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:stretch}
         .trow>section{margin-top:22px}
-        .trow .tiles{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+        .trow .tiles{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
 
         /* Listas con barra de proporción */
         .rows{display:flex;flex-direction:column}
@@ -154,7 +161,7 @@ public static class ReportWriter
         .tw{overflow-x:auto}
         table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
         th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
-        th{position:sticky;top:0;background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+        th{position:sticky;top:0;z-index:1;background:linear-gradient(180deg,#1c1913,#18161a);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#bf9a5c;white-space:nowrap}
         thead tr th:first-child{border-top-left-radius:17px} thead tr th:last-child{border-top-right-radius:17px}
         tbody tr:last-child td{border-bottom:none}
         tbody tr{transition:background .12s}
@@ -164,7 +171,7 @@ public static class ReportWriter
         .badge{display:inline-block;line-height:1.5;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--bg2);color:var(--muted);border:1px solid var(--line2)}
         .badge.win{background:var(--gold-soft);color:var(--gold-hi);border-color:var(--gold-line)}
         .badge.top{background:var(--champ-soft);color:var(--champ);border-color:rgba(216,194,143,.25)}
-        .badge.mode{background:transparent;border:1px solid var(--line2);color:var(--ink);font-weight:500}
+        .badge.mode{background:transparent;border:1px solid rgba(232,176,75,.28);color:var(--ink);font-weight:500}
         .chests{display:flex;align-items:center;justify-content:flex-end;gap:10px}
         .chests .mini{width:70px;height:5px;border-radius:3px;background:var(--bg2);overflow:hidden}
         .chests .mini i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border-radius:3px}
@@ -190,31 +197,83 @@ public static class ReportWriter
         .tile .tag{align-self:flex-start;margin-top:4px}
         .tile.got{border-color:var(--gold-line);background:radial-gradient(220px 120px at 100% 0%,rgba(232,176,75,.16),transparent 70%),var(--bg2)}
         .tile.got b{color:var(--gold-hi)}
-        .tile .won{position:absolute;top:10px;right:12px;font-size:12px;font-weight:700;color:#1a1305;background:var(--gold);border-radius:99px;padding:0 8px}
+        .tile .won{align-self:flex-start;margin-top:4px;font-size:11.5px;font-weight:700;letter-spacing:0;color:#1a1305;background:var(--gold);border-radius:99px;padding:0 7px}
         .hunt-note{margin:0}
         .always{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
         .always .al{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px}
         .pchip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12.5px;background:var(--bg2);border:1px solid var(--line2);color:var(--ink);white-space:nowrap}
         .pchip.got{color:var(--gold-hi);background:var(--gold-soft);border-color:var(--gold-line)}
-        .weeks{margin-top:12px}
-        .weeks summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--gold);padding:4px 10px;margin-left:-10px;border-radius:8px}
-        .weeks summary::-webkit-details-marker{display:none}
-        .weeks summary::before{content:"▸";transition:transform .15s}
-        .weeks[open] summary::before{transform:rotate(90deg)}
-        .weeks summary:hover{background:var(--gold-soft)}
-        .wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
-        .wk{padding:12px 14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
-        .wk.now{border-color:var(--gold-line)}
-        .wh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:6px}
-        .wh b{font-size:13.5px}
-        .wh span:not(.tag){font-size:12px;color:var(--muted)}
-        .wk ul{list-style:none;margin:0;padding:0}
-        .wk li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:6px 0;border-top:1px solid var(--line)}
-        .wk li span{font-size:13px;font-weight:600;overflow-wrap:anywhere}
-        .wk li small{grid-column:1;font-size:11.5px;color:var(--muted)}
-        .wk li b{grid-column:2;grid-row:1/3;align-self:center;color:var(--gold)}
-        .wk li.got span{color:var(--gold-hi)}
-        .wk p.sm{margin:4px 0}
+
+        /* Las cinco semanas, en una fila */
+        .weeks{margin-top:16px}
+        .wgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+        .wk{padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid rgba(232,176,75,.14);min-width:0}
+        .wk.now{border-color:var(--gold-line);background:radial-gradient(240px 120px at 100% 0%,rgba(232,176,75,.14),transparent 70%),var(--card)}
+        .wh{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-bottom:8px}
+        .wh b{font-size:13.5px} .wh .wr{flex-basis:100%;font-size:11.5px;color:var(--muted)}
+        .wk ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+        .wk li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;font-size:12.5px}
+        .wk li i{display:flex;color:var(--gold)} .wk li i svg{width:16px;height:16px}
+        .wk li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .wk li.got span{color:var(--gold-hi);font-weight:600} .wk li b{color:var(--gold);font-size:12px}
+        .wk p.sm{margin:2px 0}
+        .wtoggle{appearance:none;font:inherit;font-size:13px;font-weight:600;color:var(--gold-hi);background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:10px;padding:6px 14px;margin-top:14px;cursor:pointer}
+        .wtoggle::after{content:" ▾"} .wtoggle[aria-expanded="true"]::after{content:" ▴"}
+        .wtoggle:hover{background:rgba(232,176,75,.18)} .wtoggle:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+        .tile .tt{display:flex;align-items:flex-start;gap:6px;letter-spacing:.06em} .tile .tt>span{min-width:0;hyphens:auto;overflow-wrap:anywhere} .tile .tt i{display:flex;color:var(--gold)} .tile .tt i svg{width:15px;height:15px}
+        .pchip i{display:flex;color:var(--gold)} .pchip i svg{width:14px;height:14px}
+        @media (max-width:1100px){.wgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+        @media (max-width:600px){.wgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+        /* Clasificaciones cortas y tabla que se ordena */
+        .rank.one{padding:2px 18px}
+        .duo.wide{grid-template-columns:minmax(0,2.6fr) minmax(250px,1fr)}
+        table.sortable th,table.sortable td{padding:12px 10px} table.sortable th{white-space:normal;line-height:1.3} table.sortable th:first-child,table.sortable td:first-child{padding-left:18px}
+        table.sortable td .nm{max-width:170px}
+        .rank.one ol{grid-auto-flow:row;grid-template-columns:1fr}
+        .rank.one li{padding:8px 0 9px}
+        th button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+        th button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+        th[aria-sort]{color:var(--gold-hi)}
+        th[aria-sort="descending"] button::after{content:"▾"} th[aria-sort="ascending"] button::after{content:"▴"}
+        tfoot td{border-bottom:0;border-top:1px solid var(--line)}
+
+        /* Ajustes */
+        .setgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;align-items:start}
+        .setgrid>section{margin-top:18px} .setgrid>section:nth-child(-n+2){margin-top:0}
+        .set{padding:2px 20px}
+        .setrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-top:1px solid var(--line)}
+        .setrow:first-child{border-top:0}
+        .setrow .st{min-width:0} .setrow .st b{display:block;font-weight:600} .setrow .st small{display:block;font-size:12.5px;color:var(--muted)}
+        .sw{position:relative;display:inline-block;width:44px;height:24px;flex:none}
+        .sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+        .sw span{position:absolute;inset:0;border-radius:99px;background:var(--line2);transition:background .15s}
+        .sw span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:left .15s,background .15s}
+        .sw input:checked+span{background:linear-gradient(180deg,var(--gold-hi),var(--gold))}
+        .sw input:checked+span::after{left:23px;background:#1a1206}
+        .sw input:focus-visible+span{outline:2px solid var(--gold-hi);outline-offset:2px}
+        .sw input:disabled{cursor:not-allowed} .sw input:disabled+span{opacity:.45}
+        .sel{appearance:none;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--bg2);border:1px solid var(--gold-line);border-radius:10px;padding:7px 34px 7px 12px;cursor:pointer;
+          background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(100% - 17px) 52%,calc(100% - 12px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+        .sel:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px} .sel:disabled{opacity:.5;cursor:not-allowed}
+        .sel option{background:#151417;color:var(--ink)}
+        .segc{display:inline-flex;flex:none;gap:3px;padding:3px;border:1px solid var(--line2);border-radius:10px;background:var(--bg2)}
+        .segc label{position:relative}
+        .segc input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}
+        .segc span{display:block;padding:5px 11px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+        .segc input:checked+span{color:#1a1206;background:linear-gradient(180deg,var(--gold-hi),var(--gold))}
+        .segc input:focus-visible+span{outline:2px solid var(--gold-hi);outline-offset:1px} .segc input:disabled{cursor:not-allowed}
+        .about .ab{display:flex;align-items:center;gap:14px;padding:14px 0}
+        .about .ab img{filter:drop-shadow(0 6px 14px rgba(232,176,75,.35))}
+        .about .ab b{display:block;font-size:15px} .about .ab small{display:block;font-size:13px;font-weight:600;color:var(--gold)}
+        .about .links{display:flex;flex-wrap:wrap;gap:8px;padding:12px 0 16px;border-top:1px solid var(--line)}
+        .about .links a{color:var(--gold-hi);text-decoration:none;font-size:13px;font-weight:600;padding:6px 12px;border-radius:9px;border:1px solid var(--gold-line);background:var(--gold-soft)}
+        .about .links a:hover{background:rgba(232,176,75,.18)} .about .links a:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+        .toast{position:fixed;right:24px;bottom:24px;z-index:50;padding:10px 16px;border-radius:12px;background:#1d1a12;border:1px solid var(--gold-line);color:var(--gold-hi);font-weight:600;box-shadow:var(--shadow)}
+        .toast.bad{color:#f2a58f;border-color:rgba(242,120,90,.45)}
+        .offline,.offline-note{margin:0 0 16px;padding:10px 14px;border-radius:12px;border:1px solid var(--gold-line);background:var(--gold-soft);color:var(--gold-hi);font-size:13px}
+        .offline-note a{color:var(--gold-hi);font-weight:600}
+        @media (max-width:860px){.setgrid{grid-template-columns:1fr}.setgrid>section:nth-child(2){margin-top:18px}.setrow{flex-wrap:wrap}}
 
         /* Carga */
         .loading{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--gold-line);border-radius:var(--radius);padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
@@ -226,11 +285,12 @@ public static class ReportWriter
 
 
         /* Menú lateral: sin JavaScript se ven todas las secciones seguidas */
-        .nav{display:flex;flex-direction:column;gap:4px}
+        .nav{display:flex;flex-direction:column;gap:4px;flex:1}
+        .tab.end{margin-top:auto}
         html:not(.js) .nav{display:none}
         .tab{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:14.5px;font-weight:600;min-height:44px;width:100%;padding:10px 14px;border-radius:12px;
           cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;white-space:nowrap;transition:background .15s,color .15s}
-        .tab .ti{flex:none;opacity:.85}
+        .tab .ti{flex:none;color:var(--gold);opacity:.7}
         .tab:hover{color:var(--ink);background:rgba(255,255,255,.04)}
         .tab[aria-selected="true"]{color:var(--gold-hi);background:linear-gradient(90deg,rgba(232,176,75,.2),rgba(232,176,75,.06));box-shadow:inset 3px 0 0 var(--gold)}
         .tab[aria-selected="true"] .ti{opacity:1}
@@ -272,11 +332,6 @@ public static class ReportWriter
         .rank li{display:grid;grid-template-columns:24px 28px minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:11px 0 12px;border-top:1px solid var(--line)}
         .rank li.t{border-top:0}
         @media (max-width:860px){.rank{padding:4px 16px}.rank ol{grid-auto-flow:row;grid-template-columns:1fr;grid-template-rows:none!important}.rank li.t{border-top:1px solid var(--line)}.rank li:first-child{border-top:0}}
-        .seg{display:flex;flex-wrap:wrap;gap:4px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--bg2)}
-        .seg button{font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:7px;padding:6px 12px;cursor:pointer}
-        .seg button:hover{color:var(--text)}
-        .seg button[aria-selected="true"]{color:#1a1206;background:linear-gradient(180deg,var(--gold-hi),var(--gold))}
-        .seg button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
         .rank .rk{font-size:12px;font-weight:700;color:var(--faint);text-align:center;font-variant-numeric:tabular-nums}
         .rank .rk.medal{font-size:16px}
         .rank .who2{display:flex;flex-direction:column;min-width:0}
@@ -301,7 +356,7 @@ public static class ReportWriter
         /* Móvil y ventanas estrechas: el menú pasa arriba y la página se desplaza normalmente */
         @media (max-width:999px){.app{grid-template-columns:1fr}.side{position:sticky;z-index:20;height:auto;flex-direction:row;align-items:center;gap:10px;padding:10px 12px;
           border-right:0;border-bottom:1px solid var(--line2);background:rgba(11,11,13,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-          .brand img{width:36px;height:36px}.bn{display:none}.nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}
+          .brand img{width:36px;height:36px}.bn{display:none}.nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}.tab.end{margin-top:0}.nav::-webkit-scrollbar{display:none}
           .tab{width:auto;min-height:40px;padding:8px 12px}.tab[aria-selected="true"]{box-shadow:inset 0 -2px 0 var(--gold)}.main{padding:18px 16px 30px}
           .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media (max-width:520px){.kpi.hero img{width:64px;height:64px}.kpi.hero .v{font-size:36px}th,td{padding:10px 12px}.chests .mini{display:none}
@@ -318,9 +373,12 @@ public static class ReportWriter
           .fill>.card{flex:0 1 auto;min-height:0;overflow:auto}
           .duo>section{display:flex;flex-direction:column;min-height:0}
           .duo>section>.card{flex:0 1 auto;min-height:0;overflow:auto}
-          .duo>.stack{min-height:0;overflow:auto;padding-right:2px}
+          .duo>.stack{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+          .stack>section.grow{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+          .stack>section.grow>.card{flex:0 1 auto;min-height:0;overflow:auto}
+          .stack>.teamstrip{flex:none;margin-top:0}
           .main>.panel:not([hidden]){overflow:auto}
-          .segsec .segp:not([hidden]){flex:0 1 auto;min-height:0;overflow:auto}
+          .main>.offline{flex:none}
           .trow>section>.card{max-height:42vh;overflow:auto}
         }
         .kpi .s::first-letter,.split span::first-letter,.mini-kpi span::first-letter,.sh .meta::first-letter,
@@ -332,48 +390,106 @@ public static class ReportWriter
     // Pestañas del informe. Se abre siempre en Resumen; la pestaña elegida y la posición solo se recuerdan en esa
     // pestaña del navegador mientras la página se recarga sola. Sin JavaScript se ven todas las secciones seguidas.
     private const string TabsScript = """
-        (function(){var d=document,tabs=[].slice.call(d.querySelectorAll('[data-tab]'));if(!tabs.length)return;d.documentElement.classList.add('js');
+        (function(){var d=document,b=d.body,tabs=[].slice.call(d.querySelectorAll('[data-tab]'));if(!tabs.length)return;d.documentElement.classList.add('js');
         function get(k,s){try{return (s?sessionStorage:localStorage).getItem(k)}catch(e){return null}}
         function put(k,v,s){try{(s?sessionStorage:localStorage).setItem(k,v)}catch(e){}}
-        function show(id,save){var t=null;tabs.forEach(function(b){var on=b.getAttribute('data-tab')===id;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;if(on)t=b});
+        var live=/^https?:$/.test(location.protocol),saving=false;
+        function show(id,save){var t=null;tabs.forEach(function(x){var on=x.getAttribute('data-tab')===id;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1;if(on)t=x});
           if(!t)return false;var bar=t.parentNode;bar.scrollLeft=t.offsetLeft-(bar.clientWidth-t.offsetWidth)/2;[].forEach.call(d.querySelectorAll('.panel'),function(p){p.hidden=p.id!=='t-'+id});if(save)put('cc-tab',id,true);return true}
         var h=location.hash.slice(1);if(!(h&&show(h,true))&&!show(get('cc-tab',true)||'',false))show(tabs[0].getAttribute('data-tab'),false);
         function go(id){if(show(id,true)){window.scrollTo(0,0);try{history.replaceState(null,'','#'+id)}catch(e){}}}
-        tabs.forEach(function(b,i){b.addEventListener('click',function(){go(b.getAttribute('data-tab'))});
-          b.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'||e.key==='ArrowDown'?1:e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:0;if(!k)return;e.preventDefault();var n=tabs[(i+k+tabs.length)%tabs.length];go(n.getAttribute('data-tab'));n.focus()})});
+        tabs.forEach(function(x,i){x.addEventListener('click',function(){go(x.getAttribute('data-tab'))});
+          x.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'||e.key==='ArrowDown'?1:e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:0;if(!k)return;e.preventDefault();var n=tabs[(i+k+tabs.length)%tabs.length];go(n.getAttribute('data-tab'));n.focus()})});
         [].forEach.call(d.querySelectorAll('[data-go]'),function(a){a.addEventListener('click',function(e){e.preventDefault();go(a.getAttribute('data-go'))})});
-        [].forEach.call(d.querySelectorAll('.segsec'),function(sec){var bar=sec.querySelector('.seg'),meta=sec.querySelector('.sh .meta'),ps=[].slice.call(sec.querySelectorAll('.segp')),bs=[];
-          function pick(i,save){ps.forEach(function(p,j){p.hidden=j!==i;bs[j].setAttribute('aria-selected',j===i?'true':'false');bs[j].tabIndex=j===i?0:-1});meta.textContent=ps[i].getAttribute('data-meta');if(save)put('cc-seg',ps[i].getAttribute('data-key'),true)}
-          ps.forEach(function(p,i){var b=d.createElement('button');b.type='button';b.setAttribute('role','tab');b.textContent=p.getAttribute('data-title');p.setAttribute('role','tabpanel');p._pick=function(){pick(i,true)};
-            b.addEventListener('click',function(){pick(i,true)});b.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!k)return;e.preventDefault();var n=(i+k+ps.length)%ps.length;pick(n,true);bs[n].focus()});bar.appendChild(b);bs.push(b)});
-          var k=get('cc-seg',true),s=0;ps.forEach(function(p,i){if(p.getAttribute('data-key')===k)s=i});pick(s,false)});
-        [].forEach.call(d.querySelectorAll('[data-seg]'),function(a){a.addEventListener('click',function(){var p=d.querySelector('.segp[data-key="'+a.getAttribute('data-seg')+'"]');if(p&&p._pick)p._pick()})});
+        // Semanas de la caza del tesoro: siguen abiertas al recargar.
+        var wt=d.querySelector('.wtoggle'),wk=d.getElementById('weeks');
+        function weeks(open){if(!wt||!wk)return;wk.hidden=!open;wt.setAttribute('aria-expanded',open?'true':'false');wt.textContent=wt.getAttribute(open?'data-close':'data-open');put('cc-weeks',open?'1':'0',true)}
+        if(wt){weeks(get('cc-weeks',true)==='1');wt.addEventListener('click',function(){weeks(wk.hidden)})}
+        // Tablas que se ordenan por columna (Compañeros).
+        [].forEach.call(d.querySelectorAll('table.sortable'),function(t){var ths=[].slice.call(t.tHead.rows[0].cells),body=t.tBodies[0];
+          function sort(i,desc){var rows=[].slice.call(body.rows),num=ths[i].getAttribute('data-type')==='n';
+            rows.sort(function(a,c){var x=a.cells[i].getAttribute('data-v'),y=c.cells[i].getAttribute('data-v');var r=num?(+x)-(+y):x.localeCompare(y);return desc?-r:r});
+            rows.forEach(function(r){body.appendChild(r)});ths.forEach(function(h,j){if(j===i)h.setAttribute('aria-sort',desc?'descending':'ascending');else h.removeAttribute('aria-sort')});put('cc-sort',i+(desc?'d':'a'),true)}
+          ths.forEach(function(h,i){h.querySelector('button').addEventListener('click',function(){var cur=h.getAttribute('aria-sort');sort(i,cur?cur==='ascending':h.getAttribute('data-type')==='n')})});
+          var s=get('cc-sort',true);if(s&&ths[parseInt(s,10)])sort(parseInt(s,10),s.slice(-1)==='d')});
+        // Ajustes: solo se pueden cambiar cuando el informe lo sirve FCT.
+        var toast=d.querySelector('.toast'),tt;
+        function say(m,bad){if(!toast)return;toast.textContent=m;toast.className='toast'+(bad?' bad':'');toast.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toast.hidden=true},2600)}
+        function waitBack(n){setTimeout(function(){fetch('/api/ping',{cache:'no-store'}).then(function(r){if(r.ok)location.reload();else throw 0}).catch(function(){if(n<40)waitBack(n+1);else location.reload()})},n?1000:3500)}
+        var ctl=[].slice.call(d.querySelectorAll('[data-key]'));
+        if(!live){ctl.forEach(function(c){c.disabled=true});var on=d.querySelector('.offline-note');if(on)on.hidden=false}
+        ctl.forEach(function(c){c.setAttribute('data-prev',c.type==='checkbox'?(c.checked?'1':'0'):c.value);
+          c.addEventListener('change',function(){if(c.type==='radio'&&!c.checked)return;var key=c.getAttribute('data-key'),val=c.type==='checkbox'?(c.checked?'1':'0'):c.value;saving=true;
+            fetch('/api/ajuste',{method:'POST',headers:{'X-FCT':'1','Content-Type':'application/x-www-form-urlencoded'},body:encodeURIComponent(key)+'='+encodeURIComponent(val)})
+              .then(function(r){return r.json()}).then(function(j){if(!j.ok)throw 0;
+                if(j.restart){say(b.getAttribute('data-restarting'));ctl.forEach(function(x){x.disabled=true});waitBack(0)}
+                else{say(b.getAttribute('data-saved'));setTimeout(function(){saving=false;location.reload()},1300)}})
+              .catch(function(){saving=false;say(b.getAttribute('data-failed'),true);
+                if(c.type==='checkbox')c.checked=c.getAttribute('data-prev')==='1';else if(c.type==='radio'){var p=d.querySelector('[data-key="'+key+'"][value="'+c.getAttribute('data-prev')+'"]');[].forEach.call(d.querySelectorAll('[data-key="'+key+'"]'),function(x){x.checked=x.value===(p?p.value:'')})}else c.value=c.getAttribute('data-prev')})})});
+        [].forEach.call(d.querySelectorAll('[data-key="updates"]'),function(x){x.setAttribute('data-prev',(d.querySelector('[data-key="updates"]:checked')||{}).value||'')});
+        // Recarga sola; servida por FCT, solo si FCT sigue abierto (si no, un aviso en vez de una página de error).
+        var off=d.querySelector('.offline');
+        function busy(){var a=d.activeElement;return saving||(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest('.set'))}
+        setInterval(function(){if(busy())return;if(!live){location.reload();return}
+          fetch('/api/ping',{cache:'no-store'}).then(function(r){if(r.ok)location.reload();else throw 0}).catch(function(){if(off){off.textContent=b.getAttribute('data-offline');off.hidden=false}})},(+b.getAttribute('data-refresh')||15)*1000);
         var y=get('cc-y',true);if(y)window.scrollTo(0,+y);addEventListener('pagehide',function(){put('cc-y',String(window.scrollY),true)});
         })();
         """;
 
-    private const string ChestIcon = """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><rect x="3" y="10" width="18" height="10" rx="2"/><path d="M3 14h18"/><rect x="10" y="12" width="4" height="4" rx="1"/></svg>""";
-
-    // Iconos de las pestañas (trazo, 18 px, color del texto).
-    private const string IconSvg = """<svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
+    // Iconos: trazo dorado con un relleno suave (clase "f"), 24 × 24. Todos del mismo dibujo.
+    private const string IconSvg = """<svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
+    private const string ChestShape = """<path class="f" d="M4 11V9.5A5.5 5.5 0 0 1 9.5 4h5A5.5 5.5 0 0 1 20 9.5V11z"/><rect x="3" y="11" width="18" height="9" rx="1.6"/><path d="M8.5 4.4V11M15.5 4.4V11M7 11v9M17 11v9"/><rect class="f" x="10" y="9.5" width="4" height="5" rx="1"/>""";
+    private const string ChestIcon = """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""" + ChestShape + "</svg>";
     private static readonly Dictionary<string, string> TabIcons = new()
     {
-        ["resumen"] = IconSvg + """<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>""",
-        ["cofres"] = IconSvg + """<path d="M4 10V8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/><rect x="3" y="10" width="18" height="10" rx="2"/><path d="M3 14h18"/><rect x="10" y="12" width="4" height="4" rx="1"/></svg>""",
-        ["tesoros"] = IconSvg + """<path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l3 6 3-6M12 21 9 9m3 12 3-12"/></svg>""",
-        ["partidas"] = IconSvg + """<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>""",
-        ["companeros"] = IconSvg + """<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14a6.5 6.5 0 0 1 3 6"/></svg>""",
+        ["resumen"] = IconSvg + """<rect class="f" x="3.5" y="3.5" width="7" height="9" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="15.5" width="7" height="5" rx="2"/></svg>""",
+        ["cofres"] = IconSvg + ChestShape + "</svg>",
+        ["tesoros"] = IconSvg + """<path class="f" d="M3 9.5 6.5 4h11L21 9.5z"/><path d="M3 9.5 12 21l9-11.5M6.5 4 9 9.5 12 4l3 5.5L17.5 4M9 9.5 12 21l3-11.5"/></svg>""",
+        ["partidas"] = IconSvg + """<path class="f" d="M7.5 7h9a5 5 0 0 1 4.7 6.7l-.9 2.6a2.4 2.4 0 0 1-4 .9L14.5 15h-5l-1.8 2.2a2.4 2.4 0 0 1-4-.9l-.9-2.6A5 5 0 0 1 7.5 7z"/><path d="M8 10v3.4M6.3 11.7h3.4"/><circle cx="15.5" cy="10.6" r=".5" fill="currentColor"/><circle cx="17.3" cy="12.6" r=".5" fill="currentColor"/></svg>""",
+        ["companeros"] = IconSvg + """<circle class="f" cx="9" cy="8" r="3.5"/><path class="f" d="M2.5 20a6.5 6.5 0 0 1 13 0z"/><path d="M15.5 4.7a3.5 3.5 0 0 1 0 6.6M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>""",
+        ["ajustes"] = IconSvg + """<path d="M4 6.5h9M19 6.5h1M4 12h3M13 12h7M4 17.5h11M21 17.5h-1"/><circle class="f" cx="16" cy="6.5" r="2.5"/><circle class="f" cx="10" cy="12" r="2.5"/><circle class="f" cx="17.5" cy="17.5" r="2.5"/></svg>""",
     };
 
     // Iconos de las cifras del resumen.
-    private const string KpiSvg = """<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
+    private const string KpiSvg = """<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
     private static readonly Dictionary<string, string> KpiIcons = new()
     {
-        ["wins"] = KpiSvg + """<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>""",
-        ["avg"] = KpiSvg + """<path d="M4 20V11M10 20V5M16 20v-7M21 20H3"/></svg>""",
-        ["best"] = KpiSvg + """<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>""",
-        ["day"] = KpiSvg + """<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>""",
+        ["wins"] = KpiSvg + """<path class="f" d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M8.5 21h7M12 14v7M17 5.5h3V7a3.5 3.5 0 0 1-3.3 3.5M7 5.5H4V7a3.5 3.5 0 0 0 3.3 3.5"/></svg>""",
+        ["matches"] = KpiSvg + """<path class="f" d="M7.5 7h9a5 5 0 0 1 4.7 6.7l-.9 2.6a2.4 2.4 0 0 1-4 .9L14.5 15h-5l-1.8 2.2a2.4 2.4 0 0 1-4-.9l-.9-2.6A5 5 0 0 1 7.5 7z"/><path d="M8 10v3.4M6.3 11.7h3.4"/></svg>""",
+        ["avg"] = KpiSvg + """<rect class="f" x="4" y="12" width="4" height="8" rx="1"/><rect class="f" x="10" y="5" width="4" height="15" rx="1"/><rect class="f" x="16" y="9" width="4" height="11" rx="1"/></svg>""",
+        ["best"] = KpiSvg + """<path class="f" d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>""",
+        ["day"] = KpiSvg + """<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path class="f" d="M3.5 7.5A2.5 2.5 0 0 1 6 5h12a2.5 2.5 0 0 1 2.5 2.5V10h-17z"/><path d="M8 3v4M16 3v4"/><rect x="7" y="13" width="3" height="3" rx=".6" fill="currentColor" stroke="none"/></svg>""",
     };
+
+    // Iconos de cada objeto de la caza del tesoro (por tipo; los artilugios, cada uno el suyo).
+    private const string ItemSvg = """<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
+    private static readonly Dictionary<Prizes.Kind, string> KindIcons = new()
+    {
+        [Prizes.Kind.Outfit] = ItemSvg + """<path class="f" d="M8.5 4 4 6.6l1.6 3.8 1.9-.8V20h9V9.6l1.9.8L20 6.6 15.5 4a3.5 3.5 0 0 1-7 0z"/></svg>""",
+        [Prizes.Kind.Pickaxe] = ItemSvg + """<path class="f" d="M3.5 9C7 4.6 17 4.6 20.5 9 16.6 7.6 7.4 7.6 3.5 9z"/><path d="M12 7.2V21"/></svg>""",
+        [Prizes.Kind.BackBling] = ItemSvg + """<rect class="f" x="5" y="7" width="14" height="13.5" rx="3.5"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7M8.5 13.5h7v3.5h-7z"/></svg>""",
+        [Prizes.Kind.Vehicle] = ItemSvg + """<path class="f" d="M3 16v-3l2.2-4.5a2 2 0 0 1 1.8-1.1h8.4a2 2 0 0 1 1.5.7L20 12l1 .5V16z"/><circle cx="7.5" cy="16.5" r="2" fill="#121215"/><circle cx="16.5" cy="16.5" r="2" fill="#121215"/><path d="M6 12h13"/></svg>""",
+        [Prizes.Kind.Decal] = ItemSvg + """<path class="f" d="M5 4h14v10l-6 6H5z"/><path d="M13 20v-4a2 2 0 0 1 2-2h4"/></svg>""",
+        [Prizes.Kind.JamTrack] = ItemSvg + """<path d="M9 17.5V5.5l11-2v12"/><circle class="f" cx="6.5" cy="17.5" r="2.5"/><circle class="f" cx="17.5" cy="15.5" r="2.5"/></svg>""",
+        [Prizes.Kind.LoadingScreen] = ItemSvg + """<rect class="f" x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 16.5 5-5 4 4 3-3 5 5"/><circle cx="16" cy="9.5" r="1.4"/></svg>""",
+        [Prizes.Kind.ShopAccess] = ItemSvg + """<path class="f" d="M4.5 8h15l-1.2 12.5H5.7z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>""",
+    };
+    private static readonly Dictionary<string, string> GizmoIcons = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Golden Firework"] = ItemSvg + """<path d="M12 3v3.5M12 17.5V21M3 12h3.5M17.5 12H21M5.6 5.6l2.5 2.5M15.9 15.9l2.5 2.5M5.6 18.4l2.5-2.5M15.9 8.1l2.5-2.5"/><circle class="f" cx="12" cy="12" r="2.8"/></svg>""",
+        ["Portable Extractor"] = ItemSvg + """<rect class="f" x="7" y="7" width="10" height="13.5" rx="2.5"/><path d="M10 7V3.5h4V7M7 12h10M12 15v2"/></svg>""",
+        ["Sprite Locator"] = ItemSvg + """<circle cx="12" cy="12" r="8.5"/><path class="f" d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg>""",
+        ["Lucky Locator"] = ItemSvg + """<circle class="f" cx="9" cy="9" r="3"/><circle class="f" cx="15" cy="9" r="3"/><circle class="f" cx="9" cy="15" r="3"/><circle class="f" cx="15" cy="15" r="3"/><path d="m15.5 15.5 4 5"/></svg>""",
+        ["Extraction Accelerator"] = ItemSvg + """<path class="f" d="M13.5 2.5 4.5 14h7l-1 7.5 9-11.5h-7z"/></svg>""",
+    };
+    private const string GemIconBig = ItemSvg + """<path class="f" d="M3 9.5 6.5 4h11L21 9.5z"/><path d="M3 9.5 12 21l9-11.5M9 9.5 12 21l3-11.5"/></svg>""";
+
+    /// <summary>Icono de un tesoro por su nombre: el del artilugio o el de su tipo; si no se sabe qué es, la gema.</summary>
+    private static string ItemIcon(string name) =>
+        Prizes.ByName(name) is { } p
+            ? p.Type == Prizes.Kind.Gizmo ? GizmoIcons.GetValueOrDefault(p.Name, GemIconBig) : KindIcons.GetValueOrDefault(p.Type, GemIconBig)
+            : GemIconBig;
+
     private const string GemIcon = """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18"/></svg>""";
 
     /// <summary>Título de cada sección, con su icono y una línea que dice qué hay en ella.</summary>
@@ -451,27 +567,27 @@ public static class ReportWriter
         sb.Append("</tbody></table></div>");
     }
 
-    /// <summary>Últimos tesoros conseguidos (resumen): nombre, partida y tipo.</summary>
+    /// <summary>Últimos tesoros conseguidos (resumen): icono del objeto, nombre, partida y tipo.</summary>
     private static string LatestTreasures(List<(MatchRecord m, TreasureFind f)> rows, Func<int, string> N)
     {
-        var sb = new StringBuilder($"""<section><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div><div class="card side-card">""");
+        var sb = new StringBuilder($"""<section class="grow"><div class="sh"><h2>{L.T("Últimos tesoros", "Latest treasures")}</h2>{(rows.Count > 0 ? $"<a class=\"more\" href=\"#tesoros\" data-go=\"tesoros\">{L.F("Ver los {0}", "See all {0}", N(rows.Count))} →</a>" : "")}</div><div class="card side-card">""");
         if (rows.Count == 0)
         {
             sb.Append($"<p class=\"sm empty-side\">{L.T("Aún no has encontrado tesoros.", "No treasures yet.")}</p></div></section>");
             return sb.ToString();
         }
         sb.Append("<ul class=\"tl\">");
-        foreach (var (m, f) in rows.OrderByDescending(r => When(r.m)).ThenByDescending(r => r.f.ObtainedAtSeconds ?? -1).Take(5))
+        foreach (var (m, f) in rows.OrderByDescending(r => When(r.m)).ThenByDescending(r => r.f.ObtainedAtSeconds ?? -1).Take(8))
         {
             var (name, type, featured) = Prizes.Describe(f, When(m));
             var kind = featured ? (type != null ? $"{Prizes.Featured} · {type}" : Prizes.Featured) : type ?? L.T("Artilugio", "Gizmo");
-            sb.Append($"<li><span class=\"gem{(featured ? " f" : "")}\">{GemIcon}</span><span class=\"tn\"><b>{H(name)}</b><small>{L.DateTimeShort(When(m))} · {H(kind)}</small></span></li>");
+            sb.Append($"<li><span class=\"gem{(featured ? " f" : "")}\">{ItemIcon(name)}</span><span class=\"tn\"><b>{H(name)}</b><small>{L.DateTimeShort(When(m))} · {H(kind)}</small></span></li>");
         }
         sb.Append("</ul></div></section>");
         return sb.ToString();
     }
 
-    /// <summary>Compañeros en el resumen: cuánto aportan al equipo y con quién juegas más.</summary>
+    /// <summary>Compañeros en el resumen, siempre a la vista: cuánto aportan al equipo y con quién juegas más.</summary>
     private static string TeamSummary(List<MatchRecord> matches, IReadOnlyCollection<string> kinds, Func<int, string> N)
     {
         var team = matches.Where(m => m.Teammates is { Count: > 0 }).ToList();
@@ -485,10 +601,59 @@ public static class ReportWriter
         var top = team.SelectMany(m => m.Teammates!).GroupBy(t => t.EpicId ?? t.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => (Name: g.Last().Name, Matches: g.Count())).OrderByDescending(x => x.Matches).First();
         return $"""
-            <section><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2><a class="more" href="#companeros" data-go="companeros" data-seg="todos">{L.T("Ver todo", "See all")} →</a></div>
-            <div class="card side-card team2"><div><span class="sm">{L.T("Aportan tus compañeros", "From your teammates")}</span><b>≥ {share.ToString("0", Loc)}&nbsp;%</b><span class="track"><i style="width:{share.ToString("0.#", CultureInfo.InvariantCulture)}%"></i></span></div>
-            <div><span class="sm">{L.T("Con quién más juegas", "Who you play with most")}</span><b class="nm">{H(top.Name)}</b><span class="sm">{L.Count(top.Matches, "partida juntos", "partidas juntos", "match together", "matches together")}</span></div></div>
-            </section>
+            <section class="teamstrip"><a class="card team2" href="#companeros" data-go="companeros" aria-label="{L.T("Ver compañeros", "See teammates")}">
+            <div><span class="sm">{L.T("Aportan tus compañeros", "From your teammates")}</span><b>≥ {share.ToString("0", Loc)}&nbsp;%</b><span class="track"><i style="width:{share.ToString("0.#", CultureInfo.InvariantCulture)}%"></i></span></div>
+            <div><span class="sm">{L.T("Con quién más juegas", "Who you play with most")}</span><b class="nm">{H(top.Name)}</b><span class="sm">{L.Count(top.Matches, "partida juntos", "partidas juntos", "match together", "matches together")}</span></div>
+            <span class="go" aria-hidden="true">→</span></a></section>
+            """;
+    }
+
+    /// <summary>
+    /// Pestaña «Ajustes»: se cambian aquí mismo cuando el informe lo sirve la app (http://localhost); abierto como
+    /// archivo, se ven pero no se pueden cambiar. Aquí, y solo aquí, se ve la versión.
+    /// </summary>
+    private static string SettingsPanel(Config config)
+    {
+        string Switch(string key, bool on, string label, string? hint = null) =>
+            $"""<div class="setrow"><div class="st"><b>{label}</b>{(hint != null ? $"<small>{hint}</small>" : "")}</div><label class="sw"><input type="checkbox" role="switch" data-key="{key}"{(on ? " checked" : "")} aria-label="{H(label)}"><span></span></label></div>""";
+        var langs = new StringBuilder();
+        var system = L.Languages.FirstOrDefault(l => l.Code == L.SystemCode).Name ?? "English";
+        langs.Append($"""<option value=""{(config.Language == null ? " selected" : "")}>{H(L.F("Sistema ({0})", "System ({0})", system))}</option>""");
+        foreach (var (code, name) in L.Languages)
+        {
+            langs.Append($"""<option value="{code}"{(config.Language == code ? " selected" : "")}>{H(name)}</option>""");
+        }
+        var modes = new[] { ("auto", L.T("Automáticas", "Automatic")), ("prompt", L.T("Preguntar", "Ask")), ("off", L.T("Nunca", "Never")) };
+        var updates = string.Concat(modes.Select(m =>
+            $"""<label><input type="radio" name="updates" value="{m.Item1}" data-key="updates"{(config.UpdateMode == m.Item1 ? " checked" : "")}><span>{m.Item2}</span></label>"""));
+        var offline = ObsServer.ReportUrl is { } url
+            ? L.T("Abre el informe con el botón Informe de FCT para cambiar los ajustes aquí.", "Open the report with the FCT Report button to change the settings here.") + $" <a href=\"{url}\">{L.T("Abrir", "Open")} →</a>"
+            : L.T("Abre FCT para cambiar los ajustes aquí.", "Open FCT to change the settings here.");
+        return $"""
+            {PageHeader("ajustes", L.T("Ajustes", "Settings"), L.T("Se aplican al momento", "Applied right away"))}
+            <p class="offline-note" hidden>{offline}</p>
+            <div class="setgrid">
+              <section><div class="sh"><h2>{L.T("General", "General")}</h2></div><div class="card set">
+                <div class="setrow"><div class="st"><b>{L.T("Idioma", "Language")}</b><small>{L.F("{0} se reinicia para aplicarlo", "{0} restarts to apply it", AppInfo.ShortName)}</small></div><select class="sel" data-key="lang" aria-label="{L.T("Idioma", "Language")}">{langs}</select></div>
+                {Switch("fortnite", config.StartWithFortnite, L.T("Abrir con Fortnite", "Open with Fortnite"), L.T("Cuenta tus partidas sin pensar en ello", "Counts your matches on its own"))}
+                {Switch("openReport", config.OpenReportOnStart, L.T("Abrir el informe al iniciar", "Open the report at startup"))}
+                <div class="setrow"><div class="st"><b>{L.T("Actualizaciones", "Updates")}</b><small>{L.T("Se instalan entre partidas", "Installed between matches")}</small></div><div class="segc" role="radiogroup" aria-label="{L.T("Actualizaciones", "Updates")}">{updates}</div></div>
+              </div></section>
+              <section><div class="sh"><h2>{L.T("Compañeros", "Teammates")}</h2></div><div class="card set">
+                {Switch("teammates", config.ShowTeammates, L.T("Compañeros en el informe", "Teammates in the report"), L.T("Con quién juegas y sus cofres (hasta 1.087 m de ti)", "Who you play with and their chests (up to 1,087 m from you)"))}
+                {Switch("countMates", config.CountTeammateChests, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), L.T("Tu historial no cambia: al desactivarlo vuelves a ver solo los tuyos", "Your history does not change: turning it off shows only yours again"))}
+              </div></section>
+              <section><div class="sh"><h2>{L.T("Contar también como cofre", "Also count as a chest")}</h2></div><div class="card set">
+                {Switch("ammo", config.CountAmmoBoxes, L.T("Cajas de munición", "Ammo boxes"))}
+                {Switch("food", config.CountFoodBoxes, L.T("Cajas de comida", "Food boxes"))}
+                {Switch("cannons", config.CountLootCannons, L.T("Cañones de botín", "Loot cannons"))}
+              </div></section>
+              <section><div class="sh"><h2>{L.T("Acerca de", "About")}</h2></div><div class="card set about">
+                <div class="ab">{(AppLogo.DataUri is { } logo ? $"<img src=\"{logo}\" alt=\"\" width=\"48\" height=\"48\">" : "")}<div><b>{AppInfo.Name}</b><small>{L.F("Versión {0}", "Version {0}", AppInfo.VersionText)}</small></div></div>
+                <div class="links"><a href="{AppInfo.RepoUrl}" target="_blank" rel="noopener">GitHub →</a><a href="{AppInfo.RepoUrl}/releases" target="_blank" rel="noopener">{L.T("Novedades", "What's new")} →</a><a href="{AppInfo.IssuesUrl}" target="_blank" rel="noopener">{L.T("Informar de un problema", "Report a problem")} →</a></div>
+              </div></section>
+            </div>
+            <div class="toast" role="status" aria-live="polite" hidden></div>
             """;
     }
 
@@ -514,8 +679,9 @@ public static class ReportWriter
             <!doctype html><html lang="{L.Code}"><head><meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1">
             <meta name="color-scheme" content="dark">
-            <meta http-equiv="refresh" content="{(progress != null ? 2 : 15)}">
-            <title>{title}{(player.Length > 0 ? " · " + H(player) : "")}</title>{(logo != null ? $"<link rel=\"icon\" href=\"{logo}\">" : "")}<style>{Style}</style></head><body><div class="app">
+            <noscript><meta http-equiv="refresh" content="{(progress != null ? 2 : 15)}"></noscript>
+            <title>{title}{(player.Length > 0 ? " · " + H(player) : "")}</title>{(logo != null ? $"<link rel=\"icon\" href=\"{logo}\">" : "")}<style>{Style}</style></head>
+            <body data-refresh="{(progress != null ? 2 : 15)}" data-saved="{H(L.T("Guardado", "Saved"))}" data-failed="{H(L.T("No se pudo guardar", "Could not save"))}" data-restarting="{H(L.F("Reiniciando {0}…", "Restarting {0}…", AppInfo.ShortName))}" data-offline="{H(L.F("{0} está cerrado: las cifras no se actualizan", "{0} is closed: the figures are not updating", AppInfo.ShortName))}"><div class="app">
             """);
 
         // ---- Datos que comparten varias pestañas -----------------------------------------------------
@@ -544,7 +710,8 @@ public static class ReportWriter
             var countText = count != null ? $"<span class=\"c\" aria-label=\"{H(L.F("{0} en total", "{0} in total", count))}\">{count}</span>" : "";
             sb.Append($"""<button class="tab" role="tab" type="button" id="tab-{id}" data-tab="{id}" aria-controls="t-{id}">{TabIcons.GetValueOrDefault(id)}<span>{label}</span>{countText}</button>""");
         }
-        sb.Append("</nav></aside><main class=\"main\">");
+        sb.Append($"""<button class="tab end" role="tab" type="button" id="tab-ajustes" data-tab="ajustes" aria-controls="t-ajustes">{TabIcons["ajustes"]}<span>{L.T("Ajustes", "Settings")}</span></button>""");
+        sb.Append("</nav></aside><main class=\"main\"><div class=\"offline\" role=\"status\" hidden></div>");
         sb.Append(LoadingCard(progress));
 
         // ================================ Resumen ================================
@@ -571,7 +738,7 @@ public static class ReportWriter
                 <div class="l">{L.T("Cofres abiertos", "Chests opened")}</div><div class="v">{N(totalChests)}</div>
                 <div class="s today">{todayLine}</div>{(notes.Count > 0 ? $"<div class=\"s\">{string.Join(" · ", notes)}</div>" : "")}</div></div>
               {Kpi(KpiIcons["wins"], L.T("Victorias", "Wins"), N(wins), wins > 0 ? L.F("{0} % de tus partidas", "{0} % of your matches", winRate.ToString("0", Loc)) : "—")}
-              {Kpi(TabIcons["partidas"], L.T("Partidas", "Matches"), N(matches.Count), L.T("analizadas", "analyzed"))}
+              {Kpi(KpiIcons["matches"], L.T("Partidas", "Matches"), N(matches.Count), L.T("analizadas", "analyzed"))}
               {Kpi(KpiIcons["avg"], L.T("Media", "Average"), avg.ToString("0.0", Loc), L.T("cofres por partida", "chests per match"))}
               {Kpi(KpiIcons["best"], L.T("Récord", "Best match"), N(best), L.T("cofres en una partida", "chests in one match"))}
               {Kpi(KpiIcons["day"], L.T("Mejor día", "Best day"), bestDay.Chests > 0 ? bestDay.Day.ToString(L.En ? "MMM d" : "d MMM", Loc) : "—", bestDay.Chests > 0 ? L.Count(bestDay.Chests, "cofre", "cofres", "chest", "chests") : "—")}
@@ -653,20 +820,20 @@ public static class ReportWriter
 
         // Por modo de juego: dónde abres más cofres.
         var byMode = matches.GroupBy(m => Pretty.Playlist(m.Playlist))
-            .Select(g => (Mode: g.Key, Matches: g.Count(), Chests: g.Sum(m => m.ChestsOpened), Best: g.Max(m => m.ChestsOpened), Wins: g.Count(m => m.Placement == 1)))
+            .Select(g => (Mode: g.Key, Matches: g.Count(), Chests: g.Sum(m => m.ChestsOpened), Best: g.Max(m => m.ChestsOpened), Treasures: g.Sum(m => m.TreasureFinds.Count)))
             .OrderByDescending(x => x.Matches).ToList();
         if (byMode.Count > 0)
         {
             var modeMax = Math.Max(0.1, byMode.Max(x => (double)x.Chests / x.Matches));
             sb.Append($"""
                 <section class="fill"><div class="sh"><h2>{L.T("Por modo de juego", "By game mode")}</h2><span class="meta">{L.Count(byMode.Count, "modo", "modos", "mode", "modes")}</span></div>
-                <div class="card tw"><table><thead><tr><th>{L.T("Modo", "Mode")}</th><th class="r">{L.T("Partidas", "Matches")}</th><th class="r">{L.T("Media", "Average")}</th><th class="r">{L.T("Récord", "Best")}</th><th class="r">{L.T("Cofres", "Chests")}</th><th class="r">{L.T("Victorias", "Wins")}</th></tr></thead><tbody>
+                <div class="card tw"><table><thead><tr><th>{L.T("Modo", "Mode")}</th><th class="r">{L.T("Partidas", "Matches")}</th><th class="r">{L.T("Media", "Average")}</th><th class="r">{L.T("Récord", "Best")}</th><th class="r">{L.T("Cofres", "Chests")}</th><th class="r">{L.T("Tesoros", "Treasures")}</th></tr></thead><tbody>
                 """);
             foreach (var x in byMode)
             {
                 var a = (double)x.Chests / x.Matches;
                 var w = (100.0 * a / modeMax).ToString("0.##", CultureInfo.InvariantCulture);
-                sb.Append($"<tr><td><span class=\"badge mode\">{H(x.Mode)}</span></td><td class=\"r\">{N(x.Matches)}</td><td><div class=\"chests\"><span class=\"mini\"><i style=\"width:{w}%\"></i></span><b>{a.ToString("0.0", Loc)}</b></div></td><td class=\"r\">{N(x.Best)}</td><td class=\"r\">{N(x.Chests)}</td><td class=\"r\">{(x.Wins > 0 ? $"<span class=\"badge win\">🏆 {N(x.Wins)}</span>" : "<span class=\"muted\">—</span>")}</td></tr>");
+                sb.Append($"<tr><td><span class=\"badge mode\">{H(x.Mode)}</span></td><td class=\"r\">{N(x.Matches)}</td><td><div class=\"chests\"><span class=\"mini\"><i style=\"width:{w}%\"></i></span><b>{a.ToString("0.0", Loc)}</b></div></td><td class=\"r\">{N(x.Best)}</td><td class=\"r\">{N(x.Chests)}</td><td class=\"r\">{(x.Treasures > 0 ? $"<span class=\"gemc\">{N(x.Treasures)}{GemIcon}</span>" : "<span class=\"muted\">—</span>")}</td></tr>");
             }
             sb.Append("</tbody></table></div></section>");
         }
@@ -674,7 +841,7 @@ public static class ReportWriter
 
         // ================================ Tesoros ================================
         sb.Append("""<div class="panel" id="t-tesoros" role="tabpanel" aria-labelledby="tab-tesoros">""");
-        sb.Append(PageHeader("tesoros", L.T("Tesoros", "Treasures"), L.T("Caza del tesoro y todo lo que has conseguido", "Treasure hunt and everything you got")));
+        sb.Append(PageHeader("tesoros", L.T("Tesoros", "Treasures"), L.T("Los que hay ahora y los que has conseguido", "The ones available now and the ones you got")));
         if (treasureRows.Count > 0)
         {
             var unusual = treasureRows.Where(r => !r.f.SourceIsChest).ToList();
@@ -696,17 +863,18 @@ public static class ReportWriter
                 """);
 
             sb.Append("<div class=\"trow\">");
-            AppendTreasureHunt(sb, treasureRows);
+            var weeks = AppendTreasureHunt(sb, treasureRows);
 
             var bySource = treasureRows.GroupBy(r => L.Name(r.f.SourceKind)).OrderByDescending(g => g.Count()).ToList();
             var srcMax = Math.Max(1, bySource.Max(g => g.Count()));
-            sb.Append($"<section><div class=\"sh\"><h2>{L.T("De dónde vienen los tesoros", "Where the treasures come from")}</h2><span class=\"meta\">{L.Count(treasureRows.Count, "tesoro", "tesoros", "treasure", "treasures")}</span></div><div class=\"card pad\"><div class=\"rows\">");
+            sb.Append($"<section><div class=\"sh\"><h2>{L.T("Dónde consigo mis tesoros", "Where I get my treasures")}</h2><span class=\"meta\">{L.Count(treasureRows.Count, "tesoro", "tesoros", "treasure", "treasures")}</span></div><div class=\"card pad\"><div class=\"rows\">");
             foreach (var g in bySource)
             {
                 var isChest = g.First().f.SourceIsChest;
                 sb.Append($"<div class=\"row{(isChest ? "" : " warn")}\"><span>{(isChest ? "" : "⚑ ")}{H(g.Key)}</span><span class=\"n\">{N(g.Count())}</span><div class=\"track\"><i style=\"width:{(100.0 * g.Count() / srcMax).ToString("0.##", CultureInfo.InvariantCulture)}%\"></i></div></div>");
             }
             sb.Append("</div></div></section></div>");
+            sb.Append(weeks);
 
             sb.Append($"""
                 <section class="fill"><div class="sh"><h2>{L.T("Tesoros obtenidos", "Treasures obtained")}</h2><span class="meta">{L.Count(treasureRows.Count, "tesoro", "tesoros", "treasure", "treasures")}</span></div>
@@ -726,7 +894,7 @@ public static class ReportWriter
         else
         {
             sb.Append($"<div class=\"card\"><div class=\"empty big\"><div class=\"star\">★</div>{L.T("Aún no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
-            AppendTreasureHunt(sb, treasureRows);
+            sb.Append(AppendTreasureHunt(sb, treasureRows));
         }
         sb.Append("</div>");
 
@@ -749,13 +917,16 @@ public static class ReportWriter
             sb.Append($"""<div class="panel" id="t-companeros" role="tabpanel" aria-labelledby="tab-companeros">{PageHeader("companeros", L.T("Compañeros", "Teammates"), L.Count(teamCount, "partida en equipo", "partidas en equipo", "team match", "team matches"))}{mates.Value.Html}</div>""");
         }
 
+        // ================================ Ajustes ================================
+        sb.Append($"""<div class="panel" id="t-ajustes" role="tabpanel" aria-labelledby="tab-ajustes">{SettingsPanel(config)}</div>""");
+
         sb.Append($"</main></div><script>{TabsScript}</script></body></html>");
         return sb.ToString();
     }
 
     /// <summary>
     /// Tabla de partidas (fecha, modo, puesto, cofres, tesoros). Con «Compañeros»: tus cofres, el equipo (≥) y, bajo
-    /// el modo, los cofres vistos de cada compañero.
+    /// el modo, los cofres abiertos de cada compañero.
     /// </summary>
     private static void AppendMatchTable(StringBuilder sb, List<MatchRecord> rows, int chestMax, bool withMates, IReadOnlyCollection<string> kinds)
     {
@@ -771,12 +942,6 @@ public static class ReportWriter
         {
             var treasure = m.TreasureFinds.Count == 0 ? "<span class=\"muted\">—</span>"
                 : "<div class=\"tlist\">" + string.Concat(m.TreasureFinds.Select(f => $"<span class=\"star\">{(f.Featured ? "★★" : "★")} {H(Prizes.Describe(f, When(m)).Name)}</span>")) + "</div>";
-            // Eliminated with no reboot: the squad's treasures after that moment are not in the replay, so the
-            // count can be lower than the post-match screen. Said here so that the difference has an explanation.
-            if (m.EliminatedAtSeconds is float dead && m.Teammates is { Count: > 0 } && !m.TreasureScreenRead)
-            {
-                treasure += $"<div class=\"sm\" title=\"{H(L.T("Tras tu eliminación definitiva, los tesoros que consiga el escuadrón no quedan en el replay: pueden faltar respecto a la pantalla de fin de partida.", "After your final elimination, the treasures the squad gets are not in the replay: some may be missing compared with the post-match screen."))}\">⚠ {H(L.F("Eliminación a los {0}: los tesoros posteriores no se ven", "Eliminated at {0}: later treasures not visible", Pretty.Clock(dead)))}</div>";
-            }
             var placeClass = m.Placement switch { 1 => " win", > 0 and <= 10 => " top", _ => "" };
             var placeText = m.Placement == 1 ? "🏆 " + H(Pretty.Placement(m)) : H(Pretty.Placement(m));
             var own = withMates ? m.OwnChests : m.ChestsOpened;
@@ -815,10 +980,11 @@ public static class ReportWriter
     }
 
     /// <summary>
-    /// Resumen de la caza del tesoro: los premios de esta semana como fichas (los conseguidos, en oro), lo que puede
-    /// tocar cualquier semana en una fila y las demás semanas plegadas en «Ver todas las semanas».
+    /// Tesoros disponibles actualmente (caza del tesoro): los premios de esta semana como fichas (los conseguidos, en
+    /// oro) y lo que puede tocar cualquier semana. Devuelve las cinco semanas, que van a lo ancho debajo de la fila y se
+    /// abren con «Ver todas las semanas» (siguen abiertas aunque la página se recargue).
     /// </summary>
-    private static void AppendTreasureHunt(StringBuilder sb, List<(MatchRecord m, TreasureFind f)> rows)
+    private static string AppendTreasureHunt(StringBuilder sb, List<(MatchRecord m, TreasureFind f)> rows)
     {
         var got = rows.Select(r => Prizes.Describe(r.f, When(r.m)).Name)
             .GroupBy(n => n, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
@@ -828,22 +994,23 @@ public static class ReportWriter
         string Day(DateTime d) => d.ToString(L.En ? "MMM d" : "d MMM", Loc);
         string Range(int week) => $"{Day(Prizes.WeekStarts[week - 1])} – {Day(WeekEnd(week).AddDays(-1))}";
         string Unconfirmed(Prizes.Prize p) => p.Announced ? "" : $"<span class=\"tag\">{L.T("sin confirmar", "unconfirmed")}</span>";
+        string Icon(Prizes.Prize p) => p.Type == Prizes.Kind.Gizmo ? GizmoIcons.GetValueOrDefault(p.Name, GemIconBig) : KindIcons.GetValueOrDefault(p.Type, GemIconBig);
         string Tile(Prizes.Prize p)
         {
             var n = got.GetValueOrDefault(p.Name);
-            return $"<div class=\"tile{(n > 0 ? " got" : "")}\"><span class=\"tt\">{H(Prizes.TypeName(p.Type))}</span><b>{H(p.Name)}</b>"
+            return $"<div class=\"tile{(n > 0 ? " got" : "")}\"><span class=\"tt\"><i>{Icon(p)}</i><span>{H(Prizes.TypeName(p.Type))}</span></span><b>{H(p.Name)}</b>"
                    + (n > 0 ? $"<span class=\"won\">★ ×{n}</span>" : Unconfirmed(p)) + "</div>";
         }
         string Line(Prizes.Prize p)
         {
             var n = got.GetValueOrDefault(p.Name);
-            return $"<li class=\"{(n > 0 ? "got" : "")}\"><span>{H(p.Name)}</span><small>{H(Prizes.TypeName(p.Type))}</small>{(n > 0 ? $"<b>×{n}</b>" : "")}</li>";
+            return $"<li class=\"{(n > 0 ? "got" : "")}\"><i>{Icon(p)}</i><span>{H(p.Name)}</span>{(n > 0 ? $"<b>×{n}</b>" : "")}</li>";
         }
 
         var meta = thisWeek > 0
             ? $"{L.F("Semana {0}", "Week {0}", thisWeek)} · {Range(thisWeek)} · {L.F("quedan {0}", "{0} left", L.Count((WeekEnd(thisWeek) - today).Days, "día", "días", "day", "days"))}"
             : L.T("Evento del 1 de noviembre al 5 de diciembre", "Event from November 1 to December 5");
-        sb.Append($"""<section><div class="sh"><h2>{L.T("Caza del tesoro", "Treasure hunt")}</h2><span class="meta">{meta}</span></div><div class="card hunt">""");
+        sb.Append($"""<section><div class="sh"><h2>{L.T("Tesoros disponibles actualmente", "Treasures available now")}</h2><span class="meta">{meta}</span></div><div class="card hunt">""");
 
         // Esta semana: fichas grandes.
         var week = Prizes.All.Where(p => thisWeek > 0 && p.Week == thisWeek).ToList();
@@ -856,26 +1023,29 @@ public static class ReportWriter
             sb.Append($"""<p class="sm hunt-note">{L.T("Premios aún no anunciados.", "Prizes not announced yet.")}</p>""");
         }
 
-        // Cualquier semana: acceso a la tienda y los artilugios (estos llegan sin nombre: se cuentan juntos).
+        // Cualquier semana: acceso a la tienda y los artilugios.
         var gizmos = rows.Count(r => !r.f.Featured);
         var chips = Prizes.All.Where(p => p.Week == 0).Select(p =>
         {
             var n = got.GetValueOrDefault(p.Name);
-            return $"<span class=\"pchip{(n > 0 ? " got" : "")}\">{H(p.Name)}{(n > 0 ? $" <b>×{n}</b>" : "")}</span>";
+            return $"<span class=\"pchip{(n > 0 ? " got" : "")}\"><i>{Icon(p)}</i>{H(p.Name)}{(n > 0 ? $" <b>×{n}</b>" : "")}</span>";
         });
         sb.Append($"""<div class="always"><span class="al">{L.T("Todas las semanas", "Every week")}</span>{string.Concat(chips)}"""
                   + (gizmos > 0 ? $"""<span class="pchip got">★ {L.Count(gizmos, "artilugio", "artilugios", "gizmo", "gizmos")}</span>""" : "")
                   + "</div>");
+        sb.Append($"""<button class="wtoggle" type="button" aria-expanded="false" aria-controls="weeks" data-open="{H(L.T("Ver todas las semanas", "See every week"))}" data-close="{H(L.T("Ocultar las semanas", "Hide the weeks"))}">{L.T("Ver todas las semanas", "See every week")}</button>""");
+        sb.Append("</div></section>");
 
-        // Las demás semanas, plegadas.
-        sb.Append($"""<details class="weeks"><summary>{L.T("Ver todas las semanas", "See every week")}</summary><div class="wgrid">""");
+        // Las cinco semanas, en una fila.
+        var weeks = new StringBuilder("""<section class="weeks" id="weeks" hidden><div class="wgrid">""");
         for (var w = 1; w <= Prizes.WeekStarts.Length; w++)
         {
             var list = Prizes.All.Where(p => p.Week == w).ToList();
             var body = list.Count > 0 ? $"<ul>{string.Concat(list.Select(Line))}</ul>" : $"<p class=\"sm\">{L.T("Premios aún no anunciados.", "Prizes not announced yet.")}</p>";
-            sb.Append($"""<div class="wk{(w == thisWeek ? " now" : "")}"><div class="wh"><b>{L.F("Semana {0}", "Week {0}", w)}</b><span>{Range(w)}</span>{(w == thisWeek ? $"<span class=\"tag gold\">{L.T("Esta semana", "This week")}</span>" : "")}</div>{body}</div>""");
+            weeks.Append($"""<div class="wk{(w == thisWeek ? " now" : "")}"><div class="wh"><b>{L.F("Semana {0}", "Week {0}", w)}</b>{(w == thisWeek ? $"<span class=\"tag gold\">{L.T("Esta semana", "This week")}</span>" : "")}<span class="wr">{Range(w)}</span></div>{body}</div>""");
         }
-        sb.Append("</div></details></div></section>");
+        weeks.Append("</div></section>");
+        return weeks.ToString();
     }
 
     /// <summary>
@@ -936,48 +1106,32 @@ public static class ReportWriter
             </div></section>
             """);
 
-        // Clasificación: una sola sección con un selector (más cofres vistos, mejor media, récord, victorias juntos y
-        // la tabla con todos). Cada clasificación tiene hasta 10 puestos, repartidos en dos columnas.
+        // Todos tus compañeros (una tabla que se ordena por cualquier columna: partidas, victorias, media…) y, al lado,
+        // las dos clasificaciones que la tabla no enseña de un vistazo.
         var medals = new[] { "🥇", "🥈", "🥉" };
         string Games(int n) => L.Count(n, "partida", "partidas", "match", "matches");
-        void Ranking(string key, string title, string meta, List<(string Key, string Name, double Value, string Text, string Sub)> items)
+        string Ranking(string title, List<(string Key, string Name, double Value, string Text, string Sub)> items)
         {
             if (items.Count == 0)
             {
-                return;
+                return "";
             }
             var max = Math.Max(0.0001, items.Max(i => i.Value));
-            sb.Append($"<div class=\"segp card rank\" data-key=\"{key}\" data-title=\"{H(title)}\" data-meta=\"{H(meta)}\"><ol style=\"grid-template-rows:repeat({(items.Count + 1) / 2},auto)\">");
+            var r = new StringBuilder($"<section class=\"grow\"><div class=\"sh\"><h2>{title}</h2><span class=\"meta\">Top 5</span></div><div class=\"card rank one\"><ol>");
             for (var i = 0; i < items.Count; i++)
             {
                 var it = items[i];
                 var rank = i < medals.Length ? $"<span class=\"rk medal\" aria-label=\"{i + 1}\">{medals[i]}</span>" : $"<span class=\"rk\">{i + 1}</span>";
                 var w = (100.0 * it.Value / max).ToString("0.##", CultureInfo.InvariantCulture);
-                var cls = (i == 0 ? "first t" : i == (items.Count + 1) / 2 ? "t" : "");
-                sb.Append($"<li{(cls.Length > 0 ? $" class=\"{cls}\"" : "")}>{rank}<span class=\"av sm-av\" style=\"background:{Tone(it.Key)}\">{Initial(it.Name)}</span>"
+                r.Append($"<li{(i == 0 ? " class=\"first t\"" : "")}>{rank}<span class=\"av sm-av\" style=\"background:{Tone(it.Key)}\">{Initial(it.Name)}</span>"
                     + $"<span class=\"who2\"><span class=\"nm\" title=\"{H(it.Name)}\">{H(it.Name)}</span><span class=\"sub\">{it.Sub}</span></span><b>{it.Text}</b>"
                     + $"<span class=\"bar\"><i style=\"width:{w}%\"></i></span></li>");
             }
-            sb.Append("</ol></div>");
+            r.Append("</ol></div></section>");
+            return r.ToString();
         }
 
-        sb.Append("<section class=\"fill segsec\"><div class=\"sh\"><div class=\"seg\" role=\"tablist\"></div><span class=\"meta\"></span></div>");
-        var minChests = L.T("cofres vistos: un mínimo", "chests seen: a minimum");
-        var minAvg = all.Count(r => r.Matches >= 3) >= 3 ? 3 : 2;
-        Ranking("cofres", L.T("Más cofres vistos", "Most chests seen"), minChests,
-            all.OrderByDescending(r => r.Chests).ThenByDescending(r => r.Matches).Take(10)
-                .Select(r => (r.Key, r.Name, (double)r.Chests, $"<small>≥</small>{N(r.Chests)}", Games(r.Matches))).ToList());
-        Ranking("media", L.T("Mejor media", "Best average"), L.F("{0} partidas juntos o más", "{0} matches together or more", minAvg),
-            all.Where(r => r.Matches >= minAvg).OrderByDescending(r => (double)r.Chests / r.Matches).Take(10)
-                .Select(r => (r.Key, r.Name, (double)r.Chests / r.Matches, $"<small>≥</small>{((double)r.Chests / r.Matches).ToString("0.0", Loc)}", Games(r.Matches))).ToList());
-        Ranking("record", L.T("Récord en una partida", "Best single match"), minChests,
-            all.Where(r => r.Best > 0).OrderByDescending(r => r.Best).ThenByDescending(r => r.Matches).Take(10)
-                .Select(r => (r.Key, r.Name, (double)r.Best, $"<small>≥</small>{N(r.Best)}", Games(r.Matches))).ToList());
-        Ranking("victorias", L.T("Victorias juntos", "Wins together"), L.Count(teamMatches.Count(m => m.Placement == 1), "victoria en equipo", "victorias en equipo", "team win", "team wins"),
-            all.Where(r => r.Wins > 0).OrderByDescending(r => r.Wins).ThenBy(r => r.Matches).Take(10)
-                .Select(r => (r.Key, r.Name, (double)r.Wins, $"🏆 {N(r.Wins)}", L.F("{0} de {1}", "{0} of {1}", Pct(r.Wins, r.Matches), Games(r.Matches)))).ToList());
-
-        // Todos: los habituales (2 partidas o más); los de relleno con una sola partida se resumen en una línea.
+        // Los habituales (2 partidas o más); los de relleno con una sola partida se resumen en una línea.
         var rows = all.Where(r => r.Matches >= 2).ToList();
         var oneOff = all.Count - rows.Count;
         if (rows.Count == 0)
@@ -985,27 +1139,40 @@ public static class ReportWriter
             rows = all.Take(20).ToList();
             oneOff = Math.Max(0, all.Count - 20);
         }
-        var maxAvg = Math.Max(0.1, rows.Max(r => (double)r.Chests / r.Matches));
+        string V(double v) => v.ToString("0.###", CultureInfo.InvariantCulture);
+        string Th(string label, string type, bool right, bool current = false) =>
+            $"<th{(right ? " class=\"r\"" : "")} data-type=\"{type}\"{(current ? " aria-sort=\"descending\"" : "")}><button type=\"button\">{label}</button></th>";
+        sb.Append("<div class=\"duo wide\"><section class=\"fill\">");
         sb.Append($"""
-            <div class="segp card tw" data-key="todos" data-title="{L.T("Todos", "All")}" data-meta="{L.Count(all.Count, "compañero", "compañeros", "teammate", "teammates")} · {L.Count(tracked, "partida en equipo", "partidas en equipo", "team match", "team matches")}"><table><thead><tr><th>{L.T("Compañero", "Teammate")}</th><th class="r">{L.T("Partidas juntos", "Matches together")}</th><th class="r">{L.T("Victorias", "Wins")}</th><th class="r">{L.T("Cofres vistos", "Chests seen")}</th><th class="r">{L.T("Media", "Average")}</th><th class="r">{L.T("Aporta", "Share")}</th><th class="r">{L.T("Última partida", "Last match")}</th></tr></thead><tbody>
+            <div class="sh"><h2>{L.T("Todos tus compañeros", "All your teammates")}</h2><span class="meta">{L.Count(all.Count, "compañero", "compañeros", "teammate", "teammates")} · {L.T("toca una columna para ordenar", "tap a column to sort")}</span></div>
+            <div class="card tw"><table class="sortable"><thead><tr>{Th(L.T("Compañero", "Teammate"), "s", false)}{Th(L.T("Partidas", "Matches"), "n", true, true)}{Th(L.T("Victorias", "Wins"), "n", true)}{Th(L.T("Cofres abiertos", "Chests opened"), "n", true)}{Th(L.T("Media", "Average"), "n", true)}{Th(L.T("Aporta", "Share"), "n", true)}{Th(L.T("Última partida", "Last match"), "n", true)}</tr></thead><tbody>
             """);
         foreach (var r in rows)
         {
             var avg = (double)r.Chests / r.Matches;
-            var barW = (100.0 * avg / maxAvg).ToString("0.##", CultureInfo.InvariantCulture);
-            var wins = r.Wins > 0 ? $"<span class=\"badge win\">🏆 {N(r.Wins)}</span> <span class=\"sm\">{Pct(r.Wins, r.Matches)}</span>" : "<span class=\"muted\">—</span>";
-            sb.Append($"<tr><td><div class=\"who\"><span class=\"av sm-av\" style=\"background:{Tone(r.Key)}\">{Initial(r.Name)}</span><span class=\"nm\">{H(r.Name)}</span></div></td><td class=\"r\">{N(r.Matches)}</td><td class=\"r nw\">{wins}</td><td class=\"r nw\"><span class=\"sm\">≥</span> <b>{N(r.Chests)}</b></td>"
-                + $"<td class=\"r\"><div class=\"chests\"><span class=\"mini\"><i style=\"width:{barW}%\"></i></span><b>{avg.ToString("0.0", Loc)}</b></div></td>"
-                + $"<td class=\"r nw\"><span class=\"sm\">≥</span> {Pct(r.Chests, r.Team)}</td><td class=\"r nw sm\">{L.DateTimeShort(r.Last)}</td></tr>");
+            var share = r.Team > 0 ? (double)r.Chests / r.Team : 0;
+            var wins = r.Wins > 0 ? $"<b class=\"acc\">{N(r.Wins)}</b> <span class=\"sm\">· {Pct(r.Wins, r.Matches)}</span>" : "<span class=\"muted\">—</span>";
+            sb.Append($"<tr data-row><td data-v=\"{H(r.Name.ToLowerInvariant())}\"><div class=\"who\"><span class=\"av sm-av\" style=\"background:{Tone(r.Key)}\">{Initial(r.Name)}</span><span class=\"nm\">{H(r.Name)}</span></div></td>"
+                + $"<td class=\"r\" data-v=\"{r.Matches}\">{N(r.Matches)}</td><td class=\"r nw\" data-v=\"{V(r.Wins + r.Wins / 1000.0 / r.Matches)}\">{wins}</td><td class=\"r nw\" data-v=\"{r.Chests}\"><span class=\"sm\">≥</span> <b>{N(r.Chests)}</b></td>"
+                + $"<td class=\"r\" data-v=\"{V(avg)}\"><b>{avg.ToString("0.0", Loc)}</b></td>"
+                + $"<td class=\"r nw\" data-v=\"{V(share)}\"><span class=\"sm\">≥</span> {Pct(r.Chests, r.Team)}</td><td class=\"r nw sm\" data-v=\"{r.Last.Ticks}\">{L.DateTimeShort(r.Last)}</td></tr>");
         }
+        sb.Append("</tbody>");
         if (oneOff > 0)
         {
             var more = L.Count(oneOff, "compañero", "compañeros", "teammate", "teammates");
-            sb.Append($"<tr><td colspan=\"7\" class=\"sm foot\">{(all.Count(r => r.Matches >= 2) > 0
+            sb.Append($"<tfoot><tr><td colspan=\"7\" class=\"sm foot\">{(all.Count(r => r.Matches >= 2) > 0
                 ? L.F("Y {0} con una sola partida (relleno de equipo), no mostrados.", "And {0} with a single match (team fill), not shown.", more)
-                : L.F("Y {0} más.", "And {0} more.", more))}</td></tr>");
+                : L.F("Y {0} más.", "And {0} more.", more))}</td></tr></tfoot>");
         }
-        sb.Append("</tbody></table></div></section>");
+        sb.Append("</table></div></section><div class=\"stack\">");
+        sb.Append(Ranking(L.T("Más cofres abiertos", "Most chests opened"),
+            all.OrderByDescending(r => r.Chests).ThenByDescending(r => r.Matches).Take(5)
+                .Select(r => (r.Key, r.Name, (double)r.Chests, $"<small>≥</small>{N(r.Chests)}", Games(r.Matches))).ToList()));
+        sb.Append(Ranking(L.T("Récord en una partida", "Best single match"),
+            all.Where(r => r.Best > 0).OrderByDescending(r => r.Best).ThenByDescending(r => r.Matches).Take(5)
+                .Select(r => (r.Key, r.Name, (double)r.Best, $"<small>≥</small>{N(r.Best)}", Games(r.Matches))).ToList()));
+        sb.Append("</div></div>");
         return (sb.ToString(), rows.Count);
     }
 

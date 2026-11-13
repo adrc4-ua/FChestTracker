@@ -75,6 +75,8 @@ public sealed class AppMonitor
             StartOverlay();
         }
         RestartWatcher();
+        ObsServer.ReportFile = _store.ReportPath;
+        ObsServer.Settings = ApplyFromReport;
         ObsServer.Start(_config.ObsPort > 0 ? _config.ObsPort : ObsServer.DefaultPort);
         _gameLog = new GameLogWatcher(OnTreasureScreen);
 
@@ -226,7 +228,7 @@ public sealed class AppMonitor
         Change(change);
     }
 
-    /// <summary>Sumar o no a tu total los cofres vistos de tus compañeros. Rehace el informe enseguida.</summary>
+    /// <summary>Sumar o no a tu total los cofres abiertos de tus compañeros. Rehace el informe enseguida.</summary>
     public void SetCountTeammates(bool count)
     {
         _reportRequested = true;
@@ -260,6 +262,65 @@ public sealed class AppMonitor
         {
             return Array.Empty<(DateTime, int)>(); // la lista cambió mientras se leía: sin días esta vez
         }
+    }
+
+    /// <summary>Dónde abrir el informe: servido por la app (su página de Ajustes funciona) o, si no, el archivo.</summary>
+    public string ReportTarget => ObsServer.ReportUrl ?? _store.ReportPath;
+
+    private static readonly string[] UpdateModes = { "prompt", "auto", "off" };
+
+    /// <summary>
+    /// Ajuste cambiado en la página de Ajustes del informe (desde el hilo del servidor local). Devuelve si se aceptó
+    /// y si la app se va a reiniciar (idioma). El informe se rehace enseguida para que la página muestre el cambio.
+    /// </summary>
+    private (bool Ok, bool Restart) ApplyFromReport(string key, string value)
+    {
+        var on = value == "1";
+        var ok = true;
+        var restart = false;
+        switch (key)
+        {
+            case "lang":
+                var code = value.Length == 0 ? null : value;
+                if (code != null && !L.Languages.Any(l => l.Code == code))
+                {
+                    return (false, false);
+                }
+                Change(c => c.Language = code);
+                restart = true;
+                // Los textos se leen al arrancar: la app se reinicia, dando tiempo a que la página reciba la respuesta.
+                Task.Delay(800).ContinueWith(_ => Restart());
+                break;
+            case "fortnite":
+                ok = SetStartWithFortnite(on);
+                break;
+            case "openReport":
+                Change(c => c.OpenReportOnStart = on);
+                break;
+            case "teammates":
+                SetShowTeammates(on);
+                break;
+            case "countMates":
+                SetCountTeammates(on);
+                break;
+            case "ammo":
+                SetCountExtra(c => c.CountAmmoBoxes = on);
+                break;
+            case "food":
+                SetCountExtra(c => c.CountFoodBoxes = on);
+                break;
+            case "cannons":
+                SetCountExtra(c => c.CountLootCannons = on);
+                break;
+            case "updates" when UpdateModes.Contains(value):
+                Change(c => c.UpdateMode = value);
+                break;
+            default:
+                return (false, false);
+        }
+        _reportRequested = true;
+        _wake.Set();
+        return (ok, restart);
     }
 
     /// <summary>Mostrar u ocultar la sección «Compañeros» del informe. Rehace el informe enseguida.</summary>
@@ -330,7 +391,7 @@ public sealed class AppMonitor
         {
             try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_store.ReportPath) { UseShellExecute = true })?.Dispose();
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(ReportTarget) { UseShellExecute = true })?.Dispose();
             }
             catch
             {
@@ -567,7 +628,7 @@ public sealed class AppMonitor
     }
 
     /// <summary>
-    /// Equipo de la partida en curso (si se puede leer) o de la última: tus cofres y los vistos de cada compañero.
+    /// Equipo de la partida en curso (si se puede leer) o de la última: tus cofres y los abiertos de cada compañero.
     /// Null si «Compañeros» está desactivado o aún no hay partidas.
     /// </summary>
     private TeamSummary? BuildTeam()

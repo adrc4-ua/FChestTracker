@@ -5,7 +5,14 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 ## [Sin publicar]
 
 - Idiomas: la app y el informe quedan en español (de España) e inglés. Los demás idiomas se añaden con un archivo JSON por idioma (`src/Localization/Languages/`), que se genera con `dotnet run tools/i18n.cs -- <código>`.
-- Compañeros: una sola clasificación con selector (más cofres vistos, mejor media, récord, victorias juntos y la tabla con todos, sin las columnas Récord y Tu media); se quitan la tabla «Por partida» y las tarjetas «Con quién más juegas».
+- Informe: pestaña **Ajustes** (idioma, abrir con Fortnite, abrir el informe al iniciar, actualizaciones, compañeros, qué contar como cofre, versión y enlaces a GitHub). El informe lo sirve FCT en `http://localhost:7373/informe` para poder cambiarlos desde la página; si FCT se cierra, la página lo avisa.
+- La versión ya no aparece en la app (ni en el título): solo en Ajustes del informe.
+- Informe más dorado e iconos nuevos (cofre, tesoros, partidas…); en Últimos tesoros, el icono de cada objeto cuando se sabe cuál es.
+- Compañeros en una sola página, sin menú: tabla de todos tus compañeros que se ordena por cualquier columna (partidas, victorias, cofres abiertos, media…) y top 5 de más cofres abiertos y de récord. «Cofres vistos» pasa a «cofres abiertos».
+- Resumen: los compañeros siempre a la vista, sin desplazar.
+- Tesoros: «Caza del tesoro» pasa a «Tesoros disponibles actualmente» y «De dónde vienen los tesoros» a «Dónde consigo mis tesoros»; «Ver todas las semanas» abre las cinco semanas en una fila y ya no se cierra sola.
+- Cofres: la tabla por modo de juego muestra los tesoros de cada modo en vez de las victorias.
+- Se quita el aviso «tesoros posteriores no visibles» tras una eliminación: la pantalla de fin de partida ya los recupera.
 - Textos revisados: tono neutro y español de España («Te damos la bienvenida», «Haz clic», «destruidos»).
 - Pantalla de tesoros de fin de partida: FCT captura solo la ventana del juego (aunque esté tapada), reconoce los iconos, borra la imagen y pone nombre a cada artilugio; añade los tesoros que el replay no vio (tras tu eliminación) con hora y jugador desconocidos.
 - Requiere Windows 10 2004 o posterior (captura de ventanas de Windows).

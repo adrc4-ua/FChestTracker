@@ -24,7 +24,7 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 - **Teammates**: who you play with, wins together, each one's chests per match and a leaderboard.
 - **Safe**: it only reads replay files; it never touches the game or its memory.
 
-> It counts the chests **you** opened (and those your team was seen opening). It does not show where chests are on the map.
+> It counts the chests **you** opened (and those your team opened near you). It does not show where chests are on the map.
 
 ## Getting started
 
@@ -55,15 +55,16 @@ The window can be resized and maximized: everything grows in proportion.
 
 ## The report
 
-`report.html` opens in your browser (the **Report** button) and refreshes by itself. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
+The report opens in your browser (the **Report** button), served by FCT at `http://localhost:7373/informe`, and refreshes by itself; if you close FCT the page says so instead of showing an error. It is also saved as `report.html`. It always starts on **Overview**; the tabs are in the menu on the left. On a PC every tab fits the screen: long lists scroll inside their own box.
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Chests opened (and today's), wins, matches, average, best match, best day, a chart of the last 30 days, latest matches, **latest treasures** and, with teammates, their share and who you play with most. |
-| **Chests** | By chest type, other containers (ammo boxes, food boxes, loot cannons; shows whether they count) and a **by game mode** table. |
-| **Treasures** | How many (featured and gizmos), % of matches with a treasure, the **treasure hunt** (this week's prizes and, folded, every week), where they come from and the list with the exact moment and who got them. |
+| **Overview** | Chests opened (and today's), wins, matches, average, best match, best day, a chart of the last 30 days, latest matches, **latest treasures** (with each item's icon) and, with teammates, their share and who you play with most. |
+| **Chests** | By chest type, other containers (ammo boxes, food boxes, loot cannons; shows whether they count) and a **by game mode** table with the treasures of each mode. |
+| **Treasures** | How many (featured and gizmos), % of matches with a treasure, **treasures available now** (this week's and, with a button, the five weeks in a row), where you get your treasures and the list with the exact moment and who got them. |
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
-| **Teammates** | Team chests and a **ranking** with a switch: most chests seen, best average, best match, wins together and all your teammates (see below). |
+| **Teammates** | Team chests, the table of **all your teammates** (sorts by matches, wins, chests, average…) and the top 5 for most chests opened and best single match (see below). |
+| **Settings** | Language, open with Fortnite, open the report at startup, updates, teammates, what counts as a chest, the FCT version and links to GitHub. Applied right away. |
 
 <p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the report" width="820"></p>
 
@@ -86,7 +87,7 @@ Turn it on in **Settings → Teammates in the report** (off by default). You get
 - **Exact**: who you play with, matches together and wins together.
 - **Approximate**: each teammate's chests. They come from **your** replay, and Fortnite only records what happens **within 1,087 m of you** (measured on real replays). If a teammate goes further, their chests are not counted: they are a **minimum (≥)**.
 - **Team chests**: you + your teammates, in total and per match, with each one's share; handy when you hunt for a random item that drops from chests.
-- **Ranking**: most chests seen, best average, best single match and wins together (up to 10 places), or the table with all your teammates.
+- **All your teammates**: matches together, wins, chests opened, average and their share; tap a column to sort. Beside it, the top 5 for most chests opened and best single match.
 
 With **Add their chests to your total** (also off), your total, average, records and overlay include your team's chests. Your history does not change: turning it off shows only yours again.
 
