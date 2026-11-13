@@ -1,19 +1,12 @@
-using System.Text.RegularExpressions;
-using FortniteReplayReader;
-using FortniteReplayReader.Models;
-using FortniteReplayReader.Models.NetFieldExports;
-using FortniteReplayReader.Models.NetFieldExports.Items;
-using FortniteReplayReader.Models.NetFieldExports.Weapons;
-using Unreal.Core;
-using Unreal.Core.Contracts;
-using Unreal.Core.Models;
-using Unreal.Core.Models.Enums;
-
 namespace FCT.Analysis;
 
+/// <summary>
+/// The kinds of searchable things FCT tells apart, and how a game blueprint maps to one. The values are saved in
+/// data.json, so they never change; a new kind only needs a constant and a rule.
+/// </summary>
 public static class ChestKinds
 {
-    // Chests (counted in the total)
+    // Chests: they make the chest total.
     public const string Normal = "Chest";
     public const string Rare = "Rare chest";
     public const string Buried = "Buried chest";
@@ -21,28 +14,43 @@ public static class ChestKinds
     public const string PosterChest = "Spirit poster chest";
     public const string Other = "Other chest";
 
-    // Other interactions (tracked separately, not in the chest total)
+    // Everything else that can be searched: kept apart, added to the total only if the player asks.
     public const string Cannon = "Loot cannon";
     public const string AmmoBox = "Ammo box";
     public const string FoodBox = "Food box";
     public const string OtherContainer = "Other container";
 
-    private static readonly HashSet<string> ChestSet = new() { Normal, Rare, Buried, Extraction, PosterChest, Other };
+    private static readonly HashSet<string> Chests = new() { Normal, Rare, Buried, Extraction, PosterChest, Other };
 
-    public static bool IsChest(string kind) => ChestSet.Contains(kind);
+    /// <summary>
+    /// First rule whose fragments appear in the (lower-case) blueprint wins, so the order matters: cannons and ammo
+    /// before anything named "chest", rare before the generic chest names.
+    /// </summary>
+    private static readonly (string Kind, string[] Fragments)[] Rules =
+    {
+        (Cannon, new[] { "lootcannon", "cannon" }),
+        (AmmoBox, new[] { "ammo" }),
+        (FoodBox, new[] { "foodbox", "food_box" }),
+        (Rare, new[] { "rarechest", "legendary", "rare_chest" }),
+        (Buried, new[] { "buried" }),
+        (PosterChest, new[] { "spriteposter", "booty" }),
+        (Extraction, new[] { "relic", "extraction" }),
+        (Normal, new[] { "tiered_chest", "normalchest", "standardchest" }),
+        (Other, new[] { "chest" }), // any other chest; coolers, barrels and the like fall through
+    };
+
+    public static bool IsChest(string kind) => Chests.Contains(kind);
 
     public static string Classify(string blueprint)
     {
-        var b = blueprint.ToLowerInvariant();
-        if (b.Contains("lootcannon") || b.Contains("cannon")) return Cannon;
-        if (b.Contains("ammo")) return AmmoBox;
-        if (b.Contains("foodbox") || b.Contains("food_box")) return FoodBox;
-        if (b.Contains("rarechest") || b.Contains("legendary") || b.Contains("rare_chest")) return Rare;
-        if (b.Contains("buried")) return Buried;
-        if (b.Contains("spriteposter") || b.Contains("booty")) return PosterChest;
-        if (b.Contains("relic") || b.Contains("extraction")) return Extraction;
-        if (b.Contains("tiered_chest") || b.Contains("normalchest") || b.Contains("standardchest")) return Normal;
-        // Coolers, barrels, etc. are not chests.
-        return b.Contains("chest") ? Other : OtherContainer;
+        var name = blueprint.ToLowerInvariant();
+        foreach (var (kind, fragments) in Rules)
+        {
+            if (Array.Exists(fragments, name.Contains))
+            {
+                return kind;
+            }
+        }
+        return OtherContainer;
     }
 }
