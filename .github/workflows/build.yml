@@ -119,3 +119,15 @@ jobs:
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
+      # SignPath Foundation asks for the code signing policy on the download page: added once to the release notes.
+      - name: Add the code signing policy to the release notes
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          body="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body)"
+          if ! grep -q "Code signing policy" <<< "$body"; then
+            note="Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/) · [Code signing policy](https://github.com/$GITHUB_REPOSITORY/blob/main/CODE_SIGNING_POLICY.md) · [Third-party notices](https://github.com/$GITHUB_REPOSITORY/blob/main/THIRD_PARTY_NOTICES.md) · Not affiliated with Epic Games."
+            printf '%s\n\n---\n%s\n' "$body" "$note" > notes.md
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file notes.md
+          fi

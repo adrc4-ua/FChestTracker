@@ -47,4 +47,23 @@ public static class AppInfo
     public static string ShowEventFor(string dataDir) => InstanceMutexFor(dataDir).Replace(".Instance", ".Show");
     public const string StandbyMutex = @"Local\FCT.Standby";
     public const string StandbyStopEvent = @"Local\FCT.StandbyStop";
+
+    /// <summary>--licenses: the license and the third-party notices embedded in the exe (MIT asks them to travel with it).</summary>
+    public static int PrintLicenses()
+    {
+        var assembly = typeof(AppInfo).Assembly;
+        foreach (var name in new[] { "FCT.LICENSE", "FCT.THIRD_PARTY_NOTICES.md" })
+        {
+            using var stream = assembly.GetManifestResourceStream(name);
+            if (stream == null)
+            {
+                continue;
+            }
+            using var reader = new StreamReader(stream);
+            Console.WriteLine(reader.ReadToEnd());
+            Console.WriteLine();
+        }
+        Console.WriteLine(RepoUrl);
+        return 0;
+    }
 }

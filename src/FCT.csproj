@@ -12,6 +12,11 @@
     <AssemblyName>FCT</AssemblyName>
     <Product>Fortnite Chest Tracker</Product>
     <AssemblyTitle>Fortnite Chest Tracker</AssemblyTitle>
+    <!-- Shown in the file properties (and required by SignPath: product name and version in the metadata). -->
+    <Description>Fortnite Chest Tracker - counts the chests you open in Fortnite from its replays. Not affiliated with Epic Games.</Description>
+    <Company>Fortnite Chest Tracker</Company>
+    <Authors>adrc4-ua</Authors>
+    <Copyright>Copyright (c) 2026 Adrián Ruiz. MIT License. Fortnite is a trademark of Epic Games, Inc.</Copyright>
     <RootNamespace>FCT</RootNamespace>
     <Version>4.4.1</Version>
     <InvariantGlobalization>false</InvariantGlobalization>
@@ -25,6 +30,9 @@
   <ItemGroup>
     <!-- Also inside the exe as a resource: the report shows it as its logo. -->
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
+    <!-- The license and the third-party notices travel with the exe (MIT asks for it); the exe prints them with its licenses option. -->
+    <EmbeddedResource Include="..\LICENSE" LogicalName="FCT.LICENSE" />
+    <EmbeddedResource Include="..\THIRD_PARTY_NOTICES.md" LogicalName="FCT.THIRD_PARTY_NOTICES.md" />
     <!-- Languages besides Spanish and English: one file per language (see Localization/Languages/README.md). -->
     <EmbeddedResource Include="Localization\Languages\*.json" LogicalName="FCT.lang.%(Filename).json" />
     <!-- fortnite-api.com key to look up the player's total matches (estimate of the chests before FCT). It comes from

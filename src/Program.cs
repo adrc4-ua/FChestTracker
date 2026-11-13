@@ -32,7 +32,7 @@ internal static class Program
 
         // Las opciones de línea de comandos escriben en la terminal que lanzó el exe; si no, la aplicación es una ventana
         // y la consola (que el código de análisis usa para sus mensajes) se oculta.
-        var cliMode = args.Any(a => a is "--once" or "--help" or "-h" or "--overlay-preview" or "--diagnose" or "--read-treasure-screen" or "--capture-window");
+        var cliMode = args.Any(a => a is "--once" or "--help" or "-h" or "--overlay-preview" or "--diagnose" or "--read-treasure-screen" or "--capture-window" or "--licenses");
         if (OperatingSystem.IsWindows())
         {
             NativeConsole.Ensure(attachToParent: cliMode);
@@ -82,6 +82,7 @@ internal static class Program
                 case "--read-treasure-screen": return PostMatchTools.ReadImage(args[++i]);
                 case "--capture-window": return PostMatchTools.CaptureWindow(args[++i], i + 1 < args.Length ? args[++i] : null);
                 case "--auto": auto = true; break;
+                case "--licenses": return AppInfo.PrintLicenses();
                 case "--after-update": afterUpdate = true; break;
                 case "-h":
                 case "--help":
@@ -94,6 +95,7 @@ internal static class Program
                           --once              analiza los replays terminados, muestra el resumen y sale (sin ventana)
                           --reset-config      vuelve a mostrar las preguntas iniciales
                           --overlay-preview <archivo.png>   guarda vistas previas del overlay y sale
+                          --licenses          muestra la licencia y los avisos de terceros
                         """, """
                         Fortnite Chest Tracker (FCT)
 
@@ -103,6 +105,7 @@ internal static class Program
                           --once              analyze the finished replays, show the summary and quit (no window)
                           --reset-config      show the first-run questions again
                           --overlay-preview <file.png>   save previews of the overlay and quit
+                          --licenses          show the license and third-party notices
                         """));
                     return 0;
             }

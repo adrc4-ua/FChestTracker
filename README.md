@@ -167,8 +167,6 @@ No hay nombre que escribir: se cuenta al jugador que grabó cada replay. Si en e
 
 FCT busca en GitHub una versión nueva al iniciarse y **cada 30 minutos** mientras está abierto, y por defecto la **instala sola** entre dos partidas (tu historial y tu configuración se conservan). En Configuración puedes elegir *Preguntar* o *Nunca* (ningún acceso a la red). La primera vez que lo abres, si no es la última versión, te pregunta si quieres descargarla; si dices que no, las actualizaciones quedan en *Preguntar*.
 
-Las versiones publicadas antes del cambio de nombre (ChestCounter) también se actualizan: cada release incluye una copia del exe con ese nombre. Tras actualizar, el archivo sigue llamándose como antes, pero dentro es FCT (nombre, icono, datos y todo lo demás).
-
 ## Tus datos
 
 Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: cada partida (con sus cofres, tesoros y compañeros) se guarda en `data.json` en cuanto se lee, y todas las estadísticas salen de ahí.
@@ -182,6 +180,10 @@ Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: c
 | `treasures.json` | Nombres de los premios de la caza del tesoro. |
 | `overlay.html` | Copia del overlay (para OBS es mejor http://localhost:7373/). |
 | `errors.log` | Replays que no se pudieron leer, para adjuntar a un informe de error. |
+
+## Desinstalar
+
+FCT es un único archivo y no instala nada. Desactiva **Abrir con Fortnite** en Configuración (quita su tarea programada), cierra FCT y borra `FCT.exe`. Si quieres borrar también tu historial, borra la carpeta `%APPDATA%\FCT`.
 
 ## Preguntas frecuentes
 
@@ -205,6 +207,7 @@ FCT.exe --data <carpeta>    otra carpeta de datos
 FCT.exe --once              analiza las repeticiones terminadas y se cierra
 FCT.exe --reset-config      vuelve a hacer la configuración inicial
 FCT.exe --overlay-preview <archivo.png>   guarda vistas previas del overlay y se cierra
+FCT.exe --licenses          muestra la licencia y los avisos de terceros
 ```
 
 ## Compilar desde el código
@@ -231,10 +234,30 @@ tools/i18n.cs                crea o actualiza el archivo de un idioma nuevo (dot
 docs/images/                 capturas de este README
 ```
 
-## Licencia y créditos
+## Licencia, créditos y avisos legales
 
-[MIT](LICENSE). Este proyecto parte de [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92. El análisis de los replays se basa en [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan (MIT), ligeramente modificado: ver [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md).
+FCT es software libre con la [licencia MIT](LICENSE). Todo lo externo que usa, con su licencia o sus condiciones, está en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) (también dentro del exe: `FCT.exe --licenses`).
 
-Firma del ejecutable: [política de firma de código](CODE_SIGNING_POLICY.md).
+**Código y origen**
 
-Este proyecto no está afiliado a Epic Games, ni cuenta con su respaldo ni patrocinio. Fortnite es una marca registrada de Epic Games, Inc.
+| | Para qué | Licencia |
+|---|---|---|
+| [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan | Leer y descomprimir las repeticiones. Va incluido en `external/`, con cambios propios descritos en [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md). | MIT |
+| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | Idea y base de código inicial de las que partió FCT. Desde entonces FCT ha evolucionado por su cuenta; su aviso de copyright se conserva en [LICENSE](LICENSE). | MIT |
+| [.NET](https://github.com/dotnet/runtime) y Windows Forms | El exe lleva el runtime de .NET dentro, para no tener que instalar nada. | MIT |
+
+**Servicios** (ninguno recibe datos sin que lo pidas; detalle en la [política de privacidad](CODE_SIGNING_POLICY.md#privacy-policy))
+
+| | Para qué | Qué se envía |
+|---|---|---|
+| [GitHub](https://github.com) | Buscar y descargar versiones nuevas (se puede desactivar). | Nada tuyo. |
+| [Fortnite-API](https://fortnite-api.com) | Solo cuando lo pides, buscar tus partidas de la temporada actual para estimar los cofres de antes de FCT (estadísticas públicas), con la clave gratuita del proyecto. | Tu id o nombre de Epic, nada más. |
+| [fortnite.gg](https://fortnite.gg/stats) | FCT **no** se conecta: solo se sugiere como web donde puedes mirar tú tus partidas y escribirlas a mano si la búsqueda falla. | Nada. |
+
+### Code signing policy
+
+Firma de código gratuita de [SignPath.io](https://about.signpath.io/), certificado de [SignPath Foundation](https://signpath.org/). Qué se firma, quién lo aprueba, privacidad y cómo desinstalar: [política de firma de código](CODE_SIGNING_POLICY.md).
+
+### Marcas
+
+FCT es un proyecto independiente de fans. **No está afiliado a Epic Games, Inc., ni cuenta con su respaldo, patrocinio o aprobación.** Fortnite, Epic Games y sus logotipos son marcas comerciales o registradas de Epic Games, Inc. Fortnite-API y fortnite.gg son servicios no oficiales y ajenos a este proyecto. FCT solo lee las repeticiones que el juego guarda en tu PC: no modifica el juego, no lee su memoria ni interactúa con su antitrampas.
