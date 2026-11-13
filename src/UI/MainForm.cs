@@ -135,14 +135,15 @@ public sealed class MainForm : Form
         _statMatches = Stat(L.T("Histórico", "History"), RightX, 196, Theme.Ink, out _statMatchesCap);
         _statTreasures = Stat(L.T("Tesoros", "Treasures"), RightX + 142, 196, Theme.Ink, out _statTreasuresCap);
 
-        // Aviso (versión nueva, cierre con Fortnite) o botón de actualizar: ocupa el sitio de los botones.
-        _noticeCard = new Card { Location = new Point(RightX, 277), Size = new Size(RightW, 40), Radius = 12, BackColor = Theme.Card, Visible = false };
-        _notice = Lbl(_noticeCard, "", 8.5f, FontStyle.Regular, Theme.AccentSoft, new Point(13, 0), new Size(RightW - 26, 40), ContentAlignment.MiddleLeft);
+        // Aviso (versión nueva, estimado, cierre con Fortnite) o botón de actualizar: franja propia debajo de todo, a lo
+        // ancho de la ventana (que crece para hacerle sitio), así los botones siguen siempre a la vista.
+        _noticeCard = new Card { Location = new Point(LeftX, BannerYBase), Size = new Size(FullW, BannerH), Radius = 12, BackColor = Theme.Card, Visible = false };
+        _notice = Lbl(_noticeCard, "", 8.5f, FontStyle.Regular, Theme.AccentSoft, new Point(13, 0), new Size(FullW - 26, BannerH), ContentAlignment.MiddleLeft);
         _noticeCard.Click += (_, _) => { if (_autoCloseOffer) _monitor.KeepOpen(); };
         _notice.Click += (_, _) => { if (_autoCloseOffer) _monitor.KeepOpen(); };
         Controls.Add(_noticeCard);
 
-        _update = new PillButton { Location = new Point(RightX, 277), Size = new Size(RightW, 40), Radius = 12, Visible = false, BackColor = Theme.Accent, HoverColor = Theme.AccentHover, ForeColor = Theme.AccentInk };
+        _update = new PillButton { Location = new Point(LeftX, BannerYBase), Size = new Size(FullW, BannerH), Radius = 12, Visible = false, BackColor = Theme.Accent, HoverColor = Theme.AccentHover, ForeColor = Theme.AccentInk };
         _update.Click += (_, _) => _monitor.InstallUpdate();
         Controls.Add(_update);
 
@@ -262,6 +263,8 @@ public sealed class MainForm : Form
     }
 
     private const int DesignW = 592, DesignHBase = 332, DesignHTeam = 416;
+    // Franja del aviso: bajo el gráfico, o bajo la tarjeta «Equipo» si se ve.
+    private const int FullW = RightX + RightW - LeftX, BannerH = 40, BannerYBase = 334, BannerYTeam = 416, BannerGap = 8;
     private int _designH = DesignHBase;
     private readonly Dictionary<Control, LayoutEntry> _layout = new();
     private System.Windows.Forms.Timer? _scaleTimer;
@@ -459,9 +462,7 @@ public sealed class MainForm : Form
         _notice.Cursor = s.AutoCloseOffer ? Cursors.Hand : Cursors.Default;
         _noticeCard.Visible = hasNotice;
 
-        // Los botones ocupan el mismo sitio que el aviso o la actualización: cuando hay aviso, se ocultan.
-        var notice = _update.Visible || _noticeCard.Visible;
-        _overlayButton.Visible = _reportButton.Visible = _settingsButton.Visible = !notice;
+        Relayout();
     }
 
     /// <summary>
@@ -505,9 +506,30 @@ public sealed class MainForm : Form
         {
             return;
         }
-        var scale = ClientSize.Height / (float)_designH;
         _teamCard.Visible = on;
-        _designH = on ? DesignHTeam : DesignHBase;
+        Relayout();
+    }
+
+    /// <summary>Altura de la ventana según lo que se ve (tarjeta «Equipo», franja del aviso), a la misma escala.</summary>
+    private void Relayout()
+    {
+        var team = _teamCard.Visible;
+        var banner = _noticeCard.Visible || _update.Visible;
+        var bannerY = team ? BannerYTeam : BannerYBase;
+        var designH = banner ? bannerY + BannerH + BannerGap : team ? DesignHTeam : DesignHBase;
+        foreach (var c in new Control[] { _noticeCard, _update })
+        {
+            if (_layout.TryGetValue(c, out var entry))
+            {
+                entry.Location = new Point(entry.Location.X, bannerY);
+            }
+        }
+        if (designH == _designH)
+        {
+            return; // nada cambia de sitio (se llama en cada refresco)
+        }
+        var scale = ClientSize.Height / (float)_designH;
+        _designH = designH;
         _lastFx = _lastFy = -1; // vuelve a colocar todo con la nueva altura de diseño
         if (WindowState == FormWindowState.Normal)
         {
