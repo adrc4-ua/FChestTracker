@@ -36,7 +36,7 @@ public sealed class Config
 
     public bool OverlayVisible { get; set; } = true;
 
-    /// <summary>Click-through and fixed in place (Ctrl+Shift+L).</summary>
+    /// <summary>Click-through and fixed in place (the overlay's padlock).</summary>
     public bool OverlayLocked { get; set; }
 
     public int? OverlayX { get; set; }

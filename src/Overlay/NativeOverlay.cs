@@ -8,14 +8,14 @@ namespace FCT.Overlay;
 
 /// <summary>
 /// The in-game overlay: a small always-on-top window on its own thread, drawn with GDI so it stays sharp and cheap. It
-/// has no timer for the figures (it repaints when told to) and only shows while a window of the game is open.
-/// Ctrl+Shift+O shows/hides it and Ctrl+Shift+L locks it (locked = the mouse goes through it, except its buttons).
+/// has no timer for the figures (it repaints when told to) and only shows while a window of the game is open. Its
+/// padlock locks it (locked = the mouse goes through it, except its buttons).
 /// </summary>
 [SupportedOSPlatform("windows")]
 public static class NativeOverlay
 {
     private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004;
-    private const int ShowHotkey = 1, LockHotkey = 2, GameTimer = 3, GameTimerMs = 2000;
+    private const int GameTimer = 3, GameTimerMs = 2000;
 
     private static Thread? _thread;
     private static IntPtr _window;
@@ -38,12 +38,6 @@ public static class NativeOverlay
     private static readonly List<IntPtr> _eventHooks = new();
 
     public static bool IsRunning => _window != IntPtr.Zero;
-
-    /// <summary>Whether Ctrl+Shift+O could be registered.</summary>
-    public static bool HotkeyRegistered { get; private set; }
-
-    /// <summary>Whether Ctrl+Shift+L (lock / unlock) could be registered.</summary>
-    public static bool LockHotkeyRegistered { get; private set; }
 
     /// <summary>Locked: the mouse goes through the overlay and it cannot be moved.</summary>
     public static bool IsLocked => _locked;
@@ -109,7 +103,7 @@ public static class NativeOverlay
         }
     }
 
-    /// <summary>Takes the overlay off screen, ends its thread and releases its shortcuts.</summary>
+    /// <summary>Takes the overlay off screen and ends its thread.</summary>
     public static void Stop()
     {
         var thread = _thread;
@@ -122,7 +116,6 @@ public static class NativeOverlay
         _thread = null;
         _window = IntPtr.Zero;
         _visible = false;
-        HotkeyRegistered = LockHotkeyRegistered = false;
     }
 
     /// <summary>Saves the overlay as drawn to a PNG (works off screen too). For --overlay-preview.</summary>
@@ -202,9 +195,6 @@ public static class NativeOverlay
         {
             ShowWindow(_window, SW_SHOWNOACTIVATE);
         }
-        // shortcuts that work while the game has the focus
-        HotkeyRegistered = RegisterHotKey(_window, ShowHotkey, MOD_CONTROL | MOD_SHIFT | MOD_NOREPEAT, VK_O);
-        LockHotkeyRegistered = RegisterHotKey(_window, LockHotkey, MOD_CONTROL | MOD_SHIFT | MOD_NOREPEAT, VK_L);
         ready.Set();
 
         // no timer for the figures: the thread sleeps here until something changes
@@ -277,16 +267,6 @@ public static class NativeOverlay
             case WM_NCRBUTTONUP:
                 SetVisible(window, false);
                 return 0;
-            case WM_HOTKEY:
-                if ((long)wParam == LockHotkey)
-                {
-                    SetLocked(window, !_locked, notify: true);
-                }
-                else
-                {
-                    SetVisible(window, !_visible);
-                }
-                return 0;
             case WM_APP_LOCK:
                 SetLocked(window, !_locked, notify: true);
                 return 0;
@@ -335,8 +315,6 @@ public static class NativeOverlay
             case WM_DESTROY:
                 _eventHooks.ForEach(hook => UnhookWinEvent(hook));
                 _eventHooks.Clear();
-                UnregisterHotKey(window, ShowHotkey);
-                UnregisterHotKey(window, LockHotkey);
                 PostQuitMessage(0);
                 return 0;
         }
@@ -372,9 +350,8 @@ public static class NativeOverlay
         }
         _lockChanged?.Invoke(locked);
         Console.WriteLine(locked
-            ? L.F("Overlay bloqueado: el ratón lo atraviesa. Haz clic en el candado{0} para desbloquearlo.",
-                "Overlay locked: the mouse goes through it. Click the padlock{0} to unlock it.",
-                LockHotkeyRegistered ? L.T(" o Ctrl+Mayús+L", " or press Ctrl+Shift+L") : "")
+            ? L.T("Overlay bloqueado: el ratón lo atraviesa. Haz clic en el candado para desbloquearlo.",
+                "Overlay locked: the mouse goes through it. Click the padlock to unlock it.")
             : L.T("Overlay desbloqueado: arrastra con el botón izquierdo para moverlo; bloquéalo de nuevo con el candado.",
                 "Overlay unlocked: drag it with the left mouse button; lock it again with the padlock."));
     }
@@ -421,9 +398,7 @@ public static class NativeOverlay
         Show(window, visible);
         if (!visible)
         {
-            Console.WriteLine(HotkeyRegistered
-                ? L.T("Overlay oculto: Ctrl+Mayús+O (desde cualquier sitio) lo vuelve a mostrar.", "Overlay hidden: Ctrl+Shift+O (from anywhere) shows it again.")
-                : L.T("Overlay oculto: usa el botón Overlay de la ventana para volver a mostrarlo.", "Overlay hidden: use the Overlay button in the window to show it again."));
+            Console.WriteLine(L.T("Overlay oculto: usa el botón Overlay de la ventana para volver a mostrarlo.", "Overlay hidden: use the Overlay button in the window to show it again."));
         }
     }
 

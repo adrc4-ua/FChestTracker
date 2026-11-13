@@ -57,8 +57,8 @@ Your history stays saved on your PC.
 <br>
 
 - It only shows while Fortnite is open, on the screen and spot you choose.
-- **Ctrl + Shift + O** shows or hides it.
-- **Ctrl + Shift + L** (or the padlock) locks or unlocks it: locked, clicks go through it; unlocked, you drag it wherever you like.
+- To move it, open its **padlock** and drag it; close it again and clicks go through it.
+- Turn it on and off with FCT's **Overlay** button.
 - To see it over the game, use Fortnite's **Windowed Fullscreen** mode.
 - **Streaming?** *Settings* has the address to add it to OBS as a browser source.
 

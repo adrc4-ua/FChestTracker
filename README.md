@@ -57,8 +57,8 @@ Tu historial se queda guardado en tu PC.
 <br>
 
 - Aparece solo cuando Fortnite está abierto, en la pantalla y el sitio que elijas.
-- **Ctrl + Mayús + O** lo muestra u oculta.
-- **Ctrl + Mayús + L** (o el candado) lo bloquea o desbloquea: bloqueado, los clics lo atraviesan; desbloqueado, lo arrastras donde quieras.
+- Para moverlo, ábrelo con su **candado** y arrástralo; ciérralo de nuevo y los clics lo atravesarán.
+- Se enciende y se apaga con el botón **Overlay** de FCT.
 - Para verlo encima del juego, usa en Fortnite el modo **Pantalla completa en ventana**.
 - **¿Haces directos?** En *Configuración* tienes la dirección para añadirlo en OBS como fuente de navegador.
 

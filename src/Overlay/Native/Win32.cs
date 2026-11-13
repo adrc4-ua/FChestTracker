@@ -16,8 +16,7 @@ internal static class Win32
 
     public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_SETCURSOR = 0x0020, WM_NCHITTEST = 0x0084,
         WM_NCRBUTTONUP = 0x00A5, WM_TIMER = 0x0113, WM_LBUTTONUP = 0x0202, WM_MOVING = 0x0216, WM_EXITSIZEMOVE = 0x0232,
-        WM_DPICHANGED = 0x02E0, WM_HOTKEY = 0x0312, WM_PRINTCLIENT = 0x0318;
-    public const uint MOD_CONTROL = 0x2, MOD_SHIFT = 0x4, MOD_NOREPEAT = 0x4000, VK_L = 0x4C, VK_O = 0x4F;
+        WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
 
     public const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTONEAREST = 2;
     public const int DWMWA_CLOAKED = 14;
@@ -128,8 +127,6 @@ internal static class Win32
     [DllImport("user32.dll")] public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr hwnd);
-    [DllImport("user32.dll")] public static extern bool RegisterHotKey(IntPtr hwnd, int id, uint modifiers, uint vk);
-    [DllImport("user32.dll")] public static extern bool UnregisterHotKey(IntPtr hwnd, int id);
     [DllImport("user32.dll")] public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] public static extern IntPtr MonitorFromRect(ref RECT rect, uint flags);
     [DllImport("user32.dll")] public static extern bool GetMonitorInfoW(IntPtr monitor, ref MONITORINFO info);
