@@ -2,7 +2,7 @@ name: Build FCT.exe
 # Pushes (branches and v* tags) only build the exe, as an artifact: tags never create releases.
 # Releases are made by hand on GitHub. FCT.exe is attached to a release:
 #  - by itself when the release is published, if its tag already has this workflow;
-#  - by hand for any tag: Actions → "Build FCT.exe" → Run workflow → write the tag (e.g. v2.0.2). The workflow of the
+#  - by hand for any tag: Actions → "Build FCT.exe" → Run workflow → write the tag (e.g. v3.4.0). The workflow of the
 #    branch you run it from (main) is used, so this also works for tags made before this file existed.
 on:
   push:
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach FCT.exe to (e.g. v2.0.2). Empty: only build.'
+        description: 'Release tag to build and attach FCT.exe to (e.g. v3.4.0). Empty: only build.'
         required: false
         default: ''
 permissions:
@@ -30,10 +30,16 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Publish
         shell: pwsh
+        env:
+          BUILD_TAG: ${{ inputs.tag != '' && inputs.tag || (github.ref_type == 'tag' && github.ref_name || '') }}
         run: |
           # The project file moved over time; older tags still have it in one of the earlier places.
           $project = @('src/FCT.csproj', 'src/FCT/FCT.csproj', 'src/ChestCounter/ChestCounter.csproj') | Where-Object { Test-Path $_ } | Select-Object -First 1
-          dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o dist
+          $versionArgs = @()
+          if ($env:BUILD_TAG -match '^v(\d+\.\d+\.\d+)$') {
+            $versionArgs += "-p:Version=$($Matches[1])"
+          }
+          dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none @versionArgs -o dist
           if (-not (Test-Path dist/FCT.exe)) { Get-ChildItem dist/*.exe | Select-Object -First 1 | Rename-Item -NewName FCT.exe }
       - uses: actions/upload-artifact@v4
         with:
