@@ -4,19 +4,33 @@ using System.Windows.Forms;
 
 namespace FCT.UI;
 
-/// <summary>
-/// Un punto del diálogo: icono (un SVG de <see cref="Icons"/>, o un símbolo corto), color, título corto y explicación.
-/// </summary>
+/// <summary>One line of a dialog: an icon (an <see cref="Icons"/> SVG, or a short symbol), its colour, a title and a text.</summary>
 public sealed record InfoPoint(string Glyph, Color Color, string Title, string Text);
 
 /// <summary>
-/// Diálogo de confirmación con el estilo de la página (negro y oro: cuadro de icono dorado, tarjeta con velo dorado,
-/// botón principal de oro), en lugar del cuadro gris de Windows. Devuelve true si se pulsa el botón principal.
+/// FCT's question/notice dialog, in the app's black and gold instead of the grey Windows box: a gold icon tile and a
+/// title, an optional card of points, and a gold main button with an optional second one.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class InfoDialog : ThemedForm
 {
-    private const int W = 440, Pad = 20, TextX = 74;
+    private const int Width_ = 440, Margin_ = 20, TextLeft = 74, HeaderIcon = 42;
+    private const int PointIcon = 32, PointText = 58, ButtonH = 36, MainW = 130, SecondW = 150;
+
+    /// <summary>True for the main button, false for the second one, null when the window was closed.</summary>
+    public static bool? Ask(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, string? icon = null)
+    {
+        using var dialog = new InfoDialog(title, intro, points, ok, cancel, owner != null, icon);
+        var result = owner == null ? dialog.ShowDialog() : dialog.ShowDialog(owner);
+        return result == DialogResult.OK ? true : result == DialogResult.No ? false : null;
+    }
+
+    /// <summary>True only for the main button.</summary>
+    /// <param name="owner">Window to centre on; null (no window yet) centres on the screen and shows in the taskbar.</param>
+    /// <param name="cancel">Text of the second button, or null for a single button.</param>
+    /// <param name="icon">Header icon (one of <see cref="Icons"/>), the info one by default.</param>
+    public static bool Confirm(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, string? icon = null) =>
+        Ask(owner, title, intro, points, ok, cancel, icon) == true;
 
     private InfoDialog(string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, bool owned, string? icon)
     {
@@ -25,100 +39,104 @@ public sealed class InfoDialog : ThemedForm
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
         FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        ShowInTaskbar = !owned; // sin ventana dueña (primer uso), que se vea en la barra de tareas
+        MaximizeBox = MinimizeBox = false;
+        ShowInTaskbar = !owned;
         StartPosition = owned ? FormStartPosition.CenterParent : FormStartPosition.CenterScreen;
         Icon = AppIcon.Load();
 
-        // Cabecera como las secciones de la página: cuadro de oro con el icono del tema, título en oro e introducción.
-        Controls.Add(new IconTile { IconSvg = icon ?? Icons.Info, Solid = true, Location = new Point(Pad, Pad), Size = new Size(42, 42) });
-
-        var y = Pad - 1;
-        y = AddText(this, title, Theme.Text(12f, FontStyle.Bold), Theme.GoldHi, TextX, y, W - TextX - Pad) + 4;
-        y = AddText(this, intro, Theme.Text(9f), Theme.Muted, TextX, y, W - TextX - Pad);
-        y = Math.Max(y, Pad + 42) + 16;
-
-        // Puntos, dentro de una tarjeta (sin puntos, no hay tarjeta).
-        var card = new Card { Location = new Point(Pad, y), Radius = 16, BackColor = Theme.Card, Visible = points.Count > 0 };
-        var cardW = W - 2 * Pad;
-        var cy = 14;
-        foreach (var p in points)
+        var bottom = AddHeader(title, intro, icon ?? Icons.Info);
+        if (points.Count > 0)
         {
-            // Icono del punto en su cuadro dorado (como .gem en la página); un símbolo corto si no es un SVG.
-            if (p.Glyph.StartsWith("<svg", StringComparison.Ordinal))
-            {
-                card.Controls.Add(new IconTile { IconSvg = p.Glyph, Location = new Point(14, cy), Size = new Size(32, 32) });
-            }
-            else
-            {
-                var badge = new Card { Location = new Point(14, cy), Size = new Size(32, 32), Radius = 10, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine };
-                badge.Controls.Add(new Label
-                {
-                    Text = p.Glyph,
-                    Font = Theme.Text(11f, FontStyle.Bold),
-                    ForeColor = p.Color,
-                    BackColor = Color.Transparent,
-                    Location = new Point(0, 0),
-                    Size = new Size(32, 32),
-                    TextAlign = ContentAlignment.MiddleCenter,
-                });
-                card.Controls.Add(badge);
-            }
-            var ty = AddText(card, p.Title, Theme.Text(9.25f, FontStyle.Bold), p.Color, 58, cy, cardW - 58 - 14);
-            ty = AddText(card, p.Text, Theme.Text(8.75f), Theme.Muted, 58, ty, cardW - 58 - 14);
-            cy = Math.Max(ty, cy + 32) + 12;
+            bottom = AddPoints(points, bottom) + 18;
         }
-        card.Size = new Size(cardW, cy + 2);
-        Controls.Add(card);
-        y += points.Count > 0 ? card.Height + 18 : 6;
+        else
+        {
+            AddPoints(points, bottom); // an invisible, empty card keeps the controls' order the same in every dialog
+            bottom += 6;
+        }
+        AddButtons(ok, cancel, bottom);
+        ClientSize = new Size(Width_, bottom + ButtonH + Margin_);
+    }
 
-        // Botones: el principal en oro a la derecha, el otro a su izquierda.
-        var okButton = new PillButton
+    /// <summary>Gold tile, title and introduction; returns where the next block starts.</summary>
+    private int AddHeader(string title, string intro, string icon)
+    {
+        Controls.Add(new IconTile { IconSvg = icon, Solid = true, Location = new Point(Margin_, Margin_), Size = new Size(HeaderIcon, HeaderIcon) });
+        var textWidth = Width_ - TextLeft - Margin_;
+        var y = Paragraph(this, title, Theme.Text(12f, FontStyle.Bold), Theme.GoldHi, TextLeft, Margin_ - 1, textWidth) + 4;
+        y = Paragraph(this, intro, Theme.Text(9f), Theme.Muted, TextLeft, y, textWidth);
+        return Math.Max(y, Margin_ + HeaderIcon) + 16;
+    }
+
+    /// <summary>The points inside one card; returns the card's bottom.</summary>
+    private int AddPoints(IReadOnlyList<InfoPoint> points, int top)
+    {
+        var card = new Card { Location = new Point(Margin_, top), Radius = 16, BackColor = Theme.Card, Visible = points.Count > 0 };
+        var width = Width_ - 2 * Margin_;
+        var y = 14;
+        foreach (var point in points)
+        {
+            card.Controls.Add(PointBadge(point, new Point(14, y)));
+            var textWidth = width - PointText - 14;
+            var below = Paragraph(card, point.Title, Theme.Text(9.25f, FontStyle.Bold), point.Color, PointText, y, textWidth);
+            below = Paragraph(card, point.Text, Theme.Text(8.75f), Theme.Muted, PointText, below, textWidth);
+            y = Math.Max(below, y + PointIcon) + 12;
+        }
+        card.Size = new Size(width, y + 2);
+        Controls.Add(card);
+        return top + card.Height;
+    }
+
+    /// <summary>The point's icon in a small gold tile; a short symbol when it is not an SVG.</summary>
+    private static Control PointBadge(InfoPoint point, Point at)
+    {
+        var size = new Size(PointIcon, PointIcon);
+        if (point.Glyph.StartsWith("<svg", StringComparison.Ordinal))
+        {
+            return new IconTile { IconSvg = point.Glyph, Location = at, Size = size };
+        }
+        var tile = new Card { Location = at, Size = size, Radius = 10, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine };
+        tile.Controls.Add(new Label
+        {
+            Text = point.Glyph,
+            Font = Theme.Text(11f, FontStyle.Bold),
+            ForeColor = point.Color,
+            BackColor = Color.Transparent,
+            Location = Point.Empty,
+            Size = size,
+            TextAlign = ContentAlignment.MiddleCenter,
+        });
+        return tile;
+    }
+
+    /// <summary>Main (gold) button on the right, second one to its left. The second returns No, distinct from closing.</summary>
+    private void AddButtons(string ok, string? cancel, int top)
+    {
+        var main = new PillButton
         {
             Text = ok,
-            Size = new Size(130, 36),
-            Location = new Point(W - Pad - 130, y),
+            Size = new Size(MainW, ButtonH),
+            Location = new Point(Width_ - Margin_ - MainW, top),
             Radius = 11,
             BackColor = Theme.Accent,
             HoverColor = Theme.AccentHover,
             ForeColor = Theme.AccentInk,
             DialogResult = DialogResult.OK,
         };
-        var cancelButton = new PillButton
+        var second = new PillButton
         {
             Text = cancel ?? "",
-            Size = new Size(150, 36),
-            Location = new Point(W - Pad - 130 - 8 - 150, y),
+            Size = new Size(SecondW, ButtonH),
+            Location = new Point(main.Left - 8 - SecondW, top),
             Radius = 11,
-            DialogResult = DialogResult.No, // distinto de cerrar la ventana (Cancel): ver Ask
+            DialogResult = DialogResult.No,
             Visible = cancel != null,
         };
-        Controls.Add(okButton);
-        Controls.Add(cancelButton);
-        AcceptButton = okButton;
-        CancelButton = cancel != null ? cancelButton : okButton;
-        ActiveControl = okButton;
-        ClientSize = new Size(W, y + 36 + Pad);
-    }
-
-    /// <summary>Muestra el diálogo. True si se pulsa el botón principal; false si se cancela o se cierra.</summary>
-    /// <param name="owner">Ventana dueña, o null si aún no hay ninguna (se centra en la pantalla).</param>
-    /// <param name="cancel">Texto del segundo botón, o null para mostrar solo el principal.</param>
-    /// <param name="icon">Icono de la cabecera (uno de <see cref="Icons"/>); null = información.</param>
-    public static bool Confirm(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, string? icon = null) =>
-        Ask(owner, title, intro, points, ok, cancel, icon) == true;
-
-    /// <summary>Como <see cref="Confirm"/>, pero distingue cerrar la ventana (null) del segundo botón (false).</summary>
-    public static bool? Ask(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel, string? icon = null)
-    {
-        using var dialog = new InfoDialog(title, intro, points, ok, cancel, owner != null, icon);
-        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) switch
-        {
-            DialogResult.OK => true,
-            DialogResult.No => false,
-            _ => null,
-        };
+        Controls.Add(main);
+        Controls.Add(second);
+        AcceptButton = main;
+        CancelButton = cancel == null ? main : second;
+        ActiveControl = main;
     }
 
     protected override void OnHandleCreated(EventArgs e)
@@ -127,10 +145,9 @@ public sealed class InfoDialog : ThemedForm
         Theme.Chrome(Handle);
     }
 
-    /// <summary>Texto con salto de línea, del alto justo. Devuelve la coordenada de debajo.</summary>
-    private int AddText(Control parent, string text, Font font, Color color, int x, int y, int width)
+    /// <summary>A wrapping label exactly as tall as its text; returns the y right below it.</summary>
+    private static int Paragraph(Control parent, string text, Font font, Color color, int x, int y, int width)
     {
-        // La etiqueta se mide sola con el ancho máximo: así nunca corta la última línea ni la última palabra.
         var label = new Label
         {
             Text = text,
@@ -138,9 +155,9 @@ public sealed class InfoDialog : ThemedForm
             ForeColor = color,
             BackColor = Color.Transparent,
             UseMnemonic = false,
-            Location = new Point(x, y),
             AutoSize = true,
-            MaximumSize = new Size(width, 0),
+            MaximumSize = new Size(width, 0), // measured at the full width: the last line or word is never cut
+            Location = new Point(x, y),
         };
         parent.Controls.Add(label);
         return y + label.PreferredHeight + 2;
