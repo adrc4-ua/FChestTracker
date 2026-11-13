@@ -156,7 +156,9 @@ public sealed class AppMonitor
             try
             {
                 List<string>? best = null;
-                foreach (var wait in new[] { 1200, 1200, 1200 })
+                // Las fichas entran con una animación: varias capturas durante los primeros 9 s (la pantalla dura 17 s
+                // o más) y se queda la que tenga más fichas.
+                foreach (var wait in new[] { 1500, 1500, 1500, 2000, 2500 })
                 {
                     await Task.Delay(wait);
                     var hwnd = GameWindow();
