@@ -123,7 +123,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 <p align="center"><img src="docs/images/settings.png" alt="Configuración" width="620"></p>
 
 - **Idioma**: por defecto el de Windows (español o inglés; inglés si es otro); arriba puedes elegir el otro (es bidireccional con el de la página de estadísticas).
-- **Abrir con Fortnite** (activado desde el primer uso): un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite, y FCT se cierra solo al cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
+- **Abrir con Fortnite** (activado desde el primer uso): FCT se abre en segundo plano cuando arranca Fortnite, y se cierra solo al cerrarlo. Entre partida y partida no queda nada en marcha ni en el inicio de Windows: es una tarea programada de tu usuario (sin permisos de administrador) que salta cuando el antitrampas de Fortnite se carga, algo que Windows anota en su registro. No lee nada del juego. Se quita desde Ajustes (y la ves en el Programador de tareas como «Fortnite Chest Tracker»).
 - **Abrir estadísticas al iniciar** (desactivado por defecto).
 - **Compañeros en la ventana** y **Sumar sus cofres a tu total** (ver arriba).
 - **Contar también como cofre**: cajas de munición, cajas de comida y cañones de botín (desactivado; no se borra nada al cambiarlo). Los cofres que **rompes** se cuentan siempre.

@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Abrir con Fortnite sin nada en marcha**: ya no hay un proceso invisible esperando desde el inicio de Windows ni aparece en «Aplicaciones de arranque». Ahora es una tarea programada de tu usuario (sin permisos de administrador) que salta cuando el antitrampas de Fortnite carga su driver, algo que Windows anota en su registro; un lanzador breve espera a que aparezca el juego, abre FCT y termina (con otro juego que use el mismo antitrampas se cierra sin hacer nada). Al abrir FCT se pasa solo al sistema nuevo y borra las entradas de inicio de versiones anteriores (también la de un nombre antiguo, «FortniteChestTracker»). Si la tarea no se pudiera crear, sigue funcionando como antes.
 - El repositorio pasa a llamarse **Fortnite-Chest-Tracker** (antes FChestTracker): los enlaces de la app, de la página de estadísticas, de Configuración y de este README apuntan al nombre nuevo. Las copias ya instaladas siguen encontrando las actualizaciones, porque GitHub redirige el nombre antiguo.
 
 ## [4.4.1] - 2026-11-13

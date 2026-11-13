@@ -11,13 +11,18 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        // --standby: el proceso invisible que espera a que arranque Fortnite ("abrir con Fortnite"). Sin consola ni ventana.
-        if (args.Contains("--standby"))
+        // «Abrir con Fortnite», sin consola ni ventana:
+        // --on-game: lo lanza la tarea programada cuando arranca el antitrampas de Fortnite; abre FCT y termina.
+        // --standby: el proceso invisible de antes (solo si la tarea no se puede crear, o entrada de una versión anterior).
+        if (args.Contains("--on-game") || args.Contains("--standby"))
         {
             var dataIndex = Array.IndexOf(args, "--data");
-            return OperatingSystem.IsWindows()
-                ? FortniteWatch.RunStandby(dataIndex >= 0 && dataIndex + 1 < args.Length ? args[dataIndex + 1] : Store.DefaultFolder())
-                : 1;
+            var watchDir = dataIndex >= 0 && dataIndex + 1 < args.Length ? args[dataIndex + 1] : Store.DefaultFolder();
+            if (!OperatingSystem.IsWindows())
+            {
+                return 1;
+            }
+            return args.Contains("--on-game") ? FortniteWatch.RunOnGameStart(watchDir) : FortniteWatch.RunStandby(watchDir);
         }
 
         // Estilo de Windows para los controles: debe fijarse antes de crear la primera ventana (también los mensajes).
@@ -338,7 +343,9 @@ internal static class Program
             Updater.CleanupOld();
             if (config.StartWithFortnite && defaultFolder)
             {
-                FortniteWatch.Apply(true, dataDir); // sigue la ruta del exe si se movió o se actualizó (y lo activa tras actualizar)
+                // Sigue la ruta del exe si se movió o se actualizó, y quita las entradas de inicio de versiones anteriores.
+                // En segundo plano: consulta la tarea programada (no debe retrasar la ventana).
+                _ = Task.Run(() => FortniteWatch.Apply(true, dataDir));
             }
         }
 

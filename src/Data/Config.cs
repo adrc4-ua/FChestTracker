@@ -16,7 +16,7 @@ public sealed class Config
     public string? Profile { get; set; }
     public string DemosFolder { get; set; } = "";
 
-    /// <summary>Open the tool automatically when Fortnite starts (invisible standby process started with Windows). On by default.</summary>
+    /// <summary>Open the tool automatically when Fortnite starts (a scheduled task on the anti-cheat start; see FortniteWatch). On by default.</summary>
     public bool StartWithFortnite { get; set; } = true;
 
     /// <summary>Defaults that changed in this version (Abrir con Fortnite, overlay, compañeros: now on).</summary>

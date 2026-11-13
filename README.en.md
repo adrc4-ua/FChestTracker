@@ -123,7 +123,7 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 <p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
 - **Language**: the Windows language by default (Spanish or English; English for any other); at the top you can pick another one (synced both ways with the stats page).
-- **Open with Fortnite** (on from first use): a small invisible process opens FCT in the background when Fortnite starts, and FCT closes by itself when Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
+- **Open with Fortnite** (on from first use): FCT opens in the background when Fortnite starts, and closes by itself when Fortnite closes. Nothing keeps running in between, and nothing is added to Windows startup: it is a scheduled task of your user (no admin rights) that fires when Fortnite's anti-cheat loads, which Windows writes in its log. It reads nothing from the game. Turn it off in Settings (it shows in Task Scheduler as "Fortnite Chest Tracker").
 - **Open stats at startup** (off by default).
 - **Teammates in the window** and **Add their chests to your total** (see above).
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
