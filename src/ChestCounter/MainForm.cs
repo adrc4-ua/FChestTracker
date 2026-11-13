@@ -172,6 +172,21 @@ public sealed class MainForm : Form
         };
     }
 
+    /// <summary>
+    /// Arranque solo con overlay: la ventana nace minimizada (sigue en la barra de tareas, un clic la recupera) y no
+    /// llega a aparecer delante. Lo decide Program: solo cuando el overlay está en pantalla y no es el primer uso.
+    /// </summary>
+    internal bool StartInBackground;
+
+    protected override void OnLoad(EventArgs e)
+    {
+        if (StartInBackground)
+        {
+            WindowState = FormWindowState.Minimized; // antes de mostrarse: sin parpadeo ni robo de foco
+        }
+        base.OnLoad(e);
+    }
+
     private const int DesignW = 592, DesignHBase = 332, DesignHTeam = 416;
     private int _designH = DesignHBase;
     private readonly Dictionary<Control, LayoutEntry> _layout = new();

@@ -246,6 +246,9 @@ internal static class Program
         };
 
         monitor.Start();
+        // Al abrir solo se ve el overlay: la ventana queda minimizada en la barra de tareas. Si el overlay está
+        // desactivado o no pudo arrancar, o es el primer uso (bienvenida), la ventana se muestra como siempre.
+        form.StartInBackground = !firstRun && monitor.OverlayVisible;
         Application.Run(form);
         monitor.Stop();
 
