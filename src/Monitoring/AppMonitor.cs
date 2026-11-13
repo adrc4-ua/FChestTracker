@@ -524,7 +524,9 @@ public sealed class AppMonitor
     {
         lock (_cfgGate)
         {
-            if (!OperatingSystem.IsWindows() || !FortniteWatch.Apply(on, _dataDir))
+            // Otra carpeta de datos (--data, pruebas): solo se guarda; el inicio de Windows es de la instalación normal.
+            var defaultFolder = string.Equals(Path.GetFullPath(_dataDir).TrimEnd('\\', '/'), Path.GetFullPath(Store.DefaultFolder()).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
+            if (defaultFolder && (!OperatingSystem.IsWindows() || !FortniteWatch.Apply(on, _dataDir)))
             {
                 return false;
             }

@@ -153,7 +153,9 @@ internal static class Program
         // ---- Configuración -------------------------------------------------------------------------------
         var config = reset ? null : store.LoadConfig();
         var firstRun = config == null;
-        config ??= new Config();
+        config ??= new Config { DefaultsVersion = Config.CurrentDefaults };
+        // Opciones que ahora vienen activadas (antes no): se encienden una vez en las configuraciones anteriores.
+        config.ApplyNewDefaults();
         L.Use(config.Language); // idioma elegido en Ajustes; sin elegir, el de Windows
 
         if (demosArg != null) config.DemosFolder = demosArg;
@@ -315,17 +317,21 @@ internal static class Program
             {
                 config.Estimate = new HistoryEstimate { TotalMatches = earlier.TotalMatches, SnapshotUtc = DateTime.UtcNow, Source = earlier.Source, SampleSize = earlier.Sample, ManualAverage = earlier.ManualAverage };
             }
-            // «Abrir con Fortnite» viene activado: se puede quitar en Configuración. Solo se puede desde el .exe publicado.
-            config.StartWithFortnite = defaultFolder && OperatingSystem.IsWindows() && AppInfo.ExePath != null && FortniteWatch.Apply(true, dataDir);
+            // «Abrir con Fortnite» viene activado: se puede quitar en Configuración. Con la carpeta normal se registra ya
+            // (solo desde el .exe); con otra (--data, pruebas) solo se guarda: el inicio de Windows es de la instalación normal.
+            if (defaultFolder)
+            {
+                config.StartWithFortnite = OperatingSystem.IsWindows() && AppInfo.ExePath != null && FortniteWatch.Apply(true, dataDir);
+            }
         }
         store.SaveConfig(config);
 
         if (OperatingSystem.IsWindows())
         {
             Updater.CleanupOld();
-            if (config.StartWithFortnite)
+            if (config.StartWithFortnite && defaultFolder)
             {
-                FortniteWatch.Apply(true, dataDir); // sigue la ruta del exe si se movió o se actualizó
+                FortniteWatch.Apply(true, dataDir); // sigue la ruta del exe si se movió o se actualizó (y lo activa tras actualizar)
             }
         }
 

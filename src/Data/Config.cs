@@ -16,8 +16,32 @@ public sealed class Config
     public string? Profile { get; set; }
     public string DemosFolder { get; set; } = "";
 
-    /// <summary>Open the tool automatically when Fortnite starts (invisible standby process started with Windows).</summary>
-    public bool StartWithFortnite { get; set; }
+    /// <summary>Open the tool automatically when Fortnite starts (invisible standby process started with Windows). On by default.</summary>
+    public bool StartWithFortnite { get; set; } = true;
+
+    /// <summary>Defaults that changed in this version (Abrir con Fortnite, overlay, compañeros: now on).</summary>
+    public const int CurrentDefaults = 2;
+
+    /// <summary>
+    /// Which defaults this config already has. Configs from before (0) get the new ones turned on once; after that the
+    /// player's choice is kept. A new config starts at <see cref="CurrentDefaults"/>.
+    /// </summary>
+    public int DefaultsVersion { get; set; }
+
+    /// <summary>Turns on, once, the options that are now on by default (they used to be off).</summary>
+    public bool ApplyNewDefaults()
+    {
+        if (DefaultsVersion >= CurrentDefaults)
+        {
+            return false;
+        }
+        StartWithFortnite = true;
+        OverlayVisible = true;
+        ShowTeammates = true;
+        ReportView.ShowTeammates = true;
+        DefaultsVersion = CurrentDefaults;
+        return true;
+    }
 
     /// <summary>
     /// "auto" (install new versions between matches, default), "prompt" (offer them) or "off" (never check GitHub).

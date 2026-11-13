@@ -58,6 +58,7 @@ public sealed class EstimateDialog : ThemedForm
     private bool _manualAverage;
     private bool _manualTotal;   // se muestran los campos para escribir las partidas a mano
     private bool _found;         // las partidas vienen de la búsqueda
+    private bool _statusShown;   // línea de resultado de la búsqueda (Visible no sirve: es false hasta que se ve la ventana)
     private int _sample;
     private string _source = "manual";
 
@@ -252,13 +253,15 @@ public sealed class EstimateDialog : ThemedForm
 
         var search = StatsClient.Available;
         _nameBox.Visible = _search.Visible = search;
+        _step2.Visible = _calc.Visible = _typed.Visible = true;
         if (search)
         {
             _nameBox.Location = new Point(x, py);
             _search.Location = new Point(x + Inner - 100, py);
             py += 36 + 10;
         }
-        if (_status.Visible)
+        _statusIcon.Visible = _status.Visible = _statusShown;
+        if (_statusShown)
         {
             _statusIcon.Location = new Point(x, py);
             _status.Location = new Point(x + 32, py + Math.Max(0, (24 - _status.PreferredHeight) / 2));
@@ -431,7 +434,7 @@ public sealed class EstimateDialog : ThemedForm
     private void ShowStatus(bool ok, string text)
     {
         _statusIcon.IconSvg = ok ? Icons.Check : Icons.Warning;
-        _statusIcon.Visible = _status.Visible = true;
+        _statusShown = true;
         _status.ForeColor = ok ? Theme.GoldHi : Theme.Champ;
         _status.Text = text;
         _statusIcon.Invalidate();

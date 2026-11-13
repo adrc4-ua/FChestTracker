@@ -149,34 +149,41 @@ public sealed class SettingsForm : ThemedForm
 
         // ---- Columna derecha -----------------------------------------------------------------
 
-        // Cofres de antes del contador: cifra grande en ámbar, editable, con − / +.
+        // Cofres de antes del contador: la cifra editable entre − y +, y debajo el mismo botón que en la primera
+        // apertura para calcularlos.
         var initial = AddCard(RightX, 40, RightW, 120, 16);
-        CardTitle(initial, L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName));
-        // La cifra, editable, en una entrada redondeada (como los campos de la página).
-        var initialBox = new Card { Location = new Point(13, 32), Size = new Size(132, 46), Radius = 12, BackColor = Theme.Bg2, Edge = Theme.Line };
+        CardTitle(initial, L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName), 120);
+        Lbl(initial, L.T("se suman a tu total", "added to your total"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(RightW - 13 - 120, 9), new Size(120, 16), ContentAlignment.MiddleRight);
+        const int stepW = 40, rowY = 32, rowH = 40;
+        var minus = new PillButton { Text = "−", Location = new Point(13, rowY), Size = new Size(stepW, rowH), Radius = 11, Font = Theme.Text(12f, FontStyle.Bold) };
+        var plus = new PillButton { Text = "+", Location = new Point(RightW - 13 - stepW, rowY), Size = new Size(stepW, rowH), Radius = 11, Font = Theme.Text(12f, FontStyle.Bold) };
+        var initialBox = new Card { Location = new Point(13 + stepW + 6, rowY), Size = new Size(RightW - 26 - 2 * (stepW + 6), rowH), Radius = 11, BackColor = Theme.Bg2, Edge = Theme.Line, Flat = true };
         _initial = new TextBox
         {
             BorderStyle = BorderStyle.None,
             BackColor = Theme.Bg2,
             ForeColor = Theme.GoldBase,
-            Font = Theme.Display(19f, FontStyle.Bold),
-            Width = 112,
+            Font = Theme.Display(16f, FontStyle.Bold),
+            TextAlign = HorizontalAlignment.Center,
+            Width = initialBox.Width - 20,
             MaxLength = 7,
             Text = Math.Min(MaxInitial, monitor.InitialChests).ToString(L.Culture),
         };
-        _initial.Location = new Point(11, (initialBox.Height - _initial.Height) / 2);
+        _initial.Location = new Point(10, (initialBox.Height - _initial.Height) / 2);
         initialBox.Controls.Add(_initial);
         initial.Controls.Add(initialBox);
-        // Estimar a partir de las partidas totales (fortnite-api.com o fortnite.gg) y la media de las repeticiones.
-        var estimate = new PillButton { Text = L.T("Estimar…", "Estimate…"), Location = new Point(RightW - 13 - 34 - 8 - 84, 32), Size = new Size(84, 28), Radius = 9, Font = Theme.Text(8.5f, FontStyle.Bold) };
-        estimate.Click += (_, _) => EstimateEarlier();
-        initial.Controls.Add(estimate);
-        var plus = new PillButton { Text = "+", Location = new Point(RightW - 13 - 34, 32), Size = new Size(34, 28), Radius = 9, Font = Theme.Text(11f, FontStyle.Bold) };
-        var minus = new PillButton { Text = "−", Location = new Point(RightW - 13 - 34, 64), Size = new Size(34, 28), Radius = 9, Font = Theme.Text(11f, FontStyle.Bold) };
         plus.Click += (_, _) => StepInitial(10);
         minus.Click += (_, _) => StepInitial(-10);
         initial.Controls.Add(plus);
         initial.Controls.Add(minus);
+        // Calcularlos (nombre de Epic y media de cofres), como en la primera apertura.
+        var estimate = new PillButton
+        {
+            Text = L.T("Calcular las de antes", "Work out the rest"), IconSvg = Icons.Calc, Location = new Point(13, rowY + rowH + 8), Size = new Size(RightW - 26, 32),
+            Radius = 11, Font = Theme.Text(8.75f, FontStyle.Bold),
+        };
+        estimate.Click += (_, _) => EstimateEarlier();
+        initial.Controls.Add(estimate);
         _initial.KeyPress += (_, e) => e.Handled = !char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar);
         _initial.TextChanged += (_, _) =>
         {
@@ -185,11 +192,6 @@ public sealed class SettingsForm : ThemedForm
                 _monitor.SetInitialChests(ParseInitial());
             }
         };
-        var profileName = monitor.ShownProfileName;
-        Lbl(initial, profileName != null
-                ? L.F("estimado · se suma al total de {0}", "estimate · added to {0}'s total", profileName)
-                : L.T("estimado · se suma a tu total", "estimate · added to your total"),
-            8.0f, FontStyle.Regular, Theme.Muted, new Point(14, 88), new Size(RightW - 70, 16));
 
         // OBS: dirección y estado.
         var obsCard = AddCard(RightX, 272, RightW, 94, 14);

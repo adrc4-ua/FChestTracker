@@ -113,23 +113,26 @@ public sealed class MainForm : ThemedForm
         // ---- Tarjeta principal: cofres abiertos y la partida actual o la última, lado a lado -----------------------
         var hero = new Card { Location = new Point(X0, Top), Size = new Size(LeftW, HeroH), Hero = true };
         Controls.Add(hero);
+        // Dos mitades iguales, todo centrado en cada una: título, cifra en oro y una línea debajo.
         const int half = LeftW / 2;
-        Lbl(hero, L.T("Cofres abiertos", "Chests opened"), 8.75f, FontStyle.Bold, Theme.Ink, new Point(14, 13), new Size(half - 20, 17));
-        _total = Lbl(hero, "0", 25f, FontStyle.Bold, Theme.GoldBase, new Point(10, 30), new Size(half - 16, 44), display: true);
+        Lbl(hero, L.T("Cofres abiertos", "Chests opened"), 8.75f, FontStyle.Bold, Theme.Ink, new Point(8, 13), new Size(half - 16, 17), align: ContentAlignment.TopCenter);
+        _total = Lbl(hero, "0", 26f, FontStyle.Bold, Theme.GoldBase, new Point(8, 30), new Size(half - 16, 44), align: ContentAlignment.MiddleCenter, display: true);
         ((FitLabel)_total).Gold = true;
         ((FitLabel)_total).Deep = true;
-        _totalSub = Lbl(hero, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(14, 75), new Size(half - 20, 15));
-        hero.Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(half, 16), Size = new Size(1, HeroH - 32) });
-        _currentCap = Lbl(hero, L.T("Última partida", "Last match"), 8.75f, FontStyle.Bold, Theme.Ink, new Point(half + 15, 13), new Size(half - 22, 17));
-        _current = Lbl(hero, "—", 25f, FontStyle.Bold, Theme.GoldBase, new Point(half + 11, 30), new Size(half - 18, 44), display: true);
+        _totalSub = Lbl(hero, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(8, 75), new Size(half - 16, 15), align: ContentAlignment.TopCenter);
+        hero.Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(half, 20), Size = new Size(1, HeroH - 40) });
+        _currentCap = Lbl(hero, L.T("Última partida", "Last match"), 8.75f, FontStyle.Bold, Theme.Ink, new Point(half + 8, 13), new Size(half - 16, 17), align: ContentAlignment.TopCenter);
+        _current = Lbl(hero, "—", 26f, FontStyle.Bold, Theme.GoldBase, new Point(half + 8, 30), new Size(half - 16, 44), align: ContentAlignment.MiddleCenter, display: true);
         ((FitLabel)_current).Gold = true;
-        _currentSub = Lbl(hero, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(half + 15, 75), new Size(half - 22, 15));
+        ((FitLabel)_current).Deep = true;
+        _currentSub = Lbl(hero, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(half + 8, 75), new Size(half - 16, 15), align: ContentAlignment.TopCenter);
 
-        // Detalles de la última partida (puesto, eliminaciones, tesoros, destruidos).
+        // Detalles de la última partida (puesto, eliminaciones, tesoros, destruidos): el icono a la izquierda y el
+        // texto centrado en la tarjeta (con el mismo margen a los dos lados).
         var detail = new Card { Location = new Point(X0, DetailY), Size = new Size(LeftW, DetailH), Radius = 14 };
         Controls.Add(detail);
-        detail.Controls.Add(new IconTile { IconSvg = Icons.Matches, Location = new Point(10, 9), Size = new Size(26, 26) });
-        _lastDetail = Lbl(detail, "", 8.5f, FontStyle.Regular, Theme.Champ, new Point(44, 0), new Size(LeftW - 44 - 12, DetailH), align: ContentAlignment.MiddleLeft);
+        detail.Controls.Add(new IconTile { IconSvg = Icons.Matches, Location = new Point(9, 9), Size = new Size(26, 26) });
+        _lastDetail = Lbl(detail, "", 8.5f, FontStyle.Bold, Theme.Champ, new Point(42, 0), new Size(LeftW - 84, DetailH), align: ContentAlignment.MiddleCenter);
 
         // ---- Esta semana -------------------------------------------------------------------------------------------
         var week = new Card { Location = new Point(X0, WeekY), Size = new Size(LeftW, WeekH) };
