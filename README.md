@@ -36,7 +36,7 @@ ChestCounter lee las repeticiones (replays) que Fortnite guarda de cada partida 
 
 <p align="center"><img src="docs/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
 
-5. Deja la ventana abierta (puedes minimizarla) mientras juegas. Durante la partida el contador lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
+5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, informe, ajustes y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida el contador lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
 
 > [!TIP]
 > Las partidas que juegas con el contador cerrado se cuentan la próxima vez que lo abras, mientras Fortnite no haya borrado esos replays (guarda un número limitado). Para no tener que pensar en ello, activa **Abrir con Fortnite** en Ajustes.

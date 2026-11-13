@@ -10,6 +10,10 @@ internal static class Translations
 {
     public static readonly Dictionary<string, string[]> Table = new(StringComparer.Ordinal)
     {
+        // ---- Icono del área de notificación ----------------------------------------------------------------
+        ["Abrir el contador"] = new[] { "Abrir o contador", "Открыть счётчик", "Ouvrir le compteur", "Zähler öffnen", "Apri il contatore", "Otwórz licznik", "Sayacı aç", "カウンターを開く" },
+        ["Salir"] = new[] { "Sair", "Выход", "Quitter", "Beenden", "Esci", "Zakończ", "Çıkış", "終了" },
+
         // ---- Ventana principal --------------------------------------------------------------------------
         ["Contador de cofres"] = new[] { "Contador de baús", "Счётчик сундуков", "Compteur de coffres", "Truhenzähler", "Contatore forzieri", "Licznik skrzyń", "Sandık Sayacı", "宝箱カウンター" },
         ["CONTADOR DE COFRES"] = new[] { "CONTADOR DE BAÚS", "СЧЁТЧИК СУНДУКОВ", "COMPTEUR DE COFFRES", "TRUHENZÄHLER", "CONTATORE FORZIERI", "LICZNIK SKRZYŃ", "SANDIK SAYACI", "宝箱カウンター" },

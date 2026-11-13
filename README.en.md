@@ -36,7 +36,7 @@ ChestCounter reads the replays Fortnite saves of every match and keeps count of 
 
 <p align="center"><img src="docs/setup.png" alt="First-run welcome" width="520"></p>
 
-5. Leave the window open (you can minimize it) while you play. During the match the counter reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
+5. Leave it running while you play. When it opens only the **overlay** shows: the main window stays in the background, with its icon in the notification area (the **^** arrow on the taskbar). Click the icon, or open the program again, to bring it to the front; right-click for overlay, report, settings and exit. On first use, or with the overlay turned off, the window opens as usual. During the match the counter reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
 
 > [!TIP]
 > Matches played while the counter is closed are counted next time you open it, as long as Fortnite has not deleted those replays (it keeps a limited number). To not think about it, turn on **Open with Fortnite** in Settings.

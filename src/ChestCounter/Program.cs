@@ -113,6 +113,15 @@ internal static class Program
             {
                 return 0; // abierto con Fortnite cuando ya estaba abierto: nada que hacer
             }
+            // Abierto otra vez a mano: el que ya está en marcha (quizá oculto en el área de notificación) muestra su ventana.
+            if (!cliMode && EventWaitHandle.TryOpenExisting(AppInfo.ShowEventFor(dataDir), out var showRunning))
+            {
+                using (showRunning)
+                {
+                    showRunning.Set();
+                }
+                return 0;
+            }
             var alreadyOpen = L.T("El contador de cofres ya está abierto: mira en la barra de tareas.",
                 "The chest counter is already open: look in the taskbar.");
             if (cliMode)
@@ -283,11 +292,21 @@ internal static class Program
             catch (InvalidOperationException) { /* la ventana aún no existe */ }
         };
 
+        // Otra apertura a mano mientras este está en marcha: se muestra la ventana.
+        using var showRequest = new EventWaitHandle(false, EventResetMode.AutoReset, AppInfo.ShowEventFor(dataDir));
+        var showWait = ThreadPool.RegisterWaitForSingleObject(showRequest, (_, _) =>
+        {
+            try { form.BeginInvoke(new Action(form.ShowFromTray)); }
+            catch (InvalidOperationException) { /* la ventana aún no existe o ya se cerró */ }
+        }, null, Timeout.Infinite, executeOnlyOnce: false);
+
         monitor.Start();
-        // Al abrir solo se ve el overlay: la ventana queda minimizada en la barra de tareas. Si el overlay está
-        // desactivado o no pudo arrancar, o es el primer uso (bienvenida), la ventana se muestra como siempre.
+        // Al abrir solo se ve el overlay: la ventana queda oculta (fuera de la barra de tareas) y se recupera desde el
+        // icono del área de notificación. Si el overlay está desactivado o no pudo arrancar, o es el primer uso
+        // (bienvenida), la ventana se muestra como siempre.
         form.StartInBackground = !firstRun && monitor.OverlayVisible;
         Application.Run(form);
+        showWait.Unregister(null);
         monitor.Stop();
 
         // Nueva versión instalada: arranca el exe nuevo.

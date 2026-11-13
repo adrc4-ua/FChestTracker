@@ -152,11 +152,27 @@ public sealed class MainForm : Form
         _reportButton = Action(L.T("Informe", "Report"), RightX + 95);
         _reportButton.Click += (_, _) => Open(_store.ReportPath);
         _settingsButton = Action(L.T("Ajustes", "Settings"), RightX + 190);
-        _settingsButton.Click += (_, _) =>
+        _settingsButton.Click += (_, _) => OpenSettings();
+
+        // Icono en el área de notificación (la flecha hacia arriba de la barra de tareas): el programa sigue ahí
+        // aunque la ventana esté oculta. Clic: abre la ventana; clic derecho: menú.
+        var trayMenu = new ContextMenuStrip();
+        var openItem = new ToolStripMenuItem(L.T("Abrir el contador", "Open the counter"), null, (_, _) => ShowFromTray());
+        openItem.Font = new Font(openItem.Font, FontStyle.Bold);
+        trayMenu.Items.Add(openItem);
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Informe", "Report"), null, (_, _) => Open(_store.ReportPath)));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Ajustes", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
+        trayMenu.Items.Add(new ToolStripSeparator());
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => Close()));
+        _tray = new NotifyIcon
         {
-            using var dialog = new SettingsForm(_monitor, _store);
-            dialog.ShowDialog(this);
+            Icon = Icon ?? SystemIcons.Application,
+            Text = L.T("Contador de cofres", "Chest Counter"),
+            ContextMenuStrip = trayMenu,
+            Visible = true,
         };
+        _tray.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) ShowFromTray(); };
 
         // Diseño base (592×332): al redimensionar o maximizar, todos los controles y fuentes escalan proporcionalmente.
         CaptureLayout();
@@ -166,26 +182,83 @@ public sealed class MainForm : Form
         monitor.Changed += OnChanged;
         Shown += (_, _) =>
         {
-            if (_monitor.AutoMode)
+            // Abierto con Fortnite: el juego conserva la pantalla. Si arrancó oculto, esta es la primera vez que se
+            // muestra y es porque el jugador la ha pedido: no se minimiza.
+            if (_monitor.AutoMode && !StartInBackground)
             {
-                WindowState = FormWindowState.Minimized; // abierto con Fortnite: el juego conserva la pantalla
+                WindowState = FormWindowState.Minimized;
             }
         };
     }
 
+    private readonly NotifyIcon _tray;
+
     /// <summary>
-    /// Arranque solo con overlay: la ventana nace minimizada (sigue en la barra de tareas, un clic la recupera) y no
-    /// llega a aparecer delante. Lo decide Program: solo cuando el overlay está en pantalla y no es el primer uso.
+    /// Arranque solo con overlay: la ventana no se muestra (ni delante ni en la barra de tareas); el programa sigue
+    /// funcionando y se recupera desde su icono del área de notificación o abriéndolo otra vez. Lo decide Program:
+    /// solo cuando el overlay está en pantalla y no es el primer uso.
     /// </summary>
     internal bool StartInBackground;
+    private bool _startHandled;
 
-    protected override void OnLoad(EventArgs e)
+    protected override void SetVisibleCore(bool value)
     {
-        if (StartInBackground)
+        if (value && StartInBackground && !_startHandled)
         {
-            WindowState = FormWindowState.Minimized; // antes de mostrarse: sin parpadeo ni robo de foco
+            // Application.Run la haría visible: se crea la ventana (para recibir los datos) pero queda oculta.
+            _startHandled = true;
+            if (!IsHandleCreated)
+            {
+                CreateHandle();
+            }
+            base.SetVisibleCore(false);
+            return;
         }
-        base.OnLoad(e);
+        base.SetVisibleCore(value);
+    }
+
+    /// <summary>Muestra la ventana delante (desde el icono, el menú o al abrir el programa otra vez).</summary>
+    internal void ShowFromTray()
+    {
+        _startHandled = true;
+        if (!Visible)
+        {
+            Show();
+        }
+        if (WindowState == FormWindowState.Minimized)
+        {
+            WindowState = FormWindowState.Normal;
+        }
+        Activate();
+        BringToFront();
+    }
+
+    private bool _settingsOpen;
+
+    private void OpenSettings()
+    {
+        if (_settingsOpen)
+        {
+            return;
+        }
+        _settingsOpen = true;
+        try
+        {
+            using var dialog = new SettingsForm(_monitor, _store);
+            dialog.ShowDialog(this);
+        }
+        finally
+        {
+            _settingsOpen = false;
+        }
+    }
+
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        // Sin esto el icono se queda en la bandeja hasta pasar el ratón por encima.
+        _tray.Visible = false;
+        _tray.Dispose();
+        base.OnFormClosed(e);
     }
 
     private const int DesignW = 592, DesignHBase = 332, DesignHTeam = 416;
