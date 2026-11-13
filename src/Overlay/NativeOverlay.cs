@@ -68,7 +68,7 @@ public static class NativeOverlay
     private static WinEventDelegate? _winEvent; // keep the delegate alive
     private static readonly List<IntPtr> _winHooks = new();
 
-    private const int MinWidth = 170, Pad = 10, Stripe = 3, ColGap = 16, StatGap = 18; // StatGap: gap between stat columns (the gold line is in its middle)
+    private const int MinWidth = 170, Pad = 10, Stripe = 3, ColGap = 16, StatGap = 24; // StatGap: gap between stat columns (the gold line is in its middle)
 
     public static bool IsRunning => _hwnd != IntPtr.Zero;
 
@@ -768,7 +768,8 @@ public static class NativeOverlay
 
             // Gold veil over the top half (like the app's cards).
             var veil = new System.Drawing.RectangleF(0, 0, rc.Right, rc.Bottom * 0.55f);
-            using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(new System.Drawing.PointF(0, -1), new System.Drawing.PointF(0, veil.Bottom),
+            // The gradient ends past the filled area: at its last pixel GDI+ starts it again (tiling) and left a thin line.
+            using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(new System.Drawing.PointF(0, -1), new System.Drawing.PointF(0, veil.Bottom + 2),
                        System.Drawing.Color.FromArgb(16, gold), System.Drawing.Color.FromArgb(0, gold)))
             {
                 g.FillRectangle(brush, veil);

@@ -105,7 +105,8 @@ internal static class Theme
         {
             // linear-gradient(180deg, oro .05, transparente 55%)
             var veil = new RectangleF(rect.X, rect.Y, rect.Width, Math.Max(2f, rect.Height * 0.55f));
-            using var linear = new LinearGradientBrush(new PointF(0, veil.Top - 1), new PointF(0, veil.Bottom), Color.FromArgb(14, GoldBase), Color.FromArgb(0, GoldBase));
+            // Past the filled area: at its last pixel GDI+ starts the gradient again (tiling), which drew a thin line.
+            using var linear = new LinearGradientBrush(new PointF(0, veil.Top - 1), new PointF(0, veil.Bottom + 2), Color.FromArgb(14, GoldBase), Color.FromArgb(0, GoldBase));
             g.FillRectangle(linear, veil);
         }
         // Brillo de 1 px arriba (rgba(255,255,255,.03) inset).
