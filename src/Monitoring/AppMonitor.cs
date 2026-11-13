@@ -41,7 +41,15 @@ public sealed class AppMonitor
         _data = data;
         _tracker = tracker;
         _dataDir = dataDir;
+        // Tanda de replays (primer uso, o muchos a la vez): aviso de carga en la ventana, como en la página de estadísticas.
+        _tracker.Progressed = p =>
+        {
+            _progress = p;
+            Publish();
+        };
     }
+
+    private volatile ScanProgress? _progress;
 
     /// <summary>Ajustes actuales (leer; los cambios se hacen con <see cref="Change"/>).</summary>
     public Config Config => _config;
@@ -685,6 +693,8 @@ public sealed class AppMonitor
 
         var notice = _installing
             ? L.T("Descargando la actualización…", "Downloading the update…")
+            : _progress is { } p
+                ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", p.Done, p.Total)
             : _notice ?? (_autoCloseAt != null ? L.F("Fortnite está cerrado: {0} se cierra en 30 s.", "Fortnite is closed: {0} closes in 30 s.", AppInfo.ShortName) : null);
         var state = new MonitorState(view, Profiles.List(_data, _config), Profiles.Current(_data, _config)?.Key, _update, notice, _autoCloseAt != null, BuildStats())
         {

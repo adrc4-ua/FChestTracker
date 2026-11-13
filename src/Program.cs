@@ -252,9 +252,14 @@ internal static class Program
             // nueva (que vuelve a dar la bienvenida); si no, las actualizaciones pasan a «Preguntar».
             if (config.UpdateMode != "off" && AppInfo.ExePath != null && Updater.CheckAsync().GetAwaiter().GetResult() is { } newer)
             {
-                if (InfoDialog.Confirm(null, L.F("Hay una versión más reciente de {0}", "A newer version of {0} is available", AppInfo.ShortName),
-                        L.T("Te recomendamos descargarla antes de empezar: tarda unos segundos.", "We recommend downloading it before you start: it takes a few seconds."),
-                        Array.Empty<InfoPoint>(), L.T("Descargar", "Download"), L.T("Ahora no", "Not now")))
+                var download = InfoDialog.Ask(null, L.F("Hay una versión más reciente de {0}", "A newer version of {0} is available", AppInfo.ShortName),
+                    L.T("Te recomendamos descargarla antes de empezar: tarda unos segundos.", "We recommend downloading it before you start: it takes a few seconds."),
+                    Array.Empty<InfoPoint>(), L.T("Descargar", "Download"), L.T("Ahora no", "Not now"));
+                if (download == null)
+                {
+                    return 0; // ventana cerrada: no se guarda nada y la próxima vez vuelve a ser el primer uso
+                }
+                if (download == true)
                 {
                     var error = Updater.Install(newer);
                     if (error == null && AppInfo.ExePath is { } updatedExe)
@@ -285,18 +290,27 @@ internal static class Program
                     L.F("Ya hay {0} en tu PC", "There are already {0} on your PC", L.Count(existing.Count, "replay", "replays", "replay", "replays")),
                     L.T("Puedes contarlos ahora o empezar solo con tus próximas partidas.", "You can count them now or start with your next matches only.")));
             }
-            var countThem = InfoDialog.Confirm(null, L.F("Te damos la bienvenida a {0}", "Welcome to {0}", AppInfo.Name),
+            var countThem = InfoDialog.Ask(null, L.F("Te damos la bienvenida a {0}", "Welcome to {0}", AppInfo.Name),
                 L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays."),
                 points,
                 existing.Count > 0 ? L.T("Contarlos", "Count them") : L.T("Empezar", "Start"),
                 existing.Count > 0 ? L.T("Solo las próximas", "Next matches only") : null);
-            if (existing.Count > 0 && !countThem)
+            if (countThem == null)
             {
-                tracker.MarkSkipped(existing);
+                return 0; // ventana cerrada
             }
             // Partidas de antes: solo las repeticiones, o repeticiones + un estimado (se calcula cuando estén contadas;
             // si no llegan a las partidas elegidas para la media, tras las próximas).
-            if (EstimateDialog.Ask(null, null, null, null, null) is { Estimate: true } earlier)
+            if (EstimateDialog.Ask(null, null, null, null, null) is not { } earlier)
+            {
+                return 0; // ventana cerrada
+            }
+            // Solo ahora, con todos los pasos hechos, se guarda algo: cerrar antes deja la app como sin abrir.
+            if (existing.Count > 0 && countThem == false)
+            {
+                tracker.MarkSkipped(existing);
+            }
+            if (earlier.Estimate)
             {
                 config.Estimate = new HistoryEstimate { TotalMatches = earlier.TotalMatches, SnapshotUtc = DateTime.UtcNow, Source = earlier.Source, SampleSize = earlier.Sample, ManualAverage = earlier.ManualAverage };
             }

@@ -94,7 +94,7 @@ public sealed class InfoDialog : Form
             Size = new Size(150, 36),
             Location = new Point(W - Pad - 130 - 8 - 150, y),
             Radius = 11,
-            DialogResult = DialogResult.Cancel,
+            DialogResult = DialogResult.No, // distinto de cerrar la ventana (Cancel): ver Ask
             Visible = cancel != null,
         };
         Controls.Add(okButton);
@@ -108,10 +108,19 @@ public sealed class InfoDialog : Form
     /// <summary>Muestra el diálogo. True si se pulsa el botón principal; false si se cancela o se cierra.</summary>
     /// <param name="owner">Ventana dueña, o null si aún no hay ninguna (se centra en la pantalla).</param>
     /// <param name="cancel">Texto del segundo botón, o null para mostrar solo el principal.</param>
-    public static bool Confirm(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel)
+    public static bool Confirm(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel) =>
+        Ask(owner, title, intro, points, ok, cancel) == true;
+
+    /// <summary>Como <see cref="Confirm"/>, pero distingue cerrar la ventana (null) del segundo botón (false).</summary>
+    public static bool? Ask(IWin32Window? owner, string title, string intro, IReadOnlyList<InfoPoint> points, string ok, string? cancel)
     {
         using var dialog = new InfoDialog(title, intro, points, ok, cancel, owner != null);
-        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == DialogResult.OK;
+        return (owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog()) switch
+        {
+            DialogResult.OK => true,
+            DialogResult.No => false,
+            _ => null,
+        };
     }
 
     protected override void OnHandleCreated(EventArgs e)

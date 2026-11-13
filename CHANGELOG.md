@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- La ventana avisa mientras lee una tanda de replays («Leyendo tus replays… 3 / 40»), como la página de estadísticas.
+- Primer uso: cerrar cualquiera de las ventanas iniciales cierra la app sin guardar nada; al volver a abrirla empieza de nuevo.
 - **Partidas de antes** (primer uso y Configuración → Cofres antes de FCT → Estimar…): *solo repeticiones guardadas* o *repeticiones + estimación*. Estimado = media × (partidas de la temporada actual − repeticiones de esta temporada que FCT ya cuenta). Partidas de la temporada buscadas en fortnite-api.com (si la versión lleva la clave) o escritas a mano desde fortnite.gg; aviso si las estadísticas son privadas. Media de tus repeticiones junto con las partidas nuevas que elijas jugar (5 por defecto, 10 recomendado; cada repetición pesa como una partida), o escrita a mano; redondeada hacia abajo solo sin repeticiones o con 100 o más.
 - El archivo de la página pasa a llamarse `estadisticas.html` (el antiguo `report.html` se borra).
 - Cifras: «tuyos por partida» y «del equipo por partida» de Compañeros dicen ahora «en equipo» (solo cuentan partidas con compañeros; la media del Resumen cuenta todas, también las de solo), y la línea del gráfico es la «media por día jugado».

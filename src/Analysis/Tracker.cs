@@ -134,6 +134,7 @@ public sealed class Tracker
                 bar!.Update(i, file.Name);
                 ReportWriter.Progress = new ScanProgress(i, ready.Count);
                 ReportWriter.WriteAll(_store, _config, _data);
+                Progressed?.Invoke(ReportWriter.Progress);
             }
             else
             {
@@ -161,6 +162,7 @@ public sealed class Tracker
             bar!.Update(ready.Count);
             bar.Clear();
             ReportWriter.Progress = null;
+            Progressed?.Invoke(null);
             PrintBatchSummary(outcomes);
             if (profilesBefore < 2 && Profiles.List(_data).Count >= 2)
             {
@@ -178,6 +180,9 @@ public sealed class Tracker
 
     /// <summary>Set when a scan found replays of a second account: the player should choose their profile.</summary>
     public bool NewProfilesFound { get; set; }
+
+    /// <summary>Cada replay de una tanda (varios a la vez): progreso, y null al terminar. La ventana muestra el aviso de carga.</summary>
+    public Action<ScanProgress?>? Progressed { get; set; }
 
     private bool IsReady(FileInfo file, bool ignoreQuietPeriod)
     {

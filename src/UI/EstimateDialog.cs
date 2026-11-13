@@ -151,14 +151,19 @@ public sealed class EstimateDialog : Form
         _panel.Size = new Size(pw, py);
         Controls.Add(_panel);
 
-        _ok = Pill(this, L.T("Guardar", "Save"), Point.Empty, new Size(130, 36), 9f);
+        // Primer uso: «Continuar» y sin «Cancelar» (cerrar la ventana cierra la app, que vuelve a empezar la próxima vez).
+        _ok = Pill(this, owned ? L.T("Guardar", "Save") : L.T("Continuar", "Continue"), Point.Empty, new Size(130, 36), 9f);
         _ok.BackColor = Theme.Accent;
         _ok.HoverColor = Theme.AccentHover;
         _ok.ForeColor = Theme.AccentInk;
         _ok.Click += (_, _) => Save();
         _cancel = Pill(this, L.T("Cancelar", "Cancel"), Point.Empty, new Size(130, 36), 9f);
         _cancel.DialogResult = DialogResult.Cancel;
-        CancelButton = _cancel;
+        _cancel.Visible = owned;
+        if (owned)
+        {
+            CancelButton = _cancel;
+        }
 
         _sample = current?.SampleSize is int s && HistoryEstimator.SampleChoices.Contains(s) ? s : HistoryEstimator.DefaultSample;
         SelectSample(_sample);
@@ -166,7 +171,7 @@ public sealed class EstimateDialog : Form
         SelectMode(current != null);
     }
 
-    /// <summary>Muestra el diálogo. Devuelve lo elegido, o null si se cancela.</summary>
+    /// <summary>Muestra el diálogo. Devuelve lo elegido, o null si se cancela o se cierra la ventana.</summary>
     /// <param name="previewOf">Resultado con (partidas totales, partidas para la media, media escrita); null en el primer uso.</param>
     public static Choice? Ask(IWin32Window? owner, string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf)
     {
