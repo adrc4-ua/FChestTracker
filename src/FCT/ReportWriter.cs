@@ -151,7 +151,7 @@ public static class ReportWriter
 
         /* Cifras clave */
         .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-        .kpi,.card,.mini-kpi,.mate,.board,.pweek{background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 60%),var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+        .kpi,.card,.mini-kpi,.mate,.board{background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0) 60%),var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
         .kpi{position:relative;padding:18px 20px;min-width:0}
         .kpi .l{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
         .kpi .v{margin-top:8px;font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.025em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
@@ -176,7 +176,7 @@ public static class ReportWriter
         .grid2 section{margin-top:0}
 
         /* Gráfico de 30 días */
-        .chart{position:relative;display:grid;grid-template-columns:auto 1fr;gap:0 10px}
+        .chart{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 10px}
         .yaxis{display:flex;flex-direction:column;justify-content:space-between;height:200px;font-size:11px;color:var(--faint);text-align:right;font-variant-numeric:tabular-nums}
         .yaxis span{transform:translateY(-50%)} .yaxis span:last-child{transform:translateY(50%)}
         .plot{position:relative;height:200px;display:flex;align-items:flex-end;gap:4px;
@@ -241,24 +241,40 @@ public static class ReportWriter
         .flag .ic{color:var(--gold);font-size:18px;line-height:1.2}
         .empty{padding:28px 20px;text-align:center;color:var(--muted)}
 
-        /* Premios de la caza del tesoro */
-        .prizes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-        .pweek{padding:16px 18px 10px;min-width:0}
-        .pweek.now{border-color:var(--gold-line);background:radial-gradient(360px 160px at 100% 0%,rgba(232,176,75,.12),transparent 70%),var(--card)}
-        .pweek.all{grid-column:1/-1}
-        .pweek.all ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));column-gap:24px}
-        .ph{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:6px}
-        .ph b{font-size:14px}
-        .ph span:not(.tag){font-size:12px;color:var(--muted)}
-        .pweek ul{list-style:none;margin:0;padding:0}
-        .pweek li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 10px;padding:8px 0;border-bottom:1px solid var(--line)}
-        .pweek ul>li:last-child{border-bottom:none}
-        .pweek.all li{border-bottom:1px solid var(--line)}
-        .pn{font-weight:600;overflow-wrap:anywhere}
-        .pt{grid-column:1;font-size:12px;color:var(--muted)}
-        .cnt{grid-column:2;grid-row:1/3;align-self:center;color:#1a1305;background:var(--gold);border-radius:99px;padding:1px 9px;font-size:12px}
-        .pweek li.got .pn{color:var(--gold-hi)}
-        .pweek p.sm{margin:6px 0 8px}
+        /* Caza del tesoro (resumen) */
+        .hunt{padding:18px 20px}
+        .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+        .tile{position:relative;display:flex;flex-direction:column;gap:3px;padding:12px 14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line2);min-width:0}
+        .tile .tt{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .tile b{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+        .tile .tag{align-self:flex-start;margin-top:4px}
+        .tile.got{border-color:var(--gold-line);background:radial-gradient(220px 120px at 100% 0%,rgba(232,176,75,.16),transparent 70%),var(--bg2)}
+        .tile.got b{color:var(--gold-hi)}
+        .tile .won{position:absolute;top:10px;right:12px;font-size:12px;font-weight:700;color:#1a1305;background:var(--gold);border-radius:99px;padding:0 8px}
+        .hunt-note{margin:0}
+        .always{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+        .always .al{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+        .pchip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12.5px;background:var(--bg2);border:1px solid var(--line2);color:var(--ink);white-space:nowrap}
+        .pchip.got{color:var(--gold-hi);background:var(--gold-soft);border-color:var(--gold-line)}
+        .weeks{margin-top:12px}
+        .weeks summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--gold);padding:4px 10px;margin-left:-10px;border-radius:8px}
+        .weeks summary::-webkit-details-marker{display:none}
+        .weeks summary::before{content:"▸";transition:transform .15s}
+        .weeks[open] summary::before{transform:rotate(90deg)}
+        .weeks summary:hover{background:var(--gold-soft)}
+        .wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
+        .wk{padding:12px 14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+        .wk.now{border-color:var(--gold-line)}
+        .wh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-bottom:6px}
+        .wh b{font-size:13.5px}
+        .wh span:not(.tag){font-size:12px;color:var(--muted)}
+        .wk ul{list-style:none;margin:0;padding:0}
+        .wk li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:6px 0;border-top:1px solid var(--line)}
+        .wk li span{font-size:13px;font-weight:600;overflow-wrap:anywhere}
+        .wk li small{grid-column:1;font-size:11.5px;color:var(--muted)}
+        .wk li b{grid-column:2;grid-row:1/3;align-self:center;color:var(--gold)}
+        .wk li.got span{color:var(--gold-hi)}
+        .wk p.sm{margin:4px 0}
 
         /* Carga */
         .loading{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--gold-line);border-radius:var(--radius);padding:16px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
@@ -268,11 +284,6 @@ public static class ReportWriter
         .pbar{height:6px;background:var(--line2);border-radius:4px;overflow:hidden;margin:8px 0 6px}
         .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));border-radius:4px}
 
-        /* Pie */
-        footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line2);color:var(--muted);font-size:12.5px;line-height:1.7}
-        footer h3{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
-        footer p{margin:0 0 6px;max-width:860px}
-        footer code{font-size:12px;color:var(--gold-hi);background:var(--bg2);border:1px solid var(--line2);border-radius:5px;padding:0 5px}
 
         /* Pestañas: barra fija arriba; sin JavaScript se ven todas las secciones seguidas */
         .tabs{position:sticky;top:10px;z-index:20;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 0 26px;padding:5px;width:max-content;max-width:100%;
@@ -358,7 +369,7 @@ public static class ReportWriter
         @media (max-width:860px){.minis{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.kpi.hero .v{font-size:54px}}
         @media (max-width:520px){main{padding:22px 16px 40px}.kpis{grid-template-columns:1fr 1fr}.kpi.hero{grid-row:auto}.kpi .v{font-size:24px}
-          .kpi.hero .v{font-size:46px}th,td{padding:10px 12px}.chests .mini{display:none}.yaxis,.plot{height:150px}.tabs{top:6px}}
+          .kpi.hero .v{font-size:46px}th,td{padding:10px 12px}.chests .mini{display:none}.yaxis,.plot{height:150px}.tabs{top:6px}.plot,.xaxis{gap:2px}.col,.xaxis span{min-width:0}}
         @media (prefers-reduced-motion:reduce){.dot,.spin{animation:none}}
         """;
 
@@ -470,6 +481,9 @@ public static class ReportWriter
             </div>
             """);
 
+        // Caza del tesoro: los premios de esta semana a la vista, el resto plegado.
+        AppendTreasureHunt(sb, treasureRows);
+
         // Últimos 30 días: una barra por día, con escala y la media diaria.
         var today = DateTime.Now.Date;
         var days = Enumerable.Range(0, 30).Select(i => today.AddDays(i - 29)).ToList();
@@ -512,8 +526,8 @@ public static class ReportWriter
         // Las últimas partidas, en corto, con enlace a la pestaña completa.
         var withMates = mates != null;
         var shownMax = Math.Max(1, matches.Take(100).Select(m => m.ChestsOpened).DefaultIfEmpty(0).Max());
-        sb.Append($"""<section><div class="sh"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{(matches.Count > 6 ? $"<a class=\"more\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "")}</div>""");
-        AppendMatchTable(sb, matches.Take(6).ToList(), shownMax, withMates, extraKinds);
+        sb.Append($"""<section><div class="sh"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{(matches.Count > 5 ? $"<a class=\"more\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "")}</div>""");
+        AppendMatchTable(sb, matches.Take(5).ToList(), shownMax, withMates, extraKinds);
         sb.Append("</section></div>");
 
         // ================================ Cofres ================================
@@ -636,7 +650,6 @@ public static class ReportWriter
         {
             sb.Append($"<div class=\"card\"><div class=\"empty big\"><div class=\"star\">★</div>{L.T("Todavía no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
         }
-        AppendPrizeCatalog(sb, treasureRows);
         sb.Append("</div>");
 
         // ================================ Partidas ================================
@@ -654,22 +667,7 @@ public static class ReportWriter
             sb.Append($"""<div class="panel" id="t-companeros" role="tabpanel" aria-labelledby="tab-companeros">{mates.Value.Html}</div>""");
         }
 
-        var footer = L.Big("footer",
-            """
-            <footer><h3>Cómo se cuenta</h3>
-            <p>Cuenta los cofres que abriste o destruiste tú mismo, según tus archivos de replay (analizados tras cada partida). Las cajas de munición, las cajas de comida y los cañones de botín solo cuentan si lo activas en Ajustes.</p>
-            <p><span class="star">★★</span> tesoro destacado de la caza del tesoro (traje, pico, vehículo, acceso a la tienda…), con su nombre. <span class="star">★</span> artilugio de tesoro (el replay no dice cuál). Cuentan todos los tesoros del escuadrón, también los de tus compañeros; los que llegan después de tu eliminación definitiva no quedan en el replay.</p>
-            <p>Puedes poner nombre a un premio en <code>treasures.json</code>. Esta página se actualiza sola.</p></footer>
-            </main></body></html>
-            """,
-            """
-            <footer><h3>How it counts</h3>
-            <p>Counts the chests you opened or destroyed yourself, from your replay files (analyzed after each match). Ammo boxes, food boxes and loot cannons only count if you turn it on in Settings.</p>
-            <p><span class="star">★★</span> featured treasure of the treasure hunt (outfit, pickaxe, vehicle, Item Shop access…), with its name. <span class="star">★</span> treasure gizmo (the replay does not say which one). Every squad treasure counts, also your teammates'; the ones that come after your final elimination are not in the replay.</p>
-            <p>You can name a prize in <code>treasures.json</code>. This page refreshes by itself.</p></footer>
-            </main></body></html>
-            """);
-        sb.Append(footer.Replace("</main></body></html>", $"</main><script>{TabsScript}</script></body></html>"));
+        sb.Append($"</main><script>{TabsScript}</script></body></html>");
         return sb.ToString();
     }
 
@@ -735,40 +733,67 @@ public static class ReportWriter
     }
 
     /// <summary>
-    /// Premios de la caza del tesoro por semana (y los de todas las semanas), con los que ya has conseguido marcados.
+    /// Resumen de la caza del tesoro: los premios de esta semana como fichas (los conseguidos, en oro), lo que puede
+    /// tocar cualquier semana en una fila y las demás semanas plegadas en «Ver todas las semanas».
     /// </summary>
-    private static void AppendPrizeCatalog(StringBuilder sb, List<(MatchRecord m, TreasureFind f)> rows)
+    private static void AppendTreasureHunt(StringBuilder sb, List<(MatchRecord m, TreasureFind f)> rows)
     {
         var got = rows.Select(r => Prizes.Describe(r.f, When(r.m)).Name)
             .GroupBy(n => n, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
-        var thisWeek = Prizes.WeekOf(DateTime.Now);
-        string Range(int week)
-        {
-            var from = Prizes.WeekStarts[week - 1];
-            var to = (week < Prizes.WeekStarts.Length ? Prizes.WeekStarts[week] : Prizes.End).AddDays(-1);
-            return $"{from.ToString(L.En ? "MMM d" : "d MMM", Loc)} – {to.ToString(L.En ? "MMM d" : "d MMM", Loc)}";
-        }
-        string Item(Prizes.Prize p)
+        var today = DateTime.Now.Date;
+        var thisWeek = Prizes.WeekOf(today);
+        DateTime WeekEnd(int week) => week < Prizes.WeekStarts.Length ? Prizes.WeekStarts[week] : Prizes.End;
+        string Day(DateTime d) => d.ToString(L.En ? "MMM d" : "d MMM", Loc);
+        string Range(int week) => $"{Day(Prizes.WeekStarts[week - 1])} – {Day(WeekEnd(week).AddDays(-1))}";
+        string Unconfirmed(Prizes.Prize p) => p.Announced ? "" : $"<span class=\"tag\">{L.T("sin confirmar", "unconfirmed")}</span>";
+        string Tile(Prizes.Prize p)
         {
             var n = got.GetValueOrDefault(p.Name);
-            return $"<li class=\"{(n > 0 ? "got" : "")}\"><span class=\"pn\">{H(p.Name)}{(p.Announced ? "" : $" <span class=\"tag\">{L.T("sin confirmar", "unconfirmed")}</span>")}</span>"
-                   + $"<span class=\"pt\">{H(Prizes.TypeName(p.Type))}</span>{(n > 0 ? $"<b class=\"cnt\">×{n}</b>" : "")}</li>";
+            return $"<div class=\"tile{(n > 0 ? " got" : "")}\"><span class=\"tt\">{H(Prizes.TypeName(p.Type))}</span><b>{H(p.Name)}</b>"
+                   + (n > 0 ? $"<span class=\"won\">★ ×{n}</span>" : Unconfirmed(p)) + "</div>";
+        }
+        string Line(Prizes.Prize p)
+        {
+            var n = got.GetValueOrDefault(p.Name);
+            return $"<li class=\"{(n > 0 ? "got" : "")}\"><span>{H(p.Name)}</span><small>{H(Prizes.TypeName(p.Type))}</small>{(n > 0 ? $"<b>×{n}</b>" : "")}</li>";
         }
 
-        sb.Append($"""<section><div class="sh"><h2>{L.T("Premios de la caza del tesoro", "Treasure hunt prizes")}</h2><span class="meta">{L.T("del 1 de noviembre al 5 de diciembre · los que tienes, marcados", "November 1 to December 5 · the ones you got, marked")}</span></div><div class="prizes">""");
-        // Los artilugios llegan sin nombre (el replay no dice cuál): se cuentan juntos.
+        var meta = thisWeek > 0
+            ? $"{L.F("Semana {0}", "Week {0}", thisWeek)} · {Range(thisWeek)} · {L.F("quedan {0}", "{0} left", L.Count((WeekEnd(thisWeek) - today).Days, "día", "días", "day", "days"))}"
+            : L.T("Evento del 1 de noviembre al 5 de diciembre", "Event from November 1 to December 5");
+        sb.Append($"""<section><div class="sh"><h2>{L.T("Caza del tesoro", "Treasure hunt")}</h2><span class="meta">{meta}</span></div><div class="card hunt">""");
+
+        // Esta semana: fichas grandes.
+        var week = Prizes.All.Where(p => thisWeek > 0 && p.Week == thisWeek).ToList();
+        if (week.Count > 0)
+        {
+            sb.Append($"""<div class="tiles">{string.Concat(week.Select(Tile))}</div>""");
+        }
+        else if (thisWeek > 0)
+        {
+            sb.Append($"""<p class="sm hunt-note">{L.T("Premios aún no anunciados.", "Prizes not announced yet.")}</p>""");
+        }
+
+        // Cualquier semana: acceso a la tienda y los artilugios (estos llegan sin nombre: se cuentan juntos).
         var gizmos = rows.Count(r => !r.f.Featured);
-        var gizmoNote = gizmos > 0
-            ? $"<p class=\"sm\">{L.F("Has conseguido {0}; el replay no dice cuál de ellos.", "You got {0}; the replay does not say which one.", L.Count(gizmos, "artilugio", "artilugios", "gizmo", "gizmos"))}</p>"
-            : "";
-        sb.Append($"""<div class="pweek all"><div class="ph"><b>{L.T("Todas las semanas", "Every week")}</b></div><ul>{string.Concat(Prizes.All.Where(p => p.Week == 0).Select(Item))}</ul>{gizmoNote}</div>""");
+        var chips = Prizes.All.Where(p => p.Week == 0).Select(p =>
+        {
+            var n = got.GetValueOrDefault(p.Name);
+            return $"<span class=\"pchip{(n > 0 ? " got" : "")}\">{H(p.Name)}{(n > 0 ? $" <b>×{n}</b>" : "")}</span>";
+        });
+        sb.Append($"""<div class="always"><span class="al">{L.T("Todas las semanas", "Every week")}</span>{string.Concat(chips)}"""
+                  + (gizmos > 0 ? $"""<span class="pchip got">★ {L.Count(gizmos, "artilugio", "artilugios", "gizmo", "gizmos")}</span>""" : "")
+                  + "</div>");
+
+        // Las demás semanas, plegadas.
+        sb.Append($"""<details class="weeks"><summary>{L.T("Ver todas las semanas", "See every week")}</summary><div class="wgrid">""");
         for (var w = 1; w <= Prizes.WeekStarts.Length; w++)
         {
             var list = Prizes.All.Where(p => p.Week == w).ToList();
-            var body = list.Count > 0 ? $"<ul>{string.Concat(list.Select(Item))}</ul>" : $"<p class=\"sm\">{L.T("Premios aún no anunciados.", "Prizes not announced yet.")}</p>";
-            sb.Append($"""<div class="pweek{(w == thisWeek ? " now" : "")}"><div class="ph"><b>{L.F("Semana {0}", "Week {0}", w)}</b><span>{Range(w)}</span>{(w == thisWeek ? $"<span class=\"tag gold\">{L.T("Esta semana", "This week")}</span>" : "")}</div>{body}</div>""");
+            var body = list.Count > 0 ? $"<ul>{string.Concat(list.Select(Line))}</ul>" : $"<p class=\"sm\">{L.T("Premios aún no anunciados.", "Prizes not announced yet.")}</p>";
+            sb.Append($"""<div class="wk{(w == thisWeek ? " now" : "")}"><div class="wh"><b>{L.F("Semana {0}", "Week {0}", w)}</b><span>{Range(w)}</span>{(w == thisWeek ? $"<span class=\"tag gold\">{L.T("Esta semana", "This week")}</span>" : "")}</div>{body}</div>""");
         }
-        sb.Append("</div></section>");
+        sb.Append("</div></details></div></section>");
     }
 
     /// <summary>
