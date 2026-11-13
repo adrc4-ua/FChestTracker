@@ -133,7 +133,7 @@ public sealed class Tracker
         var added = results.Count(r => r.Match != null);
         if (added > 0 || ready.Count > 1)
         {
-            ReportWriter.WriteAll(_store, _config, Data);
+            StatsPage.WriteAll(_store, _config, Data);
         }
         return added;
     }
@@ -154,14 +154,14 @@ public sealed class Tracker
         for (var i = 0; i < files.Count; i++)
         {
             progress.Show(i, files[i].Name);
-            ReportWriter.Progress = new ScanProgress(i, files.Count);
-            ReportWriter.WriteAll(_store, _config, Data); // the stats page shows the loading card meanwhile
-            Progressed?.Invoke(ReportWriter.Progress);
+            StatsPage.Progress = new ScanProgress(i, files.Count);
+            StatsPage.WriteAll(_store, _config, Data); // the stats page shows the loading card meanwhile
+            Progressed?.Invoke(StatsPage.Progress);
             results.Add(Record(files[i]));
         }
         progress.Show(files.Count);
         progress.Erase();
-        ReportWriter.Progress = null;
+        StatsPage.Progress = null;
         Progressed?.Invoke(null);
         _console.Batch(results);
         if (accountsBefore < 2 && Profiles.List(Data).Count >= 2)

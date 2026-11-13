@@ -10,16 +10,16 @@ internal static class Icons
 {
     private const string Svg = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">""";
 
-    public static string Chest => ReportWriter.ChestIcon;
-    public static string Summary => ReportWriter.TabIcons["resumen"];
-    public static string Treasure => ReportWriter.GemIconBig;
-    public static string Settings => ReportWriter.TabIcons["ajustes"];
-    public static string Teammates => ReportWriter.TabIcons["companeros"];
-    public static string Matches => ReportWriter.KpiIcons["matches"];
-    public static string Average => ReportWriter.KpiIcons["avg"];
-    public static string Record => ReportWriter.KpiIcons["best"];
-    public static string Day => ReportWriter.KpiIcons["day"];
-    public static string Wins => ReportWriter.KpiIcons["wins"];
+    public static string Chest => PageIcons.Chest;
+    public static string Summary => PageIcons.Tabs["resumen"];
+    public static string Treasure => PageIcons.Gem;
+    public static string Settings => PageIcons.Tabs["ajustes"];
+    public static string Teammates => PageIcons.Tabs["companeros"];
+    public static string Matches => PageIcons.Figures["matches"];
+    public static string Average => PageIcons.Figures["avg"];
+    public static string Record => PageIcons.Figures["best"];
+    public static string Day => PageIcons.Figures["day"];
+    public static string Wins => PageIcons.Figures["wins"];
 
     /// <summary>Overlay: una pantalla con el recuadro del contador en una esquina.</summary>
     public const string Overlay = Svg + """<rect class="f" x="3" y="4.5" width="18" height="12" rx="2.5"/><path d="M8.5 20h7M12 16.5V20"/><rect x="12.5" y="7" width="5.5" height="3.6" rx="1" fill="currentColor" stroke="none"/></svg>""";

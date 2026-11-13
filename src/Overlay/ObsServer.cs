@@ -76,7 +76,7 @@ public static class ObsServer
     }
 
     /// <summary>New figures for the OBS page.</summary>
-    public static void Update(OverlayView view) => _overlayBox = ReportWriter.OverlayBox(view);
+    public static void Update(OverlayView view) => _overlayBox = OverlayPage.Box(view);
 
     private static void Accept(TcpListener listener, int port)
     {
@@ -103,7 +103,7 @@ public static class ObsServer
         }
         return (request.Method, request.Path) switch
         {
-            ("GET", "/" or "/overlay") => LocalResponse.Html(ReportWriter.OverlayLivePage(_overlayBox)),
+            ("GET", "/" or "/overlay") => LocalResponse.Html(OverlayPage.LivePage(_overlayBox)),
             ("GET", "/view") => LocalResponse.Html(_overlayBox),
             ("GET", "/estadisticas") => ReportFile != null && File.Exists(ReportFile)
                 ? LocalResponse.Html(File.ReadAllText(ReportFile))

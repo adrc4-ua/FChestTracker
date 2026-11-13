@@ -30,6 +30,8 @@
   <ItemGroup>
     <!-- Also inside the exe as a resource: the report shows it as its logo. -->
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
+    <!-- Style and script of the stats page and of the OBS overlay (written into each page). -->
+    <EmbeddedResource Include="Reporting\Page\*.css;Reporting\Page\*.js" LogicalName="FCT.page.%(Filename)%(Extension)" />
     <!-- The license and the third-party notices travel with the exe (the GPL and MIT ask for it); the exe prints them with its licenses option. -->
     <EmbeddedResource Include="..\NOTICE.md" LogicalName="FCT.NOTICE.md" />
     <EmbeddedResource Include="..\LICENSE" LogicalName="FCT.LICENSE" />

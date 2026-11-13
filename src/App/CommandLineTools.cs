@@ -7,7 +7,7 @@ internal static class CommandLineTools
     public static int Once(Store store, Config config, TrackerData data, Tracker tracker)
     {
         tracker.Scan(ignoreQuietPeriod: true);
-        ReportWriter.WriteAll(store, config, data);
+        StatsPage.WriteAll(store, config, data);
         tracker.PrintSummary();
         Console.WriteLine(L.F("  Estadísticas: {0}", "  Stats: {0}", store.ReportPath));
         return 0;

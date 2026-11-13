@@ -1,0 +1,170 @@
+using System.Text;
+using static FCT.Reporting.PageParts;
+
+namespace FCT.Reporting;
+
+/// <summary>
+/// estadisticas.html: one self-contained page (style, script and logo inside) with a section per tab. It is rewritten
+/// after every change and reloads itself, so an open browser tab stays up to date.
+/// </summary>
+public static class StatsPage
+{
+    /// <summary>Set while a batch of replays is being read: a loading card, and a faster refresh.</summary>
+    public static volatile ScanProgress? Progress;
+
+    /// <summary>Writes the stats page (with the page's own settings and language), overlay.html and matches.csv.</summary>
+    public static void WriteAll(Store store, Config config, TrackerData data)
+    {
+        try
+        {
+            var pageSettings = config.ForReport();
+            using (L.Scope(config.Language))
+            {
+                SaveText(store.ReportPath, Build(pageSettings, Profiles.View(data, pageSettings), Profiles.InitialChests(data, pageSettings)));
+                ObsServer.ReportLang = L.Code;
+            }
+            if (File.Exists(store.OldReportPath))
+            {
+                try { File.Delete(store.OldReportPath); } catch (IOException) { /* open in a browser: next time */ } catch (UnauthorizedAccessException) { }
+            }
+            var appView = Profiles.View(data, config);
+            SaveText(store.OverlayPath, OverlayPage.File(OverlayModel.Build(appView, null, false, Profiles.InitialChests(data, config))));
+            SaveText(store.CsvPath, MatchesCsv.Build(data));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(L.F("No se pudo escribir el resumen: {0}", "Cannot write the summary: {0}", ex.Message));
+        }
+    }
+
+    /// <summary>Writes overlay.html alone (at every figure change of a live match). Failing is not worth a word.</summary>
+    public static void WriteOverlay(Store store, OverlayView view)
+    {
+        try
+        {
+            SaveText(store.OverlayPath, OverlayPage.File(view));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+        }
+    }
+
+    internal static void SaveText(string path, string text)
+    {
+        var temporary = path + ".tmp";
+        File.WriteAllText(temporary, text, new UTF8Encoding(false));
+        File.Move(temporary, path, overwrite: true);
+    }
+
+    /// <summary>The page for these (already filtered and adjusted) matches.</summary>
+    public static string Build(Config config, TrackerData data, int initialChests = 0)
+    {
+        var page = new PageData(config, data, initialChests);
+        var refresh = Progress != null ? 2 : 15;
+        var logo = AppLogo.DataUri;
+        var html = new StringBuilder(300_000);
+
+        html.Append("<!doctype html><html lang=\"").Append(L.Code).Append("\"><head><meta charset=\"utf-8\">\n")
+            .Append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n")
+            .Append("<meta name=\"color-scheme\" content=\"dark\">\n")
+            .Append($"<noscript><meta http-equiv=\"refresh\" content=\"{refresh}\"></noscript>\n")
+            .Append("<title>").Append(AppInfo.Name).Append(page.Player.Length > 0 ? " · " + Esc(page.Player) : "").Append("</title>")
+            .Append(logo == null ? "" : $"<link rel=\"icon\" href=\"{logo}\">")
+            .Append("<style>").Append(StyleSheet).Append("</style></head>\n")
+            .Append($"<body data-refresh=\"{refresh}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\" ")
+            .Append($"data-offline=\"{Esc(L.F("{0} está cerrado: las cifras no se actualizan", "{0} is closed: the figures are not updating", AppInfo.ShortName))}\">")
+            .Append("<div class=\"shell\">");
+
+        html.Append(Navigation(page, logo));
+        html.Append("<main class=\"content\"><div class=\"down\" role=\"status\" hidden></div>").Append(LoadingCard(Progress));
+        AddPane(html, "resumen", OverviewTab.Build(page, logo));
+        AddPane(html, "cofres", ChestsTab.Build(page));
+        AddPane(html, "tesoros", TreasuresTab.Build(page));
+        AddPane(html, "partidas", MatchesTab.Build(page));
+        if (page.Teammates is { } mates)
+        {
+            AddPane(html, "companeros", Head("companeros", L.T("Compañeros", "Teammates"),
+                L.Count(page.Matches.Count(m => m.Teammates is { Count: > 0 }), "partida en equipo", "partidas en equipo", "team match", "team matches")) + mates.Html);
+        }
+        AddPane(html, "ajustes", SettingsTab.Build(config));
+        html.Append("</main></div><script>").Append(Script).Append("</script></body></html>");
+        return html.ToString();
+    }
+
+    private static void AddPane(StringBuilder html, string id, string content) =>
+        html.Append($"<div class=\"pane\" id=\"t-{id}\" role=\"tabpanel\" aria-labelledby=\"tab-{id}\">").Append(content).Append("</div>");
+
+    /// <summary>Logo and the section buttons (a column on the left; a strip on top on phones).</summary>
+    private static string Navigation(PageData page, string? logo)
+    {
+        var sections = new List<(string Id, string Label, string? Count)>
+        {
+            ("resumen", L.T("Resumen", "Overview"), null),
+            ("cofres", L.T("Cofres", "Chests"), null),
+            ("tesoros", L.T("Tesoros", "Treasures"), page.Treasures.Count > 0 ? Num(page.Treasures.Count) : null),
+            ("partidas", L.T("Partidas", "Matches"), Num(page.Matches.Count)),
+        };
+        if (page.Teammates is { } mates)
+        {
+            sections.Add(("companeros", L.T("Compañeros", "Teammates"), mates.Regulars > 0 ? Num(mates.Regulars) : null));
+        }
+
+        var nav = new StringBuilder("<aside class=\"nav-side\"><div class=\"brand\">");
+        nav.Append(logo == null ? $"<span class=\"brand-mark\">{PageIcons.Chest}</span>" : $"<img src=\"{logo}\" alt=\"\" width=\"52\" height=\"52\">");
+        nav.Append("<div class=\"brand-text\"><span>Fortnite</span><b>Chest Tracker</b></div></div>");
+        nav.Append($"<nav class=\"tabs\" role=\"tablist\" aria-label=\"{L.T("Secciones de estadísticas", "Stats sections")}\" aria-orientation=\"vertical\">");
+        foreach (var (id, label, count) in sections)
+        {
+            nav.Append(TabButton(id, label, "tab", count));
+        }
+        nav.Append(TabButton("ajustes", L.T("Configuración", "Settings"), "tab tab-last", null));
+        return nav.Append("</nav></aside>").ToString();
+    }
+
+    private static string TabButton(string id, string label, string classes, string? count)
+    {
+        var badge = count == null ? "" : $"<span class=\"tab-count\" aria-label=\"{Esc(L.F("{0} en total", "{0} in total", count))}\">{count}</span>";
+        return $"<button class=\"{classes}\" role=\"tab\" type=\"button\" id=\"tab-{id}\" data-tab=\"{id}\" aria-controls=\"t-{id}\">{PageIcons.Tabs[id]}<span>{label}</span>{badge}</button>";
+    }
+
+    private static string LoadingCard(ScanProgress? progress)
+    {
+        if (progress is not { } p)
+        {
+            return "";
+        }
+        var percent = p.Total > 0 ? (int)Math.Round(100.0 * p.Done / p.Total) : 0;
+        return "<div class=\"loader\"><div class=\"spinner\"></div><div class=\"loader-body\">"
+               + $"<b>{L.F("Analizando tus replays… {0} / {1}", "Analyzing your replays… {0} / {1}", p.Done, p.Total)}</b>"
+               + $"<div class=\"progress\"><i style=\"width:{percent}%\"></i></div>"
+               + $"<span class=\"muted\">{L.T("Esta página se actualiza sola: las cifras de abajo aumentan a medida que se leen los replays.", "This page updates by itself: the numbers below grow as the replays are read.")}</span></div></div>";
+    }
+}
+
+/// <summary>What several tabs share, computed once per page.</summary>
+internal sealed class PageData
+{
+    public PageData(Config config, TrackerData data, int initialChests)
+    {
+        Config = config;
+        InitialChests = initialChests;
+        Matches = data.Matches.OrderByDescending(LocalStart).ToList();
+        Treasures = Matches.SelectMany(m => m.TreasureFinds.Select(f => (m, f))).ToList();
+        ExtraKinds = config.ExtraKinds();
+        Player = Matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
+        Teammates = config.ShowTeammates ? TeammatesTab.Build(Matches, ExtraKinds) : null;
+    }
+
+    public Config Config { get; }
+    public int InitialChests { get; }
+
+    /// <summary>Newest first.</summary>
+    public List<MatchRecord> Matches { get; }
+
+    public List<(MatchRecord m, TreasureFind f)> Treasures { get; }
+    public IReadOnlyCollection<string> ExtraKinds { get; }
+    public string Player { get; }
+
+    /// <summary>The teammates tab (null when teammates are turned off on the page).</summary>
+    public (string Html, int Regulars)? Teammates { get; }
+}

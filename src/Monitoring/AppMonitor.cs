@@ -381,7 +381,7 @@ public sealed class AppMonitor
             if (_reportRequested)
             {
                 _reportRequested = false;
-                ReportWriter.WriteAll(_store, Config, _data);
+                StatsPage.WriteAll(_store, Config, _data);
             }
             if (changed || _publishRequested)
             {
@@ -399,7 +399,7 @@ public sealed class AppMonitor
     /// </summary>
     private void WriteStatsPageAtStart()
     {
-        ReportWriter.WriteAll(_store, Config, _data);
+        StatsPage.WriteAll(_store, Config, _data);
         if (!Config.OpenReportOnStart || AutoMode || !File.Exists(_store.ReportPath))
         {
             return;
@@ -559,7 +559,7 @@ public sealed class AppMonitor
 
         var live = _follower.LiveOfShown();
         var overlay = OverlayModel.Build(view, live, _tracker.IsLive && live != null, Profiles.InitialChests(_data, config));
-        ReportWriter.WriteOverlay(_store, overlay);
+        StatsPage.WriteOverlay(_store, overlay);
         ObsServer.Update(overlay);
         if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
         {
