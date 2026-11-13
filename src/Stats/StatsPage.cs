@@ -94,7 +94,7 @@ public static class StatsPage
     private static void AddPane(StringBuilder html, string id, string content) =>
         html.Append($"<div class=\"pane\" id=\"t-{id}\" role=\"tabpanel\" aria-labelledby=\"tab-{id}\">").Append(content).Append("</div>");
 
-    /// <summary>Logo and the section buttons (a column on the left; a strip on top on phones).</summary>
+    /// <summary>Logo and the section buttons (a column on the left; a strip on top in narrow windows).</summary>
     private static string Navigation(PageData page, string? logo)
     {
         var sections = new List<(string Id, string Label, string? Count)>

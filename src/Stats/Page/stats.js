@@ -22,7 +22,7 @@
       t.setAttribute('aria-selected', String(on));
       t.tabIndex = on ? 0 : -1;
     }
-    const strip = tab.parentNode; // on phones the tabs scroll sideways: keep the open one in the middle
+    const strip = tab.parentNode; // in a narrow window the tabs scroll sideways: keep the open one in the middle
     strip.scrollLeft = tab.offsetLeft - (strip.clientWidth - tab.offsetWidth) / 2;
     for (const pane of doc.querySelectorAll('.pane')) pane.hidden = pane.id !== 't-' + id;
     if (remember) memory.set('tab', id);

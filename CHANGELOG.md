@@ -133,7 +133,7 @@ Cambio incompatible: requiere Windows 10 2004 o posterior (captura de ventanas d
 ## [2.1.0] - 2026-11-12
 
 - Informe: sin pie de página; la caza del tesoro pasa al Resumen (premios de la semana como fichas y el resto plegado en «Ver todas las semanas»).
-- Resumen: 5 últimas partidas en vez de 6 y gráfico de 30 días ajustado en móvil.
+- Resumen: 5 últimas partidas en vez de 6 y gráfico de 30 días ajustado.
 - Workflow: subir una etiqueta solo compila `FCT.exe`; las releases se publican a mano en GitHub y se puede adjuntar `FCT.exe` a cualquier etiqueta desde Actions.
 
 ## [2.0.2] - 2026-11-12
