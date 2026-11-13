@@ -6,34 +6,40 @@ using System.Windows.Forms;
 namespace FCT.UI;
 
 /// <summary>
-/// Ventana principal, horizontal 16:9 (592×332): total y partida actual, última partida, gráfico de 7 días,
-/// estadísticas en tarjetas y los botones de acción.
+/// Ventana principal, con el estilo de la página de estadísticas (negro y oro):
+/// <list type="bullet">
+/// <item>cabecera con el logo y el perfil;</item>
+/// <item>tarjeta principal: cofres abiertos (con los de hoy) y la partida actual o la última;</item>
+/// <item>fila de cifras con su icono (partidas, media, récord, mejor día, tesoros);</item>
+/// <item>gráfico de la semana y, a su lado, los botones como el menú de la página.</item>
+/// </list>
 /// Todo lo demás (escaneo, overlay, actualizaciones) lo hace <see cref="AppMonitor"/> en segundo plano.
 /// </summary>
 [SupportedOSPlatform("windows")]
-public sealed class MainForm : Form
+public sealed class MainForm : ThemedForm
 {
     private readonly AppMonitor _monitor;
     private readonly Store _store;
-    private readonly Card _badgeCard;
-    private readonly Label _badge;
-    private readonly Label _profileName;
+    private readonly PillButton _badge;
+    private readonly PillButton _profileName;
     private readonly ComboBox _profile;
     private readonly Label _total;
-    private readonly Label _totalCap;
+    private readonly Label _today;
     private readonly Label _current;
     private readonly Label _currentCap;
-    private readonly Label _today;
-    private readonly Label _statToday, _statBestDay, _statAverage, _statBestMatch, _statMatches, _statTreasures;
-    private readonly Label _statTodayCap, _statBestDayCap, _statAverageCap, _statBestMatchCap, _statMatchesCap, _statTreasuresCap;
+    private readonly Label _currentUnit;
+    private readonly Label _lastDetail;
+    private readonly Label _statMatches, _statAverage, _statBestMatch, _statBestDay, _statTreasures;
+    private readonly Label _statMatchesSub, _statBestDaySub;
     private readonly Card _noticeCard;
     private readonly Label _notice;
     private readonly PillButton _update;
     private readonly PillButton _overlayButton, _reportButton, _settingsButton;
     private readonly DailyChart _daily;
-    private readonly Label _lastValue, _lastDetail;
+    private readonly Label _weekMeta;
     private readonly Card _teamCard;
-    private readonly Label _teamTitle, _teamTotal, _teamMessage;
+    private readonly SectionTitle _teamTitle;
+    private readonly Label _teamTotal, _teamMessage;
     private readonly Label[] _teamNames = new Label[TeamColumns], _teamValues = new Label[TeamColumns];
     private const int TeamColumns = 4; // tú + hasta 3 compañeros (escuadrón)
     private MonitorState? _last;
@@ -41,8 +47,12 @@ public sealed class MainForm : Form
     private bool _ignoreProfileChange;
     private bool _autoCloseOffer;
 
-    // Disposición: 592×332 (16:9). Columna izquierda (total, última partida, gráfico) y derecha (estadísticas y botones).
-    private const int LeftX = 15, LeftW = 267, RightX = 297, RightW = 278;
+    // Disposición base (592 de ancho): márgenes de 16 y una rejilla de 560.
+    private const int X0 = 16, FullW = 560, Right = X0 + FullW;
+    private const int HeroY = 68, HeroH = 106;
+    private const int KpiY = 184, KpiH = 78, KpiW = 106, KpiGap = 7;
+    private const int RowY = 272, RowH = 106, NavW = 180, NavH = 32, NavGap = 5;
+    private const int WeekW = FullW - NavW - 10;
 
     public MainForm(AppMonitor monitor, Store store)
     {
@@ -53,32 +63,37 @@ public sealed class MainForm : Form
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
-        BackColor = Theme.Bg;
-        ForeColor = Theme.Ink;
         FormBorderStyle = FormBorderStyle.Sizable;
-        MinimumSize = new Size(420, 236);
+        MinimumSize = new Size(440, 300);
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(592, 332);
+        ClientSize = new Size(DesignW, DesignHBase);
         Icon = AppIcon.Load();
 
-        // Cabecera: título, perfil y distintivo.
-        Lbl(this, AppInfo.Name.ToUpperInvariant(), 8.5f, FontStyle.Bold, Theme.Cyan, new Point(LeftX, 14), new Size(202, 18));
-        _badgeCard = new Card { Location = new Point(484, 9), Size = new Size(96, 22), Radius = 11, BackColor = Theme.Panel, Visible = false };
-        _badge = Lbl(_badgeCard, "", 8.0f, FontStyle.Bold, Theme.Mint, new Point(0, 0), new Size(96, 22), ContentAlignment.MiddleCenter);
-        Controls.Add(_badgeCard);
+        // ---- Cabecera: logo y nombre (como la barra lateral de la página), distintivo y perfil -------------------
+        Controls.Add(new LogoBox { Location = new Point(X0 - 2, 12), Size = new Size(40, 40), GlowAlpha = 60 });
+        Lbl(this, "F O R T N I T E", 6.75f, FontStyle.Bold, Theme.GoldBase, new Point(X0 + 42, 15), new Size(120, 13));
+        var brand = Lbl(this, "Chest Tracker", 12.5f, FontStyle.Bold, Theme.GoldBase, new Point(X0 + 41, 27), new Size(170, 24), display: true);
+        ((FitLabel)brand).Gold = true;
 
-        _profileName = Lbl(this, "", 8.0f, FontStyle.Regular, Theme.Muted, new Point(230, 11), new Size(240, 18), ContentAlignment.TopRight);
+        _profileName = new PillButton
+        {
+            Location = new Point(Right - 190, 17), Size = new Size(190, 30), Radius = 15, IconSvg = Icons.Person,
+            Font = Theme.Text(8.75f, FontStyle.Bold), BackColor = Theme.Card, HoverColor = Theme.Card, Cursor = Cursors.Default, TabStop = false,
+        };
+        Controls.Add(_profileName);
         _profile = new ComboBox
         {
             DropDownStyle = ComboBoxStyle.DropDownList,
+            DrawMode = DrawMode.OwnerDrawFixed,
             FlatStyle = FlatStyle.Flat,
-            BackColor = Theme.Panel,
+            BackColor = Theme.Card2,
             ForeColor = Theme.Ink,
-            Font = Theme.Text(),
-            Location = new Point(306, 8),
-            Size = new Size(164, 24),
+            Font = Theme.Text(9f),
+            Location = new Point(Right - 190, 20),
+            Size = new Size(190, 24),
             Visible = false,
         };
+        _profile.DrawItem += DrawProfileItem;
         _profile.SelectedIndexChanged += (_, _) =>
         {
             if (!_ignoreProfileChange && _profile.SelectedItem is ProfileItem item)
@@ -87,77 +102,100 @@ public sealed class MainForm : Form
             }
         };
         Controls.Add(_profile);
+        _badge = new PillButton
+        {
+            Location = new Point(Right - 190 - 8 - 112, 17), Size = new Size(112, 30), Radius = 15, Indicator = Theme.Mint,
+            Font = Theme.Text(8f, FontStyle.Bold), ForeColor = Theme.Mint, BackColor = Theme.Card, HoverColor = Theme.Card,
+            Cursor = Cursors.Default, TabStop = false, Visible = false,
+        };
+        Controls.Add(_badge);
 
-        // Tarjeta principal: total y partida actual.
-        var hero = new Card { Location = new Point(LeftX, 40), Size = new Size(LeftW, 100), Radius = 16 };
+        // Línea bajo la cabecera (la de .ph en la página).
+        Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(X0, 58), Size = new Size(FullW, 1) });
+
+        // ---- Tarjeta principal: cofres abiertos y la partida actual o la última -----------------------------------
+        var hero = new Card { Location = new Point(X0, HeroY), Size = new Size(FullW, HeroH), Hero = true };
         Controls.Add(hero);
-        _total = Lbl(hero, "0", 28f, FontStyle.Bold, Theme.Cyan, new Point(15, 6), new Size(120, 50));
-        _totalCap = Lbl(hero, L.T("cofres en total", "chests in total"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(16, 59), new Size(120, 16));
-        hero.Controls.Add(new Panel { BackColor = Theme.CardEdge, Location = new Point(138, 15), Size = new Size(1, 70) });
-        _current = Lbl(hero, "—", 28f, FontStyle.Bold, Theme.Amber, new Point(151, 6), new Size(110, 50));
-        _currentCap = Lbl(hero, L.T("última partida", "last match"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(153, 59), new Size(110, 16));
-        _today = Lbl(hero, "", 8.0f, FontStyle.Regular, Theme.Ink, new Point(15, 77), new Size(243, 16));
+        hero.Controls.Add(new LogoBox { Location = new Point(14, 15), Size = new Size(76, 76), GlowAlpha = 80 });
+        Lbl(hero, L.T("Cofres abiertos", "Chests opened"), 9.25f, FontStyle.Bold, Theme.Ink, new Point(100, 16), new Size(196, 18));
+        _total = Lbl(hero, "0", 27f, FontStyle.Bold, Theme.GoldBase, new Point(97, 32), new Size(200, 48), display: true);
+        ((FitLabel)_total).Gold = true;
+        ((FitLabel)_total).Deep = true;
+        _today = Lbl(hero, "", 8.25f, FontStyle.Regular, Theme.Muted, new Point(100, 80), new Size(196, 16));
 
-        // Última partida: cofres abiertos, con los detalles (rotos, tesoros, puesto, eliminaciones).
-        var last = new Card { Location = new Point(LeftX, 149), Size = new Size(LeftW, 50), Radius = 12 };
-        Lbl(last, L.T("Última partida", "Last match"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 6), new Size(70, 13));
-        // Más ancho que antes: "6 destruido(s) · 1 tesoro · 3.º de 80 · 2 elim." se cortaba por la izquierda.
-        _lastDetail = Lbl(last, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(84, 5), new Size(170, 15), ContentAlignment.MiddleRight);
-        _lastValue = Lbl(last, "—", 11.5f, FontStyle.Bold, Theme.Amber, new Point(13, 22), new Size(243, 22));
-        Controls.Add(last);
+        hero.Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(310, 18), Size = new Size(1, HeroH - 36) });
+        _currentCap = Lbl(hero, L.T("Última partida", "Last match"), 9.25f, FontStyle.Bold, Theme.Ink, new Point(328, 16), new Size(170, 18));
+        hero.Controls.Add(new IconTile { IconSvg = Icons.Matches, Location = new Point(FullW - 14 - 34, 14), Size = new Size(34, 34) });
+        _current = Lbl(hero, "—", 27f, FontStyle.Bold, Theme.GoldBase, new Point(325, 32), new Size(92, 48), display: true);
+        ((FitLabel)_current).Gold = true;
+        _currentUnit = Lbl(hero, L.T("cofres", "chests"), 9f, FontStyle.Bold, Theme.Champ, new Point(418, 55), new Size(100, 18));
+        _lastDetail = Lbl(hero, "", 8.25f, FontStyle.Regular, Theme.Muted, new Point(328, 80), new Size(FullW - 328 - 14, 16));
 
-        // Gráfico de los últimos 7 días.
-        var daily = new Card { Location = new Point(LeftX, 206), Size = new Size(LeftW, 120), Radius = 14 };
-        Lbl(daily, L.T("Esta semana", "This week"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(13, 7), new Size(184, 13));
-        _daily = new DailyChart { Location = new Point(9, 24), Size = new Size(246, 90), BackColor = Theme.Card };
-        daily.Controls.Add(_daily);
-        Controls.Add(daily);
+        // ---- Cifras (las de la página, cada una con su icono) ------------------------------------------------------
+        _statMatches = Kpi(0, L.T("Partidas", "Matches"), Icons.Matches, out _statMatchesSub);
+        _statAverage = Kpi(1, L.T("Media", "Average"), Icons.Average, out var averageSub);
+        averageSub.Text = L.T("Cofres por partida", "Chests per match");
+        _statBestMatch = Kpi(2, L.T("Récord", "Record"), Icons.Record, out var recordSub);
+        recordSub.Text = L.T("Cofres en una partida", "Chests in one match");
+        _statBestDay = Kpi(3, L.T("Mejor día", "Best day"), Icons.Day, out _statBestDaySub);
+        _statTreasures = Kpi(4, L.T("Tesoros", "Treasures"), Icons.Treasure, out var treasuresSub);
+        treasuresSub.Text = L.T("Conseguidos", "Obtained");
 
-        // Equipo (con «Compañeros» activado): tus cofres y los abiertos de cada compañero en la partida actual o la última.
+        // ---- Esta semana -------------------------------------------------------------------------------------------
+        var week = new Card { Location = new Point(X0, RowY), Size = new Size(WeekW, RowH) };
+        Controls.Add(week);
+        week.Controls.Add(new SectionTitle { Text = L.T("Esta semana", "This week"), Location = new Point(12, 7), Size = new Size(170, 20) });
+        _weekMeta = Lbl(week, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(WeekW - 14 - 170, 9), new Size(170, 16), align: ContentAlignment.MiddleRight);
+        _daily = new DailyChart { Location = new Point(10, 29), Size = new Size(WeekW - 20, RowH - 34), Font = Theme.Text(8f) };
+        week.Controls.Add(_daily);
+
+        // ---- Botones: como el menú de la página (Estadísticas resaltado) ------------------------------------------
+        var navX = Right - NavW;
+        _reportButton = Nav(L.T("Estadísticas", "Stats"), Icons.Summary, navX, RowY);
+        _reportButton.BackColor = Theme.Accent;
+        _reportButton.HoverColor = Theme.AccentHover;
+        _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
+        _overlayButton = Nav(L.T("Overlay", "Overlay"), Icons.Overlay, navX, RowY + NavH + NavGap);
+        _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
+        _settingsButton = Nav(L.T("Configuración", "Settings"), Icons.Settings, navX, RowY + 2 * (NavH + NavGap));
+        _settingsButton.Click += (_, _) => OpenSettings();
+
+        // ---- Equipo (con «Compañeros» activado): tus cofres y los de cada compañero en la partida actual o la última.
         // Solo se ve con la opción activada; entonces la ventana crece para hacerle sitio.
-        _teamCard = new Card { Location = new Point(LeftX, 334), Size = new Size(RightX + RightW - LeftX, 74), Radius = 14, Visible = false };
-        _teamTitle = Lbl(_teamCard, L.T("Equipo", "Team"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 7), new Size(250, 14));
-        _teamTotal = Lbl(_teamCard, "", 8.0f, FontStyle.Bold, Theme.Ink, new Point(_teamCard.Width - 13 - 300, 6), new Size(300, 15), ContentAlignment.TopRight);
-        var colW = (_teamCard.Width - 26) / TeamColumns;
+        _teamCard = new Card { Location = new Point(X0, TeamY), Size = new Size(FullW, TeamH), Visible = false };
+        _teamTitle = new SectionTitle { Text = L.T("Equipo", "Team"), Location = new Point(12, 7), Size = new Size(260, 20) };
+        _teamCard.Controls.Add(_teamTitle);
+        _teamTotal = Lbl(_teamCard, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(FullW - 14 - 300, 9), new Size(300, 16), align: ContentAlignment.MiddleRight);
+        var colW = (FullW - 28) / TeamColumns;
         for (var i = 0; i < TeamColumns; i++)
         {
-            _teamNames[i] = Lbl(_teamCard, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13 + i * colW, 28), new Size(colW - 10, 14));
-            _teamValues[i] = Lbl(_teamCard, "", 14f, FontStyle.Bold, i == 0 ? Theme.Amber : Theme.Ink, new Point(12 + i * colW, 42), new Size(colW - 10, 26));
+            _teamNames[i] = Lbl(_teamCard, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(14 + i * colW, 32), new Size(colW - 12, 14));
+            _teamValues[i] = Lbl(_teamCard, "", 14f, FontStyle.Bold, Theme.Ink, new Point(12 + i * colW, 46), new Size(colW - 12, 26), display: true);
         }
-        _teamMessage = Lbl(_teamCard, "", 8.0f, FontStyle.Regular, Theme.Muted, new Point(13 + colW, 28), new Size(_teamCard.Width - 26 - colW, 40), ContentAlignment.MiddleLeft);
+        ((FitLabel)_teamValues[0]).Gold = true;
+        _teamMessage = Lbl(_teamCard, "", 8.25f, FontStyle.Regular, Theme.Muted, new Point(14 + colW, 32), new Size(FullW - 28 - colW, 40), align: ContentAlignment.MiddleLeft);
         Controls.Add(_teamCard);
 
-        // Rejilla de estadísticas: dos columnas, tres filas (columna derecha).
-        _statToday = Stat(L.T("Hoy", "Today"), RightX, 40, Theme.Cyan, out _statTodayCap);
-        _statBestDay = Stat(L.T("Mejor día", "Best day"), RightX + 142, 40, Theme.Amber, out _statBestDayCap);
-        _statAverage = Stat(L.T("Media por partida", "Average per match"), RightX, 117, Theme.Ink, out _statAverageCap);
-        _statBestMatch = Stat(L.T("Mejor partida", "Best match"), RightX + 142, 117, Theme.Ink, out _statBestMatchCap);
-        _statMatches = Stat(L.T("Histórico", "History"), RightX, 196, Theme.Ink, out _statMatchesCap);
-        _statTreasures = Stat(L.T("Tesoros", "Treasures"), RightX + 142, 196, Theme.Ink, out _statTreasuresCap);
-
-        // Aviso (versión nueva, estimado, cierre con Fortnite) o botón de actualizar: franja propia debajo de todo, a lo
-        // ancho de la ventana (que crece para hacerle sitio), así los botones siguen siempre a la vista.
-        _noticeCard = new Card { Location = new Point(LeftX, BannerYBase), Size = new Size(FullW, BannerH), Radius = 12, BackColor = Theme.Card, Visible = false };
-        _notice = Lbl(_noticeCard, "", 8.5f, FontStyle.Regular, Theme.AccentSoft, new Point(13, 0), new Size(FullW - 26, BannerH), ContentAlignment.MiddleLeft);
+        // ---- Aviso (versión nueva, estimado, carga de replays) o botón de actualizar: franja propia debajo de todo,
+        // a lo ancho de la ventana (que crece para hacerle sitio), así los botones siguen siempre a la vista.
+        _noticeCard = new Card { Location = new Point(X0, BannerYBase), Size = new Size(FullW, BannerH), Radius = 14, Edge = Theme.GoldLine, Visible = false };
+        _noticeCard.Controls.Add(new IconTile { IconSvg = Icons.Info, Location = new Point(8, 7), Size = new Size(26, 26) });
+        _notice = Lbl(_noticeCard, "", 8.5f, FontStyle.Regular, Theme.GoldHi, new Point(42, 0), new Size(FullW - 42 - 14, BannerH), align: ContentAlignment.MiddleLeft);
         _noticeCard.Click += (_, _) => { if (_autoCloseOffer) _monitor.KeepOpen(); };
         _notice.Click += (_, _) => { if (_autoCloseOffer) _monitor.KeepOpen(); };
         Controls.Add(_noticeCard);
 
-        _update = new PillButton { Location = new Point(LeftX, BannerYBase), Size = new Size(FullW, BannerH), Radius = 12, Visible = false, BackColor = Theme.Accent, HoverColor = Theme.AccentHover, ForeColor = Theme.AccentInk };
+        _update = new PillButton
+        {
+            Location = new Point(X0, BannerYBase), Size = new Size(FullW, BannerH), Radius = 14, Visible = false, IconSvg = Icons.Download,
+            BackColor = Theme.Accent, HoverColor = Theme.AccentHover, Font = Theme.Text(9.25f, FontStyle.Bold),
+        };
         _update.Click += (_, _) => _monitor.InstallUpdate();
         Controls.Add(_update);
 
-        // Botones de acción.
-        _overlayButton = Action(L.T("Overlay", "Overlay"), RightX, 76);
-        _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
-        _reportButton = Action(L.T("Estadísticas", "Stats"), RightX + 82, 94);
-        _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
-        _settingsButton = Action(L.T("Configuración", "Settings"), RightX + 182, RightW - 182);
-        _settingsButton.Click += (_, _) => OpenSettings();
-
-        // Icono en el área de notificación (la flecha hacia arriba de la barra de tareas): el programa sigue ahí
+        // ---- Icono en el área de notificación (la flecha hacia arriba de la barra de tareas): el programa sigue ahí
         // aunque la ventana esté oculta. Clic: abre la ventana; clic derecho: menú.
-        var trayMenu = new ContextMenuStrip();
+        var trayMenu = new ContextMenuStrip { Renderer = new DarkMenuRenderer(), ForeColor = Theme.Ink, Font = Theme.Text(9f) };
         var openItem = new ToolStripMenuItem(L.F("Abrir {0}", "Open {0}", AppInfo.ShortName), null, (_, _) => ShowFromTray());
         openItem.Font = new Font(openItem.Font, FontStyle.Bold);
         trayMenu.Items.Add(openItem);
@@ -166,6 +204,10 @@ public sealed class MainForm : Form
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Configuración", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
         trayMenu.Items.Add(new ToolStripSeparator());
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => ExitApp()));
+        foreach (ToolStripItem item in trayMenu.Items)
+        {
+            item.ForeColor = Theme.Ink;
+        }
         _tray = new NotifyIcon
         {
             Icon = Icon ?? SystemIcons.Application,
@@ -175,7 +217,7 @@ public sealed class MainForm : Form
         };
         _tray.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) ShowFromTray(); };
 
-        // Diseño base (592×332): al redimensionar o maximizar, todos los controles y fuentes escalan proporcionalmente.
+        // Diseño base: al redimensionar o maximizar, todos los controles y fuentes escalan proporcionalmente.
         CaptureLayout();
         _scaleTimer = new System.Windows.Forms.Timer { Interval = 50 };
         _scaleTimer.Tick += (_, _) => { _scaleTimer.Stop(); ApplyLayoutScale(); };
@@ -214,7 +256,7 @@ public sealed class MainForm : Form
     /// <summary>
     /// Arranque solo con overlay: la ventana no se muestra (ni delante ni en la barra de tareas); el programa sigue
     /// funcionando y se recupera desde su icono del área de notificación o abriéndolo otra vez. Lo decide Program:
-    /// solo cuando el overlay está en pantalla y no es el primer uso.
+    /// solo con Fortnite abierto y no en el primer uso.
     /// </summary>
     internal bool StartInBackground;
     private bool _startHandled;
@@ -280,9 +322,10 @@ public sealed class MainForm : Form
         base.OnFormClosed(e);
     }
 
-    private const int DesignW = 592, DesignHBase = 332, DesignHTeam = 416;
-    // Franja del aviso: bajo el gráfico, o bajo la tarjeta «Equipo» si se ve.
-    private const int FullW = RightX + RightW - LeftX, BannerH = 40, BannerYBase = 334, BannerYTeam = 416, BannerGap = 8;
+    private const int DesignW = 592, DesignHBase = RowY + RowH + 16;
+    // Tarjeta «Equipo» bajo la fila del gráfico; franja del aviso bajo el gráfico o bajo «Equipo» si se ve.
+    private const int TeamY = RowY + RowH + 10, TeamH = 78, DesignHTeam = TeamY + TeamH + 16;
+    private const int BannerH = 40, BannerYBase = RowY + RowH + 10, BannerYTeam = TeamY + TeamH + 10, BannerGap = 16;
     private int _designH = DesignHBase;
     private readonly Dictionary<Control, LayoutEntry> _layout = new();
     private System.Windows.Forms.Timer? _scaleTimer;
@@ -294,6 +337,7 @@ public sealed class MainForm : Form
         public Size Size;
         public Font? Font;
         public Font? Scaled;
+        public int Radius; // esquinas de tarjetas y botones (0 = no tiene)
     }
 
     private void CaptureLayout()
@@ -303,7 +347,7 @@ public sealed class MainForm : Form
         {
             foreach (Control c in parent.Controls)
             {
-                _layout[c] = new LayoutEntry { Location = c.Location, Size = c.Size, Font = c.Font };
+                _layout[c] = new LayoutEntry { Location = c.Location, Size = c.Size, Font = c.Font, Radius = c is Card card ? card.Radius : c is PillButton b ? b.Radius : 0 };
                 Capture(c);
             }
         }
@@ -338,28 +382,41 @@ public sealed class MainForm : Form
         // Durante restaurar/maximizar el tamaño puede ser transitorio: sin factor válido no se tocan las fuentes.
         var k = Math.Min(fx / (DeviceDpi / 96f), fy / (DeviceDpi / 96f));
         var scaleFonts = float.IsFinite(k) && k > 0.2 && k < 10;
+        SuspendLayout();
         foreach (var (c, l) in _layout)
         {
             c.Location = new Point((int)Math.Round(l.Location.X * fx), (int)Math.Round(l.Location.Y * fy));
             c.Size = new Size((int)Math.Round(l.Size.Width * fx), (int)Math.Round(l.Size.Height * fy));
+            // Las esquinas siguen la escala (si no, al agrandar la ventana quedarían más cuadradas).
+            var radius = Math.Max(4, (int)Math.Round(l.Radius * Math.Min(fx, fy)));
+            if (c is Card card)
+            {
+                card.Radius = radius;
+            }
+            else if (c is PillButton button)
+            {
+                button.Radius = radius;
+            }
             if (scaleFonts && l.Font != null)
             {
+                // Misma letra que ya tiene: nada. (WinForms no cambia una fuente por otra igual, así que liberar la
+                // anterior dejaba al control con una fuente liberada: «Parameter is not valid» al pintar.)
                 var nf = new Font(l.Font.FontFamily, l.Font.SizeInPoints * k, l.Font.Style);
-                l.Scaled?.Dispose();
-                l.Scaled = nf;
-                c.Font = nf;
+                if (l.Scaled != null && l.Scaled.Equals(nf))
+                {
+                    nf.Dispose();
+                }
+                else
+                {
+                    var old = l.Scaled;
+                    c.Font = nf;
+                    l.Scaled = nf;
+                    old?.Dispose();
+                }
             }
         }
-    }
-
-    protected override void OnHandleCreated(EventArgs e)
-    {
-        base.OnHandleCreated(e);
-        Theme.Chrome(Handle); // esquinas redondeadas de Windows 11 (el sistema las dibuja sin tocar botones ni bordes)
-        if (_last != null)
-        {
-            Render(_last);
-        }
+        ResumeLayout();
+        Invalidate(true);
     }
 
     private void OnChanged(MonitorState state)
@@ -383,18 +440,30 @@ public sealed class MainForm : Form
         }
     }
 
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        if (_last != null)
+        {
+            Render(_last);
+        }
+    }
+
     private void Render(MonitorState s)
     {
         var v = s.View;
+        var st = s.Stats;
         _total.Text = v.Total;
+
+        // Partida actual (en directo) o la última: la cifra grande y, debajo, sus detalles.
+        var live = v.CurrentLive && v.Current != "…";
         _current.Text = v.Current ?? "—";
-        _current.ForeColor = v.CurrentLive ? Theme.Mint : v.Current == null ? Theme.Muted : Theme.Amber;
-        // El overlay usa textos cortos ("anterior" / "actual"); aquí hay sitio para los largos.
-        _currentCap.Text = v.CurrentCaption == OverlayModel.LastMatchCaption ? L.T("última partida", "last match")
-            : v.CurrentLive && v.Current != "…" ? L.T("partida actual", "current match")
-            : v.CurrentCaption;
-        _badge.Text = v.Badge ?? "";
-        _badgeCard.Visible = !string.IsNullOrEmpty(v.Badge);
+        _currentCap.Text = live ? L.T("Partida actual", "Current match") : L.T("Última partida", "Last match");
+        _currentCap.ForeColor = live ? Theme.Mint : Theme.Ink;
+        _currentUnit.Text = v.Current == null ? "" : v.Current == "1" ? L.T("cofre", "chest") : L.T("cofres", "chests");
+        PlaceUnit();
+        _badge.Text = (v.Badge ?? "").TrimStart('●', ' ');
+        _badge.Visible = !string.IsNullOrEmpty(v.Badge);
 
         // Línea de hoy: la primera fila del modelo (cofres y, detrás, partidas y media de hoy).
         var today = v.Rows.FirstOrDefault();
@@ -403,49 +472,48 @@ public sealed class MainForm : Form
             : today?.Value;
         _today.Text = today == null ? "" : $"{L.T("Hoy", "Today")}: {todayChests}" + (today.Detail != null ? $"  ·  {today.Detail}" : "");
 
-        var st = s.Stats;
-        _statToday.Text = L.N(st.Today);
-        // La fecha va en la línea de arriba: "1.409 · 06/11" a 15 pt no cabe en la tarjeta y se cortaba.
-        _statBestDay.Text = st.BestDay is { } bestDay ? L.N(st.BestDayChests) : "—";
-        _statBestDayCap.Text = st.BestDay is { } bd
-            ? $"{L.T("Mejor día", "Best day")} · {bd:dd/MM}"
-            : L.T("Mejor día", "Best day");
-        _statAverage.Text = st.Matches > 0 ? st.Average.ToString("0.0", L.Culture) : "—";
-        _statBestMatch.Text = st.Matches > 0 ? L.N(st.BestMatch) : "—";
-        _statMatches.Text = L.Count(st.HistoryMatches, "partida", "partidas", "match", "matches");
-        _statMatchesCap.Text = st.HistorySince is { } since
-            ? L.F("Desde {0:dd/MM/yy}", "Since {0:dd/MM/yy}", since)
-            : L.T("Histórico", "History");
-        _statTreasures.Text = $"{OverlayModel.TreasureIcon} {L.N(st.Treasures)}";
-        _overlayButton.Enabled = _monitor.OverlayEnabled;
-        _overlayButton.Indicator = _monitor.OverlayVisible ? Theme.Green : Theme.Red;
-
-        if (st.LastMatch is { } lm)
+        if (live)
         {
-            _lastValue.Text = L.Count(lm.Chests, "cofre abierto", "cofres abiertos", "chest opened", "chests opened");
+            _lastDetail.Text = L.T("En directo: se confirma al terminar la partida", "Live: confirmed when the match ends");
+        }
+        else if (st.LastMatch is { } lm)
+        {
             var parts = new List<string>();
-            if (lm.Destroyed > 0) parts.Add(L.F("{0} destruido(s)", "{0} destroyed", lm.Destroyed));
-            if (lm.Treasures > 0) parts.Add(L.Count(lm.Treasures, "tesoro", "tesoros", "treasure", "treasures"));
             if (lm.Placement is { } place) parts.Add(lm.Players is { } players ? $"{L.Ordinal(place)} {L.T("de", "of")} {players}" : L.Ordinal(place));
             if (lm.Eliminations is { } elim) parts.Add(L.F("{0} elim.", "{0} elim.", elim));
+            if (lm.Treasures > 0) parts.Add(L.Count(lm.Treasures, "tesoro", "tesoros", "treasure", "treasures"));
+            if (lm.Destroyed > 0) parts.Add(L.F("{0} destruido(s)", "{0} destroyed", lm.Destroyed));
             _lastDetail.Text = string.Join("  ·  ", parts);
         }
         else
         {
-            _lastValue.Text = "—";
             _lastDetail.Text = "";
         }
+
+        _statMatches.Text = L.N(st.HistoryMatches);
+        _statMatchesSub.Text = st.HistorySince is { } since ? L.F("Desde {0:dd/MM/yy}", "Since {0:dd/MM/yy}", since) : L.T("Analizadas", "Analyzed");
+        _statAverage.Text = st.Matches > 0 ? st.Average.ToString("0.0", L.Culture) : "—";
+        _statBestMatch.Text = st.Matches > 0 ? L.N(st.BestMatch) : "—";
+        _statBestDay.Text = st.BestDay != null ? L.N(st.BestDayChests) : "—";
+        _statBestDaySub.Text = st.BestDay is { } bd ? bd.ToString("d MMM", L.Culture) : L.T("Sin partidas aún", "No matches yet");
+        _statTreasures.Text = L.N(st.Treasures);
+
+        _overlayButton.Enabled = _monitor.OverlayEnabled;
+        _overlayButton.Chip = _monitor.OverlayVisible ? L.T("● Activado", "● On") : L.T("Apagado", "Off");
+        _overlayButton.ChipOn = _monitor.OverlayVisible;
+
         _daily.SetDays(st.LastDays);
+        var weekTotal = st.LastDays.Sum(d => d.Chests);
+        _weekMeta.Text = weekTotal > 0 ? L.Count(weekTotal, "cofre", "cofres", "chest", "chests") : "";
         RenderTeam(s.Team);
 
         // Perfil: nombre fijo con una sola cuenta, selector con varias.
         var signature = string.Join("|", s.Profiles.Select(p => p.Key));
         var several = s.Profiles.Count >= 2;
         _profile.Visible = several;
-        _profileName.Visible = !several;
-        _profileName.Text = s.Profiles.FirstOrDefault(p => p.Key == s.CurrentKey) is { } current
-            ? $"{L.T("Perfil", "Profile")}: {current.Name}"
-            : "";
+        var currentProfile = s.Profiles.FirstOrDefault(p => p.Key == s.CurrentKey);
+        _profileName.Visible = !several && currentProfile != null;
+        _profileName.Text = currentProfile?.Name ?? "";
         if (signature != _profileSig)
         {
             _profileSig = signature;
@@ -468,7 +536,7 @@ public sealed class MainForm : Form
         }
         _ignoreProfileChange = false;
 
-        // Aviso o actualización: el aviso (descarga, error o cierre) tiene prioridad sobre el botón.
+        // Aviso o actualización: el aviso (descarga, error, carga de replays) tiene prioridad sobre el botón.
         _autoCloseOffer = s.AutoCloseOffer;
         var hasNotice = !string.IsNullOrEmpty(s.Notice);
         _update.Visible = !hasNotice && s.Update != null;
@@ -483,6 +551,19 @@ public sealed class MainForm : Form
         Relayout();
     }
 
+    /// <summary>«cofres» justo detrás de la cifra grande de la partida (la cifra cambia de ancho).</summary>
+    private void PlaceUnit()
+    {
+        using var g = _current.CreateGraphics();
+        var w = TextRenderer.MeasureText(g, _current.Text, _current.Font, _current.Size, TextFormatFlags.SingleLine | TextFormatFlags.NoPadding).Width;
+        var x = _current.Left + Math.Min(w, _current.Width) + (int)Math.Round(8 * (_current.Width / 92f));
+        _currentUnit.Left = x;
+        if (_layout.TryGetValue(_currentUnit, out var entry) && _lastFx > 0)
+        {
+            entry.Location = new Point((int)Math.Round(x / _lastFx), entry.Location.Y);
+        }
+    }
+
     /// <summary>
     /// Tarjeta «Equipo»: tus cofres y los abiertos de cada compañero (un mínimo: el replay solo tiene lo que pasa cerca
     /// de ti). Sin datos de equipo (opción desactivada) la tarjeta se oculta y la ventana vuelve a su tamaño.
@@ -495,7 +576,7 @@ public sealed class MainForm : Form
             return;
         }
         _teamTitle.Text = team.Live ? L.T("Equipo · partida actual", "Team · current match") : L.T("Equipo · última partida", "Team · last match");
-        _teamTitle.ForeColor = team.Live ? Theme.Mint : Theme.Muted;
+        _teamTitle.ForeColor = team.Live ? Theme.Mint : Theme.Ink;
         _teamNames[0].Text = L.T("Tú", "You");
         _teamValues[0].Text = L.N(team.Mine);
 
@@ -556,41 +637,64 @@ public sealed class MainForm : Form
         ApplyLayoutScale();
     }
 
-    /// <summary>Tarjeta de estadística: título arriba y cifra debajo. Devuelve la etiqueta de la cifra.</summary>
-    private Label Stat(string caption, int x, int y, Color valueColor, out Label captionLabel)
+    /// <summary>
+    /// Cifra de la fila (como .kpi de la página): título arriba, cuadro del icono a la derecha, cifra en oro y una
+    /// línea debajo. Devuelve la etiqueta de la cifra; <paramref name="sub"/>, la de la línea de debajo.
+    /// </summary>
+    private Label Kpi(int index, string caption, string icon, out Label sub)
     {
-        var card = new Card { Location = new Point(x, y), Size = new Size(136, 70), Radius = 14 };
+        var card = new Card { Location = new Point(X0 + index * (KpiW + KpiGap), KpiY), Size = new Size(KpiW, KpiH), Radius = 16 };
         Controls.Add(card);
-        captionLabel = Lbl(card, caption, 8.0f, FontStyle.Regular, Theme.Muted, new Point(12, 9), new Size(113, 15));
-        return Lbl(card, "—", 15f, FontStyle.Bold, valueColor, new Point(12, 31), new Size(117, 28));
+        Lbl(card, caption, 8.25f, FontStyle.Bold, Theme.Muted, new Point(11, 11), new Size(KpiW - 11 - 36, 15));
+        card.Controls.Add(new IconTile { IconSvg = icon, Location = new Point(KpiW - 9 - 26, 8), Size = new Size(26, 26) });
+        // La cifra empieza bajo el cuadro del icono (si lo pisara, lo taparía al pintarse).
+        var value = Lbl(card, "—", 15.5f, FontStyle.Bold, Theme.GoldBase, new Point(8, 35), new Size(KpiW - 16, 25), display: true);
+        ((FitLabel)value).Gold = true;
+        sub = Lbl(card, "", 7.25f, FontStyle.Regular, Theme.Muted, new Point(11, 59), new Size(KpiW - 18, 14));
+        return value;
     }
 
-    private PillButton Action(string text, int x, int width)
+    /// <summary>Botón como las entradas del menú de la página: icono y texto a la izquierda.</summary>
+    private PillButton Nav(string text, string icon, int x, int y)
     {
-        var b = new PillButton { Text = text, Location = new Point(x, 277), Size = new Size(width, 40), Radius = 11 };
-        // Un texto que no cabe (otro idioma, letra grande) se reduce un poco en vez de cortarse.
-        while (TextRenderer.MeasureText(text, b.Font).Width > width - 12 && b.Font.Size > 7f)
+        var b = new PillButton
         {
-            b.Font = new Font(b.Font.FontFamily, b.Font.Size - 0.5f, b.Font.Style);
-        }
+            Text = text, IconSvg = icon, LeftAligned = true, Location = new Point(x, y), Size = new Size(NavW, NavH), Radius = 11,
+            Font = Theme.Text(9f, FontStyle.Bold), BackColor = Theme.Card, HoverColor = Theme.Card2,
+        };
         Controls.Add(b);
         return b;
     }
 
-    private static Label Lbl(Control parent, string text, float size, FontStyle style, Color color, Point at, Size sz, ContentAlignment align = ContentAlignment.TopLeft)
+    private static Label Lbl(Control parent, string text, float size, FontStyle style, Color color, Point at, Size sz,
+        ContentAlignment align = ContentAlignment.TopLeft, bool display = false)
     {
         var l = new FitLabel
         {
             Text = text,
-            Font = Theme.Text(size, style),
+            Font = display ? Theme.Display(size, style) : Theme.Text(size, style),
             ForeColor = color,
-            BackColor = parent.BackColor,
+            BackColor = Color.Transparent,
             Location = at,
             Size = sz,
             TextAlign = align,
+            UseMnemonic = false,
         };
         parent.Controls.Add(l);
         return l;
+    }
+
+    private void DrawProfileItem(object? sender, DrawItemEventArgs e)
+    {
+        if (e.Index < 0)
+        {
+            return;
+        }
+        var selected = (e.State & DrawItemState.Selected) != 0 && (e.State & DrawItemState.ComboBoxEdit) == 0;
+        using var back = new SolidBrush(selected ? Theme.GoldSoft : Theme.Card2);
+        e.Graphics.FillRectangle(back, e.Bounds);
+        TextRenderer.DrawText(e.Graphics, _profile.Items[e.Index]?.ToString(), _profile.Font, e.Bounds, selected ? Theme.GoldHi : Theme.Ink,
+            TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
     }
 
     private static void Open(string path)

@@ -8,11 +8,11 @@ namespace FCT.UI;
 public sealed record InfoPoint(string Glyph, Color Color, string Title, string Text);
 
 /// <summary>
-/// Diálogo de confirmación con el aspecto de la aplicación (fondo oscuro, tarjeta redondeada, botones píldora),
-/// en lugar del cuadro gris de Windows. Devuelve true si se pulsa el botón principal.
+/// Diálogo de confirmación con el estilo de la página (negro y oro: el cofre del logo, tarjeta con velo dorado,
+/// botón principal de oro), en lugar del cuadro gris de Windows. Devuelve true si se pulsa el botón principal.
 /// </summary>
 [SupportedOSPlatform("windows")]
-public sealed class InfoDialog : Form
+public sealed class InfoDialog : ThemedForm
 {
     private const int W = 440, Pad = 20, TextX = 72;
 
@@ -22,8 +22,6 @@ public sealed class InfoDialog : Form
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
-        BackColor = Theme.Bg;
-        ForeColor = Theme.Ink;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
@@ -31,32 +29,21 @@ public sealed class InfoDialog : Form
         StartPosition = owned ? FormStartPosition.CenterParent : FormStartPosition.CenterScreen;
         Icon = AppIcon.Load();
 
-        // Cabecera: icono redondo, título e introducción.
-        var icon = new Card { Location = new Point(Pad, Pad), Size = new Size(40, 40), Radius = 20, BackColor = Theme.Panel };
-        icon.Controls.Add(new Label
-        {
-            Text = "i",
-            Font = new Font("Georgia", 15f, FontStyle.Bold | FontStyle.Italic),
-            ForeColor = Theme.Cyan,
-            BackColor = Color.Transparent, // deja ver el círculo de la tarjeta
-            Location = new Point(0, 0),
-            Size = new Size(40, 40),
-            TextAlign = ContentAlignment.MiddleCenter,
-        });
-        Controls.Add(icon);
+        // Cabecera: el cofre del logo (con su brillo dorado), título en oro claro e introducción.
+        Controls.Add(new LogoBox { Location = new Point(Pad - 4, Pad - 6), Size = new Size(48, 48), GlowAlpha = 70 });
 
         var y = Pad - 1;
-        y = AddText(this, title, Theme.Text(12f, FontStyle.Bold), Theme.Ink, TextX, y, W - TextX - Pad) + 4;
+        y = AddText(this, title, Theme.Text(12f, FontStyle.Bold), Theme.GoldHi, TextX, y, W - TextX - Pad) + 4;
         y = AddText(this, intro, Theme.Text(9f), Theme.Muted, TextX, y, W - TextX - Pad);
         y = Math.Max(y, Pad + 40) + 16;
 
         // Puntos, dentro de una tarjeta (sin puntos, no hay tarjeta).
-        var card = new Card { Location = new Point(Pad, y), Radius = 14, BackColor = Theme.Card, Visible = points.Count > 0 };
+        var card = new Card { Location = new Point(Pad, y), Radius = 16, BackColor = Theme.Card, Visible = points.Count > 0 };
         var cardW = W - 2 * Pad;
         var cy = 14;
         foreach (var p in points)
         {
-            var badge = new Card { Location = new Point(14, cy), Size = new Size(26, 26), Radius = 13, BackColor = Theme.Panel };
+            var badge = new Card { Location = new Point(14, cy), Size = new Size(26, 26), Radius = 8, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine };
             badge.Controls.Add(new Label
             {
                 Text = p.Glyph,
@@ -76,7 +63,7 @@ public sealed class InfoDialog : Form
         Controls.Add(card);
         y += points.Count > 0 ? card.Height + 18 : 6;
 
-        // Botones: principal en cian a la derecha, cancelar a su izquierda.
+        // Botones: el principal en oro a la derecha, el otro a su izquierda.
         var okButton = new PillButton
         {
             Text = ok,
@@ -141,7 +128,8 @@ public sealed class InfoDialog : Form
             Text = text,
             Font = font,
             ForeColor = color,
-            BackColor = parent.BackColor,
+            BackColor = Color.Transparent,
+            UseMnemonic = false,
             Location = new Point(x, y),
             Size = new Size(width, height),
         });

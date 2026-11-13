@@ -13,7 +13,7 @@ namespace FCT.UI;
 /// partidas que elija el jugador (5 por defecto, 10 recomendado) o escrita a mano. Abajo, el resultado al momento.
 /// </summary>
 [SupportedOSPlatform("windows")]
-public sealed class EstimateDialog : Form
+public sealed class EstimateDialog : ThemedForm
 {
     /// <summary>Lo elegido: <see cref="Estimate"/> false = solo repeticiones.</summary>
     public sealed record Choice(bool Estimate, int TotalMatches, string Source, int Sample, double? ManualAverage);
@@ -62,7 +62,7 @@ public sealed class EstimateDialog : Form
         Icon = AppIcon.Load();
 
         var y = Pad;
-        y = AddText(this, L.T("¿Contar también tus partidas de antes?", "Count your earlier matches too?"), Theme.Text(12f, FontStyle.Bold), Theme.Ink, Pad, y, W - 2 * Pad) + 4;
+        y = AddText(this, L.T("¿Contar también tus partidas de antes?", "Count your earlier matches too?"), Theme.Text(12f, FontStyle.Bold), Theme.GoldHi, Pad, y, W - 2 * Pad) + 4;
         y = AddText(this, L.F("{0} cuenta exacto lo que hay en tus repeticiones. Puede sumar además un estimado de las partidas que no tiene: tu media de cofres × las partidas que le faltan. Va solo a tu total, marcado como estimado.",
                 "{0} counts exactly what is in your replays. It can also add an estimate of the matches it does not have: your average chests × the matches it is missing. It only goes into your total, marked as an estimate.", AppInfo.ShortName),
             Theme.Text(9f), Theme.Muted, Pad, y, W - 2 * Pad) + 14;
@@ -74,7 +74,7 @@ public sealed class EstimateDialog : Form
         _withEstimate.Click += (_, _) => SelectMode(true);
         y += 36 + 14;
 
-        _panel = new Card { Location = new Point(Pad, y), Radius = 14, BackColor = Theme.Card };
+        _panel = new Card { Location = new Point(Pad, y), Radius = 16, BackColor = Theme.Card };
         var pw = W - 2 * Pad;
         var inner = pw - 28;
         var py = 14;
@@ -347,8 +347,8 @@ public sealed class EstimateDialog : Form
 
     private static TextBox Field(Control parent, Point at, int width, string text, Font font, Color color, int height = 32)
     {
-        var holder = new Card { Location = at, Size = new Size(width, height), Radius = 10, BackColor = Theme.Panel };
-        var box = new TextBox { BorderStyle = BorderStyle.None, BackColor = Theme.Panel, ForeColor = color, Font = font, Text = text, Width = width - 20 };
+        var holder = new Card { Location = at, Size = new Size(width, height), Radius = 10, BackColor = Theme.Bg2, Edge = Theme.Line };
+        var box = new TextBox { BorderStyle = BorderStyle.None, BackColor = Theme.Bg2, ForeColor = color, Font = font, Text = text, Width = width - 20 };
         box.Location = new Point(10, (height - box.Height) / 2);
         holder.Controls.Add(box);
         parent.Controls.Add(holder);

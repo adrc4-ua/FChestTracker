@@ -471,8 +471,8 @@ public static class ReportWriter
     // Iconos: trazo dorado con un relleno suave (clase "f"), 24 × 24. Todos del mismo dibujo.
     private const string IconSvg = """<svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
     private const string ChestShape = """<path class="f" d="M4 11V9.5A5.5 5.5 0 0 1 9.5 4h5A5.5 5.5 0 0 1 20 9.5V11z"/><rect x="3" y="11" width="18" height="9" rx="1.6"/><path d="M8.5 4.4V11M15.5 4.4V11M7 11v9M17 11v9"/><rect class="f" x="10" y="9.5" width="4" height="5" rx="1"/>""";
-    private const string ChestIcon = """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""" + ChestShape + "</svg>";
-    private static readonly Dictionary<string, string> TabIcons = new()
+    internal const string ChestIcon = """<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""" + ChestShape + "</svg>";
+    internal static readonly Dictionary<string, string> TabIcons = new()
     {
         ["resumen"] = IconSvg + """<rect class="f" x="3.5" y="3.5" width="7" height="9" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="15.5" width="7" height="5" rx="2"/></svg>""",
         ["cofres"] = IconSvg + ChestShape + "</svg>",
@@ -484,7 +484,7 @@ public static class ReportWriter
 
     // Iconos de las cifras del resumen.
     private const string KpiSvg = """<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">""";
-    private static readonly Dictionary<string, string> KpiIcons = new()
+    internal static readonly Dictionary<string, string> KpiIcons = new()
     {
         ["wins"] = KpiSvg + """<path class="f" d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M8.5 21h7M12 14v7M17 5.5h3V7a3.5 3.5 0 0 1-3.3 3.5M7 5.5H4V7a3.5 3.5 0 0 0 3.3 3.5"/></svg>""",
         ["matches"] = KpiSvg + """<path class="f" d="M7.5 7h9a5 5 0 0 1 4.7 6.7l-.9 2.6a2.4 2.4 0 0 1-4 .9L14.5 15h-5l-1.8 2.2a2.4 2.4 0 0 1-4-.9l-.9-2.6A5 5 0 0 1 7.5 7z"/><path d="M8 10v3.4M6.3 11.7h3.4"/></svg>""",
@@ -514,10 +514,10 @@ public static class ReportWriter
         ["Lucky Locator"] = ItemSvg + """<circle class="f" cx="9" cy="9" r="3"/><circle class="f" cx="15" cy="9" r="3"/><circle class="f" cx="9" cy="15" r="3"/><circle class="f" cx="15" cy="15" r="3"/><path d="m15.5 15.5 4 5"/></svg>""",
         ["Extraction Accelerator"] = ItemSvg + """<path class="f" d="M13.5 2.5 4.5 14h7l-1 7.5 9-11.5h-7z"/></svg>""",
     };
-    private const string GemIconBig = ItemSvg + """<path class="f" d="M3 9.5 6.5 4h11L21 9.5z"/><path d="M3 9.5 12 21l9-11.5M9 9.5 12 21l3-11.5"/></svg>""";
+    internal const string GemIconBig = ItemSvg + """<path class="f" d="M3 9.5 6.5 4h11L21 9.5z"/><path d="M3 9.5 12 21l9-11.5M9 9.5 12 21l3-11.5"/></svg>""";
 
     /// <summary>Icono de un tesoro por su nombre: el del artilugio o el de su tipo; si no se sabe qué es, la gema.</summary>
-    private static string ItemIcon(string name) =>
+    internal static string ItemIcon(string name) =>
         Prizes.ByName(name) is { } p
             ? p.Type == Prizes.Kind.Gizmo ? GizmoIcons.GetValueOrDefault(p.Name, GemIconBig) : KindIcons.GetValueOrDefault(p.Type, GemIconBig)
             : GemIconBig;

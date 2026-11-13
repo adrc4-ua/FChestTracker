@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Nuevo diseño de la app**, el de la página de estadísticas: negro y oro, tarjetas con velo dorado, los mismos iconos y el cofre del logo. Ventana principal reorganizada (cofres abiertos y última partida juntos, fila de cifras con icono, semana con su media, botones como el menú de la página); Configuración, bienvenida y diálogos con el mismo estilo.
+- Corregido: al aparecer un aviso o la tarjeta de equipo, la ventana podía mostrar el error «Parameter is not valid».
 - **Overlay**: solo se ve con Fortnite abierto (sin minimizar) en alguna pantalla; entonces se puede poner en cualquier pantalla y sitio. No se puede sacar por los bordes al arrastrarlo. Al cerrar Fortnite con la ventana de FCT a la vista, solo se va el overlay. Se enciende al abrir Fortnite.
 - **Abrir y cerrar**: con Fortnite abierto, FCT arranca en segundo plano con el overlay; sin Fortnite, abre la ventana. La X de la ventana la deja en segundo plano si Fortnite está abierto (si no, cierra); la ✕ del overlay cierra FCT. En segundo plano se cierra solo al cerrar Fortnite, o desde Salir en el área de notificación.
 - La ventana avisa mientras lee una tanda de replays («Leyendo tus replays… 3 / 40»), como la página de estadísticas.
