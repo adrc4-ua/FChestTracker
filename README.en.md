@@ -124,8 +124,8 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 - **Also count as a chest**: ammo boxes, food boxes and loot cannons (off; nothing is deleted when you change it). Chests you **destroy** are always counted.
 - **Chests before FCT**: an estimate added to your total. With **Estimate…** (also asked the first time) you choose *saved replays only* or *replays + estimate*:
   - **Total matches**: look them up by your Epic name (if the build can) or read the number on [fortnite.gg](https://fortnite.gg/stats) and type it. If your stats are private, it says that is why they cannot be looked up.
-  - **Average chests per match**: calculated from your matches (you choose how many: 5 by default, **10 recommended**; the more, the closer) or typed by hand.
-  - **Estimate** = average × (total matches − matches FCT already counts). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). If matches are missing for the average, it is calculated after your next ones.
+  - **Average chests per match**: that of your replays together with the **new matches** you play from then on (you choose how many: 5 by default, **10 recommended**; the more, the closer). Each replay weighs as much as a new match, so the more replays you have, the more they count. Or type it by hand.
+  - **Estimate** = average × (total matches − replays already counted). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). Until you play the new matches you see a provisional estimate. With no replays, the past is the estimate alone.
 - **Updates**, **overlay for OBS**, **replays folder** and **Reset statistics** (with a backup).
 
 ## How it works (and why it is safe)

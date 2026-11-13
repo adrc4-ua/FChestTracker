@@ -115,8 +115,8 @@ public sealed class EstimateDialog : Form
         _typed.Click += (_, _) => SelectAverage(true);
         py += 30 + 10;
 
-        _calcArea = new Panel { Location = new Point(14, py), Size = new Size(inner, 90), BackColor = Color.Transparent };
-        var ay = AddText(_calcArea, L.T("Partidas para calcularla:", "Matches to calculate it:"), Theme.Text(8.75f), Theme.Muted, 0, 7, 150);
+        _calcArea = new Panel { Location = new Point(14, py), Size = new Size(inner, 98), BackColor = Color.Transparent };
+        var ay = AddText(_calcArea, L.T("Partidas nuevas:", "New matches:"), Theme.Text(8.75f), Theme.Muted, 0, 7, 150);
         var sx = 152;
         var sw = (inner - sx - 3 * 6) / HistoryEstimator.SampleChoices.Length;
         foreach (var n in HistoryEstimator.SampleChoices)
@@ -128,13 +128,13 @@ public sealed class EstimateDialog : Form
             _samples.Add(pill);
             sx += sw + 6;
         }
-        AddText(_calcArea, L.F("Por defecto {0}; recomendado {1} (★). Cuantas más partidas, más acertada será la estimación. Si {2} ya tiene más contadas, las usa todas; si le faltan, espera a tus próximas partidas.",
-                "Default {0}; recommended {1} (★). The more matches, the more accurate the estimate. If {2} already has more counted it uses them all; if it is missing some, it waits for your next matches.",
-                HistoryEstimator.DefaultSample, HistoryEstimator.RecommendedSample, AppInfo.ShortName),
+        AddText(_calcArea, L.F("Las que juegues a partir de ahora. Por defecto {0}; recomendado {1} (★): cuantas más, más acertada será la estimación. Tus repeticiones también entran en la media: cuantas más tengas, más peso tienen.",
+                "The ones you play from now on. Default {0}; recommended {1} (★): the more, the more accurate the estimate. Your replays also go into the average: the more you have, the more they weigh.",
+                HistoryEstimator.DefaultSample, HistoryEstimator.RecommendedSample),
             Theme.Text(8.25f), Theme.Muted, 0, 36, inner);
         _panel.Controls.Add(_calcArea);
 
-        _typedArea = new Panel { Location = new Point(14, py), Size = new Size(inner, 90), BackColor = Color.Transparent, Visible = false };
+        _typedArea = new Panel { Location = new Point(14, py), Size = new Size(inner, 98), BackColor = Color.Transparent, Visible = false };
         _average = Field(_typedArea, new Point(0, 0), 150, current?.ManualAverage is double typed ? typed.ToString("0.##", L.Culture) : "", Theme.Text(14f, FontStyle.Bold), Theme.Amber, 38);
         _average.MaxLength = 6;
         _average.KeyPress += (_, e) => e.Handled = !char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != ',' && e.KeyChar != '.';
@@ -142,12 +142,12 @@ public sealed class EstimateDialog : Form
         AddText(_typedArea, L.T("cofres por partida (por ejemplo 18,5). Se usa tal cual, sin esperar partidas.", "chests per match (for example 18.5). Used as is, with no waiting."),
             Theme.Text(8.5f), Theme.Muted, 162, 2, inner - 162);
         _panel.Controls.Add(_typedArea);
-        py += 90 + 6;
+        py += 98 + 6;
 
         // 3 · Resultado, al momento.
-        _preview = new Label { Location = new Point(14, py), Size = new Size(inner, 44), Font = Theme.Text(9.25f, FontStyle.Bold), ForeColor = Theme.Cyan, BackColor = Color.Transparent };
+        _preview = new Label { Location = new Point(14, py), Size = new Size(inner, 60), Font = Theme.Text(9.25f, FontStyle.Bold), ForeColor = Theme.Cyan, BackColor = Color.Transparent };
         _panel.Controls.Add(_preview);
-        py += 44 + 10;
+        py += 60 + 10;
         _panel.Size = new Size(pw, py);
         Controls.Add(_panel);
 
@@ -238,19 +238,29 @@ public sealed class EstimateDialog : Form
         {
             _preview.Text = typed is double a
                 ? L.F("Media {0} × las partidas que no tenga {1} → se calcula en cuanto se cuenten tus repeticiones.", "Average {0} × the matches {1} does not have → calculated as soon as your replays are counted.", a.ToString("0.##", L.Culture), AppInfo.ShortName)
-                : L.F("Se calcula en cuanto se cuenten tus repeticiones (si no llegan a {0}, tras tus próximas partidas).", "Calculated as soon as your replays are counted (if there are fewer than {0}, after your next matches).", _sample);
+                : L.F("Se calculará tras tus {0} próximas partidas, junto con tus repeticiones (cuantas más tengas, más pesan en la media).",
+                    "It will be calculated after your next {0} matches, together with your replays (the more you have, the more they weigh).", _sample);
             return;
         }
         var r = _previewOf(total, _sample, typed);
-        _preview.Text = r.Chests is int chests
-            ? L.F("Media de {0} cofres{1} → ≈ {2} cofres de antes.", "Average {0} chests{1} → ≈ {2} earlier chests.",
-                (r.Average ?? 0).ToString(r.RoundedDown ? "0" : "0.##", L.Culture),
-                typed != null ? L.T(" (escrita por ti)", " (typed by you)")
-                    : L.F(" en {0}{1}", " over {0}{1}", L.Count(r.Counted, "partida", "partidas", "match", "matches"), r.RoundedDown ? L.T(", redondeada hacia abajo", ", rounded down") : ""),
-                chests.ToString("#,0", L.Culture))
-            : L.F("{0} tiene {1}: se calculará tras {2} más, con la media redondeada hacia abajo si no había ninguna.",
-                "{0} has {1}: it will be calculated after {2} more, with the average rounded down if there were none.",
-                AppInfo.ShortName, L.Count(r.Counted, "partida contada", "partidas contadas", "counted match", "counted matches"), L.Count(r.Waiting, "partida", "partidas", "match", "matches"));
+        string Avg(double v) => v.ToString(r.RoundedDown ? "0" : "0.##", L.Culture);
+        if (r.Chests is int chests)
+        {
+            var from = typed != null
+                ? L.T("escrita por ti", "typed by you")
+                : L.F("{0} + {1}{2}", "{0} + {1}{2}", L.Count(r.Replays, "repetición", "repeticiones", "replay", "replays"),
+                    L.Count(r.NewMatches, "partida nueva", "partidas nuevas", "new match", "new matches"), r.RoundedDown ? L.T(", redondeada hacia abajo", ", rounded down") : "");
+            _preview.Text = L.F("Media de {0} cofres ({1}) → ≈ {2} cofres de antes.", "Average {0} chests ({1}) → ≈ {2} earlier chests.",
+                Avg(r.Average ?? 0), from, chests.ToString("#,0", L.Culture));
+            return;
+        }
+        _preview.Text = r.Provisional is int provisional
+            ? L.F("Ahora: media de {0} en {1} → ≈ {2} (provisional). Se fija tras tus próximas {3}, que entran en la media junto a las repeticiones.",
+                "Now: average {0} over {1} → ≈ {2} (provisional). It is fixed after your next {3}, which join the replays in the average.",
+                Avg(r.Average ?? 0), L.Count(r.Replays, "repetición", "repeticiones", "replay", "replays"), provisional.ToString("#,0", L.Culture),
+                L.Count(r.Waiting, "partida", "partidas", "match", "matches"))
+            : L.F("Sin repeticiones: se calculará tras tus próximas {0}, con la media redondeada hacia abajo.",
+                "No replays: it will be calculated after your next {0}, with the average rounded down.", L.Count(r.Waiting, "partida", "partidas", "match", "matches"));
     }
 
     private async Task LookUp(PillButton button)
@@ -345,8 +355,9 @@ public sealed class EstimateDialog : Form
 
     private static int AddText(Control parent, string text, Font font, Color color, int x, int y, int width)
     {
-        var size = TextRenderer.MeasureText(text, font, new Size(width, 0), TextFormatFlags.WordBreak);
-        parent.Controls.Add(new Label { Text = text, Font = font, ForeColor = color, BackColor = Color.Transparent, Location = new Point(x, y), Size = new Size(width, size.Height + 2) });
-        return y + size.Height + 2;
+        // La etiqueta se mide sola (con el ancho máximo): así nunca corta la última línea.
+        var label = new Label { Text = text, Font = font, ForeColor = color, BackColor = Color.Transparent, Location = new Point(x, y), AutoSize = true, MaximumSize = new Size(width, 0) };
+        parent.Controls.Add(label);
+        return y + label.PreferredHeight + 2;
     }
 }
