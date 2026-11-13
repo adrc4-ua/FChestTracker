@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
-using FCT;
 
 /// <summary>
 /// Punto de entrada. Main lleva [STAThread]: Windows exige un hilo STA para el portapapeles y los diálogos
@@ -282,7 +281,7 @@ internal static class Program
 
         // ---- Ventana -------------------------------------------------------------------------------------
         // Si el análisis cambió, los replays se vuelven a leer en silencio (sin duplicados): no hace falta avisar.
-        var monitor = new FCT.Monitor(store, config, data, tracker, dataDir) { AutoMode = auto };
+        var monitor = new AppMonitor(store, config, data, tracker, dataDir) { AutoMode = auto };
 
         var form = new MainForm(monitor, store);
         monitor.CloseRequested += () =>

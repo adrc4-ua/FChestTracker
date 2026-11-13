@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationIcon>Assets/app.ico</ApplicationIcon>
     <!-- FCT.exe; Windows shows the long name (Task Manager, file properties). -->
     <AssemblyName>FCT</AssemblyName>
     <Product>Fortnite Chest Tracker</Product>
@@ -20,6 +20,6 @@
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\FortniteReplayReader\FortniteReplayReader.csproj" />
+    <ProjectReference Include="..\..\external\FortniteReplayDecompressor\FortniteReplayReader\FortniteReplayReader.csproj" />
   </ItemGroup>
 </Project>

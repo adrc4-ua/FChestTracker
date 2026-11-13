@@ -8,7 +8,7 @@
 
 **Cuenta cada cofre que abres en Fortnite, partida tras partida: ventana, informe, overlay sobre el juego y los cofres de tu equipo.**
 
-<img src="docs/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/report-hero.png" alt="Informe" width="49%">
+<img src="docs/images/main.png" alt="Ventana principal" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Informe" width="49%">
 
 [**⬇ Descargar FCT.exe**](../../releases/latest) · Windows 10 / 11 · gratis · sin instalación · 10 idiomas
 
@@ -34,7 +34,7 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
    > Windows puede mostrar *"Windows protegió tu PC"* porque el exe no está firmado. Haz clic en *Más información → Ejecutar de todas formas*.
 4. La bienvenida te recuerda lo de las repeticiones y, si ya tienes replays en el PC, te deja **contarlos** o empezar **solo con las próximas partidas**.
 
-<p align="center"><img src="docs/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
+<p align="center"><img src="docs/images/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
 
 5. Déjalo abierto mientras juegas. Al abrirlo solo aparece el **overlay**: la ventana principal queda en segundo plano, con su icono en el área de notificación (la flecha **^** de la barra de tareas). Un clic en el icono, o abrir el programa otra vez, la trae delante; con clic derecho tienes overlay, informe, ajustes y salir. La primera vez, o si el overlay está desactivado, la ventana se abre como siempre. Durante la partida FCT lee el replay que se está grabando y suma los cofres **en directo**; al terminar, se confirman.
 
@@ -43,7 +43,7 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 
 ## La ventana principal
 
-<p align="center"><img src="docs/main.png" alt="Ventana principal" width="680"></p>
+<p align="center"><img src="docs/images/main.png" alt="Ventana principal" width="680"></p>
 
 - **Arriba a la izquierda**: tu total de cofres, la última partida (o la actual, en verde, mientras juegas) y la sesión.
 - **A la derecha**: hoy, el mejor día, la media, la mejor partida, el histórico (partidas guardadas y desde cuándo) y los tesoros.
@@ -65,15 +65,15 @@ La ventana se puede redimensionar y maximizar: todo crece en proporción.
 | **Partidas** | Las 100 últimas: modo, puesto (🏆 victoria, top 10 en verde), eliminaciones, cofres, tesoros y, con compañeros, el equipo. |
 | **Compañeros** | Cofres del equipo, **top de compañeros**, la tabla **por partida** y todos tus compañeros (ver abajo). |
 
-<p align="center"><img src="docs/report-companeros.png" alt="Pestaña Compañeros del informe" width="820"></p>
+<p align="center"><img src="docs/images/report-companeros.png" alt="Pestaña Compañeros del informe" width="820"></p>
 
 <details>
 <summary><b>Ver las demás pestañas</b></summary>
 
-<p align="center"><img src="docs/report-resumen.png" alt="Resumen" width="820"></p>
-<p align="center"><img src="docs/report-cofres.png" alt="Cofres" width="820"></p>
-<p align="center"><img src="docs/report-tesoros.png" alt="Tesoros" width="820"></p>
-<p align="center"><img src="docs/report-partidas.png" alt="Partidas" width="820"></p>
+<p align="center"><img src="docs/images/report-resumen.png" alt="Resumen" width="820"></p>
+<p align="center"><img src="docs/images/report-cofres.png" alt="Cofres" width="820"></p>
+<p align="center"><img src="docs/images/report-tesoros.png" alt="Tesoros" width="820"></p>
+<p align="center"><img src="docs/images/report-partidas.png" alt="Partidas" width="820"></p>
 
 </details>
 
@@ -92,7 +92,7 @@ Con **Sumar sus cofres a tu total** (también desactivado), tu total, media, ré
 
 ## El overlay
 
-<p align="center"><img src="docs/overlay-espera.png" alt="Overlay entre dos partidas" width="300">&nbsp;&nbsp;<img src="docs/overlay-en-vivo.png" alt="Overlay en directo durante una partida" width="300"></p>
+<p align="center"><img src="docs/images/overlay-espera.png" alt="Overlay entre dos partidas" width="300">&nbsp;&nbsp;<img src="docs/images/overlay-en-vivo.png" alt="Overlay en directo durante una partida" width="300"></p>
 
 - **Cifras grandes**: tu **total** de cofres y, en el recuadro, la partida **anterior** (o la **actual**, en directo, mientras juegas).
 - **Sesión**, **media** de la sesión, **anterior** (durante una partida) y **tesoros**.
@@ -112,7 +112,7 @@ Para verlo sobre el juego, pon Fortnite en **Pantalla completa en ventana** (*Aj
 
 ## Ajustes
 
-<p align="center"><img src="docs/settings.png" alt="Ajustes" width="620"></p>
+<p align="center"><img src="docs/images/settings.png" alt="Ajustes" width="620"></p>
 
 - **Idioma**: por defecto el de Windows; arriba puedes elegir otro (español, inglés, portugués, ruso, francés, alemán, italiano, polaco, turco o japonés).
 - **Abrir con Fortnite**: un pequeño proceso invisible abre FCT en segundo plano cuando arranca Fortnite y lo cierra 30 s después de cerrarlo. No lee nada del juego: solo mira la lista de programas en marcha.
@@ -190,7 +190,25 @@ FCT.exe --overlay-preview <archivo.png>   guarda vistas previas del overlay y se
 
 ## Compilar desde el código
 
-Instala el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) y haz doble clic en **`build.bat`**: el exe se genera en `dist\FCT.exe`. GitHub Actions compila el exe en cada push y lo publica cuando se sube una etiqueta `v*`.
+Instala el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) y haz doble clic en **`build.bat`**: el exe se genera en `dist\FCT.exe`. También puedes abrir `FCT.slnx` en Visual Studio o VS Code. GitHub Actions compila el exe en cada push; al publicar una release en GitHub, le adjunta `FCT.exe`. Los cambios de cada versión están en [CHANGELOG.md](CHANGELOG.md).
+
+### Estructura del proyecto
+
+```
+src/FCT/                     la aplicación (FCT.exe)
+├─ Program.cs                arranque y opciones de línea de comandos
+├─ App/                      versión, actualizaciones, inicio con Fortnite, traslado de datos, registro de errores
+├─ Analysis/                 lectura de replays: cofres, tesoros, premios, perfiles
+├─ Data/                     lo que se guarda: partidas, ajustes y el almacén JSON
+├─ Monitoring/               el proceso en segundo plano (vigila replays, overlay y actualizaciones)
+├─ Overlay/                  overlay sobre el juego y su versión para OBS
+├─ Reporting/                informe HTML
+├─ UI/                       ventana principal, ajustes y controles
+├─ Localization/             textos en los 10 idiomas
+└─ Assets/                   icono
+external/FortniteReplayDecompressor/   librería de replays (modificada: ver PATCHES.md)
+docs/images/                 capturas de este README
+```
 
 ## Licencia y créditos
 

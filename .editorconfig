@@ -1,0 +1,27 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,csproj,props,slnx,xml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# One namespace per folder (FCT.Analysis, FCT.UI…), file-scoped.
+csharp_style_namespace_declarations = file_scoped:suggestion
+dotnet_style_namespace_match_folder = true:suggestion
+csharp_style_var_for_built_in_types = true:silent
+csharp_style_var_when_type_is_apparent = true:silent
+csharp_prefer_braces = true:suggestion
+
+# The modified replay library keeps its own style.
+[external/**.cs]
+dotnet_style_namespace_match_folder = false

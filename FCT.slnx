@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/external/" />
+  <Folder Name="/external/FortniteReplayDecompressor/">
+    <Project Path="external/FortniteReplayDecompressor/FortniteReplayReader/FortniteReplayReader.csproj" />
+    <Project Path="external/FortniteReplayDecompressor/OozSharp/OozSharp.csproj" />
+    <Project Path="external/FortniteReplayDecompressor/Unreal.Core/Unreal.Core.csproj" />
+    <Project Path="external/FortniteReplayDecompressor/Unreal.Encryption/Unreal.Encryption.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FCT/FCT.csproj" />
+  </Folder>
+</Solution>

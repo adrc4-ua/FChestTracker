@@ -8,7 +8,7 @@
 
 **Counts every chest you open in Fortnite, match after match: window, report, in-game overlay and your team's chests.**
 
-<img src="docs/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/report-hero.png" alt="Report" width="49%">
+<img src="docs/images/main.png" alt="Main window" width="49%">&nbsp;<img src="docs/images/report-hero.png" alt="Report" width="49%">
 
 [**⬇ Download FCT.exe**](../../releases/latest) · Windows 10 / 11 · free · no install · 10 languages
 
@@ -34,7 +34,7 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
    > Windows may show *"Windows protected your PC"* because the exe is not signed. Click *More info → Run anyway*.
 4. The welcome screen reminds you about replays and, if there are already replays on your PC, lets you **count them** or start with **your next matches only**.
 
-<p align="center"><img src="docs/setup.png" alt="First-run welcome" width="520"></p>
+<p align="center"><img src="docs/images/setup.png" alt="First-run welcome" width="520"></p>
 
 5. Leave it running while you play. When it opens only the **overlay** shows: the main window stays in the background, with its icon in the notification area (the **^** arrow on the taskbar). Click the icon, or open the program again, to bring it to the front; right-click for overlay, report, settings and exit. On first use, or with the overlay turned off, the window opens as usual. During the match FCT reads the replay being recorded and adds the chests **live**; when the match ends they are confirmed.
 
@@ -43,7 +43,7 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 
 ## The main window
 
-<p align="center"><img src="docs/main.png" alt="Main window" width="680"></p>
+<p align="center"><img src="docs/images/main.png" alt="Main window" width="680"></p>
 
 - **Top left**: your chest total, the last match (or the current one, in green, while you play) and the session.
 - **Right**: today, best day, average, best match, history (saved matches and since when) and treasures.
@@ -65,15 +65,15 @@ The window can be resized and maximized: everything grows in proportion.
 | **Matches** | The latest 100: mode, placement (🏆 win, top 10 in green), eliminations, chests, treasures and, with teammates, the team. |
 | **Teammates** | Team chests, **top teammates**, the **per match** table and all your teammates (see below). |
 
-<p align="center"><img src="docs/report-companeros.png" alt="Teammates tab of the report" width="820"></p>
+<p align="center"><img src="docs/images/report-companeros.png" alt="Teammates tab of the report" width="820"></p>
 
 <details>
 <summary><b>See the other tabs</b></summary>
 
-<p align="center"><img src="docs/report-resumen.png" alt="Overview" width="820"></p>
-<p align="center"><img src="docs/report-cofres.png" alt="Chests" width="820"></p>
-<p align="center"><img src="docs/report-tesoros.png" alt="Treasures" width="820"></p>
-<p align="center"><img src="docs/report-partidas.png" alt="Matches" width="820"></p>
+<p align="center"><img src="docs/images/report-resumen.png" alt="Overview" width="820"></p>
+<p align="center"><img src="docs/images/report-cofres.png" alt="Chests" width="820"></p>
+<p align="center"><img src="docs/images/report-tesoros.png" alt="Treasures" width="820"></p>
+<p align="center"><img src="docs/images/report-partidas.png" alt="Matches" width="820"></p>
 
 </details>
 
@@ -92,7 +92,7 @@ With **Add their chests to your total** (also off), your total, average, records
 
 ## The overlay
 
-<p align="center"><img src="docs/overlay-espera.png" alt="Overlay between two matches" width="300">&nbsp;&nbsp;<img src="docs/overlay-en-vivo.png" alt="Overlay live during a match" width="300"></p>
+<p align="center"><img src="docs/images/overlay-espera.png" alt="Overlay between two matches" width="300">&nbsp;&nbsp;<img src="docs/images/overlay-en-vivo.png" alt="Overlay live during a match" width="300"></p>
 
 - **Big numbers**: your chest **total** and, in the box, the **previous** match (or the **current** one, live, while you play).
 - **Session**, session **average**, **previous** (during a match) and **treasures**.
@@ -112,7 +112,7 @@ Streaming? While FCT is open, the same overlay is at **http://localhost:7373/** 
 
 ## Settings
 
-<p align="center"><img src="docs/settings.png" alt="Settings" width="620"></p>
+<p align="center"><img src="docs/images/settings.png" alt="Settings" width="620"></p>
 
 - **Language**: the Windows language by default; at the top you can pick another (Spanish, English, Portuguese, Russian, French, German, Italian, Polish, Turkish or Japanese).
 - **Open with Fortnite**: a small invisible process opens FCT in the background when Fortnite starts and closes it 30 s after Fortnite closes. It reads nothing from the game: it only looks at the list of running programs.
@@ -190,7 +190,25 @@ FCT.exe --overlay-preview <file.png>   save overlay previews and quit
 
 ## Building from source
 
-Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) and double-click **`build.bat`**: the exe goes to `dist\FCT.exe`. GitHub Actions builds the exe on every push and publishes it when a `v*` tag is pushed.
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (Windows x64) and double-click **`build.bat`**: the exe goes to `dist\FCT.exe`. You can also open `FCT.slnx` in Visual Studio or VS Code. GitHub Actions builds the exe on every push; when a release is published on GitHub, it attaches `FCT.exe` to it. What changed in each version is in [CHANGELOG.md](CHANGELOG.md) (Spanish).
+
+### Project structure
+
+```
+src/FCT/                     the app (FCT.exe)
+├─ Program.cs                startup and command line options
+├─ App/                      version, updates, start with Fortnite, data move, error log
+├─ Analysis/                 replay reading: chests, treasures, prizes, profiles
+├─ Data/                     what is saved: matches, settings and the JSON store
+├─ Monitoring/               the background process (watches replays, overlay and updates)
+├─ Overlay/                  in-game overlay and its OBS version
+├─ Reporting/                HTML report
+├─ UI/                       main window, settings and controls
+├─ Localization/             texts in the 10 languages
+└─ Assets/                   icon
+external/FortniteReplayDecompressor/   replay library (modified: see PATCHES.md)
+docs/images/                 screenshots of this README
+```
 
 ## License and credits
 

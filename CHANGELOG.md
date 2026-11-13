@@ -1,0 +1,62 @@
+# Cambios
+
+Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
+
+## [Sin publicar]
+
+- Informe: sin pie de página; la caza del tesoro pasa al Resumen (premios de la semana como fichas, el resto plegado).
+- Ventana: los avisos se quitan solos y ya no tapan los botones; fuera el aviso de reanálisis.
+- Estructura del proyecto: código por carpetas (`App`, `Analysis`, `Data`, `Monitoring`, `Overlay`, `Reporting`, `UI`, `Localization`), librería de replays en `external/`, solución `FCT.slnx`.
+
+## [2.0.2] - 2026-11-12
+
+- Sin aviso al volver a leer los replays tras un cambio del análisis.
+
+## [2.0.1] - 2026-11-12
+
+- Los avisos de la ventana se quitan a los 20 s y vuelven los botones Overlay, Informe y Ajustes.
+
+## [2.0.0] - 2026-11-12
+
+Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede actualizarse sola (hay que descargar `FCT.exe` una vez).
+
+- Al abrir la versión nueva, el historial de la v1.0.0 se traslada solo (si la v1.0.0 está abierta, pide cerrarla).
+- Fuera los nombres y el código de versiones anteriores.
+
+## [1.5.0] - 2026-11-12
+
+- Overlay: botón de cerrar a la derecha del candado (cierra la aplicación).
+
+## [1.4.0] - 2026-11-12
+
+- Informe en negro y dorado.
+- Tesoros destacados con su nombre y su tipo, sin ids internos; catálogo de premios de la caza del tesoro por semana.
+- Nombres de los cofres del juego (Cofre de espíritu, Cofre raro…).
+
+## [1.3.0] - 2026-11-12
+
+- Nuevo nombre: Fortnite Chest Tracker (FCT); el exe pasa a ser `FCT.exe`.
+- Actualizar y "Abrir con Fortnite" funcionan aunque el exe tenga otro nombre.
+
+## [1.2.0] - 2026-11-12
+
+- Al abrir solo se ve el overlay; la ventana queda en el área de notificación (flecha ^) y se recupera con un clic o abriendo el programa otra vez.
+
+## [1.1.0] - 2026-11-12
+
+- Partidas: se registra la eliminación definitiva; el informe avisa de que los tesoros del escuadrón posteriores no quedan en el replay.
+
+## [1.0.0] - 2026-11-11
+
+- Primera versión publicada.
+
+[Sin publicar]: https://github.com/adrc4-ua/FChestTracker/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/adrc4-ua/FChestTracker/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/adrc4-ua/FChestTracker/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.5.0...v2.0.0
+[1.5.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/adrc4-ua/FChestTracker/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/adrc4-ua/FChestTracker/releases/tag/v1.0.0
