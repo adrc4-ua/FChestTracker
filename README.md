@@ -239,14 +239,20 @@ docs/images/                 capturas de este README
 
 ## Licencia, créditos y avisos legales
 
-FCT es software libre con la [licencia MIT](LICENSE). Todo lo externo que usa, con su licencia o sus condiciones, está en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) (también dentro del exe: `FCT.exe --licenses`).
+**Copyright © 2026 Adrián Ruiz.** FCT es software libre con la licencia [GNU GPL versión 3](LICENSE) y las condiciones adicionales de [NOTICE.md](NOTICE.md) (las versiones hasta la 4.4.1 se publicaron con MIT y siguen siéndolo):
+
+- Puedes usarlo, estudiarlo, modificarlo y compartirlo.
+- Si distribuyes FCT o algo basado en él (gratis o de pago), debes publicar todo el código con esta misma licencia, **mencionar al autor y este repositorio** («Based on Fortnite Chest Tracker by Adrián Ruiz — https://github.com/adrc4-ua/Fortnite-Chest-Tracker») e indicar que es una versión modificada; no puede ser de código cerrado ni presentarse como el FCT original.
+- Te pido, sin que sea una condición de la licencia, que **me avises antes** de publicar algo basado en este código, abriendo un [issue](../../issues).
+
+Todo lo externo que usa, con su licencia o sus condiciones, está en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Todo esto va también dentro del exe (`FCT.exe --licenses`) y en **Acerca de y licencia**, en el menú del icono de FCT.
 
 **Código y origen**
 
 | | Para qué | Licencia |
 |---|---|---|
 | [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan | Leer y descomprimir las repeticiones. Va incluido en `external/`, con cambios propios descritos en [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md). | MIT |
-| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | FCT es un fork de ChestCounter: partió de su idea, su código y su historial (hasta el 11/11/2026) y desde entonces evoluciona por separado. Parte de su código sigue en FCT, así que su aviso de copyright se conserva en [LICENSE](LICENSE). | MIT |
+| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | FCT es un fork de ChestCounter: partió de su idea, su código y su historial (hasta el 11/11/2026) y desde entonces evoluciona por separado. Parte de su código sigue en FCT, así que su aviso de copyright y su licencia MIT se conservan en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). | MIT |
 | [.NET](https://github.com/dotnet/runtime) y Windows Forms | El exe lleva el runtime de .NET dentro, para no tener que instalar nada. | MIT |
 
 **Servicios** (ninguno recibe datos sin que lo pidas; detalle en la [política de privacidad](CODE_SIGNING_POLICY.md#privacy-policy))

@@ -12,8 +12,9 @@ and submitted to SignPath from that workflow ([artifact configuration](.signpath
 built outside GitHub Actions is signed, and only release builds (tags `vX.Y.Z`) are signed. The product name
 (*Fortnite Chest Tracker*) and the version are in the executable's metadata.
 
-The whole project, including every third-party component in the executable, uses the MIT license (OSI-approved, no
-commercial dual-licensing). The third-party code is listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md):
+The project uses the GNU GPL version 3 (GPL-3.0-only, OSI-approved; its additional terms in [NOTICE.md](NOTICE.md)
+are the attribution and origin terms its section 7 allows), with no commercial dual-licensing. Every third-party
+component in the executable uses the MIT license (OSI-approved). The third-party code is listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md):
 FortniteReplayDecompressor (MIT, with the changes described in `external/FortniteReplayDecompressor/PATCHES.md`) and
 the .NET runtime (MIT).
 
@@ -58,7 +59,8 @@ Firma de código gratuita de [SignPath.io](https://about.signpath.io/), certific
 
 - **Qué se firma:** solo `FCT.exe` de las releases, compilado desde este repositorio por GitHub Actions y enviado a
   SignPath desde ese flujo. Nada compilado fuera de GitHub Actions se firma.
-- **Licencias:** todo el proyecto, incluido el código de terceros del exe, es MIT (ver
+- **Licencias:** el proyecto es GNU GPL versión 3 (aprobada por la OSI), con las condiciones de atribución que permite
+  su sección 7 ([NOTICE.md](NOTICE.md)), sin licencia comercial aparte; el código de terceros del exe es MIT (ver
   [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
 - **Funciones del equipo:** autor, revisor y aprobador: [@adrc4-ua](https://github.com/adrc4-ua). Cada firma la
   aprueba a mano el aprobador; todos usan autenticación en dos pasos en GitHub y SignPath.

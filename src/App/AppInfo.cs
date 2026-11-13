@@ -48,11 +48,11 @@ public static class AppInfo
     public const string StandbyMutex = @"Local\FCT.Standby";
     public const string StandbyStopEvent = @"Local\FCT.StandbyStop";
 
-    /// <summary>--licenses: the license and the third-party notices embedded in the exe (MIT asks them to travel with it).</summary>
+    /// <summary>--licenses: copyright and terms (NOTICE.md), third-party notices and the GPL-3.0 text, embedded in the exe.</summary>
     public static int PrintLicenses()
     {
         var assembly = typeof(AppInfo).Assembly;
-        foreach (var name in new[] { "FCT.LICENSE", "FCT.THIRD_PARTY_NOTICES.md" })
+        foreach (var name in new[] { "FCT.NOTICE.md", "FCT.THIRD_PARTY_NOTICES.md", "FCT.LICENSE" })
         {
             using var stream = assembly.GetManifestResourceStream(name);
             if (stream == null)

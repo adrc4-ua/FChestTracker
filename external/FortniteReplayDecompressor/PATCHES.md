@@ -1,6 +1,6 @@
 # Changes made to FortniteReplayDecompressor
 
-Original code: https://github.com/Shiqan/FortniteReplayDecompressor (MIT license, see [LICENSE](LICENSE) in this folder and the project's [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md)), commit 76f74c1.
+Original code: https://github.com/Shiqan/FortniteReplayDecompressor (MIT license, see [LICENSE](LICENSE) in this folder and the project's [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md); these files keep the MIT license, the rest of FCT is GPL-3.0), commit 76f74c1.
 
 Changes for FCT (Fortnite Chest Tracker):
 

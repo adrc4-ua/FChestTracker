@@ -200,6 +200,7 @@ public sealed class MainForm : ThemedForm
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Overlay", "Overlay"), null, (_, _) => _monitor.ToggleOverlay()));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Estadísticas", "Stats"), null, (_, _) => Open(_monitor.ReportTarget)));
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Configuración", "Settings"), null, (_, _) => { ShowFromTray(); OpenSettings(); }));
+        trayMenu.Items.Add(new ToolStripMenuItem(L.T("Acerca de y licencia", "About and license"), null, (_, _) => ShowAbout()));
         trayMenu.Items.Add(new ToolStripSeparator());
         trayMenu.Items.Add(new ToolStripMenuItem(L.T("Salir", "Exit"), null, (_, _) => ExitApp()));
         foreach (ToolStripItem item in trayMenu.Items)
@@ -676,6 +677,33 @@ public sealed class MainForm : ThemedForm
         e.Graphics.FillRectangle(back, e.Bounds);
         TextRenderer.DrawText(e.Graphics, _profile.Items[e.Index]?.ToString(), _profile.Font, e.Bounds, selected ? Theme.GoldHi : Theme.Ink,
             TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+    }
+
+    /// <summary>
+    /// Avisos legales de la GPL-3.0 (su sección 0, «Appropriate Legal Notices», y la atribución de NOTICE.md): copyright,
+    /// sin garantía, licencia y cómo verla. Desde el menú del icono; «Ver licencia» abre NOTICE.md en GitHub.
+    /// </summary>
+    private void ShowAbout()
+    {
+        var owner = Visible ? this : null;
+        var view = InfoDialog.Confirm(owner, $"{AppInfo.Name} {AppInfo.VersionText}",
+            L.T("Copyright © 2026 Adrián Ruiz", "Copyright © 2026 Adrián Ruiz") + "\n" + AppInfo.RepoUrl,
+            new[]
+            {
+                new InfoPoint(Icons.Info, Theme.GoldHi, L.T("Software libre: GPL-3.0", "Free software: GPL-3.0"),
+                    L.T("Puedes usarlo, modificarlo y compartirlo con esa licencia y sus condiciones (mencionar al autor y este repositorio). Las versiones hasta la 4.4.1 se publicaron con MIT.",
+                        "You can use, change and share it under that license and its terms (credit the author and this repository). Versions up to 4.4.1 were released under MIT.")),
+                new InfoPoint(Icons.Warning, Theme.GoldHi, L.T("Sin garantía", "No warranty"),
+                    L.T("Se ofrece tal cual, sin garantía de ningún tipo.", "It is provided as is, without any warranty.")),
+                new InfoPoint(Icons.Folder, Theme.GoldHi, L.T("Código de terceros", "Third-party code"),
+                    L.T("Basado en ChestCounter (© 2026 LED-N, MIT). Usa FortniteReplayDecompressor (© Shiqan, MIT) y .NET (MIT). No afiliado a Epic Games.",
+                        "Based on ChestCounter (© 2026 LED-N, MIT). Uses FortniteReplayDecompressor (© Shiqan, MIT) and .NET (MIT). Not affiliated with Epic Games.")),
+            },
+            L.T("Ver licencia", "View license"), L.T("Cerrar", "Close"), Icons.Info);
+        if (view)
+        {
+            Open(AppInfo.RepoUrl + "/blob/main/NOTICE.md");
+        }
     }
 
     private static void Open(string path)

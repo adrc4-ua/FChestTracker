@@ -1,12 +1,14 @@
 # Third-party notices · Avisos de terceros
 
-Fortnite Chest Tracker (FCT) is released under the [MIT License](LICENSE). This file lists everything external the
-project includes, is based on or connects to, with its license or terms. It is also embedded in `FCT.exe`
-(`FCT.exe --licenses` prints it).
+Fortnite Chest Tracker (FCT), Copyright (C) 2026 Adrián Ruiz, is released under the [GNU GPL version 3](LICENSE)
+with the additional terms in [NOTICE.md](NOTICE.md) (versions up to 4.4.1: MIT). This file lists everything external
+the project includes, is based on or connects to, with its license or terms; the third-party parts keep their own
+licenses. It is also embedded in `FCT.exe` (`FCT.exe --licenses` prints it).
 
-*FCT se publica con la [licencia MIT](LICENSE). Este archivo recoge todo lo externo que el proyecto incluye, en lo que
-se basa o a lo que se conecta, con su licencia o condiciones. También va dentro de `FCT.exe` (`FCT.exe --licenses` lo
-muestra).*
+*FCT, Copyright (C) 2026 Adrián Ruiz, se publica con la licencia GNU GPL versión 3 con las condiciones adicionales de
+NOTICE.md (hasta la 4.4.1: MIT). Este archivo recoge todo lo externo que el proyecto incluye, en lo que se basa o a lo
+que se conecta, con su licencia o condiciones; las partes de terceros conservan sus propias licencias. También va
+dentro de `FCT.exe` (`FCT.exe --licenses` lo muestra).*
 
 ---
 
@@ -24,16 +26,16 @@ FCT is a derived work (fork) of [ChestCounter](https://github.com/xdoofy92/Chest
 under the MIT license (© 2026 LED-N). FCT took its idea (counting the chests opened in Fortnite from its replay
 files), its code and its history up to 11 November 2026, and has evolved separately since then (treasures and the
 end-of-match screen, teammates, profiles, estimate of earlier matches, interface, overlay, start with Fortnite,
-distribution…). Part of ChestCounter's code is still in FCT, so its copyright notice is kept in [LICENSE](LICENSE),
-as the MIT license requires, and its full text is below. The commits of this repository up to 11 November 2026
+distribution…). Part of ChestCounter's code is still in FCT, so its copyright notice and MIT permission notice are kept
+(here and in [NOTICE.md](NOTICE.md)), as the MIT license requires; its full text is below. The commits of this repository up to 11 November 2026
 (up to "pend") come from ChestCounter and are the work of its author.
 
 *FCT es una obra derivada (fork) de ChestCounter, publicado por xdoofy92 con licencia MIT (© 2026 LED-N). FCT tomó su
 idea (contar los cofres abiertos en Fortnite a partir de sus repeticiones), su código y su historial hasta el 11 de
 noviembre de 2026, y desde entonces ha evolucionado por separado (tesoros y pantalla de fin de partida, compañeros,
 perfiles, estimado de partidas previas, interfaz, overlay, apertura con Fortnite, distribución…). Parte del código de
-ChestCounter sigue en FCT, así que su aviso de copyright se conserva en LICENSE, como exige la licencia MIT, y su texto
-completo está más abajo. Los commits de este repositorio hasta el 11 de noviembre de 2026 (hasta «pend») vienen de
+ChestCounter sigue en FCT, así que su aviso de copyright y de permiso MIT se conservan (aquí y en NOTICE.md), como exige
+la licencia MIT, y su texto completo está más abajo. Los commits de este repositorio hasta el 11 de noviembre de 2026 (hasta «pend») vienen de
 ChestCounter y son obra de su autor.*
 
 ## 3. Online services · Servicios en línea

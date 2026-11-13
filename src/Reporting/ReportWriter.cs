@@ -682,7 +682,7 @@ public static class ReportWriter
             <p class="offline-note" hidden>{offline}</p>
             <div class="card abouthero">
               {logo}<div class="ai"><b>{AppInfo.Name}</b><span class="ver">{L.F("Versión {0}", "Version {0}", AppInfo.VersionText)}</span><small>{L.T("Cuenta tus cofres de Fortnite a partir de tus replays.", "Counts your Fortnite chests from your replays.")}</small></div>
-              <div class="links"><a href="{AppInfo.RepoUrl}" target="_blank" rel="noopener">GitHub →</a><a href="{AppInfo.RepoUrl}/releases" target="_blank" rel="noopener">{L.T("Novedades", "What's new")} →</a><a href="{AppInfo.IssuesUrl}" target="_blank" rel="noopener">{L.T("Informar de un problema", "Report a problem")} →</a></div>
+              <div class="links"><a href="{AppInfo.RepoUrl}" target="_blank" rel="noopener">GitHub →</a><a href="{AppInfo.RepoUrl}/releases" target="_blank" rel="noopener">{L.T("Novedades", "What's new")} →</a><a href="{AppInfo.IssuesUrl}" target="_blank" rel="noopener">{L.T("Informar de un problema", "Report a problem")} →</a><a href="{AppInfo.RepoUrl}/blob/main/NOTICE.md" target="_blank" rel="noopener">© 2026 Adrián Ruiz · GPL-3.0 · {L.T("sin garantía", "no warranty")} →</a></div>
             </div>
             <div class="setgrid">
               <section><div class="sh"><h2>{L.T("Idioma", "Language")}</h2></div><div class="card set">

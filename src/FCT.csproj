@@ -16,7 +16,7 @@
     <Description>Fortnite Chest Tracker - counts the chests you open in Fortnite from its replays. Not affiliated with Epic Games.</Description>
     <Company>Fortnite Chest Tracker</Company>
     <Authors>adrc4-ua</Authors>
-    <Copyright>Copyright (c) 2026 Adrián Ruiz. MIT License. Fortnite is a trademark of Epic Games, Inc.</Copyright>
+    <Copyright>Copyright (C) 2026 Adrián Ruiz. GPL-3.0-only with additional terms (NOTICE.md). Fortnite is a trademark of Epic Games, Inc.</Copyright>
     <RootNamespace>FCT</RootNamespace>
     <Version>4.4.1</Version>
     <InvariantGlobalization>false</InvariantGlobalization>
@@ -30,7 +30,8 @@
   <ItemGroup>
     <!-- Also inside the exe as a resource: the report shows it as its logo. -->
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
-    <!-- The license and the third-party notices travel with the exe (MIT asks for it); the exe prints them with its licenses option. -->
+    <!-- The license and the third-party notices travel with the exe (the GPL and MIT ask for it); the exe prints them with its licenses option. -->
+    <EmbeddedResource Include="..\NOTICE.md" LogicalName="FCT.NOTICE.md" />
     <EmbeddedResource Include="..\LICENSE" LogicalName="FCT.LICENSE" />
     <EmbeddedResource Include="..\THIRD_PARTY_NOTICES.md" LogicalName="FCT.THIRD_PARTY_NOTICES.md" />
     <!-- Languages besides Spanish and English: one file per language (see Localization/Languages/README.md). -->
