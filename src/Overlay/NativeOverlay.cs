@@ -32,6 +32,33 @@ public static class NativeOverlay
     private static WndProcDelegate? _wndProc; // keep the delegate alive
     private static IntPtr _fontBig, _fontSmall, _brushBg;
     private static float _scale = 1f;
+    private static bool _forcedScale;
+
+    /// <summary>
+    /// Letras del overlay a la escala actual. ClearType «natural» (calidad 6) y ningún texto por debajo de 9 px: los
+    /// títulos pequeños (TOTAL, HOY, MEDIA…) a 8 px se veían borrosos.
+    /// </summary>
+    private static void CreateFonts()
+    {
+        foreach (var old in new[] { _fontBig, _fontSmall, _fontHeader, _fontCaption, _fontLabel, _fontStat, _fontIcon })
+        {
+            if (old != IntPtr.Zero)
+            {
+                DeleteObject(old);
+            }
+        }
+        int S(int v) => (int)Math.Round(v * _scale);
+        IntPtr Font(int px, int weight, string face = "Segoe UI") => CreateFontW(-S(px), 0, 0, 0, weight, 0, 0, 0, 1, 0, 0, ClearTypeNatural, 0, face);
+        _fontBig = Font(26, 800);
+        _fontSmall = Font(12, 500);
+        _fontHeader = Font(11, 700);
+        _fontCaption = Font(9, 600);
+        _fontLabel = Font(9, 700);
+        _fontStat = Font(13, 700);
+        _fontIcon = Font(14, 400, "Segoe MDL2 Assets");
+    }
+
+    private const uint ClearTypeNatural = 6;
 
     // Solo con el juego abierto: _visible es lo que pide el jugador (botón, Ctrl+Mayús+O); _inGame, si Fortnite está
     // abierto y sin minimizar en alguna pantalla. En pantalla solo cuando las dos se cumplen.
@@ -189,16 +216,12 @@ public static class NativeOverlay
                 System.Globalization.CultureInfo.InvariantCulture, out var forced) && forced is > 0.5f and < 5f)
         {
             _scale = forced;
+            _forcedScale = true;
         }
 
         int S(int v) => (int)Math.Round(v * _scale);
 
-        _fontBig = CreateFontW(-S(26), 0, 0, 0, 800, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
-        _fontSmall = CreateFontW(-S(11), 0, 0, 0, 500, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
-        _fontHeader = CreateFontW(-S(10), 0, 0, 0, 700, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
-        _fontCaption = CreateFontW(-S(8), 0, 0, 0, 600, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
-        _fontLabel = CreateFontW(-S(8), 0, 0, 0, 700, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
-        _fontStat = CreateFontW(-S(12), 0, 0, 0, 700, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe UI");
+        CreateFonts();
         _brushBg = CreateSolidBrush(Rgb(15, 19, 27));
         _brushBorder = CreateSolidBrush(Rgb(42, 51, 68));
         _brushLine = CreateSolidBrush(Rgb(34, 41, 56));
@@ -206,7 +229,6 @@ public static class NativeOverlay
         _brushGold = CreateSolidBrush(Rgb(255, 184, 77));
         _brushGreen = CreateSolidBrush(Rgb(61, 220, 151));
         _brushPill = CreateSolidBrush(Rgb(20, 58, 44));
-        _fontIcon = CreateFontW(-S(14), 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 5, 0, "Segoe MDL2 Assets");
 
         var hInstance = GetModuleHandleW(null);
         _wndProc = WndProc;
@@ -238,6 +260,13 @@ public static class NativeOverlay
             throw new InvalidOperationException("CreateWindowEx failed");
         }
 
+        // La escala del monitor donde queda el overlay (no la de la pantalla principal): con dos pantallas de distinta
+        // escala, la letra salía del tamaño del otro monitor.
+        if (!_offscreen && !_forcedScale && GetDpiForWindow(_hwnd) is var dpi and > 0 && Math.Abs(dpi / 96f - _scale) > 0.01f)
+        {
+            _scale = dpi / 96f;
+            CreateFonts();
+        }
         ApplyLock(_hwnd, _locked, notify: false);
         Relayout(_hwnd);
         if (_isGame != null && !_offscreen)
@@ -356,6 +385,17 @@ public static class NativeOverlay
 
             case WM_APP_TOGGLE:
                 SetVisible(hwnd, !_visible);
+                return IntPtr.Zero;
+
+            case WM_DPICHANGED:
+                // Movido a un monitor con otra escala: letras y tamaño a la nueva (el sitio lo pone Relayout).
+                if (!_forcedScale)
+                {
+                    _scale = ((int)((long)wParam & 0xFFFF)) / 96f;
+                    CreateFonts();
+                    _stableW = 0;
+                    Relayout(hwnd);
+                }
                 return IntPtr.Zero;
 
             case WM_APP_RECHECK:
@@ -818,6 +858,8 @@ public static class NativeOverlay
     private const uint MONITOR_DEFAULTTONEAREST = 2;
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] private static extern IntPtr MonitorFromRect(ref RECT rect, uint flags);
+    [DllImport("user32.dll")] private static extern uint GetDpiForWindow(IntPtr hwnd);
+    private const uint WM_DPICHANGED = 0x02E0;
     private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
     [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowsProc proc, IntPtr lParam);
     [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr hwnd);

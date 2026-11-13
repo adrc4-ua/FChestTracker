@@ -150,10 +150,9 @@ public sealed class MainForm : ThemedForm
         _statMatches = Tile(0, 2, L.T("Partidas", "Matches"), Icons.Matches, out _);
         _statTreasures = Tile(1, 2, L.T("Tesoros", "Treasures"), Icons.Treasure, out _);
 
-        // ---- Botones: como el menú de la página (Estadísticas resaltado) ------------------------------------------
+        // ---- Botones: como el menú de la página (Estadísticas con las letras en oro) -------------------------------
         _reportButton = Nav(L.T("Estadísticas", "Stats"), Icons.Summary, RightX, NavY);
-        _reportButton.BackColor = Theme.Accent;
-        _reportButton.HoverColor = Theme.AccentHover;
+        _reportButton.ForeColor = Theme.GoldBase; // igual que los otros, solo con las letras en oro
         _reportButton.Click += (_, _) => Open(_monitor.ReportTarget);
         _overlayButton = Nav(L.T("Overlay", "Overlay"), Icons.Overlay, RightX, NavY + NavH + NavGap);
         _overlayButton.Click += (_, _) => _monitor.ToggleOverlay();
@@ -629,10 +628,10 @@ public sealed class MainForm : ThemedForm
     {
         var card = new Card { Location = new Point(RightX + col * (TileW + TileGap), Top + row * (TileH + TileGap)), Size = new Size(TileW, TileH), Radius = 14 };
         Controls.Add(card);
-        caption = Lbl(card, text, 8f, FontStyle.Bold, Theme.Muted, new Point(11, 9), new Size(TileW - 11 - 34, 15));
-        card.Controls.Add(new IconTile { IconSvg = icon, Location = new Point(TileW - 9 - 22, 7), Size = new Size(22, 22) });
-        // La cifra empieza bajo el cuadro del icono (si lo pisara, lo taparía al pintarse).
-        var value = Lbl(card, "—", 15f, FontStyle.Bold, Theme.GoldBase, new Point(8, 30), new Size(TileW - 16, 25), display: true);
+        caption = Lbl(card, text, 8f, FontStyle.Bold, Theme.Muted, new Point(11, 8), new Size(TileW - 11 - 32, 15));
+        card.Controls.Add(new IconTile { IconSvg = icon, Location = new Point(TileW - 9 - 20, 7), Size = new Size(20, 20) });
+        // La cifra empieza bajo el cuadro del icono (si lo pisara, lo taparía al pintarse) y deja aire abajo.
+        var value = Lbl(card, "—", 15f, FontStyle.Bold, Theme.GoldBase, new Point(8, 26), new Size(TileW - 16, 25), display: true);
         ((FitLabel)value).Gold = true;
         return value;
     }

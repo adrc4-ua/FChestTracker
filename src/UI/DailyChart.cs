@@ -51,7 +51,8 @@ public sealed class DailyChart : Control
     {
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
-        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+        // Los textos van con TextRenderer (GDI y ClearType, como las etiquetas de la ventana): con el antialiasado de
+        // GDI+ las cifras pequeñas se veían borrosas.
         if (_days.Count < 2)
         {
             return;
@@ -63,11 +64,18 @@ public sealed class DailyChart : Control
         using var fontToday = new Font(Font.FontFamily, Font.Size, FontStyle.Bold);
         using var fontAvg = new Font(Font.FontFamily, Font.Size * 0.88f, FontStyle.Bold);
         var dayH = fontDay.GetHeight(g.DpiY);
+        Size Measure(string text, Font font) => TextRenderer.MeasureText(g, text, font, Size.Empty, TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+        void Write(string text, Font font, Color color, float x, float y) =>
+            TextRenderer.DrawText(g, text, font, new Point((int)Math.Round(x), (int)Math.Round(y)), color, TextFormatFlags.NoPadding | TextFormatFlags.SingleLine);
+        var valueH = Measure("0", fontAvg).Height;
 
         // Zona del gráfico: a la izquierda las cifras de la escala, abajo los días.
         var max = NiceMax(_days.Max(d => d.Chests));
-        var axisW = g.MeasureString(L.N(max), fontAxis).Width + 4f;
-        var plot = new RectangleF(axisW + 4f, dayH * 0.6f, Width - axisW - 4f - 8f, Height - dayH * 0.6f - dayH - 7f);
+        var axisW = Measure(L.N(max), fontAxis).Width + 4f;
+        // Arriba queda sitio para la cifra de un punto que toque el tope: así siempre va encima del punto, nunca debajo.
+        var r = Math.Max(3f, dayH * 0.28f);
+        var top = valueH + r + 3f;
+        var plot = new RectangleF(axisW + 6f, top, Width - axisW - 6f - 8f, Height - top - dayH - 7f);
         if (plot.Width <= 10 || plot.Height <= 10)
         {
             return;
@@ -77,14 +85,13 @@ public sealed class DailyChart : Control
 
         // Líneas guía (0, mitad, tope) con su cifra a la izquierda.
         using (var grid = new Pen(Theme.Line, 1f))
-        using (var axisBrush = new SolidBrush(Theme.Faint))
-        using (var right = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center })
         {
             foreach (var v in new[] { 0, max / 2, max })
             {
                 var y = (float)Math.Round(Y(v)) + 0.5f;
                 g.DrawLine(grid, plot.Left, y, plot.Right, y);
-                g.DrawString(L.N(v), fontAxis, axisBrush, new RectangleF(0, y - dayH, axisW, 2 * dayH), right);
+                var size = Measure(L.N(v), fontAxis);
+                Write(L.N(v), fontAxis, Theme.Faint, axisW - size.Width, y - size.Height / 2f);
             }
         }
 
@@ -133,18 +140,15 @@ public sealed class DailyChart : Control
             var y = Y(avg);
             using var dash = new Pen(Color.FromArgb(115, Theme.GoldHi), 1f) { DashPattern = new[] { 3f, 3f } };
             g.DrawLine(dash, plot.Left, y, plot.Right, y);
-            using var label = new SolidBrush(Theme.GoldHi);
             var text = L.F("media {0}", "avg {0}", L.N((int)Math.Round(avg)));
-            var size = g.MeasureString(text, fontAvg);
-            g.DrawString(text, fontAvg, label, plot.Left + 4f, Math.Max(0, y - size.Height));
+            var size = Measure(text, fontAvg);
+            Write(text, fontAvg, Theme.GoldHi, plot.Left + 4f, Math.Max(0, y - size.Height - 2f));
         }
 
         // Puntos: oro claro con borde del color de la tarjeta; hoy en blanco.
-        var r = Math.Max(3f, dayH * 0.28f);
         using (var edge = new Pen(Theme.Card, 2f))
         using (var dot = new SolidBrush(Theme.GoldHi))
         using (var now = new SolidBrush(Color.White))
-        using (var valueBrush = new SolidBrush(Theme.Champ))
         {
             for (var i = 0; i < _days.Count; i++)
             {
@@ -161,16 +165,14 @@ public sealed class DailyChart : Control
                 {
                     // La cifra encima del punto (en la página sale al pasar el ratón; aquí, siempre).
                     var value = L.N(d.Chests);
-                    var vs = g.MeasureString(value, fontAvg);
+                    var vs = Measure(value, fontAvg);
                     var vx = Math.Clamp(p.X - vs.Width / 2f, plot.Left, Width - vs.Width);
-                    g.DrawString(value, fontAvg, isToday ? now : valueBrush, vx, Math.Max(0, p.Y - r - vs.Height));
+                    Write(value, fontAvg, isToday ? Color.White : Theme.Champ, vx, p.Y - r - 2f - vs.Height);
                 }
             }
         }
 
         // Días debajo («hoy» en oro); el primero y el último, pegados a su borde para que no se salgan.
-        using var dayBrush = new SolidBrush(Theme.Faint);
-        using var todayBrush = new SolidBrush(Theme.GoldBase);
         for (var i = 0; i < _days.Count; i++)
         {
             var d = _days[i];
@@ -181,9 +183,9 @@ public sealed class DailyChart : Control
                 name = name[..3];
             }
             var font = isToday ? fontToday : fontDay;
-            var w = g.MeasureString(name, font).Width;
+            var w = Measure(name, font).Width;
             var x = Math.Clamp(X(i) - w / 2f, 0f, Width - w);
-            g.DrawString(name, font, isToday ? todayBrush : dayBrush, x, plot.Bottom + 4f);
+            Write(name, font, isToday ? Theme.GoldBase : Theme.Faint, x, plot.Bottom + 5f);
         }
     }
 }
