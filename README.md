@@ -125,7 +125,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
 - **Cofres antes de FCT**: un estimado que se suma a tu total. Con **Estimar…** (también se pregunta la primera vez) eliges *solo repeticiones guardadas* o *repeticiones + estimación*:
   - **Partidas de la temporada actual**: búscalas por tu nombre de Epic (si la versión puede consultarlas) o mira el número de la temporada en [fortnite.gg](https://fortnite.gg/stats) y escríbelo. Si tus estadísticas son privadas, se avisa de que por eso no se pueden consultar.
   - **Media de cofres por partida**: la de tus repeticiones junto con las **partidas nuevas** que juegues desde ese momento (eliges cuántas: 5 por defecto, **10 recomendado**; cuantas más, más acertada). Cada repetición pesa como una partida nueva, así que cuantas más repeticiones tengas, más cuentan. O escríbela a mano.
-  - **Estimado** = media × (partidas de la temporada − repeticiones ya contadas). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.
+  - **Estimado** = media × (partidas de la temporada − repeticiones de esta temporada ya contadas; las de temporadas anteriores entran en la media pero no se restan). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.
 - **Actualizaciones**, **overlay para OBS**, **carpeta de replays** y **Restablecer estadísticas** (con copia de seguridad).
 
 ## Cómo funciona (y por qué es seguro)

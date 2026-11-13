@@ -145,9 +145,9 @@ public sealed class EstimateDialog : Form
         py += 98 + 6;
 
         // 3 · Resultado, al momento.
-        _preview = new Label { Location = new Point(14, py), Size = new Size(inner, 60), Font = Theme.Text(9.25f, FontStyle.Bold), ForeColor = Theme.Cyan, BackColor = Color.Transparent };
+        _preview = new Label { Location = new Point(14, py), Size = new Size(inner, 76), Font = Theme.Text(9.25f, FontStyle.Bold), ForeColor = Theme.Cyan, BackColor = Color.Transparent };
         _panel.Controls.Add(_preview);
-        py += 60 + 10;
+        py += 76 + 10;
         _panel.Size = new Size(pw, py);
         Controls.Add(_panel);
 
@@ -244,6 +244,10 @@ public sealed class EstimateDialog : Form
         }
         var r = _previewOf(total, _sample, typed);
         string Avg(double v) => v.ToString(r.RoundedDown ? "0" : "0.##", L.Culture);
+        // Repeticiones de temporadas anteriores: cuentan en la media, pero no se restan de las partidas de esta temporada.
+        var season = r.SeasonReplays < r.Replays
+            ? " " + L.F("Se restan solo las {0} de esta temporada.", "Only this season's {0} are subtracted.", r.SeasonReplays)
+            : "";
         if (r.Chests is int chests)
         {
             var from = typed != null
@@ -251,14 +255,14 @@ public sealed class EstimateDialog : Form
                 : L.F("{0} + {1}{2}", "{0} + {1}{2}", L.Count(r.Replays, "repetición", "repeticiones", "replay", "replays"),
                     L.Count(r.NewMatches, "partida nueva", "partidas nuevas", "new match", "new matches"), r.RoundedDown ? L.T(", redondeada hacia abajo", ", rounded down") : "");
             _preview.Text = L.F("Media de {0} cofres ({1}) → ≈ {2} cofres de antes.", "Average {0} chests ({1}) → ≈ {2} earlier chests.",
-                Avg(r.Average ?? 0), from, chests.ToString("#,0", L.Culture));
+                Avg(r.Average ?? 0), from, chests.ToString("#,0", L.Culture)) + season;
             return;
         }
         _preview.Text = r.Provisional is int provisional
             ? L.F("Ahora: media de {0} en {1} → ≈ {2} (provisional). Se fija tras tus próximas {3}, que entran en la media junto a las repeticiones.",
                 "Now: average {0} over {1} → ≈ {2} (provisional). It is fixed after your next {3}, which join the replays in the average.",
                 Avg(r.Average ?? 0), L.Count(r.Replays, "repetición", "repeticiones", "replay", "replays"), provisional.ToString("#,0", L.Culture),
-                L.Count(r.Waiting, "partida", "partidas", "match", "matches"))
+                L.Count(r.Waiting, "partida", "partidas", "match", "matches")) + season
             : L.F("Sin repeticiones: se calculará tras tus próximas {0}, con la media redondeada hacia abajo.",
                 "No replays: it will be calculated after your next {0}, with the average rounded down.", L.Count(r.Waiting, "partida", "partidas", "match", "matches"));
     }

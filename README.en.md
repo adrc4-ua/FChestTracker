@@ -125,7 +125,7 @@ The app's (the **Settings** button) change the window and the overlay; the stats
 - **Chests before FCT**: an estimate added to your total. With **Estimate…** (also asked the first time) you choose *saved replays only* or *replays + estimate*:
   - **Matches this season**: look them up by your Epic name (if the build can) or read the season number on [fortnite.gg](https://fortnite.gg/stats) and type it. If your stats are private, it says that is why they cannot be looked up.
   - **Average chests per match**: that of your replays together with the **new matches** you play from then on (you choose how many: 5 by default, **10 recommended**; the more, the closer). Each replay weighs as much as a new match, so the more replays you have, the more they count. Or type it by hand.
-  - **Estimate** = average × (matches this season − replays already counted). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). Until you play the new matches you see a provisional estimate. With no replays, the past is the estimate alone.
+  - **Estimate** = average × (matches this season − this season's replays already counted; replays from earlier seasons go into the average but are not subtracted). The average is rounded down only if you had no replays or 100 or more (the most Fortnite keeps). Until you play the new matches you see a provisional estimate. With no replays, the past is the estimate alone.
 - **Updates**, **overlay for OBS**, **replays folder** and **Reset statistics** (with a backup).
 
 ## How it works (and why it is safe)
