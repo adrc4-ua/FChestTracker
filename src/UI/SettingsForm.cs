@@ -207,7 +207,7 @@ public sealed class SettingsForm : ThemedForm
         var obsUrl = ObsServer.Url;
         var stateCard = new Card { Location = new Point(RightW - 13 - 78, 8), Size = new Size(78, 20), Radius = 10, BackColor = obsUrl != null ? Theme.GoldSoft : Theme.Bg2, Edge = obsUrl != null ? Theme.GoldLine : Theme.Line };
         Lbl(stateCard, obsUrl != null ? L.T("● ACTIVO", "● ON") : L.T("● INACTIVO", "● OFF"), 7.0f, FontStyle.Bold,
-            obsUrl != null ? Theme.GoldHi : Theme.Red, new Point(0, 0), new Size(78, 20), ContentAlignment.MiddleCenter);
+            obsUrl != null ? Theme.GoldHi : Theme.Danger, new Point(0, 0), new Size(78, 20), ContentAlignment.MiddleCenter);
         obsCard.Controls.Add(stateCard);
         var obs = AddField(obsCard, new Point(13, 38), RightW - 26 - 72, obsUrl ?? L.T("Puerto ocupado", "Port in use"));
         var copy = new PillButton { Text = L.T("Copiar", "Copy"), Location = new Point(RightW - 13 - 66, 38), Size = new Size(66, 30), Radius = 10, Font = Theme.Text(8.5f, FontStyle.Bold), Enabled = obsUrl != null };
@@ -240,7 +240,7 @@ public sealed class SettingsForm : ThemedForm
             Size = new Size(LeftW - uninstallW - 6, 40),
             Radius = 12,
             Font = Theme.Text(8.5f, FontStyle.Bold),
-            ForeColor = Theme.Red,
+            ForeColor = Theme.Danger,
         };
         reset.Click += (_, _) => ResetStats();
         Controls.Add(reset);
@@ -251,7 +251,7 @@ public sealed class SettingsForm : ThemedForm
             Size = new Size(uninstallW, 40),
             Radius = 12,
             Font = Theme.Text(8.5f, FontStyle.Bold),
-            ForeColor = Theme.Red,
+            ForeColor = Theme.Danger,
         };
         uninstall.Click += (_, _) => Uninstall();
         Controls.Add(uninstall);
@@ -421,7 +421,7 @@ public sealed class SettingsForm : ThemedForm
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        Theme.Chrome(Handle);
+        WindowChrome.Apply(Handle);
     }
 
     private void SelectUpdateMode(int index, bool save)

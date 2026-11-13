@@ -86,7 +86,7 @@ public sealed class MainForm : ThemedForm
             DropDownStyle = ComboBoxStyle.DropDownList,
             DrawMode = DrawMode.OwnerDrawFixed,
             FlatStyle = FlatStyle.Flat,
-            BackColor = Theme.Card2,
+            BackColor = Theme.Panel,
             ForeColor = Theme.Ink,
             Font = Theme.Text(9f),
             Location = new Point(EdgeR - 44 - 190, 26),
@@ -642,7 +642,7 @@ public sealed class MainForm : ThemedForm
         var b = new PillButton
         {
             Text = text, IconSvg = icon, LeftAligned = true, Location = new Point(x, y), Size = new Size(RightW, NavH), Radius = 11,
-            Font = Theme.Text(9f, FontStyle.Bold), BackColor = Theme.Card, HoverColor = Theme.Card2,
+            Font = Theme.Text(9f, FontStyle.Bold), BackColor = Theme.Card, HoverColor = Theme.Panel,
         };
         Controls.Add(b);
         return b;
@@ -673,7 +673,7 @@ public sealed class MainForm : ThemedForm
             return;
         }
         var selected = (e.State & DrawItemState.Selected) != 0 && (e.State & DrawItemState.ComboBoxEdit) == 0;
-        using var back = new SolidBrush(selected ? Theme.GoldSoft : Theme.Card2);
+        using var back = new SolidBrush(selected ? Theme.GoldSoft : Theme.Panel);
         e.Graphics.FillRectangle(back, e.Bounds);
         TextRenderer.DrawText(e.Graphics, _profile.Items[e.Index]?.ToString(), _profile.Font, e.Bounds, selected ? Theme.GoldHi : Theme.Ink,
             TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);

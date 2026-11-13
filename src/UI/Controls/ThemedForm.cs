@@ -21,7 +21,7 @@ public class ThemedForm : Form, IBackdrop
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        Theme.Chrome(Handle);
+        WindowChrome.Apply(Handle);
     }
 
     protected override void OnPaintBackground(PaintEventArgs e) => Backdrop.Glow(e.Graphics, ClientSize, Point.Empty);

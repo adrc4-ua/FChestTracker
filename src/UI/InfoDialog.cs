@@ -142,7 +142,7 @@ public sealed class InfoDialog : ThemedForm
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        Theme.Chrome(Handle);
+        WindowChrome.Apply(Handle);
     }
 
     /// <summary>A wrapping label exactly as tall as its text; returns the y right below it.</summary>
