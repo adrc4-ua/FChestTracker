@@ -31,7 +31,7 @@ FCT reads the replays Fortnite saves of every match and keeps count of the chest
 1. Download **[`FCT.exe`](../../releases/latest)**. That single file is all you need.
 2. In Fortnite turn on *Settings → Game → Replays → **Record Replays*** (and *Large Team Modes* if you play them). Without replays there is nothing to read.
 3. Run `FCT.exe`.
-   > Windows may show *"Windows protected your PC"* because the exe is not signed. Click *More info → Run anyway*.
+   > If Windows warns you, click *More info → Run anyway*. It happens because the program isn't signed yet.
 4. The welcome screen reminds you about replays and, if there are already replays on your PC, lets you **count them** or start with **your next matches only**.
 
 <p align="center"><img src="docs/images/setup.png" alt="First-run welcome" width="520"></p>
@@ -227,5 +227,7 @@ docs/images/                 screenshots of this README
 ## License and credits
 
 [MIT](LICENSE). This project started from [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92. Replay parsing is based on [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan (MIT), lightly modified: see [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md).
+
+Executable signing: [code signing policy](CODE_SIGNING_POLICY.md).
 
 This project is not affiliated with, endorsed or sponsored by Epic Games. Fortnite is a registered trademark of Epic Games, Inc.

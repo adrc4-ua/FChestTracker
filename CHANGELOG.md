@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Firma del ejecutable preparada** (SignPath, gratis para código abierto): [política de firma](CODE_SIGNING_POLICY.md) y paso de firma en el flujo de GitHub, que se activa en cuanto SignPath esté configurado. Hasta entonces Windows puede avisar al abrir el exe (README: *Más información → Ejecutar de todas formas*).
+- Las releases ya no llevan la copia `ChestCounter.exe`: las versiones de antes del cambio de nombre ya no se actualizan solas (hay que descargar `FCT.exe` una vez).
 ## [4.2.1] - 2026-11-12
 
 - Primer uso: la opción sin estimado pasa a llamarse **Empezar de cero** cuando no se cuentan partidas guardadas (no hay repeticiones o se eligió *Solo las nuevas*).

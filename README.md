@@ -31,7 +31,7 @@ FCT lee las repeticiones (replays) que Fortnite guarda de cada partida y lleva l
 1. Descarga **[`FCT.exe`](../../releases/latest)**. Ese único archivo es todo lo que necesitas.
 2. En Fortnite activa *Ajustes → Juego → Repeticiones → **Grabar repeticiones*** (y *Modos de equipos grandes* si los juegas). Sin repeticiones no hay nada que leer.
 3. Ejecuta `FCT.exe`.
-   > Windows puede mostrar *"Windows protegió tu PC"* porque el exe no está firmado. Haz clic en *Más información → Ejecutar de todas formas*.
+   > Si Windows avisa, pulsa *Más información → Ejecutar de todas formas*. Pasa porque el programa aún no está firmado.
 4. La bienvenida te recuerda lo de las repeticiones y, si ya tienes replays en el PC, te deja **contarlos** o empezar **solo con las próximas partidas**.
 
 <p align="center"><img src="docs/images/setup.png" alt="Bienvenida del primer inicio" width="520"></p>
@@ -229,5 +229,7 @@ docs/images/                 capturas de este README
 ## Licencia y créditos
 
 [MIT](LICENSE). Este proyecto parte de [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92. El análisis de los replays se basa en [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan (MIT), ligeramente modificado: ver [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md).
+
+Firma del ejecutable: [política de firma de código](CODE_SIGNING_POLICY.md).
 
 Este proyecto no está afiliado a Epic Games, ni cuenta con su respaldo ni patrocinio. Fortnite es una marca registrada de Epic Games, Inc.

@@ -21,6 +21,12 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      # Code signing with SignPath (free for open source, see CODE_SIGNING_POLICY.md). It only runs for release builds
+      # (a published release, "Run workflow" with a tag, or a v* tag) and once SignPath is set up: repository secret
+      # SIGNPATH_API_TOKEN and repository variable SIGNPATH_ORGANIZATION_ID (Settings → Secrets and variables →
+      # Actions). Until then the exe is built unsigned, as before.
+      SIGN: ${{ secrets.SIGNPATH_API_TOKEN != '' && vars.SIGNPATH_ORGANIZATION_ID != '' && (github.event_name == 'release' || inputs.tag != '' || github.ref_type == 'tag') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,6 +50,47 @@ jobs:
           }
           dotnet publish $project -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none @versionArgs -o dist
           if (-not (Test-Path dist/FCT.exe)) { Get-ChildItem dist/*.exe | Select-Object -First 1 | Rename-Item -NewName FCT.exe }
+
+      # ---- Signing (only when SIGN is true) -------------------------------------------------------------------------
+      # SignPath takes the exe as a GitHub artifact (its artifact configuration is in .signpath/artifact-configuration.xml),
+      # waits for the approval on SignPath and returns it signed. The project and signing policy slugs can be changed
+      # with the repository variables SIGNPATH_PROJECT_SLUG and SIGNPATH_SIGNING_POLICY_SLUG.
+      - name: Upload the unsigned exe for SignPath
+        id: unsigned
+        if: env.SIGN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: FCT-unsigned
+          path: dist/FCT.exe
+      - name: Sign with SignPath
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'FChestTracker' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          # Each request is approved by hand on SignPath: give it time.
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: signed
+      - name: Use the signed exe
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: |
+          $signed = Get-ChildItem signed -Recurse -Filter FCT.exe | Select-Object -First 1
+          if (-not $signed) {
+            # Some versions hand back the zip itself.
+            Get-ChildItem signed -Recurse -Filter *.zip | ForEach-Object { Expand-Archive $_.FullName -DestinationPath signed/unzipped -Force }
+            $signed = Get-ChildItem signed -Recurse -Filter FCT.exe | Select-Object -First 1
+          }
+          if (-not $signed) { throw 'SignPath did not return FCT.exe' }
+          $signature = Get-AuthenticodeSignature $signed.FullName
+          if ($signature.Status -ne 'Valid') { throw "The returned FCT.exe is not validly signed: $($signature.Status)" }
+          Copy-Item $signed.FullName dist/FCT.exe -Force
+          Write-Host "Signed by: $($signature.SignerCertificate.Subject)"
+
       - uses: actions/upload-artifact@v4
         with:
           name: FCT
@@ -66,13 +113,9 @@ jobs:
         with:
           name: FCT
           path: dist
-      # The same exe also goes as ChestCounter.exe: the versions published before the rename only update from an
-      # asset with that exact name (and only when their own file is called that). Once updated they run FCT and
-      # look for FCT.exe from then on. Keep this copy while anyone may still run a pre-rename version.
-      - name: Attach FCT.exe (and the copy for pre-rename versions) to the release
+      - name: Attach FCT.exe to the release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
-          cp dist/FCT.exe dist/ChestCounter.exe
-          gh release upload "$TAG" dist/FCT.exe dist/ChestCounter.exe --clobber --repo "$GITHUB_REPOSITORY"
+          gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"

@@ -283,7 +283,7 @@ internal static class Program
             var points = new List<InfoPoint>
             {
                 new(Icons.RecordReplays, Theme.GoldHi, L.T("Activa las repeticiones en Fortnite", "Turn on replays in Fortnite"),
-                    L.T("Ajustes → Juego → Replays → «Grabar replays». Sin esto no hay nada que contar.",
+                    L.T("Ajustes → Juego → Repeticiones → «Grabar repeticiones». Sin esto no hay nada que contar.",
                         "Settings → Game → Replays → \"Record Replays\". Without it there's nothing to count.")),
                 existing.Count > 0
                     ? new InfoPoint(Icons.Folder, Theme.GoldHi,
