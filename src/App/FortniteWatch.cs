@@ -4,25 +4,28 @@ using System.Runtime.Versioning;
 namespace FCT.App;
 
 /// <summary>
-/// "Open with Fortnite", with nothing running in between matches. Fortnite's anti-cheat installs and loads its driver
-/// every time the game starts, and Windows logs it; a scheduled task of the user (<see cref="StartupEntries"/>, no admin
-/// rights) starts a short launcher on that event (<see cref="RunOnGameStart"/>), which opens FCT once the game is up
-/// and ends. FCT closes itself after Fortnite closes. Where the task cannot be created, the older way remains: a
-/// tiny invisible "standby" started at logon (<see cref="RunStandby"/>). Neither reads anything from the game.
+/// "Open with Fortnite" without anything running between matches. Each time the game starts, its anti-cheat loads a
+/// driver and Windows logs it; a scheduled task of the user (<see cref="StartupEntries"/>, no admin rights needed)
+/// reacts to that entry by running a short launcher (<see cref="RunOnGameStart"/>) that opens FCT once the game is up
+/// and ends. FCT closes after Fortnite does. Where no task can be created, <see cref="StandbyWatcher"/> takes over.
+/// Nothing here reads anything from the game.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public static class FortniteWatch
 {
-    /// <summary>The driver comes ~10 s before the game; slow disks or a game update can stretch that.</summary>
+    /// <summary>How long the launcher waits for the game: the driver comes ~10 s before it, more on slow disks or updates.</summary>
     private static readonly TimeSpan LauncherPatience = TimeSpan.FromMinutes(3);
 
     public static bool IsGameProcess(int pid) => GameProcess.IsGame(pid);
     public static bool IsFortniteRunning() => GameProcess.IsRunning();
     public static bool TaskExists() => StartupEntries.TaskExists();
 
+    public static int RunStandby(string dataDir) => StandbyWatcher.Run(dataDir, OpenFct);
+    public static void StopStandby() => StandbyWatcher.Stop();
+
     /// <summary>
-    /// Turns the option on or off. Also called at every start, so the task follows the exe when it moves or updates
-    /// and older startup entries disappear. False when it cannot be set up (FCT not running from its exe).
+    /// Turns the option on or off. Run at every start as well, so the task follows the exe when it moves or updates and
+    /// older startup entries go away. False when it cannot be set up (FCT not running from its exe).
     /// </summary>
     public static bool Apply(bool enabled, string dataDir)
     {
@@ -30,65 +33,48 @@ public static class FortniteWatch
         {
             StartupEntries.DeleteTask();
             StartupEntries.RemoveRunEntries(StartupEntries.AllRunEntries);
-            StopStandby();
+            StandbyWatcher.Stop();
             return true;
         }
         if (AppInfo.ExePath is not { } exe)
         {
             return false;
         }
-        if (StartupEntries.EnsureTask(exe, "--on-game " + DataArg(dataDir)))
+        var data = DataArgument(dataDir);
+        if (StartupEntries.EnsureTask(exe, "--on-game " + data))
         {
             StartupEntries.RemoveRunEntries(StartupEntries.AllRunEntries); // nothing left at logon
-            StopStandby();
+            StandbyWatcher.Stop();
             return true;
         }
-
-        // Fallback: the standby at logon (the entry is rewritten each start, so it follows the exe too).
-        if (!StartupEntries.SetStandbyEntry($"\"{exe}\" --standby {DataArg(dataDir)}"))
-        {
-            return false;
-        }
-        StartupEntries.RemoveRunEntries(StartupEntries.AllRunEntries.Where(name => name != StartupEntries.StandbyEntry));
-        try
-        {
-            StartStandby(exe, dataDir);
-            return true;
-        }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
-        {
-            return false;
-        }
+        return ApplyStandby(exe, data);
     }
 
-    private static string DataArg(string dataDir) => $"--data \"{Path.GetFullPath(dataDir).TrimEnd('\\', '/')}\"";
-
-    /// <summary>Opens FCT in background mode, unless it is already open or the option was turned off meanwhile.</summary>
-    private static void OpenFct(string exe, string dataDir)
+    /// <summary>The fallback: a standby started at logon (its entry is rewritten at each start, so it follows the exe).</summary>
+    private static bool ApplyStandby(string exe, string data)
     {
-        if (new Store(dataDir).LoadConfig() is { StartWithFortnite: false })
+        if (!StartupEntries.SetStandbyEntry($"\"{exe}\" --standby {data}"))
         {
-            return;
+            return false;
         }
-        if (Mutex.TryOpenExisting(AppInfo.InstanceMutexFor(dataDir), out var running))
-        {
-            running.Dispose(); // already open: nothing to say
-            return;
-        }
+        StartupEntries.RemoveRunEntries(StartupEntries.AllRunEntries.Where(entry => entry != StartupEntries.StandbyEntry));
         try
         {
-            Process.Start(new ProcessStartInfo(exe, $"--auto {DataArg(dataDir)}") { UseShellExecute = false })?.Dispose();
+            StandbyWatcher.Start(exe, data);
+            return true;
         }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
+            return false;
         }
     }
 
-    // ---- The launcher (scheduled task) ------------------------------------------------------------------------------------
+    /// <summary>The "--data" argument for a data folder, as an absolute path without a trailing slash.</summary>
+    private static string DataArgument(string dataDir) => $"--data \"{Path.GetFullPath(dataDir).TrimEnd('\\', '/')}\"";
 
     /// <summary>
-    /// "--on-game": waits for the game and opens FCT. With none of Fortnite's start-up programs around, the event came
-    /// from another game using the same anti-cheat and this ends at once; it also gives up when they all go away.
+    /// "--on-game": waits for the game, then opens FCT. When none of Fortnite's start-up programs is around, the log entry
+    /// came from another game with the same anti-cheat and this ends at once; it also gives up if they all go away.
     /// </summary>
     public static int RunOnGameStart(string dataDir)
     {
@@ -96,110 +82,41 @@ public static class FortniteWatch
         {
             return 1;
         }
-        var waiting = Stopwatch.StartNew();
+        var waited = Stopwatch.StartNew();
         while (!GameProcess.IsRunning())
         {
-            if (!GameProcess.IsStarting() || waiting.Elapsed >= LauncherPatience)
+            var stillComing = GameProcess.IsStarting() && waited.Elapsed < LauncherPatience;
+            if (!stillComing)
             {
                 return 0;
             }
             Thread.Sleep(1000);
         }
-        if (new Store(dataDir).LoadConfig() is { StartWithFortnite: false })
+        if (StandbyWatcher.OptionStillOn(dataDir))
         {
-            return 0;
+            OpenFct(exe, dataDir);
         }
-        OpenFct(exe, dataDir);
         return 0;
     }
 
-    // ---- The standby (fallback) --------------------------------------------------------------------------------------------
-
-    public static void StartStandby(string exe, string dataDir)
+    /// <summary>Opens FCT in background mode, unless it is open already or the option was turned off meanwhile.</summary>
+    private static void OpenFct(string exe, string dataDir)
     {
-        if (Mutex.TryOpenExisting(AppInfo.StandbyMutex, out var alreadyWaiting))
+        if (!StandbyWatcher.OptionStillOn(dataDir))
         {
-            alreadyWaiting.Dispose();
             return;
         }
-        Process.Start(new ProcessStartInfo(exe, $"--standby {DataArg(dataDir)}") { UseShellExecute = false, CreateNoWindow = true })?.Dispose();
-    }
-
-    public static void StopStandby()
-    {
-        if (EventWaitHandle.TryOpenExisting(AppInfo.StandbyStopEvent, out var stop))
+        if (Mutex.TryOpenExisting(AppInfo.InstanceMutexFor(dataDir), out var open))
         {
-            using (stop)
-            {
-                stop.Set();
-            }
+            open.Dispose();
+            return;
         }
-    }
-
-    /// <summary>
-    /// "--standby": idle-priority loop that checks every 5 s for the game, opens FCT, then waits for the game to close
-    /// before arming again (the player may have closed FCT on purpose). Ends when signalled, or when the scheduled
-    /// task exists (an entry left by an earlier version).
-    /// </summary>
-    public static int RunStandby(string dataDir)
-    {
-        using var single = new Mutex(false, AppInfo.StandbyMutex);
         try
         {
-            if (!single.WaitOne(0))
-            {
-                return 0; // another standby is waiting
-            }
-        }
-        catch (AbandonedMutexException)
-        {
-            // the previous standby was killed: this one takes over
-        }
-        if (StartupEntries.TaskExists())
-        {
-            StartupEntries.RemoveRunEntries(StartupEntries.AllRunEntries);
-            return 0;
-        }
-
-        using var stop = new EventWaitHandle(false, EventResetMode.AutoReset, AppInfo.StandbyStopEvent);
-        try
-        {
-            using var self = Process.GetCurrentProcess();
-            self.PriorityClass = ProcessPriorityClass.Idle;
-            EfficiencyMode.Enable();
+            Process.Start(new ProcessStartInfo(exe, $"--auto {DataArgument(dataDir)}") { UseShellExecute = false })?.Dispose();
         }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-        }
-        GC.Collect();
-        if (AppInfo.ExePath is not { } exe)
-        {
-            return 1;
-        }
-
-        for (;;)
-        {
-            if (stop.WaitOne(TimeSpan.FromSeconds(5)))
-            {
-                return 0;
-            }
-            if (!GameProcess.IsRunning())
-            {
-                continue;
-            }
-            if (new Store(dataDir).LoadConfig() is { StartWithFortnite: false })
-            {
-                return 0;
-            }
-            OpenFct(exe, dataDir);
-            while (GameProcess.IsRunning())
-            {
-                if (stop.WaitOne(TimeSpan.FromSeconds(10)))
-                {
-                    return 0;
-                }
-            }
-            GC.Collect();
         }
     }
 }
