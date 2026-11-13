@@ -1,4 +1,4 @@
-name: Build ChestCounter.exe
+name: Build and release ChestCounter.exe
 on:
   push:
     branches: ['**']
@@ -22,6 +22,15 @@ jobs:
           path: dist/ChestCounter.exe
 
   # Only for tags: publishes the release with the GitHub CLI (no third-party action, write access only here).
+  #
+  # New repos default GITHUB_TOKEN to read-only: the `permissions: contents: write` below cannot raise it above
+  # whatever Settings → Actions → General → Workflow permissions allows for the whole repository. If that setting
+  # stays on "Read repository contents permission", `gh release create/upload` fails with the default token no
+  # matter what this file says. To make this work without touching that setting, add a repository secret named
+  # RELEASE_TOKEN (Settings → Secrets and variables → Actions → New repository secret) holding a GitHub token with
+  # write access to this repo's contents (classic PAT, "repo" scope, or a fine-grained PAT scoped to this repo with
+  # "Contents: Read and write"). When that secret exists, it is used instead of the default token; otherwise this
+  # falls back to the default token, which works fine once "Read and write permissions" is enabled for the repo.
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
@@ -35,7 +44,7 @@ jobs:
           path: dist
       - name: Create the release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
           TAG: ${{ github.ref_name }}
         run: |
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
