@@ -45,11 +45,10 @@ It has no login, no telemetry and no analytics. Everything it records stays in t
 
 ## Uninstall
 
-FCT is a single portable file and installs nothing:
-
-1. In FCT, *Settings*: turn off **Open with Fortnite** (removes its scheduled task "Fortnite Chest Tracker").
-2. Close FCT and delete `FCT.exe`.
-3. Optionally delete your data: the folder `%APPDATA%\FCT`.
+In FCT, **Settings → Uninstall…** (or `FCT.exe --uninstall`): FCT closes and removes everything it leaves in
+Windows, with nothing to turn off first: `FCT.exe` itself, the scheduled task "Fortnite Chest Tracker" of *Open with
+Fortnite*, the startup entries of earlier versions and update leftovers. The user's data (`%APPDATA%\FCT`) is kept;
+it can be deleted by hand.
 
 ---
 
@@ -67,5 +66,6 @@ Firma de código gratuita de [SignPath.io](https://about.signpath.io/), certific
   puede desactivar en *Configuración → Actualizaciones → Nunca*) y, solo si lo pides al estimar los cofres de antes,
   tus partidas de la temporada a Fortnite-API (tu id o nombre de Epic, nada más). La página de estadísticas y el
   overlay para OBS solo funcionan en tu PC. Sin inicio de sesión ni telemetría.
-- **Desinstalar:** desactiva **Abrir con Fortnite** en Configuración (quita su tarea programada), cierra FCT y borra
-  `FCT.exe`; si quieres, borra también tus datos en `%APPDATA%\FCT`.
+- **Desinstalar:** **Configuración → Desinstalar…** (o `FCT.exe --uninstall`) borra el exe, la tarea programada de
+  *Abrir con Fortnite*, las entradas de inicio y los restos de actualizaciones, sin desactivar nada antes. Tus datos
+  (`%APPDATA%\FCT`) se quedan; si quieres, bórralos a mano.

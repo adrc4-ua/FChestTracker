@@ -74,6 +74,18 @@ public sealed class AppMonitor
         CloseRequested?.Invoke();
     }
 
+    /// <summary>Desinstalar pedido desde Ajustes: se cierra todo y, al salir, se borran la tarea, las entradas y el exe.</summary>
+    public bool UninstallRequested { get; private set; }
+
+    /// <summary>La carpeta de los datos (se queda al desinstalar).</summary>
+    public string DataFolder => _dataDir;
+
+    public void Uninstall()
+    {
+        UninstallRequested = true;
+        CloseRequested?.Invoke();
+    }
+
     /// <summary>Estado nuevo. Se llama desde el hilo de vigilancia: la ventana debe usar BeginInvoke.</summary>
     public event Action<MonitorState>? Changed;
 

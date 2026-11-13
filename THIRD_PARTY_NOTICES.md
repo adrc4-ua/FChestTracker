@@ -20,17 +20,21 @@ muestra).*
 
 ## 2. Origin of the project · Origen del proyecto
 
-FCT started in 2026 from [ChestCounter](https://github.com/xdoofy92/ChestCounter) (published by xdoofy92, MIT,
-© 2026 LED-N), which provided the initial idea (counting the chests opened in Fortnite from its replay files) and an
-initial code base. FCT has since evolved independently: replay analysis, treasures, teammates, profiles, overlay,
-stats page, estimate of earlier matches, interface and distribution are its own. Its copyright notice is kept in
-[LICENSE](LICENSE), as the MIT license asks, and its full text is below.
+FCT is a derived work (fork) of [ChestCounter](https://github.com/xdoofy92/ChestCounter), published by xdoofy92
+under the MIT license (© 2026 LED-N). FCT took its idea (counting the chests opened in Fortnite from its replay
+files), its code and its history up to 11 November 2026, and has evolved separately since then (treasures and the
+end-of-match screen, teammates, profiles, estimate of earlier matches, interface, overlay, start with Fortnite,
+distribution…). Part of ChestCounter's code is still in FCT, so its copyright notice is kept in [LICENSE](LICENSE),
+as the MIT license requires, and its full text is below. The commits of this repository up to 11 November 2026
+(up to "pend") come from ChestCounter and are the work of its author.
 
-*FCT nació en 2026 a partir de ChestCounter (publicado por xdoofy92, MIT, © 2026 LED-N), que aportó la idea inicial
-(contar los cofres abiertos en Fortnite a partir de sus repeticiones) y una base de código inicial. Desde entonces FCT
-ha evolucionado por su cuenta: el análisis de las repeticiones, los tesoros, los compañeros, los perfiles, el overlay,
-la página de estadísticas, el estimado de partidas previas, la interfaz y la distribución son propios. Su aviso de
-copyright se conserva en LICENSE, como pide la licencia MIT, y su texto completo está más abajo.*
+*FCT es una obra derivada (fork) de ChestCounter, publicado por xdoofy92 con licencia MIT (© 2026 LED-N). FCT tomó su
+idea (contar los cofres abiertos en Fortnite a partir de sus repeticiones), su código y su historial hasta el 11 de
+noviembre de 2026, y desde entonces ha evolucionado por separado (tesoros y pantalla de fin de partida, compañeros,
+perfiles, estimado de partidas previas, interfaz, overlay, apertura con Fortnite, distribución…). Parte del código de
+ChestCounter sigue en FCT, así que su aviso de copyright se conserva en LICENSE, como exige la licencia MIT, y su texto
+completo está más abajo. Los commits de este repositorio hasta el 11 de noviembre de 2026 (hasta «pend») vienen de
+ChestCounter y son obra de su autor.*
 
 ## 3. Online services · Servicios en línea
 

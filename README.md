@@ -131,7 +131,7 @@ La de la app (botón **Configuración**) cambia la ventana y el overlay; la pág
   - **Partidas de la temporada actual**: se buscan con tu nombre de Epic. Solo si no se encuentran (o tu perfil es privado, y se avisa) se escriben a mano mirando [fortnite.gg](https://fortnite.gg/stats).
   - **Media de cofres por partida**: la de tus repeticiones junto con las **partidas nuevas** que juegues desde ese momento (eliges cuántas: 5 por defecto, **10 recomendado**; cuantas más, más acertada). Cada repetición pesa como una partida nueva, así que cuantas más repeticiones tengas, más cuentan. O escríbela a mano.
   - **Estimado** = media × (partidas de la temporada − repeticiones de esta temporada ya contadas; las de temporadas anteriores entran en la media pero no se restan). La media se redondea hacia abajo solo si no tenías ninguna repetición o tenías 100 o más (el máximo que guarda Fortnite). Hasta jugar las partidas nuevas verás un estimado provisional. Sin repeticiones, lo de antes es solo el estimado.
-- **Actualizaciones**, **overlay para OBS**, **carpeta de replays** y **Restablecer estadísticas** (con copia de seguridad).
+- **Actualizaciones**, **overlay para OBS**, **carpeta de replays**, **Restablecer estadísticas** (con copia de seguridad) y **Desinstalar** (ver [Desinstalar](#desinstalar)).
 
 ## Cómo funciona (y por qué es seguro)
 
@@ -183,7 +183,9 @@ Todo se guarda en `%APPDATA%\FCT`. **Tu historial no depende de los replays**: c
 
 ## Desinstalar
 
-FCT es un único archivo y no instala nada. Desactiva **Abrir con Fortnite** en Configuración (quita su tarea programada), cierra FCT y borra `FCT.exe`. Si quieres borrar también tu historial, borra la carpeta `%APPDATA%\FCT`.
+**Configuración → Desinstalar…** (o `FCT.exe --uninstall` desde una terminal): FCT se cierra y borra todo lo que deja en Windows, sin tener que desactivar nada antes: el propio `FCT.exe`, la tarea programada de *Abrir con Fortnite*, las entradas de inicio de versiones anteriores y los restos de actualizaciones. **Tus datos se quedan** en `%APPDATA%\FCT` (si vuelves a instalar FCT, los recupera); si quieres borrarlos también, borra esa carpeta a mano.
+
+Si borras el exe a mano sin desinstalar, la tarea programada se queda (inofensiva: no puede abrir nada); la quitas abriendo FCT otra vez y desinstalando, o desde el Programador de tareas (*Fortnite Chest Tracker*).
 
 ## Preguntas frecuentes
 
@@ -208,6 +210,7 @@ FCT.exe --once              analiza las repeticiones terminadas y se cierra
 FCT.exe --reset-config      vuelve a hacer la configuración inicial
 FCT.exe --overlay-preview <archivo.png>   guarda vistas previas del overlay y se cierra
 FCT.exe --licenses          muestra la licencia y los avisos de terceros
+FCT.exe --uninstall         quita FCT de Windows (tarea, inicio y el exe); tus datos se quedan
 ```
 
 ## Compilar desde el código
@@ -243,7 +246,7 @@ FCT es software libre con la [licencia MIT](LICENSE). Todo lo externo que usa, c
 | | Para qué | Licencia |
 |---|---|---|
 | [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) de Shiqan | Leer y descomprimir las repeticiones. Va incluido en `external/`, con cambios propios descritos en [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md). | MIT |
-| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | Idea y base de código inicial de las que partió FCT. Desde entonces FCT ha evolucionado por su cuenta; su aviso de copyright se conserva en [LICENSE](LICENSE). | MIT |
+| [ChestCounter](https://github.com/xdoofy92/ChestCounter) de xdoofy92 | FCT es un fork de ChestCounter: partió de su idea, su código y su historial (hasta el 11/11/2026) y desde entonces evoluciona por separado. Parte de su código sigue en FCT, así que su aviso de copyright se conserva en [LICENSE](LICENSE). | MIT |
 | [.NET](https://github.com/dotnet/runtime) y Windows Forms | El exe lleva el runtime de .NET dentro, para no tener que instalar nada. | MIT |
 
 **Servicios** (ninguno recibe datos sin que lo pidas; detalle en la [política de privacidad](CODE_SIGNING_POLICY.md#privacy-policy))

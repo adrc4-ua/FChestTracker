@@ -230,18 +230,31 @@ public sealed class SettingsForm : ThemedForm
                 : L.F("Otro programa usa el puerto; reinicia {0} para probar de nuevo.", "Another program uses the port; restart {0} to try again.", AppInfo.ShortName),
             7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 78), new Size(RightW - 26, 34));
 
-        // Restablecer estadísticas: borra el historial (con confirmación y copia de seguridad).
+        // Restablecer estadísticas (borra el historial, con confirmación y copia) y Desinstalar (quita FCT de Windows,
+        // sin tocar los datos): las dos acciones que no tienen vuelta atrás, juntas y en rojo.
+        const int uninstallW = 104;
         var reset = new PillButton
         {
             Text = L.T("Restablecer estadísticas…", "Reset statistics…"),
             Location = new Point(LeftX, 447),
-            Size = new Size(LeftW, 40),
+            Size = new Size(LeftW - uninstallW - 6, 40),
             Radius = 12,
             Font = Theme.Text(8.5f, FontStyle.Bold),
             ForeColor = Theme.Red,
         };
         reset.Click += (_, _) => ResetStats();
         Controls.Add(reset);
+        var uninstall = new PillButton
+        {
+            Text = L.T("Desinstalar…", "Uninstall…"),
+            Location = new Point(LeftX + LeftW - uninstallW, 447),
+            Size = new Size(uninstallW, 40),
+            Radius = 12,
+            Font = Theme.Text(8.5f, FontStyle.Bold),
+            ForeColor = Theme.Red,
+        };
+        uninstall.Click += (_, _) => Uninstall();
+        Controls.Add(uninstall);
 
         // Cerrar, en el sitio de los botones de la ventana principal.
         var close = new PillButton
@@ -486,6 +499,28 @@ public sealed class SettingsForm : ThemedForm
     /// <param name="reserve">Sitio a la derecha para otra cosa (la píldora de estado de OBS).</param>
     private static void CardTitle(Card card, string text, int reserve = 0) =>
         card.Controls.Add(new SectionTitle { Text = text, Font = Theme.Text(8.5f, FontStyle.Bold), Location = new Point(11, 6), Size = new Size(card.Width - 22 - reserve, 20) });
+
+    /// <summary>Desinstalar: confirma, cierra FCT y quita todo de Windows (tarea, inicio, el exe). Los datos se quedan.</summary>
+    private void Uninstall()
+    {
+        if (!InfoDialog.Confirm(this, L.F("¿Desinstalar {0}?", "Uninstall {0}?", AppInfo.ShortName),
+                L.T("Se cierra y no deja nada en Windows.", "It closes and leaves nothing behind in Windows."),
+                new[]
+                {
+                    new InfoPoint(Icons.Check, Theme.GoldHi, L.T("Se borra todo", "Everything is removed"),
+                        L.T("El programa y su apertura con Fortnite (la tarea programada y las entradas de inicio).",
+                            "The program and its opening with Fortnite (the scheduled task and the startup entries).")),
+                    new InfoPoint(Icons.Folder, Theme.GoldHi, L.T("Tus datos se quedan", "Your data stays"),
+                        L.F("Tu historial sigue en {0}. Bórralo a mano si quieres; si vuelves a instalar FCT, lo recupera.",
+                            "Your history stays in {0}. Delete it by hand if you want; if you install FCT again, it's picked up.", _monitor.DataFolder)),
+                },
+                L.T("Desinstalar", "Uninstall"), L.T("Cancelar", "Cancel"), Icons.Warning))
+        {
+            return;
+        }
+        Close();
+        _monitor.Uninstall();
+    }
 
     /// <summary>Pide confirmación y borra todo el historial (se guarda una copia de data.json antes).</summary>
     private void ResetStats()

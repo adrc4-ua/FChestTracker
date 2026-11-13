@@ -183,7 +183,9 @@ Everything is saved in `%APPDATA%\FCT`. **Your history does not depend on the re
 
 ## Uninstall
 
-FCT is a single file and installs nothing. Turn off **Open with Fortnite** in Settings (removes its scheduled task), close FCT and delete `FCT.exe`. To delete your history too, delete the folder `%APPDATA%\FCT`.
+**Settings → Uninstall…** (or `FCT.exe --uninstall` from a terminal): FCT closes and removes everything it leaves in Windows, with nothing to turn off first: `FCT.exe` itself, the scheduled task of *Open with Fortnite*, the startup entries of earlier versions and update leftovers. **Your data stays** in `%APPDATA%\FCT` (if you install FCT again, it is picked up); to delete it too, delete that folder by hand.
+
+If you delete the exe by hand without uninstalling, the scheduled task stays (harmless: it cannot open anything); remove it by opening FCT again and uninstalling, or from Task Scheduler (*Fortnite Chest Tracker*).
 
 ## FAQ
 
@@ -208,6 +210,7 @@ FCT.exe --once             analyze the finished replays and quit
 FCT.exe --reset-config     run the first-time setup again
 FCT.exe --overlay-preview <file.png>   save overlay previews and quit
 FCT.exe --licenses         show the license and third-party notices
+FCT.exe --uninstall        remove FCT from Windows (task, startup and the exe); your data stays
 ```
 
 ## Building from source
@@ -243,7 +246,7 @@ FCT is free software under the [MIT License](LICENSE). Everything external it us
 | | What for | License |
 |---|---|---|
 | [FortniteReplayDecompressor](https://github.com/Shiqan/FortniteReplayDecompressor) by Shiqan | Reading and decompressing replays. Included in `external/`, with its own changes described in [`PATCHES.md`](external/FortniteReplayDecompressor/PATCHES.md). | MIT |
-| [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92 | Initial idea and code base FCT started from. FCT has evolved independently since; its copyright notice is kept in [LICENSE](LICENSE). | MIT |
+| [ChestCounter](https://github.com/xdoofy92/ChestCounter) by xdoofy92 | FCT is a fork of ChestCounter: it started from its idea, code and history (up to 11/11/2026) and has evolved separately since. Part of its code is still in FCT, so its copyright notice is kept in [LICENSE](LICENSE). | MIT |
 | [.NET](https://github.com/dotnet/runtime) and Windows Forms | The exe carries the .NET runtime, so nothing has to be installed. | MIT |
 
 **Services** (none receives data unless you ask; details in the [privacy policy](CODE_SIGNING_POLICY.md#privacy-policy))
