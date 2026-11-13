@@ -28,13 +28,17 @@ starting idea: counting the chests opened in Fortnite from the game's replay fil
 Fortnite, distribution…), and from the version after 4.4.1 all of its code is its own: no ChestCounter code is included,
 so FCT does not carry ChestCounter's license. Versions up to 4.4.1 did include ChestCounter code, under its MIT license
 (© 2026 LED-N), and those copies keep that notice.
+The first commit of this repository, "Base de código añadida", is the ChestCounter code FCT started from, with its MIT
+license and copyright notice; FCT's own work begins with the commits after it.
 
 *FCT empezó como un fork de ChestCounter, de xdoofy92, que le dio la idea de partida: contar los cofres abiertos en
 Fortnite a partir de las repeticiones del juego. Desde entonces FCT ha crecido por su cuenta (tesoros y pantalla de fin de
 partida, compañeros, perfiles, estimado de partidas previas, interfaz, overlay, apertura con Fortnite, distribución…) y,
 desde la versión siguiente a la 4.4.1, todo su código es propio: no incluye código de ChestCounter, así que FCT no lleva
 su licencia. Las versiones hasta la 4.4.1 sí incluían código de ChestCounter, con su licencia MIT (© 2026 LED-N), y esas
-copias conservan ese aviso.*
+copias conservan ese aviso. El primer commit de este repositorio, «Base de código añadida», es el código de ChestCounter
+del que partió FCT, con su licencia MIT y su aviso de copyright; el trabajo propio de FCT empieza en los commits
+siguientes.*
 
 ## 3. Online services · Servicios en línea
 
