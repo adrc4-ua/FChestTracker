@@ -2,20 +2,26 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [4.4.1] - 2026-11-13
 
 - Corregido: una repetición muy corta justo después de una partida (entrar y salir) se quedaba también con la pantalla de tesoros de esa partida, y su tesoro se contaba dos veces. Al abrir FCT se corrige solo en los datos guardados.
+- **Overlay y tarjetas**: sin la raya que dejaba el velo dorado; ajuste de espaciado entre Hoy, Media y Tesoros, con líneas doradas finas entre las columnas de cifras y bloque de cifras centrado.
+
+## [4.4.0] - 2026-11-12
+
 - **Varios jugadores en un PC**: FCT sigue al que juega (al empezar o terminar una partida de otra cuenta cambia a su perfil y avisa «Ahora juega X»); la partida en directo de uno ya no se suma al overlay ni a las cifras del otro; «Cofres antes de FCT» es de cada jugador (el estimado de versiones anteriores pasa a su perfil); al cambiar de perfil, la página de estadísticas cambia al momento. El historial de cada cuenta se conserva como siempre.
 - **Un solo FCT a la vez**, sea cual sea la carpeta de datos (antes, uno por carpeta: podían salir dos overlays). Al abrirlo otra vez no se abre otro: el que ya está saca su ventana con el aviso «FCT ya estaba abierto»; si aún está en la bienvenida, el segundo lo avisa con su propio mensaje. Abierto por Fortnite estando ya abierto, se cierra sin decir nada.
 - **Overlay con el estilo de la app** (igual de sencillo): negro con el velo dorado de las tarjetas, borde y franja de oro (menta en directo), «◆ COFRES», cifras grandes con el degradado de oro, cápsula dorada para la partida, columnas centradas y la gema dorada para los tesoros. La versión para OBS, igual.
-- Configuración → Recalcular: sin ninguna partida guardada, la primera opción es «Empezar de cero» (como en la primera apertura). Comprobado que desde Configuración las partidas guardadas cuentan igual que en la primera apertura.
-- **Overlay más fiable**: solo cuenta una ventana de Fortnite que esté de verdad en pantalla (con tamaño real, dentro de un monitor y sin ocultar por Windows), así no aparece con Fortnite minimizado; comprueba cada 2 s desde su propio hilo, así se va al cerrar Fortnite aunque FCT esté leyendo repeticiones; y apagado a mano ya no se vuelve a encender al minimizar y restaurar Fortnite (solo al abrir un Fortnite nuevo).
-- **Buscar partidas (fortnite-api.com)**: una cuenta sin partidas esta temporada ya no sale como «no encontramos a nadie con ese nombre» (son 0 partidas); mensajes propios para demasiadas búsquedas a la vez (límite de 180 por minuto) y clave no válida. Probado con distintos nombres: mayúsculas, espacios, perfiles privados, nombres inexistentes y caracteres raros.
-- Textos: «Calcular partidas previas» en la primera apertura y el diálogo; «Recalcular» en Configuración. Estadísticas vuelve a ir en blanco, como los otros botones.
-- Ventana: el botón Estadísticas es como los demás, con las letras en oro; las cifras de las seis tarjetas, algo más arriba. Gráfico semanal con textos nítidos y la cifra siempre encima de su punto.
-- Overlay: textos más nítidos (ningún texto por debajo de 9 px) y a la escala del monitor donde está, también al moverlo a otra pantalla.
+
+## [4.3.0] - 2026-11-12
+
 - **Tesoros que la repetición no ve** (conseguidos después de morir): la pantalla de fin de partida los suma siempre, con su nombre si se lee y sin él si no; una tarjeta ilegible ya no hace perder la pantalla entera, y también se suman los tesoros destacados. Cada pantalla se asocia solo a su partida: antes, una partida sin pantalla leída podía quedarse con la de la siguiente.
 - **Pantalla de tesoros de fin de partida**: ahora se leen bien las tarjetas cuyo icono las cruza o las llena (Acelerador de extracción, fuegos artificiales) y ya no se confunde el rótulo dorado de «Victoria» con una tarjeta. Comprobado con capturas reales: acelerador, localizador de la suerte + fuegos, localizador de espíritus, fuegos y extractor portátil. Se capturan más veces (durante 9 s) para no llegar antes de que aparezcan todas.
+- **Overlay más fiable**: solo cuenta una ventana de Fortnite que esté de verdad en pantalla (con tamaño real, dentro de un monitor y sin ocultar por Windows), así no aparece con Fortnite minimizado; comprueba cada 2 s desde su propio hilo, así se va al cerrar Fortnite aunque FCT esté leyendo repeticiones; y apagado a mano ya no se vuelve a encender al minimizar y restaurar Fortnite (solo al abrir un Fortnite nuevo).
+- **Overlay y gráficos nítidos**: textos más nítidos (ningún texto por debajo de 9 px) y a la escala del monitor donde está, también al moverlo a otra pantalla. Gráfico semanal con textos nítidos y la cifra siempre encima de su punto. Ventana: el botón Estadísticas es como los demás, con las letras en oro; las cifras de las seis tarjetas, algo más arriba.
+- **Buscar partidas (fortnite-api.com)**: una cuenta sin partidas esta temporada ya no sale como «no encontramos a nadie con ese nombre» (son 0 partidas); mensajes propios para demasiadas búsquedas a la vez (límite de 180 por minuto) y clave no válida. Probado con distintos nombres: mayúsculas, espacios, perfiles privados, nombres inexistentes y caracteres raros.
+- Configuración → Recalcular: sin ninguna partida guardada, la primera opción es «Empezar de cero» (como en la primera apertura). Comprobado que desde Configuración las partidas guardadas cuentan igual que en la primera apertura.
+- Textos: «Calcular partidas previas» en la primera apertura y el diálogo; «Recalcular» en Configuración. Estadísticas vuelve a ir en blanco, como los otros botones.
 - **Firma del ejecutable preparada** (SignPath, gratis para código abierto): [política de firma](CODE_SIGNING_POLICY.md) y paso de firma en el flujo de GitHub, que se activa en cuanto SignPath esté configurado. Hasta entonces Windows puede avisar al abrir el exe (README: *Más información → Ejecutar de todas formas*).
 - Las releases ya no llevan la copia `ChestCounter.exe`: las versiones de antes del cambio de nombre ya no se actualizan solas (hay que descargar `FCT.exe` una vez).
 ## [4.2.1] - 2026-11-12
