@@ -30,6 +30,11 @@ public static class FortniteWatch
     private static readonly string[] GameProcesses =
         { Environment.GetEnvironmentVariable("FCT_GAME_PROCESS") is { Length: > 0 } test ? test : "FortniteClient-Win64-Shipping" };
 
+    // Fortnite's programs while it starts (Epic → bootstrapper → launcher → EAC bootstrapper, which installs the driver → game).
+    private static readonly string[] StartingProcesses = Environment.GetEnvironmentVariable("FCT_GAME_PROCESS") is { Length: > 0 } test
+        ? new[] { test, test + "_starting" }
+        : new[] { "FortniteBootstrapper", "FortniteLauncher", "FortniteClient-Win64-Shipping_EAC_EOS", "FortniteClient-Win64-Shipping" };
+
     // FCT_TASK_NAME: another task name, to test without touching the real one.
     private static string TaskName => Environment.GetEnvironmentVariable("FCT_TASK_NAME") is { Length: > 0 } test ? test : AppInfo.Name;
 
@@ -54,9 +59,11 @@ public static class FortniteWatch
         }
     }
 
-    public static bool IsFortniteRunning()
+    public static bool IsFortniteRunning() => IsAnyRunning(GameProcesses);
+
+    private static bool IsAnyRunning(IEnumerable<string> names)
     {
-        foreach (var name in GameProcesses)
+        foreach (var name in names)
         {
             var found = Process.GetProcessesByName(name);
             var any = found.Length > 0;
@@ -271,14 +278,17 @@ public static class FortniteWatch
         {
             return 1;
         }
+        // The anti-cheat driver is installed by Fortnite's own programs (launcher → EAC bootstrapper → game): without
+        // any of them, the event came from another game with the same anti-cheat, and this ends at once. With them,
+        // it waits for the game itself (~10 s), and stops waiting as soon as they are gone (start cancelled).
         var waited = Stopwatch.StartNew();
         while (!IsFortniteRunning())
         {
-            if (waited.Elapsed >= GameWait)
+            if (!IsAnyRunning(StartingProcesses) || waited.Elapsed >= GameWait)
             {
-                return 0; // another game with the same anti-cheat
+                return 0;
             }
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
         }
         if (new Store(dataDir).LoadConfig() is { StartWithFortnite: false })
         {
