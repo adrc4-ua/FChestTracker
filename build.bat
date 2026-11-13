@@ -12,6 +12,12 @@ if errorlevel 1 (
   exit /b 1
 )
 
+rem FCT running from dist\FCT.exe (the window, or its standby process for "Open with Fortnite") locks the file and
+rem the build cannot replace it: close it first (politely, then by force). Data is saved atomically, so nothing is lost.
+rem The new FCT launched at the end starts the standby process again.
+set "FCT_EXE=%~dp0dist\FCT.exe"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$exe=[IO.Path]::GetFullPath($env:FCT_EXE); $p=@(Get-Process -Name FCT -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $exe }); if ($p.Count) { Write-Host 'Closing the running FCT so dist\FCT.exe can be replaced...'; $p | ForEach-Object { taskkill /PID $_.Id 2>&1 | Out-Null }; Start-Sleep -Seconds 3; $p | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1 }"
+
 echo Building (1 to 2 minutes the first time)...
 dotnet publish src\FCT.csproj -c Release -r win-x64 --self-contained true ^
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^

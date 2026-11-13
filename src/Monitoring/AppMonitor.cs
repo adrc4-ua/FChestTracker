@@ -29,9 +29,7 @@ public sealed class AppMonitor
     private bool _updateAnnounced;
     private volatile bool _installing;
     private volatile string? _notice;
-    private volatile bool _keepOpenRequested;
     private DateTime? _fortniteClosedSince;
-    private DateTime? _autoCloseAt;
     private bool _closeRequested;
 
     public AppMonitor(Store store, Config config, TrackerData data, Tracker tracker, string dataDir)
@@ -543,7 +541,6 @@ public sealed class AppMonitor
     public void KeepOpen()
     {
         AutoMode = false;
-        _keepOpenRequested = true;
         RequestPublish();
     }
 
@@ -708,8 +705,8 @@ public sealed class AppMonitor
             ? L.T("Descargando la actualización…", "Downloading the update…")
             : _progress is { } p
                 ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", p.Done, p.Total)
-            : _notice ?? (_autoCloseAt != null ? L.F("Fortnite está cerrado: {0} se cierra en 30 s.", "Fortnite is closed: {0} closes in 30 s.", AppInfo.ShortName) : null);
-        var state = new MonitorState(view, Profiles.List(_data, _config), Profiles.Current(_data, _config)?.Key, _update, notice, _autoCloseAt != null, BuildStats())
+            : _notice;
+        var state = new MonitorState(view, Profiles.List(_data, _config), Profiles.Current(_data, _config)?.Key, _update, notice, false, BuildStats())
         {
             Team = BuildTeam(),
         };
@@ -852,7 +849,6 @@ public sealed class AppMonitor
     /// </summary>
     private bool CheckAutoClose()
     {
-        _keepOpenRequested = false;
         var now = DateTime.UtcNow;
         if (!InBackground || _closeRequested)
         {

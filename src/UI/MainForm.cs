@@ -49,12 +49,12 @@ public sealed class MainForm : ThemedForm
 
     // Disposición base (592 de ancho), la de siempre con el estilo de la página: columna izquierda (cofres y última
     // partida, sus detalles y la semana) y derecha (seis cifras y los botones).
-    private const int X0 = 16, FullW = 560, Right = X0 + FullW, Top = 68;
-    private const int LeftW = 270, RightX = X0 + LeftW + 12, RightW = Right - RightX;
-    private const int HeroH = 100, DetailY = Top + HeroH + 8, DetailH = 44, WeekY = DetailY + DetailH + 8;
+    private const int X0 = 16, FullW = 560, EdgeR = X0 + FullW, TopY = 68;
+    private const int LeftW = 270, RightX = X0 + LeftW + 12, RightW = EdgeR - RightX;
+    private const int HeroH = 100, DetailY = TopY + HeroH + 8, DetailH = 44, WeekY = DetailY + DetailH + 8;
     private const int TileW = (RightW - 8) / 2, TileH = 58, TileGap = 8;
-    private const int NavY = Top + 3 * TileH + 2 * TileGap + 12, NavH = 32, NavGap = 5;
-    private const int Bottom = NavY + 3 * NavH + 2 * NavGap, WeekH = Bottom - WeekY;
+    private const int NavY = TopY + 3 * TileH + 2 * TileGap + 12, NavH = 32, NavGap = 5;
+    private const int BottomY = NavY + 3 * NavH + 2 * NavGap, WeekH = BottomY - WeekY;
 
     public MainForm(AppMonitor monitor, Store store)
     {
@@ -77,10 +77,10 @@ public sealed class MainForm : ThemedForm
         ((FitLabel)brand).Gold = true;
 
         // Perfil: un texto, no un botón (igual que la marca, pero alineado a la derecha y con su icono).
-        _profileIcon = new IconTile { IconSvg = Icons.Person, Location = new Point(Right - 34, 15), Size = new Size(34, 34) };
+        _profileIcon = new IconTile { IconSvg = Icons.Person, Location = new Point(EdgeR - 34, 15), Size = new Size(34, 34) };
         Controls.Add(_profileIcon);
-        _profileCap = Lbl(this, L.T("P E R F I L", "P R O F I L E"), 6.75f, FontStyle.Bold, Theme.Muted, new Point(Right - 44 - 200, 13), new Size(200, 13), align: ContentAlignment.TopRight);
-        _profileName = Lbl(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(Right - 44 - 200, 27), new Size(200, 22), align: ContentAlignment.TopRight);
+        _profileCap = Lbl(this, L.T("P E R F I L", "P R O F I L E"), 6.75f, FontStyle.Bold, Theme.Muted, new Point(EdgeR - 44 - 200, 13), new Size(200, 13), align: ContentAlignment.TopRight);
+        _profileName = Lbl(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(EdgeR - 44 - 200, 27), new Size(200, 22), align: ContentAlignment.TopRight);
         _profile = new ComboBox
         {
             DropDownStyle = ComboBoxStyle.DropDownList,
@@ -89,7 +89,7 @@ public sealed class MainForm : ThemedForm
             BackColor = Theme.Card2,
             ForeColor = Theme.Ink,
             Font = Theme.Text(9f),
-            Location = new Point(Right - 44 - 190, 26),
+            Location = new Point(EdgeR - 44 - 190, 26),
             Size = new Size(190, 24),
             Visible = false,
         };
@@ -111,7 +111,7 @@ public sealed class MainForm : ThemedForm
         Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(X0, 58), Size = new Size(FullW, 1) });
 
         // ---- Tarjeta principal: cofres abiertos y la partida actual o la última, lado a lado -----------------------
-        var hero = new Card { Location = new Point(X0, Top), Size = new Size(LeftW, HeroH), Hero = true };
+        var hero = new Card { Location = new Point(X0, TopY), Size = new Size(LeftW, HeroH), Hero = true };
         Controls.Add(hero);
         // Dos mitades iguales, todo centrado en cada una: título, cifra en oro y una línea debajo.
         const int half = LeftW / 2;
@@ -321,10 +321,10 @@ public sealed class MainForm : ThemedForm
         base.OnFormClosed(e);
     }
 
-    private const int DesignW = 592, DesignHBase = Bottom + 16;
+    private const int DesignW = 592, DesignHBase = BottomY + 16;
     // Tarjeta «Equipo» bajo todo; franja del aviso debajo (o bajo «Equipo» si se ve).
-    private const int TeamY = Bottom + 10, TeamH = 78, DesignHTeam = TeamY + TeamH + 16;
-    private const int BannerH = 40, BannerYBase = Bottom + 10, BannerYTeam = TeamY + TeamH + 10, BannerGap = 16;
+    private const int TeamY = BottomY + 10, TeamH = 78, DesignHTeam = TeamY + TeamH + 16;
+    private const int BannerH = 40, BannerYBase = BottomY + 10, BannerYTeam = TeamY + TeamH + 10, BannerGap = 16;
     private int _designH = DesignHBase;
     private readonly Dictionary<Control, LayoutEntry> _layout = new();
     private System.Windows.Forms.Timer? _scaleTimer;
@@ -626,7 +626,7 @@ public sealed class MainForm : ThemedForm
     /// </summary>
     private Label Tile(int col, int row, string text, string icon, out Label caption)
     {
-        var card = new Card { Location = new Point(RightX + col * (TileW + TileGap), Top + row * (TileH + TileGap)), Size = new Size(TileW, TileH), Radius = 14 };
+        var card = new Card { Location = new Point(RightX + col * (TileW + TileGap), TopY + row * (TileH + TileGap)), Size = new Size(TileW, TileH), Radius = 14 };
         Controls.Add(card);
         caption = Lbl(card, text, 8f, FontStyle.Bold, Theme.Muted, new Point(11, 8), new Size(TileW - 11 - 32, 15));
         card.Controls.Add(new IconTile { IconSvg = icon, Location = new Point(TileW - 9 - 20, 7), Size = new Size(20, 20) });
