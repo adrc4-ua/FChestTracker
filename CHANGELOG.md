@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Los cofres enterrados cuentan como cofres normales** en las estadísticas (Cofres, origen de cada tesoro y «Dónde consigo mis tesoros»). Esa última lista muestra siempre los cofres que dan tesoros, también los cofres de espíritu aunque aún no te hayan dado ninguno.
 - **Tachar premios en las semanas** (Estadísticas → Tesoros → Ver todas las semanas): toca un premio para tacharlo o destacharlo. Los que consigues se tachan solos, y siempre puedes cambiarlos a mano; se guardan con tu configuración. El botón de las semanas y los premios de «Todas las semanas» van ahora en gris: solo el Pirate Shop Access se ilumina si lo consigues.
 - **Abrir FCT a mano siempre muestra su ventana**, aunque Fortnite esté abierto (minimizado o en segundo plano). Solo arranca escondido en la bandeja cuando lo abre Fortnite o se reinicia tras una actualización.
 - **Contar también partidas clasificatorias** (desactivado por defecto), en Configuración de la app y de la web.

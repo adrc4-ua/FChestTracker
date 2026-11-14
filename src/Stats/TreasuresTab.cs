@@ -23,7 +23,7 @@ internal static class TreasuresTab
         var unusual = treasures.Where(t => !t.f.SourceIsChest).ToList();
         if (unusual.Count > 0)
         {
-            var sources = Esc(string.Join(", ", unusual.Select(t => L.Name(t.f.SourceKind)).Distinct()));
+            var sources = Esc(string.Join(", ", unusual.Select(t => L.Name(ChestKinds.Shown(t.f.SourceKind))).Distinct()));
             html.Append($"<div class=\"alert\"><span class=\"alert-ico\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("sin abrir un cofre", "other than from a chest")}</b>: {sources}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
         }
         html.Append(Figures(treasures, page.Matches.Count));
@@ -50,13 +50,23 @@ internal static class TreasuresTab
 
     private static string Sources(List<(MatchRecord m, TreasureFind f)> treasures)
     {
-        var sources = treasures.GroupBy(t => L.Name(t.f.SourceKind)).OrderByDescending(s => s.Count()).ToList();
-        var largest = Math.Max(1, sources.Max(s => s.Count()));
-        var rows = new StringBuilder();
-        foreach (var source in sources)
+        // the chests that give treasures are always listed (also at 0); buried ones are normal chests
+        var sources = new List<(string Name, int Count, bool Chest)>();
+        foreach (var kind in new[] { ChestKinds.Normal, ChestKinds.Rare, ChestKinds.Extraction })
         {
-            var chest = source.First().f.SourceIsChest;
-            rows.Append(Bar((chest ? "" : "⚑ ") + Esc(source.Key), Num(source.Count()), 100.0 * source.Count() / largest, chest ? null : "bar-warn"));
+            sources.Add((L.Name(kind), treasures.Count(t => ChestKinds.Shown(t.f.SourceKind) == kind), true));
+        }
+        foreach (var other in treasures.Where(t => !sources.Exists(s => s.Name == L.Name(ChestKinds.Shown(t.f.SourceKind))))
+                     .GroupBy(t => L.Name(ChestKinds.Shown(t.f.SourceKind))))
+        {
+            sources.Add((other.Key, other.Count(), other.First().f.SourceIsChest));
+        }
+        sources = sources.OrderByDescending(s => s.Count).ToList(); // stable: at a tie, the chests' order above
+        var largest = Math.Max(1, sources.Max(s => s.Count));
+        var rows = new StringBuilder();
+        foreach (var (name, count, chest) in sources)
+        {
+            rows.Append(Bar((chest ? "" : "⚑ ") + Esc(name), Num(count), 100.0 * count / largest, chest ? null : "bar-warn"));
         }
         return Section(L.T("Dónde consigo mis tesoros", "Where I get my treasures"), L.Count(treasures.Count, "tesoro", "tesoros", "treasure", "treasures"),
             $"<div class=\"sheet sheet-pad\"><div class=\"bars\">{rows}</div></div>");

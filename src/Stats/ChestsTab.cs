@@ -16,7 +16,7 @@ internal static class ChestsTab
 
     private static string ByKind(List<MatchRecord> matches)
     {
-        var kinds = matches.SelectMany(m => m.Chests).GroupBy(c => c.Kind).Select(k => (Kind: k.Key, Count: k.Count())).OrderByDescending(k => k.Count).ToList();
+        var kinds = matches.SelectMany(m => m.Chests).GroupBy(c => ChestKinds.Shown(c.Kind)).Select(k => (Kind: k.Key, Count: k.Count())).OrderByDescending(k => k.Count).ToList();
         var total = kinds.Sum(k => k.Count);
         var largest = kinds.Count == 0 ? 1 : Math.Max(1, kinds.Max(k => k.Count));
         var rows = new StringBuilder();

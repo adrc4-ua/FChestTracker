@@ -41,6 +41,12 @@ public static class ChestKinds
 
     public static bool IsChest(string kind) => Chests.Contains(kind);
 
+    /// <summary>
+    /// The kind as the player sees it: a buried chest is a normal chest (it is only told apart when reading the replay,
+    /// as it hands out its prize when the digging ends, before it counts as opened).
+    /// </summary>
+    public static string Shown(string kind) => kind == Buried ? Normal : kind;
+
     public static string Classify(string blueprint)
     {
         var name = blueprint.ToLowerInvariant();

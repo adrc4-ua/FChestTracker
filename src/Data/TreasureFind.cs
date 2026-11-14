@@ -58,7 +58,7 @@ public sealed class TreasureFind
     {
         get
         {
-            var kind = L.Name(SourceKind);
+            var kind = L.Name(ChestKinds.Shown(SourceKind));
             return SourceDestroyed ? $"{kind} ({L.T("destruido", "destroyed")})" : kind;
         }
     }
