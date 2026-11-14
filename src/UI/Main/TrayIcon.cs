@@ -40,6 +40,9 @@ internal sealed class TrayIcon : IDisposable
         };
     }
 
+    /// <summary>A Windows notification from the tray icon (Windows holds it while a game is in fullscreen).</summary>
+    public void ShowTip(string title, string text) => _icon.ShowBalloonTip(10_000, title, text, ToolTipIcon.Info);
+
     private static ToolStripMenuItem Item(string text, Action action) => new(text, null, (_, _) => action());
 
     /// <summary>Hidden first: otherwise the icon lingers in the tray until the mouse passes over it.</summary>

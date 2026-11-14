@@ -28,9 +28,10 @@ public sealed class AppMonitor
     private volatile bool _stop, _publishRequested, _statsRequested, _scanned;
     private volatile string? _shownKey, _shownName, _notice, _resetBackup;
     private volatile ScanProgress? _progress;
-    private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck;
+    private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck, _nextDisplayCheck;
     private DateTime? _fortniteClosedSince;
-    private bool _closeRequested;
+    private bool _closeRequested, _displayTipShown;
+    private volatile string? _displayWarning;
 
     public AppMonitor(Store store, Config config, TrackerData data, Tracker tracker, string dataDir)
     {
@@ -69,6 +70,12 @@ public sealed class AppMonitor
 
     /// <summary>Asks the window to close (Fortnite closed, new version, restart, uninstall), from any thread.</summary>
     public event Action? CloseRequested;
+
+    /// <summary>
+    /// A Windows notification to show once (title, text), from the monitor thread: Fortnite is in exclusive fullscreen,
+    /// where the overlay cannot be seen. The window is usually hidden in the tray while playing, so it goes there.
+    /// </summary>
+    public event Action<string, string>? TrayTip;
 
     public bool RestartAfterUpdate => _updates.Installed;
     public bool RestartRequested { get; private set; }
@@ -378,6 +385,7 @@ public sealed class AppMonitor
             _updates.Poll();
             changed |= _updates.Handle(idle: !_tracker.IsLive && !_tracker.HasPending && !_tracker.IsFinishing, InstallUpdate);
             changed |= ExpireNotice();
+            changed |= WarnAboutExclusiveFullscreen();
             if (_statsRequested)
             {
                 _statsRequested = false;
@@ -505,6 +513,36 @@ public sealed class AppMonitor
         return true;
     }
 
+    /// <summary>
+    /// With the overlay on and Fortnite open in exclusive fullscreen, a lasting notice in the window and, once per run, a
+    /// Windows notification; both go when the mode changes. Checked every 10 s from the game's settings file.
+    /// </summary>
+    private bool WarnAboutExclusiveFullscreen()
+    {
+        var now = DateTime.UtcNow;
+        if (!OperatingSystem.IsWindows() || now < _nextDisplayCheck)
+        {
+            return false;
+        }
+        _nextDisplayCheck = now.AddSeconds(10);
+        var exclusive = OverlayVisible && FortniteWatch.IsFortniteRunning() && GameDisplayMode.IsExclusiveFullscreen() == true;
+        var warning = exclusive
+            ? L.T("En Pantalla completa el overlay no se ve. Pon Fortnite en Pantalla completa en ventana (Ajustes → Vídeo).",
+                "In Fullscreen the overlay can't show. Set Fortnite to Windowed Fullscreen (Settings → Video).")
+            : null;
+        if (warning == _displayWarning)
+        {
+            return false;
+        }
+        _displayWarning = warning;
+        if (warning != null && !_displayTipShown)
+        {
+            _displayTipShown = true;
+            TrayTip?.Invoke(L.T("El overlay no se ve en Pantalla completa", "The overlay is hidden in Fullscreen"), warning);
+        }
+        return true;
+    }
+
     private bool ExpireNotice()
     {
         if (_notice == null || DateTime.UtcNow < _noticeUntil)
@@ -569,7 +607,7 @@ public sealed class AppMonitor
         var shownLive = _tracker.IsLive ? live : null;
         var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
             : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
-            : _notice;
+            : _notice ?? _displayWarning;
         Changed?.Invoke(new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false, ScreenFigures.Stats(view.Matches, shownLive))
         {
             Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,

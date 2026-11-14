@@ -149,6 +149,7 @@ public sealed partial class MainForm : ThemedForm
         _layout.Capture();
         _rescale.Tick += (_, _) => { _rescale.Stop(); _layout.Apply(); };
         monitor.Changed += OnChanged;
+        monitor.TrayTip += (title, text) => OnWindowThread(() => _tray.ShowTip(title, text));
         // hidden in the tray = in the background: the app then closes by itself when Fortnite closes
         VisibleChanged += (_, _) => _monitor.InBackground = !Visible;
     }
@@ -279,6 +280,22 @@ public sealed partial class MainForm : ThemedForm
         if (read)
         {
             Open(AppInfo.RepoUrl + "/blob/main/NOTICE.md");
+        }
+    }
+
+    /// <summary>Runs on the window's thread when the window exists (events come from the monitor thread).</summary>
+    private void OnWindowThread(Action action)
+    {
+        if (!IsHandleCreated || IsDisposed)
+        {
+            return;
+        }
+        try
+        {
+            BeginInvoke(action);
+        }
+        catch (Exception ex) when (ex is ObjectDisposedException or InvalidOperationException)
+        {
         }
     }
 
