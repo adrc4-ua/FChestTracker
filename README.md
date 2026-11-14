@@ -48,7 +48,7 @@ FCT cuenta **cada cofre que abres en Fortnite**, partida a partida. Tú juegas; 
 </p>
 
 - Sale solo cuando Fortnite está abierto, en la pantalla y el sitio que elijas.
-- Para moverlo, abre su **candado** y arrástralo. Nunca te quita el ratón: el cursor y los clics siempre son del juego.
+- Para moverlo, abre su **candado** y arrástralo. En partida no interfiere: el ratón y el cursor siguen siendo del juego.
 - Se enciende y se apaga con el botón **Overlay** de FCT.
 - Fortnite tiene que estar en **Pantalla completa en ventana** para que se vea encima.
 - **¿Haces directos?** En *Configuración* tienes la dirección para añadirlo a OBS como fuente de navegador.

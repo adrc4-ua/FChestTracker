@@ -48,7 +48,7 @@ FCT counts **every chest you open in Fortnite**, match after match. You play; it
 </p>
 
 - It only shows while Fortnite is open, on the screen and spot you choose.
-- To move it, open its **padlock** and drag it. It never takes your mouse: the cursor and clicks always belong to the game.
+- To move it, open its **padlock** and drag it. It stays out of your way in a match: the mouse and cursor remain the game's.
 - Turn it on and off with FCT's **Overlay** button.
 - Fortnite has to be in **Windowed Fullscreen** for it to show on top.
 - **Streaming?** *Settings* has the address to add it to OBS as a browser source.
