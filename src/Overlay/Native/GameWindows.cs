@@ -75,17 +75,19 @@ internal sealed class GameWindows
         {
             return false;
         }
+        var kind = new System.Text.StringBuilder(64);
+        GetClassNameW(front, kind, kind.Capacity);
+        if (kind.ToString() is "Progman" or "WorkerW")
+        {
+            return true; // the desktop (Win + D): it spans every screen, so it counts wherever it is
+        }
         var screen = MonitorFromWindow(game, MONITOR_DEFAULTTONEAREST);
         if (MonitorFromWindow(front, MONITOR_DEFAULTTONEAREST) != screen || IsIconic(front))
         {
             return false;
         }
-        var kind = new System.Text.StringBuilder(64);
-        GetClassNameW(front, kind, kind.Capacity);
         switch (kind.ToString())
         {
-            case "Progman" or "WorkerW":
-                return true; // the desktop
             case "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "NotifyIconOverflowWindow" or "Windows.UI.Core.CoreWindow"
                 or "XamlExplorerHostIslandWindow" or "MultitaskingViewFrame" or "TaskSwitcherWnd" or "ForegroundStaging":
                 return false; // taskbar, tray, Start and notification panels, and the Alt + Tab / Win + Tab switchers
