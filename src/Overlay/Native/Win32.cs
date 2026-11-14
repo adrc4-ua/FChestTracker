@@ -11,6 +11,8 @@ internal static class Win32
         WS_EX_NOACTIVATE = 0x08000000;
     public const int GWL_EXSTYLE = -20;
     public const uint LWA_ALPHA = 0x2, CURSOR_SHOWING = 0x1;
+    public const uint WM_INPUT = 0x00FF, RID_INPUT = 0x10000003, RIM_TYPEMOUSE = 0, RIDEV_REMOVE = 0x1, RIDEV_INPUTSINK = 0x100;
+    public const ushort MOUSE_MOVE_ABSOLUTE = 0x1;
     public const int HTCLIENT = 1, HTCAPTION = 2, HTTRANSPARENT = -1;
     public const int SW_HIDE = 0, SW_SHOWNOACTIVATE = 4;
     public const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10, SWP_FRAMECHANGED = 0x20;
@@ -92,7 +94,21 @@ internal static class Win32
     public struct CURSORINFO { public uint cbSize, flags; public IntPtr hCursor; public POINT ptScreenPos; }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct LASTINPUTINFO { public uint cbSize, dwTime; }
+    public struct RAWINPUTDEVICE { public ushort usUsagePage, usUsage; public uint dwFlags; public IntPtr hwndTarget; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RAWINPUTHEADER { public uint dwType, dwSize; public IntPtr hDevice, wParam; }
+
+    /// <summary>A raw mouse report: its header, then RAWMOUSE (flags, buttons, raw buttons, X, Y, extra).</summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RAWMOUSEINPUT
+    {
+        public RAWINPUTHEADER header;
+        public ushort usFlags, padding;
+        public uint ulButtons, ulRawButtons;
+        public int lLastX, lLastY;
+        public uint ulExtraInformation;
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct MONITORINFO { public uint cbSize; public RECT rcMonitor, rcWork; public uint dwFlags; }
@@ -139,7 +155,8 @@ internal static class Win32
     [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint key, byte alpha, uint flags);
     [DllImport("user32.dll")] public static extern bool GetCursorInfo(ref CURSORINFO info);
     [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT point);
-    [DllImport("user32.dll")] public static extern bool GetLastInputInfo(ref LASTINPUTINFO info);
+    [DllImport("user32.dll", SetLastError = true)] public static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] devices, uint count, uint size);
+    [DllImport("user32.dll")] public static extern uint GetRawInputData(IntPtr input, uint command, out RAWMOUSEINPUT data, ref uint size, uint headerSize);
     [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] public static extern IntPtr LoadCursorW(IntPtr instance, IntPtr name);
     [DllImport("user32.dll")] public static extern IntPtr SetCursor(IntPtr cursor);

@@ -304,6 +304,12 @@ public static class NativeOverlay
                     Relayout(window);
                 }
                 return 0;
+            case WM_INPUT:
+                if (MouseMove(lParam) is var (dx, dy) && _mouse.Moved(dx, dy))
+                {
+                    LetMouseThrough(window, true); // the game pinned the pointer: give the mouse back
+                }
+                return DefWindowProcW(window, message, wParam, lParam);
             case WM_TIMER when (long)wParam == MouseTimer:
                 if (!_dragging && GetWindowRect(window, out var place) && _mouse.Update(place))
                 {
@@ -451,9 +457,14 @@ public static class NativeOverlay
         }
     }
 
-    /// <summary>Through: the mouse (and its cursor) belongs to the window below. Otherwise the overlay takes it.</summary>
+    /// <summary>
+    /// Through: the mouse (and its cursor) belongs to the window below. Otherwise the overlay takes it, and reads the
+    /// mouse's own movement (raw input) to notice when the game pins the pointer; only then, so it costs nothing in play.
+    /// </summary>
     private static void LetMouseThrough(IntPtr window, bool through)
     {
+        var mouse = new[] { new RAWINPUTDEVICE { usUsagePage = 0x01, usUsage = 0x02, dwFlags = through ? RIDEV_REMOVE : RIDEV_INPUTSINK, hwndTarget = through ? IntPtr.Zero : window } };
+        RegisterRawInputDevices(mouse, 1, (uint)Marshal.SizeOf<RAWINPUTDEVICE>());
         var style = (long)GetWindowLongPtrW(window, GWL_EXSTYLE);
         var wanted = through ? style | WS_EX_TRANSPARENT : style & ~(long)WS_EX_TRANSPARENT;
         if (wanted != style)
@@ -503,6 +514,18 @@ public static class NativeOverlay
         }
         InvalidateRect(window, IntPtr.Zero, true);
         UpdateWindow(window); // one repaint per change
+    }
+
+    /// <summary>The relative movement of a raw mouse report; null for anything else (an absolute device, a pen…).</summary>
+    private static (int, int)? MouseMove(IntPtr report)
+    {
+        var size = (uint)Marshal.SizeOf<RAWMOUSEINPUT>();
+        if (GetRawInputData(report, RID_INPUT, out var input, ref size, (uint)Marshal.SizeOf<RAWINPUTHEADER>()) == uint.MaxValue
+            || input.header.dwType != RIM_TYPEMOUSE || (input.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
+        {
+            return null;
+        }
+        return (input.lLastX, input.lLastY);
     }
 
     private static void PaintInto(IntPtr window, IntPtr hdc)

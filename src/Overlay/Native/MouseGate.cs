@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using static FCT.Overlay.Native.Win32;
 
@@ -11,23 +12,24 @@ namespace FCT.Overlay.Native;
 /// <list type="bullet">
 /// <item>Letting it through, the pointer over the overlay is over the window below: if that window shows a cursor (a
 /// menu, Esc, the desktop) the mouse is free, and the overlay takes it (padlock, ✕, dragging).</item>
-/// <item>Taking it, it gives the mouse back when the pointer leaves, or when there is input (mouse or keys) while the
-/// pointer stays still for a moment: a game in play keeps its hidden pointer pinned while the mouse moves.</item>
+/// <item>Taking it, it gives the mouse back when the pointer leaves, or as soon as the mouse itself moves (raw input,
+/// read only while taking it) and the pointer does not: a game in play keeps its hidden pointer pinned. Keys and clicks
+/// never count.</item>
 /// </list>
 /// </summary>
 [SupportedOSPlatform("windows")]
 internal sealed class MouseGate
 {
-    /// <summary>Input with the pointer still for this long: the pointer is pinned (the game has it).</summary>
-    private const int PinnedMs = 1000;
+    /// <summary>Mouse travel (in raw counts) with the pointer still that means the pointer is pinned.</summary>
+    private const int PinnedTravel = 24;
 
     private POINT _last;
-    private long _lastMove = Environment.TickCount64, _takenAt;
+    private int _travel;
 
     /// <summary>The overlay takes the mouse (clickable); otherwise the mouse goes through it to the window below.</summary>
     public bool Taking { get; private set; }
 
-    /// <summary>Looks again; true when <see cref="Taking"/> changed.</summary>
+    /// <summary>Looks again (every moment while on screen); true when <see cref="Taking"/> changed.</summary>
     /// <param name="overlay">The overlay's place on screen.</param>
     public bool Update(RECT overlay)
     {
@@ -35,42 +37,40 @@ internal sealed class MouseGate
         {
             return Set(false);
         }
-        var now = Environment.TickCount64;
-        if (at.X != _last.X || at.Y != _last.Y)
-        {
-            _last = at;
-            _lastMove = now;
-        }
         var over = overlay.Contains(at.X, at.Y);
-        if (!Taking)
+        if (Taking)
         {
-            // the cursor is the one of the window below the overlay: shown means free
-            var cursor = new CURSORINFO { cbSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf<CURSORINFO>() };
-            var shown = GetCursorInfo(ref cursor) && (cursor.flags & CURSOR_SHOWING) != 0 && cursor.hCursor != IntPtr.Zero;
-            return Set(over && shown);
+            return Set(over);
         }
-        return Set(over && (ButtonDown() || !Pinned(now))); // never in the middle of a click or a drag
+        // the cursor is the one of the window below the overlay: shown means free
+        var cursor = new CURSORINFO { cbSize = (uint)Marshal.SizeOf<CURSORINFO>() };
+        var shown = GetCursorInfo(ref cursor) && (cursor.flags & CURSOR_SHOWING) != 0 && cursor.hCursor != IntPtr.Zero;
+        return Set(over && shown);
     }
 
-    /// <summary>Gives the mouse back (the overlay hides, or the game takes over).</summary>
-    public bool Release() => Set(false);
-
     /// <summary>
-    /// Mouse or keyboard input after the pointer last moved (and after the overlay took the mouse, so a click on it does
-    /// not count), with the pointer still since then.
+    /// The mouse moved by (<paramref name="dx"/>, <paramref name="dy"/>) raw counts while the overlay takes it. True when
+    /// it gives the mouse back: the mouse keeps moving and the pointer does not.
     /// </summary>
-    private bool Pinned(long now)
+    public bool Moved(int dx, int dy)
     {
-        var input = new LASTINPUTINFO { cbSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf<LASTINPUTINFO>() };
-        if (!GetLastInputInfo(ref input))
+        if (!Taking || !GetCursorPos(out var at))
         {
             return false;
         }
-        // dwTime is the 32-bit tick count of the last input; compared within the same 49-day window
-        var sinceInput = unchecked((uint)now - input.dwTime);
-        var still = now - Math.Max(_lastMove, _takenAt);
-        return still >= PinnedMs && sinceInput < still - 50;
+        if (at.X != _last.X || at.Y != _last.Y)
+        {
+            _last = at;
+            _travel = 0;
+            return false;
+        }
+        _travel += Math.Abs(dx) + Math.Abs(dy);
+        // never in the middle of a click or a drag
+        return _travel >= PinnedTravel && !ButtonDown() && Set(false);
     }
+
+    /// <summary>Gives the mouse back (the overlay hides).</summary>
+    public bool Release() => Set(false);
 
     private static bool ButtonDown() => (GetAsyncKeyState(0x01) & 0x8000) != 0 || (GetAsyncKeyState(0x02) & 0x8000) != 0;
 
@@ -81,9 +81,10 @@ internal sealed class MouseGate
             return false;
         }
         Taking = taking;
-        if (taking)
+        _travel = 0;
+        if (taking && GetCursorPos(out var at))
         {
-            _takenAt = Environment.TickCount64;
+            _last = at;
         }
         return true;
     }
