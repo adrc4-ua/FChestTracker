@@ -130,10 +130,24 @@ internal sealed class GameWindows
     private static bool DesktopInFront() => ClassOf(GetForegroundWindow()) is "Progman" or "WorkerW";
 
     /// <summary>
+    /// Screen capture tools: while choosing what to capture they lay a window over the whole screen, and the overlay must
+    /// stay (it is part of the picture). Process names, without ".exe".
+    /// </summary>
+    private static readonly HashSet<string> CaptureTools = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "SnippingTool", "ScreenClippingHost", "ScreenSketch", "ShareX", "Lightshot", "Greenshot", "flameshot", "PicPick",
+        "Snagit32", "SnagitCapture", "SnagitEditor", "Gyazo", "GyazoReplay", "Monosnap", "FastStone Capture", "FSCapture",
+        "obs64", "GameBar", "GameBarFTServer", "XboxGameBarWidgets", "NVIDIA Share", "NVIDIA Overlay", "RadeonSoftware", "AMDRSServ",
+    };
+
+    private static readonly Dictionary<uint, bool> CaptureProcesses = new();
+
+    /// <summary>
     /// A window above the game that hides what is under it, with its place. Not: hidden, minimized or cloaked windows,
     /// FCT's and the game's own, windows the mouse goes through or nearly invisible ones (overlays like a graphics
-    /// driver's, spanning the whole screen), and the shell's: taskbar, its menus and panels, Start, and the Alt + Tab /
-    /// Win + Tab switchers.
+    /// driver's, spanning the whole screen), "always on top" ones (screen captures choosing their area, game bars: the
+    /// game is still seen through or around them), screen capture tools, and the shell's: taskbar, its menus and panels,
+    /// Start, and the Alt + Tab / Win + Tab switchers.
     /// </summary>
     private static bool Hides(IntPtr window, uint gameProcess, uint own, out RECT box)
     {
@@ -147,7 +161,7 @@ internal sealed class GameWindows
             return false;
         }
         var style = (long)GetWindowLongPtrW(window, GWL_EXSTYLE);
-        if ((style & WS_EX_TRANSPARENT) != 0)
+        if ((style & (WS_EX_TRANSPARENT | WS_EX_TOPMOST)) != 0 || IsCaptureTool(pid))
         {
             return false;
         }
@@ -163,6 +177,28 @@ internal sealed class GameWindows
                 return false;
         }
         return GetWindowRect(window, out box) && box.Width > 0 && box.Height > 0;
+    }
+
+    private static bool IsCaptureTool(uint pid)
+    {
+        if (CaptureProcesses.Count > 512)
+        {
+            CaptureProcesses.Clear();
+        }
+        if (!CaptureProcesses.TryGetValue(pid, out var capture))
+        {
+            try
+            {
+                using var process = System.Diagnostics.Process.GetProcessById((int)pid);
+                capture = CaptureTools.Contains(process.ProcessName);
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+            {
+                capture = false; // gone
+            }
+            CaptureProcesses[pid] = capture;
+        }
+        return capture;
     }
 
     private static string ClassOf(IntPtr window)
