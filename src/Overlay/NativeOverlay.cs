@@ -291,6 +291,8 @@ public static class NativeOverlay
             case WM_APP_RELAYOUT:
                 Relayout(window);
                 return 0;
+            case WM_ERASEBKGND:
+                return 1; // painted whole below, in one go: never a bare background first
             case WM_PAINT:
                 var hdc = BeginPaint(window, out var paint);
                 try
@@ -466,13 +468,25 @@ public static class NativeOverlay
         RegisterRawInputDevices(mouse, 1, (uint)Marshal.SizeOf<RAWINPUTDEVICE>());
     }
 
-    /// <summary>Lights a button (or none), repainting only when it changes.</summary>
+    /// <summary>Lights a button (or none), repainting only the buttons' strip, and only when it changes.</summary>
     private static void Hover(IntPtr window, OverlayButton button)
     {
-        if (button != _hover)
+        if (button == _hover)
         {
-            _hover = button;
-            InvalidateRect(window, IntPtr.Zero, false);
+            return;
+        }
+        _hover = button;
+        var strip = new RECT(Math.Min(_layout.Lock.Left, _layout.Close.Left), Math.Min(_layout.Lock.Top, _layout.Close.Top),
+            Math.Max(_layout.Lock.Right, _layout.Close.Right), Math.Max(_layout.Lock.Bottom, _layout.Close.Bottom));
+        var handle = Marshal.AllocHGlobal(Marshal.SizeOf<RECT>());
+        try
+        {
+            Marshal.StructureToPtr(strip, handle, false);
+            InvalidateRect(window, handle, false);
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(handle);
         }
     }
 
@@ -618,7 +632,7 @@ public static class NativeOverlay
         {
             ReleaseDC(window, hdc);
         }
-        InvalidateRect(window, IntPtr.Zero, true);
+        InvalidateRect(window, IntPtr.Zero, false);
         UpdateWindow(window); // one repaint per change
     }
 
@@ -635,9 +649,31 @@ public static class NativeOverlay
         return ((ushort)(input.ulButtons & 0xFFFF), moved);
     }
 
+    /// <summary>Paints the whole overlay in memory and copies it in one go: no flash of a half-drawn card on screen.</summary>
     private static void PaintInto(IntPtr window, IntPtr hdc)
     {
         GetClientRect(window, out var client);
-        OverlayPainter.Paint(hdc, client, _ink, _layout, _view, _locked, _close != null, _hover);
+        int width = Math.Max(1, client.Width), height = Math.Max(1, client.Height);
+        var memory = CreateCompatibleDC(hdc);
+        var bitmap = CreateCompatibleBitmap(hdc, width, height);
+        if (memory == IntPtr.Zero || bitmap == IntPtr.Zero)
+        {
+            DeleteObject(bitmap);
+            DeleteDC(memory);
+            OverlayPainter.Paint(hdc, client, _ink, _layout, _view, _locked, _close != null, _hover);
+            return;
+        }
+        var previous = SelectObject(memory, bitmap);
+        try
+        {
+            OverlayPainter.Paint(memory, client, _ink, _layout, _view, _locked, _close != null, _hover);
+            BitBlt(hdc, 0, 0, width, height, memory, 0, 0, SRCCOPY);
+        }
+        finally
+        {
+            SelectObject(memory, previous);
+            DeleteObject(bitmap);
+            DeleteDC(memory);
+        }
     }
 }

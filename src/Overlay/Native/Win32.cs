@@ -17,8 +17,9 @@ internal static class Win32
     public static readonly IntPtr HWND_TOPMOST = new(-1);
     public static readonly IntPtr IDC_ARROW = new(32512);
 
-    public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_TIMER = 0x0113, WM_DPICHANGED = 0x02E0,
-        WM_PRINTCLIENT = 0x0318;
+    public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_ERASEBKGND = 0x0014, WM_TIMER = 0x0113,
+        WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
+    public const uint SRCCOPY = 0x00CC0020;
 
     public const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTONEAREST = 2;
     public const int DWMWA_CLOAKED = 14;
@@ -182,5 +183,6 @@ internal static class Win32
     [DllImport("gdi32.dll")] public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
     [DllImport("gdi32.dll")] public static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int w, int h);
     [DllImport("gdi32.dll")] public static extern bool DeleteDC(IntPtr hdc);
+    [DllImport("gdi32.dll")] public static extern bool BitBlt(IntPtr dest, int x, int y, int w, int h, IntPtr src, int sx, int sy, uint rop);
     [DllImport("gdi32.dll")] public static extern int GetDIBits(IntPtr hdc, IntPtr bmp, uint start, uint lines, byte[] bits, ref BITMAPINFOHEADER bi, uint usage);
 }
