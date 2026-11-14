@@ -16,9 +16,9 @@ internal static class OverviewTab
         html.Append(Curve(matches));
 
         html.Append("<div class=\"pair\"><section class=\"fit\">");
-        var seeAll = matches.Count > 6 ? $"<a class=\"more-link\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "";
+        var seeAll = matches.Count > 5 ? $"<a class=\"more-link\" href=\"#partidas\" data-go=\"partidas\">{L.T("Ver todas", "See all")} →</a>" : "";
         html.Append($"<div class=\"sec-head\"><h2>{L.T("Últimas partidas", "Latest matches")}</h2>{seeAll}</div>");
-        html.Append(MatchesTab.Short(matches.Take(6).ToList()));
+        html.Append(MatchesTab.Short(matches.Take(5).ToList()));
         html.Append("</section><div class=\"pile\">").Append(LatestTreasures(page.Treasures));
         if (page.Teammates != null)
         {
