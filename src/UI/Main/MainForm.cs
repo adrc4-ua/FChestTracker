@@ -53,6 +53,7 @@ public sealed partial class MainForm : ThemedForm
     private readonly FitLabel _notice;
 
     private MonitorState? _state;
+    private bool _fullscreenMessagePending;
     private bool _exiting, _settingsOpen, _startHandled, _keepOpenOffered;
 
     public MainForm(AppMonitor monitor, Store store)
@@ -149,7 +150,8 @@ public sealed partial class MainForm : ThemedForm
         _layout.Capture();
         _rescale.Tick += (_, _) => { _rescale.Stop(); _layout.Apply(); };
         monitor.Changed += OnChanged;
-        monitor.TrayTip += (title, text) => OnWindowThread(() => _tray.ShowTip(title, text));
+        monitor.ExclusiveFullscreen += () => OnWindowThread(WarnAboutExclusiveFullscreen);
+        Activated += (_, _) => ShowFullscreenMessageIfPending();
         // hidden in the tray = in the background: the app then closes by itself when Fortnite closes
         VisibleChanged += (_, _) => _monitor.InBackground = !Visible;
     }
@@ -281,6 +283,47 @@ public sealed partial class MainForm : ThemedForm
         {
             Open(AppInfo.RepoUrl + "/blob/main/NOTICE.md");
         }
+    }
+
+    // ---- Fortnite in exclusive fullscreen ----------------------------------------------------------------------------
+
+    private static string FullscreenTitle => L.T("El overlay no se ve en Pantalla completa", "The overlay is hidden in Fullscreen");
+
+    /// <summary>
+    /// A Windows notification now (Windows holds it while a game is in fullscreen, and "Do not disturb" hides it), and
+    /// FCT's own message the next time the player looks at the window (at once if it is in front already).
+    /// </summary>
+    private void WarnAboutExclusiveFullscreen()
+    {
+        _tray.ShowTip(FullscreenTitle, L.T("Pon Fortnite en Pantalla completa en ventana: Ajustes → Vídeo → Modo de ventana.",
+            "Set Fortnite to Windowed Fullscreen: Settings → Video → Window Mode."));
+        _fullscreenMessagePending = true;
+        if (Visible && ContainsFocus)
+        {
+            ShowFullscreenMessageIfPending();
+        }
+    }
+
+    /// <summary>Once per run of FCT: the first time its window comes to the front after Fortnite was found in fullscreen.</summary>
+    private void ShowFullscreenMessageIfPending()
+    {
+        if (!_fullscreenMessagePending)
+        {
+            return;
+        }
+        _fullscreenMessagePending = false;
+        BeginInvoke(() => InfoDialog.Confirm(this, FullscreenTitle,
+            L.T("Fortnite está en Pantalla completa, y en ese modo Windows no deja que se vea nada encima del juego.",
+                "Fortnite is in Fullscreen, and in that mode Windows lets nothing show over the game."),
+            new[]
+            {
+                new InfoPoint(Icons.Settings, Theme.GoldHi, L.T("Cámbialo en Fortnite", "Change it in Fortnite"),
+                    L.T("Ajustes → Vídeo → Modo de ventana → Pantalla completa en ventana. Se ve igual y rinde igual.",
+                        "Settings → Video → Window Mode → Windowed Fullscreen. It looks and runs the same.")),
+                new InfoPoint(Icons.Overlay, Theme.GoldHi, L.T("El overlay vuelve solo", "The overlay comes back by itself"),
+                    L.T("En cuanto lo cambies, el overlay se verá encima del juego.", "As soon as you change it, the overlay shows over the game.")),
+            },
+            L.T("Entendido", "Got it"), null, Icons.Warning));
     }
 
     /// <summary>Runs on the window's thread when the window exists (events come from the monitor thread).</summary>

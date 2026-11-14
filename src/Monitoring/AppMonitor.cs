@@ -72,10 +72,10 @@ public sealed class AppMonitor
     public event Action? CloseRequested;
 
     /// <summary>
-    /// A Windows notification to show once (title, text), from the monitor thread: Fortnite is in exclusive fullscreen,
-    /// where the overlay cannot be seen. The window is usually hidden in the tray while playing, so it goes there.
+    /// Fortnite is in exclusive fullscreen, where the overlay cannot be seen: raised once per run, from the monitor
+    /// thread. The window tells the player (a notification now, a message once they leave the game).
     /// </summary>
-    public event Action<string, string>? TrayTip;
+    public event Action? ExclusiveFullscreen;
 
     public bool RestartAfterUpdate => _updates.Installed;
     public bool RestartRequested { get; private set; }
@@ -538,7 +538,7 @@ public sealed class AppMonitor
         if (warning != null && !_displayTipShown)
         {
             _displayTipShown = true;
-            TrayTip?.Invoke(L.T("El overlay no se ve en Pantalla completa", "The overlay is hidden in Fullscreen"), warning);
+            ExclusiveFullscreen?.Invoke();
         }
         return true;
     }
