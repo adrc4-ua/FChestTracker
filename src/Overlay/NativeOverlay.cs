@@ -19,7 +19,15 @@ namespace FCT.Overlay;
 public static class NativeOverlay
 {
     private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004;
-    private const int GameTimer = 3, GameTimerMs = 1000, MouseTimer = 4, SoonTimer = 5, SoonMs = 120;
+    private const int GameTimer = 3, GameTimerMs = 1000, MouseTimer = 4, SoonTimer = 5;
+
+    /// <summary>
+    /// Windows moving, resizing, appearing or going come in bursts: the first one is looked at at once, then at most once
+    /// every this long while they keep coming, and once more after the last.
+    /// </summary>
+    private const uint SoonMs = 30;
+
+    private static long _lookedAt;
 
     /// <summary>How often the pointer is looked at: often near the overlay (so it answers the click at once), seldom far.</summary>
     private const uint MouseNearMs = 40, MouseFarMs = 160;
@@ -245,23 +253,41 @@ public static class NativeOverlay
     /// Windows says when the window in front changes or a window is minimized or restored, and then the game is looked
     /// for. Also every 2 s on this thread, as Fortnite closing or crashing without a new window in front says nothing.
     /// </summary>
+    /// <summary>Looks whether the game is in sight right now.</summary>
+    private static void LookNow(IntPtr window)
+    {
+        _lookedAt = Environment.TickCount64;
+        GameChanged(window);
+    }
+
+    /// <summary>At once if it has not looked for a moment; otherwise a little later (and only once for the whole burst).</summary>
+    private static void LookSoon(IntPtr window)
+    {
+        if (Environment.TickCount64 - _lookedAt >= SoonMs)
+        {
+            LookNow(window);
+        }
+        SetTimer(window, (UIntPtr)SoonTimer, SoonMs, IntPtr.Zero); // and once more when the burst is over
+    }
+
     private static void FollowTheGame()
     {
-        _eventProcedure = (_, kind, _, item, child, _, _) =>
+        _eventProcedure = (_, kind, changed, item, child, _, _) =>
         {
             if (kind is EVENT_SYSTEM_FOREGROUND or EVENT_SYSTEM_MINIMIZESTART or EVENT_SYSTEM_MINIMIZEEND)
             {
-                GameChanged(_window);
+                LookNow(_window);
             }
-            else if (item == OBJID_WINDOW && child == 0)
+            else if (item == OBJID_WINDOW && child == 0 && changed != _window && GetAncestor(changed, GA_ROOT) == changed) // main windows only
             {
-                SetTimer(_window, (UIntPtr)SoonTimer, SoonMs, IntPtr.Zero); // a window appeared, went or moved: look once they settle
+                LookSoon(_window); // a window appeared, went, moved or changed size (maximized, snapped…)
             }
         };
         var events = new[]
         {
             (EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND), (EVENT_SYSTEM_MOVESIZEEND, EVENT_SYSTEM_MOVESIZEEND),
-            (EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND), (EVENT_OBJECT_SHOW, EVENT_OBJECT_HIDE), (EVENT_OBJECT_CLOAKED, EVENT_OBJECT_UNCLOAKED),
+            (EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND), (EVENT_OBJECT_SHOW, EVENT_OBJECT_HIDE),
+            (EVENT_OBJECT_LOCATIONCHANGE, EVENT_OBJECT_LOCATIONCHANGE), (EVENT_OBJECT_CLOAKED, EVENT_OBJECT_UNCLOAKED),
         };
         foreach (var (first, last) in events)
         {
@@ -306,7 +332,7 @@ public static class NativeOverlay
                 return 0;
             case WM_TIMER when (long)wParam == SoonTimer:
                 KillTimer(window, (UIntPtr)SoonTimer);
-                GameChanged(window);
+                LookNow(window);
                 return 0;
             case WM_TIMER when (long)wParam == GameTimer:
             case WM_APP_RECHECK:
