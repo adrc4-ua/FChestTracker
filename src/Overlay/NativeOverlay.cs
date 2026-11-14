@@ -356,14 +356,30 @@ public static class NativeOverlay
         Listen(free || clicking);
         Hover(window, free ? ButtonAt(at.X - place.Left, at.Y - place.Top) : OverlayButton.None);
         WatchPointer(window, free || _mouse.Near ? MouseNearMs : MouseFarMs);
+        if (OverlayLog.On && (_mouse.Near || _listening))
+        {
+            OverlayLog.Write("look", at, place, _mouse.LastCursor, MouseState(free));
+        }
     }
+
+    private static long _loggedMove;
+
+    /// <summary>The overlay's mouse state, for the diagnostic log.</summary>
+    private static string MouseState(bool free) =>
+        $"free {free} listen {_listening} hover {_hover} pressed {_pressed} drag {_dragging} locked {_locked}";
 
     /// <summary>A raw mouse report while listening: a click on a button, a drag, a right click, or just a move.</summary>
     private static void OnMouse(IntPtr window, ushort buttons, bool moved)
     {
-        if (!GetWindowRect(window, out var place) || !GetCursorPos(out var at))
+        if (!GetWindowRect(window, out var place))
         {
             return;
+        }
+        var free = _mouse.FreeOver(place, out var at); // the same steady reading as the timer's: never acts in play
+        if (OverlayLog.On && (buttons != 0 || Environment.TickCount64 - _loggedMove >= 50))
+        {
+            _loggedMove = Environment.TickCount64;
+            OverlayLog.Write(buttons != 0 ? $"btn {buttons:X}" : "move", at, place, _mouse.LastCursor, MouseState(free));
         }
         if (_dragging)
         {
@@ -382,7 +398,6 @@ public static class NativeOverlay
         }
 
         var (x, y) = (at.X - place.Left, at.Y - place.Top);
-        var free = place.Contains(at.X, at.Y) && MouseGate.CursorShown(); // checked at every report: never acts in play
         var under = free ? ButtonAt(x, y) : OverlayButton.None;
         if (moved)
         {
