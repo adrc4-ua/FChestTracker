@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Abrir FCT a mano siempre muestra su ventana**, aunque Fortnite esté abierto (minimizado o en segundo plano). Solo arranca escondido en la bandeja cuando lo abre Fortnite o se reinicia tras una actualización.
 - **Contar también partidas clasificatorias** (desactivado por defecto), en Configuración de la app y de la web.
 - **Los ajustes se comparten entre la app y la web**: compañeros, sumar sus cofres, clasificatorias, cajas de munición y de comida, cañones de botín e idioma. Lo que cambies en un sitio cambia en el otro; la ventana de Configuración y una página abierta se actualizan solas.
 - **Solo cuentan los modos del evento**: Battle Royale con construcción y Construcción Cero, en solitario, dúos, tríos o escuadrones. Las partidas de otros modos (Clasificatoria, Recarga, Blitz, modos temporales, Creativo…) se guardan igual pero no suman cofres, partidas ni tesoros, ni en la ventana, ni en el overlay, ni en las estadísticas.

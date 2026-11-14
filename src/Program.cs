@@ -170,9 +170,9 @@ internal static class Program
     }
 
     /// <summary>
-    /// The window until FCT closes. With Fortnite open (or started by it) only the overlay shows and the window waits in
-    /// the notification area; without Fortnite, or on a first run, the window opens. Afterwards: uninstall, or restart
-    /// (new version, or a language change).
+    /// The window until FCT closes. Started by Fortnite (or restarting after an update with Fortnite open) only the overlay
+    /// shows and the window waits in the notification area; opened by the player, or on a first run, the window opens.
+    /// Afterwards: uninstall, or restart (new version, or a language change).
     /// </summary>
     private static int RunWindow(string[] args, LaunchOptions options, bool firstRun, Store store, Config config, TrackerData data, Tracker tracker, SingleInstance instance, string dataDir)
     {
@@ -194,7 +194,10 @@ internal static class Program
                }))
         {
             monitor.Start();
-            form.StartInBackground = !firstRun && fortniteOpen && monitor.OverlayVisible;
+            // Only when FCT opens by itself (with the game, or restarting after an update) does it wait in the tray with the
+            // overlay alone; opened by the player, the window always shows (the game is never in front at that moment).
+            var openedByItself = options.Auto || options.AfterUpdate;
+            form.StartInBackground = !firstRun && openedByItself && fortniteOpen && monitor.OverlayVisible;
             Application.Run(form);
         }
         monitor.Stop();
