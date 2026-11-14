@@ -4,17 +4,16 @@ using static FCT.Stats.PageParts;
 namespace FCT.Stats;
 
 /// <summary>
-/// The "Configuración" tab. The language goes both ways (page and app); teammates and what counts as a chest only change
-/// this page. Controls work when FCT serves the page (http://localhost); opened as a file they show but are disabled.
-/// The app's version is shown here and only here.
+/// The "Configuración" tab: the app's own settings, so a change here is a change there too, and the other way round
+/// (the page reloads by itself when the app changes one). Controls work when FCT serves the page (http://localhost);
+/// opened as a file they show but are disabled. The app's version is shown here and only here.
 /// </summary>
 internal static class SettingsTab
 {
     public static string Build(Config config)
     {
-        var view = config.StatsView;
         var html = new StringBuilder(Head("ajustes", L.T("Configuración", "Settings"),
-            L.T("El idioma se comparte con la app; el resto solo cambia estas estadísticas", "Language is shared with the app; the rest only changes these stats")));
+            L.T("Los mismos ajustes que en la app: lo que cambies aquí cambia también allí", "The same settings as in the app: what you change here changes there too")));
         html.Append($"<p class=\"file-note\" hidden>{FileNote()}</p>").Append(About());
 
         var languageLabel = L.T("Idioma de la interfaz", "Interface language");
@@ -23,12 +22,14 @@ internal static class SettingsTab
             .Append(Group(L.T("Idioma", "Language"),
                 Setting("lang", languageLabel, L.T("Se aplica también en la app (se reinicia sola)", "Also applied to the app (restarts automatically)"), select, column: true)))
             .Append(Group(L.T("Compañeros", "Teammates"),
-                Toggle("mates", "teammates", view.ShowTeammates, L.T("Mostrar compañeros", "Show teammates"), L.T("Con quién juegas y sus cofres (hasta 1.087 m de ti)", "Who you play with and their chests (up to 1,087 m from you)"))
-                + Toggle("sum", "countMates", view.CountTeammateChests, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), L.T("Tu historial no cambia", "Your history does not change"))))
-            .Append(Group(L.T("Contar también como cofre", "Also count as a chest"),
-                Toggle("ammo", "ammo", view.CountAmmoBoxes, L.T("Cajas de munición", "Ammo boxes"))
-                + Toggle("food", "food", view.CountFoodBoxes, L.T("Cajas de comida", "Food boxes"))
-                + Toggle("cannons", "cannons", view.CountLootCannons, L.T("Cañones de botín", "Loot cannons"))))
+                Toggle("mates", "teammates", config.ShowTeammates, L.T("Mostrar compañeros", "Show teammates"), L.T("Con quién juegas y sus cofres (hasta 1.087 m de ti)", "Who you play with and their chests (up to 1,087 m from you)"))
+                + Toggle("sum", "countMates", config.CountTeammateChests, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), L.T("Tu historial no cambia", "Your history does not change"))))
+            .Append(Group(L.T("Contar también", "Also count"),
+                Toggle("ranked", "ranked", config.CountRanked, L.T("Partidas clasificatorias", "Ranked matches"),
+                    L.T("Battle Royale y Cero construcción", "Battle Royale and Zero Build"))
+                + Toggle("ammo", "ammo", config.CountAmmoBoxes, L.T("Cajas de munición", "Ammo boxes"))
+                + Toggle("food", "food", config.CountFoodBoxes, L.T("Cajas de comida", "Food boxes"))
+                + Toggle("cannons", "cannons", config.CountLootCannons, L.T("Cañones de botín", "Loot cannons"))))
             .Append("</div>");
         return html.Append("<div class=\"toast\" role=\"status\" aria-live=\"polite\" hidden></div>").ToString();
     }

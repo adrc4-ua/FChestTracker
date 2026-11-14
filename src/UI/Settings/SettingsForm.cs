@@ -7,7 +7,8 @@ namespace FCT.UI;
 
 /// <summary>
 /// Settings in the stats page's style: a header with the gold icon tile, two columns of cards with diamond titles,
-/// switches and gold buttons. Every change is applied and saved at once.
+/// switches and gold buttons. Every change is applied and saved at once, and the stats page shares them: a change made
+/// there shows here at once.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed partial class SettingsForm : ThemedForm
@@ -25,7 +26,7 @@ public sealed partial class SettingsForm : ThemedForm
     private const int MaxEarlierChests = 1_000_000;
 
     private readonly AppMonitor _monitor;
-    private readonly ToggleSwitch _withFortnite;
+    private readonly ToggleSwitch _withFortnite, _openStats, _mates, _addMates, _ranked, _ammo, _food, _cannons;
     private readonly PillButton[] _updateButtons = new PillButton[UpdateChoices.Length];
     private readonly Label _updateHint;
     private readonly TextBox _folder, _earlier;
@@ -44,7 +45,7 @@ public sealed partial class SettingsForm : ThemedForm
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(592, 502 + Header);
+        ClientSize = new Size(592, 531 + Header);
         Icon = AppIcon.Load();
 
         // ---- left column: options, what else counts, the replays folder
@@ -52,22 +53,24 @@ public sealed partial class SettingsForm : ThemedForm
         Title(options, L.T("Opciones", "Options"));
         _withFortnite = SwitchRow(options, L.T("Abrir con Fortnite", "Open with Fortnite"), L.T("Se abre solo cuando juegas", "Opens by itself when you play"), 30, config.StartWithFortnite);
         _withFortnite.CheckedChanged += (_, _) => WithFortniteChanged();
-        var openStats = SwitchRow(options, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 70, config.OpenStatsOnStart);
-        openStats.CheckedChanged += (_, _) => Saved(() => _monitor.Change(c => c.OpenStatsOnStart = openStats.Checked));
-        var mates = SwitchRow(options, L.T("Compañeros en la ventana", "Teammates in the window"), L.T("Sus cofres, si andan cerca de ti", "Their chests, if they're near you"), 98, config.ShowTeammates);
-        mates.CheckedChanged += (_, _) => TeammatesChanged(mates);
-        var addMates = SwitchRow(options, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), null, 138, config.CountTeammateChests);
-        addMates.CheckedChanged += (_, _) => AddTeammatesChanged(addMates);
+        _openStats = SwitchRow(options, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 70, config.OpenStatsOnStart);
+        _openStats.CheckedChanged += (_, _) => Saved(() => _monitor.Change(c => c.OpenStatsOnStart = _openStats.Checked));
+        _mates = SwitchRow(options, L.T("Compañeros en la ventana", "Teammates in the window"), L.T("Sus cofres, si andan cerca de ti", "Their chests, if they're near you"), 98, config.ShowTeammates);
+        _mates.CheckedChanged += (_, _) => TeammatesChanged(_mates);
+        _addMates = SwitchRow(options, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), null, 138, config.CountTeammateChests);
+        _addMates.CheckedChanged += (_, _) => AddTeammatesChanged(_addMates);
 
-        // broken chests always count; these only when switched on
-        var extras = Card(this, LeftX, Header + 219, LeftWidth, 116, 16);
-        Title(extras, L.T("Contar también como cofre", "Also count as a chest"));
-        var ammo = SwitchRow(extras, L.T("Cajas de munición", "Ammo boxes"), null, 31, config.CountAmmoBoxes);
-        ammo.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountAmmoBoxes = ammo.Checked));
-        var food = SwitchRow(extras, L.T("Cajas de comida", "Food boxes"), null, 60, config.CountFoodBoxes);
-        food.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountFoodBoxes = food.Checked));
-        var cannons = SwitchRow(extras, L.T("Cañones de botín", "Loot cannons"), null, 89, config.CountLootCannons);
-        cannons.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountLootCannons = cannons.Checked));
+        // Ranked matches, and what else counts as a chest (broken chests always count); only when switched on
+        var extras = Card(this, LeftX, Header + 219, LeftWidth, 145, 16);
+        Title(extras, L.T("Contar también", "Also count"));
+        _ranked = SwitchRow(extras, L.T("Partidas clasificatorias", "Ranked matches"), null, 31, config.CountRanked);
+        _ranked.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountRanked(_ranked.Checked));
+        _ammo = SwitchRow(extras, L.T("Cajas de munición", "Ammo boxes"), null, 60, config.CountAmmoBoxes);
+        _ammo.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountAmmoBoxes = _ammo.Checked));
+        _food = SwitchRow(extras, L.T("Cajas de comida", "Food boxes"), null, 89, config.CountFoodBoxes);
+        _food.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountFoodBoxes = _food.Checked));
+        _cannons = SwitchRow(extras, L.T("Cañones de botín", "Loot cannons"), null, 118, config.CountLootCannons);
+        _cannons.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountLootCannons = _cannons.Checked));
 
         // ---- right column: updates (three pills)
         var updates = Card(this, RightX, Header + 185, RightWidth, 116, 14);
@@ -83,7 +86,7 @@ public sealed partial class SettingsForm : ThemedForm
         _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 80), new Size(RightWidth - 26, 18), ContentAlignment.MiddleCenter);
         ShowUpdateMode(Math.Max(0, Array.FindIndex(UpdateChoices, c => c.Mode == config.UpdateMode)), save: false);
 
-        var folder = Card(this, LeftX, Header + 344, LeftWidth, 94, 14);
+        var folder = Card(this, LeftX, Header + 373, LeftWidth, 94, 14);
         Title(folder, L.T("Carpeta de replays", "Replays folder"));
         _folder = Field(folder, new Point(13, 30), LeftWidth - 26 - 72, config.DemosFolder);
         var browse = Button(L.T("Cambiar", "Change"), new Point(LeftWidth - 13 - 66, 30), new Size(66, 30), 10);
@@ -97,6 +100,8 @@ public sealed partial class SettingsForm : ThemedForm
         HeaderRow(config.Language);
 
         ShrinkToFit(this);
+        _monitor.Changed += OnMonitorChanged;
+        FormClosed += (_, _) => _monitor.Changed -= OnMonitorChanged;
         AcceptButton = close;
         CancelButton = close;
         ActiveControl = close; // no focus ring on the first switch when it opens
@@ -140,7 +145,7 @@ public sealed partial class SettingsForm : ThemedForm
     /// <summary>The OBS page: its address with a copy button, and whether it is on.</summary>
     private void ObsCard()
     {
-        var card = Card(this, RightX, Header + 310, RightWidth, 128, 14);
+        var card = Card(this, RightX, Header + 310, RightWidth, 157, 14);
         Title(card, L.T("Overlay para OBS", "Overlay for OBS"), 92);
         var url = ObsServer.Url;
         var on = url != null;
@@ -166,9 +171,10 @@ public sealed partial class SettingsForm : ThemedForm
         };
         card.Controls.Add(copy);
         SettingsParts.Text(card, on
-                ? L.T("En OBS, añade una fuente «Navegador» con esta dirección. Fondo transparente.", "In OBS, add a \"Browser\" source with this address. Transparent background.")
+                ? L.F("En OBS, añade una fuente «Navegador» con esta dirección. Fondo transparente. Se actualiza sola mientras {0} está abierto.",
+                    "In OBS, add a \"Browser\" source with this address. Transparent background. It updates by itself while {0} is open.", AppInfo.ShortName)
                 : L.F("Otro programa usa el puerto; reinicia {0} para probar de nuevo.", "Another program uses the port; restart {0} to try again.", AppInfo.ShortName),
-            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 78), new Size(RightWidth - 26, 34));
+            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 78), new Size(RightWidth - 26, 63));
     }
 
     /// <summary>
@@ -177,7 +183,7 @@ public sealed partial class SettingsForm : ThemedForm
     /// </summary>
     private void BottomButtons(out PillButton close)
     {
-        const int UninstallWidth = 104, Y = Header + 447;
+        const int UninstallWidth = 104, Y = Header + 476;
         var reset = Button(L.T("Restablecer estadísticas…", "Reset statistics…"), new Point(LeftX, Y), new Size(LeftWidth - UninstallWidth - 6, 40), 12);
         reset.ForeColor = Theme.Danger;
         reset.Click += (_, _) => ResetStats();
@@ -206,6 +212,47 @@ public sealed partial class SettingsForm : ThemedForm
         SettingsParts.Text(this, L.T("Los cambios se guardan al momento", "Changes are saved right away"), 8.0f, FontStyle.Regular, Theme.Muted, new Point(LeftX + 47, 36), new Size(230, 16));
         Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(LeftX, 60), Size = new Size(RightX + RightWidth - LeftX, 1) });
         Controls.Add(new LanguagePicker(language, new Point(RightX + RightWidth - 172, 17), LanguageChanged).Button);
+    }
+
+    /// <summary>A setting may have changed on the stats page: the switches follow (on the window's thread, without saving).</summary>
+    private void OnMonitorChanged(MonitorState _)
+    {
+        if (!IsHandleCreated || IsDisposed)
+        {
+            return;
+        }
+        try
+        {
+            BeginInvoke(new Action(ShowSettings));
+        }
+        catch (Exception ex) when (ex is ObjectDisposedException or InvalidOperationException)
+        {
+            // closing
+        }
+    }
+
+    private void ShowSettings()
+    {
+        var config = _monitor.Config;
+        _loading = true;
+        try
+        {
+            foreach (var (toggle, on) in new[]
+                     {
+                         (_openStats, config.OpenStatsOnStart), (_mates, config.ShowTeammates), (_addMates, config.CountTeammateChests),
+                         (_ranked, config.CountRanked), (_ammo, config.CountAmmoBoxes), (_food, config.CountFoodBoxes), (_cannons, config.CountLootCannons),
+                     })
+            {
+                if (toggle.Checked != on)
+                {
+                    toggle.Checked = on;
+                }
+            }
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     protected override void OnHandleCreated(EventArgs e)

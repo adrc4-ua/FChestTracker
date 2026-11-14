@@ -75,7 +75,8 @@ Los cambios se guardan al momento.
 
 - **Abrir con Fortnite:** FCT se abre y se cierra con el juego.
 - **Compañeros:** sus cofres en la ventana y, si quieres, sumados a tu total.
-- **Contar también** cajas de munición, de comida o cañones de botín.
+- **Contar también** las partidas clasificatorias, las cajas de munición, las de comida o los cañones de botín.
+- **Todo se comparte con las estadísticas:** lo que cambies en la app cambia en la web, y al revés.
 - **Cofres antes de FCT:** calcula los que abriste antes de usarlo.
 - **Actualizaciones** automáticas, o que te pregunte.
 - **Idioma**, **overlay para OBS** y **desinstalar**.

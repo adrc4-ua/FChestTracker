@@ -12,7 +12,15 @@ public static class StatsPage
     /// <summary>Set while a batch of replays is being read: a loading card, and a faster refresh.</summary>
     public static volatile ScanProgress? Progress;
 
-    /// <summary>Writes the stats page (with the page's own settings and language), overlay.html and matches.csv.</summary>
+    /// <summary>
+    /// The settings a page is made with, as a short mark: the page carries it, and the local server tells the current
+    /// one, so a page open in the browser reloads by itself when the app changes any of them.
+    /// </summary>
+    public static string SettingsMark(Config config) =>
+        string.Concat(new[] { config.ShowTeammates, config.CountTeammateChests, config.CountAmmoBoxes, config.CountFoodBoxes, config.CountLootCannons, config.CountRanked }
+            .Select(on => on ? '1' : '0')) + (config.Language ?? "");
+
+    /// <summary>Writes the stats page (with the app's settings and language), overlay.html and matches.csv.</summary>
     public static void WriteAll(Store store, Config config, TrackerData data)
     {
         try
@@ -22,6 +30,7 @@ public static class StatsPage
             {
                 SaveText(store.StatsPath, Build(pageSettings, Profiles.View(data, pageSettings), Profiles.InitialChests(data, pageSettings)));
                 ObsServer.StatsLang = L.Code;
+                ObsServer.StatsSettings = SettingsMark(pageSettings);
             }
             if (File.Exists(store.LegacyStatsPath))
             {
@@ -29,7 +38,7 @@ public static class StatsPage
             }
             var appView = Profiles.View(data, config);
             SaveText(store.OverlayPath, OverlayPage.File(OverlayModel.Build(appView, null, false, Profiles.InitialChests(data, config))));
-            SaveText(store.CsvPath, MatchesCsv.Build(data));
+            SaveText(store.CsvPath, MatchesCsv.Build(data, config));
         }
         catch (Exception ex)
         {
@@ -71,7 +80,7 @@ public static class StatsPage
             .Append("<title>").Append(AppInfo.Name).Append(page.Player.Length > 0 ? " · " + Esc(page.Player) : "").Append("</title>")
             .Append(logo == null ? "" : $"<link rel=\"icon\" href=\"{logo}\">")
             .Append("<style>").Append(StyleSheet).Append("</style></head>\n")
-            .Append($"<body data-refresh=\"{refresh}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\">")
+            .Append($"<body data-refresh=\"{refresh}\" data-settings=\"{Esc(SettingsMark(config))}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\">")
             .Append("<div class=\"shell\">");
 
         html.Append(Navigation(page, logo));

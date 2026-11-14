@@ -4,6 +4,8 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Contar también partidas clasificatorias** (desactivado por defecto), en Configuración de la app y de la web.
+- **Los ajustes se comparten entre la app y la web**: compañeros, sumar sus cofres, clasificatorias, cajas de munición y de comida, cañones de botín e idioma. Lo que cambies en un sitio cambia en el otro; la ventana de Configuración y una página abierta se actualizan solas.
 - **Solo cuentan los modos del evento**: Battle Royale con construcción y Construcción Cero, en solitario, dúos, tríos o escuadrones. Las partidas de otros modos (Clasificatoria, Recarga, Blitz, modos temporales, Creativo…) se guardan igual pero no suman cofres, partidas ni tesoros, ni en la ventana, ni en el overlay, ni en las estadísticas.
 - **Tesoros de las semanas 3 a 5** (según las filtraciones, marcados «sin confirmar» hasta que salgan en el juego): Miku, Kasane Teto y Capitán X de oro macizo con sus mochilas, pistas, pantallas de carga y coches dorados. Las semanas cambian a la hora exacta (domingo 21:00 ET, lunes 03:00 en España), no por días.
 - **Overlay sin cursor en partida**: el overlay ya no hace aparecer ni parpadear el puntero sobre Fortnite. Deja pasar el ratón al juego y solo lo retiene cuando el puntero está libre (menús, Esc, mapa, escritorio) encima de su candado y su ✕, o de todo él si está desbloqueado; así sus clics no llegan al juego ni a la ventana de debajo, también en modo ventana. El candado y la ✕ se iluminan al pasar, y el overlay se pinta de una vez, sin destellos.

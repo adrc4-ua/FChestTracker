@@ -102,7 +102,7 @@ public sealed class AppMonitor
         {
             var key = Profiles.Current(_data, Config)?.Key;
             return _data.Matches.ToList()
-                .Where(m => (key == null || Profiles.Key(m) == key) && Profiles.IsEventMatch(m))
+                .Where(m => (key == null || Profiles.Key(m) == key) && Profiles.IsEventMatch(m, Config))
                 .GroupBy(Profiles.Day)
                 .OrderByDescending(day => day.Key)
                 .Select(day => (day.Key, day.Count()))
@@ -216,6 +216,7 @@ public sealed class AppMonitor
     public void SetCountTeammates(bool count) => ChangeShown(c => c.CountTeammateChests = count);
     public void SetCountFrom(DateTime? from) => ChangeShown(c => c.CountFrom = from?.Date);
     public void SetShowTeammates(bool show) => ChangeShown(c => c.ShowTeammates = show);
+    public void SetCountRanked(bool count) => ChangeShown(c => c.CountRanked = count);
     public void SetLanguage(string? code) => ChangeShown(c => c.Language = code);
 
     public void ChangeDemosFolder(string folder)
@@ -247,8 +248,8 @@ public sealed class AppMonitor
     }
 
     /// <summary>
-    /// A setting changed on the stats page (from the local server's thread). The language is shared with the app (which
-    /// restarts); the rest only concerns the page.
+    /// A setting changed on the stats page (from the local server's thread). Every one is the app's own: the window and its
+    /// settings show it at once, and a new language restarts the app.
     /// </summary>
     private bool ApplyFromStatsPage(string key, string value)
     {
@@ -268,20 +269,21 @@ public sealed class AppMonitor
             return true;
         }
         var on = value == "1";
-        Action<StatsSettings>? change = key switch
+        Action<Config>? change = key switch
         {
-            "teammates" => r => r.ShowTeammates = on,
-            "countMates" => r => r.CountTeammateChests = on,
-            "ammo" => r => r.CountAmmoBoxes = on,
-            "food" => r => r.CountFoodBoxes = on,
-            "cannons" => r => r.CountLootCannons = on,
+            "teammates" => c => c.ShowTeammates = on,
+            "countMates" => c => c.CountTeammateChests = on,
+            "ammo" => c => c.CountAmmoBoxes = on,
+            "food" => c => c.CountFoodBoxes = on,
+            "cannons" => c => c.CountLootCannons = on,
+            "ranked" => c => c.CountRanked = on,
             _ => null,
         };
         if (change == null)
         {
             return false;
         }
-        ChangeShown(c => change(c.StatsView));
+        ChangeShown(change);
         return true;
     }
 

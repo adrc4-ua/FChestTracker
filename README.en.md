@@ -75,7 +75,8 @@ Changes are saved right away.
 
 - **Open with Fortnite:** FCT opens and closes with the game.
 - **Teammates:** their chests in the window and, if you like, added to your total.
-- **Also count** ammo boxes, food boxes or loot cannons.
+- **Also count** ranked matches, ammo boxes, food boxes or loot cannons.
+- **Everything is shared with the stats:** what you change in the app changes on the web page, and the other way round.
 - **Chests before FCT:** works out the ones you opened before using it.
 - **Automatic updates**, or ask first.
 - **Language**, **overlay for OBS** and **uninstall**.

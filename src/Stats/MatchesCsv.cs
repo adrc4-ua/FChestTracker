@@ -7,12 +7,12 @@ namespace FCT.Stats;
 /// <summary>matches.csv: one line per match (oldest first), separated by ';' for spreadsheets.</summary>
 internal static class MatchesCsv
 {
-    public static string Build(TrackerData data)
+    public static string Build(TrackerData data, Config config)
     {
         var csv = new StringBuilder();
         csv.AppendLine(L.T("fecha;modo;jugador;puesto;jugadores;cofres;cajas_municion;tesoros;archivo",
             "date;mode;player;placement;players;chests;ammo_boxes;treasures;file"));
-        foreach (var match in data.Matches.Where(Profiles.IsEventMatch).OrderBy(LocalStart))
+        foreach (var match in data.Matches.Where(m => Profiles.IsEventMatch(m, config)).OrderBy(LocalStart))
         {
             csv.AppendLine(string.Join(";",
                 LocalStart(match).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),

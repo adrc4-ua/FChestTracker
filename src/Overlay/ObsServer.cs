@@ -33,6 +33,9 @@ public static class ObsServer
     /// <summary>Language of the current stats page, reported by "/api/ping" so an open page knows when to reload.</summary>
     public static volatile string? StatsLang;
 
+    /// <summary>The settings the stats page shows (<see cref="FCT.Stats.StatsPage.SettingsMark"/>): a page made with others reloads.</summary>
+    public static volatile string? StatsSettings;
+
     /// <summary>Applies a setting sent by the stats page: (key, value) → accepted.</summary>
     public static Func<string, string, bool>? Settings { get; set; }
 
@@ -108,7 +111,7 @@ public static class ObsServer
             ("GET", "/estadisticas") => StatsFile != null && File.Exists(StatsFile)
                 ? LocalResponse.Html(File.ReadAllText(StatsFile))
                 : LocalResponse.Text("404 Not Found", "stats page not ready"),
-            ("GET", "/api/ping") => LocalResponse.Json($"{{\"ok\":true,\"lang\":\"{StatsLang ?? ""}\"}}"),
+            ("GET", "/api/ping") => LocalResponse.Json($"{{\"ok\":true,\"lang\":\"{StatsLang ?? ""}\",\"settings\":\"{StatsSettings ?? ""}\"}}"),
             ("POST", "/api/ajuste") => ChangeSetting(request, port),
             _ => LocalResponse.Text("404 Not Found", "not found"), // OPTIONS too: no preflight is ever accepted
         };

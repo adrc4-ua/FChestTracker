@@ -110,22 +110,13 @@ public sealed class Config
         return true;
     }
 
-    // ---- Stats page -----------------------------------------------------------------------------------------------------------
+    // ---- Modes ------------------------------------------------------------------------------------------------------------
 
-    /// <summary>The page's own settings (its Configuración tab). Null until first used: it then copies the app's.</summary>
-    [JsonPropertyName("Report")] // the file's key from older versions
-    public StatsSettings? Stats { get; set; }
+    /// <summary>Ranked Battle Royale counts too (off by default: only the modes of the event, see EventModes).</summary>
+    public bool CountRanked { get; set; }
 
-    [JsonIgnore]
-    public StatsSettings StatsView => Stats ??= StatsSettings.From(this);
-
-    /// <summary>These settings with the page's choices in place of the app's, to build the page.</summary>
-    public Config ForStatsPage()
-    {
-        var page = (Config)MemberwiseClone();
-        StatsView.ApplyTo(page);
-        return page;
-    }
+    /// <summary>The same settings for the stats page: the app and the page share every one of them.</summary>
+    public Config ForStatsPage() => (Config)MemberwiseClone();
 
     // ---- Earlier versions ------------------------------------------------------------------------------------------------------
 
@@ -151,38 +142,8 @@ public sealed class Config
             return false;
         }
         StartWithFortnite = OverlayVisible = ShowTeammates = true;
-        StatsView.ShowTeammates = true;
         DefaultsVersion = CurrentDefaults;
         return true;
-    }
-}
-
-/// <summary>Choices of the stats page that differ from the app's (what it shows and counts).</summary>
-public sealed class StatsSettings
-{
-    public bool ShowTeammates { get; set; } = true;
-    public bool CountTeammateChests { get; set; }
-    public bool CountAmmoBoxes { get; set; }
-    public bool CountFoodBoxes { get; set; }
-    public bool CountLootCannons { get; set; }
-
-    /// <summary>Starts from what the app uses.</summary>
-    public static StatsSettings From(Config app) => new()
-    {
-        ShowTeammates = app.ShowTeammates,
-        CountTeammateChests = app.CountTeammateChests,
-        CountAmmoBoxes = app.CountAmmoBoxes,
-        CountFoodBoxes = app.CountFoodBoxes,
-        CountLootCannons = app.CountLootCannons,
-    };
-
-    public void ApplyTo(Config target)
-    {
-        target.ShowTeammates = ShowTeammates;
-        target.CountTeammateChests = CountTeammateChests;
-        target.CountAmmoBoxes = CountAmmoBoxes;
-        target.CountFoodBoxes = CountFoodBoxes;
-        target.CountLootCannons = CountLootCannons;
     }
 }
 

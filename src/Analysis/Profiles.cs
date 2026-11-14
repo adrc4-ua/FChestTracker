@@ -58,12 +58,13 @@ public static class Profiles
         return played == default || played >= FirstCountedDayUtc;
     }
 
-    /// <summary>Counts for the treasure hunt: a supported version and one of its modes (<see cref="EventModes"/>).</summary>
-    public static bool IsEventMatch(MatchRecord? match) => IsSupportedVersion(match) && EventModes.Counts(match!.Playlist);
+    /// <summary>Counts for the treasure hunt: a supported version and one of its modes (<see cref="EventModes"/>; Ranked if set).</summary>
+    public static bool IsEventMatch(MatchRecord? match, Config? config = null) =>
+        IsSupportedVersion(match) && EventModes.Counts(match!.Playlist, config?.CountRanked ?? false);
 
     /// <summary>Counts for the figures: a match of the hunt, not before the "count from" date of the settings.</summary>
     public static bool Counted(MatchRecord match, Config config) =>
-        IsEventMatch(match) && (config.CountFrom == null || Day(match) >= config.CountFrom.Value.Date);
+        IsEventMatch(match, config) && (config.CountFrom == null || Day(match) >= config.CountFrom.Value.Date);
 
     /// <summary>The match as the settings count it (extra kinds, teammates' chests); see <see cref="MatchRecord.WithExtras"/>.</summary>
     public static MatchRecord? Adjust(MatchRecord? match, Config config) =>

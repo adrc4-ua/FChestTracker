@@ -136,8 +136,9 @@
   }
 
   // ---- Fresh figures -----------------------------------------------------------------------------------------------------
-  // Served by FCT: a quick ping notices a language change (reload at once) or FCT closing (a notice instead of an error
-  // page). The page itself reloads every data-refresh seconds, unless the player is busy with a setting.
+  // Served by FCT: a quick ping notices a language change or any setting changed in the app (reload at once) or FCT
+  // closing (a notice instead of an error page). The page itself reloads every data-refresh seconds, unless the player
+  // is busy with a setting.
   const down = doc.querySelector('.down'), pageLanguage = doc.documentElement.lang || '';
   const showDown = () => { if (down) down.hidden = false; };
   let missed = 0;
@@ -149,7 +150,8 @@
           const wasDown = missed >= 3;
           missed = 0;
           if (down) down.hidden = true;
-          if ((state.lang && pageLanguage && state.lang !== pageLanguage) || wasDown) location.reload();
+          const otherSettings = state.settings && body.dataset.settings && state.settings !== body.dataset.settings;
+          if ((state.lang && pageLanguage && state.lang !== pageLanguage) || otherSettings || wasDown) location.reload();
         })
         .catch(() => { if (++missed >= 3) showDown(); });
     }, 1500);

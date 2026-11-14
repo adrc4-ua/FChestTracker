@@ -83,7 +83,7 @@ internal sealed class LiveMatch
         _readAtUtc = DateTime.UtcNow;
 
         var previous = Figures;
-        if (latest.Playlist is { Length: > 0 } playlist && !EventModes.Counts(playlist))
+        if (latest.Playlist is { Length: > 0 } playlist && !EventModes.Counts(playlist, _config.CountRanked))
         {
             Figures = null; // a mode that does not count for the hunt: nothing live either
             return previous != null || startedNow;

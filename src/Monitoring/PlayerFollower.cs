@@ -21,7 +21,7 @@ internal sealed class PlayerFollower
     /// <summary>The profile to switch to (the player who just played), or null to stay.</summary>
     public Profile? NewPlayer()
     {
-        var newest = _tracker.LiveMatch ?? _data.Matches.Where(Profiles.IsEventMatch).MaxBy(m => m.MatchStartUtc ?? m.AnalyzedAtUtc);
+        var newest = _tracker.LiveMatch ?? _data.Matches.Where(m => Profiles.IsEventMatch(m, _config())).MaxBy(m => m.MatchStartUtc ?? m.AnalyzedAtUtc);
         if (newest == null)
         {
             return null;

@@ -66,6 +66,7 @@ internal static class PageIcons
         ["lang"] = KpiSvg + """<circle class="f" cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.6 5.4 3.6 8.5s-1 6.1-3.6 8.5M12 3.5C9.4 5.9 8.4 8.9 8.4 12s1 6.1 3.6 8.5"/></svg>""",
         ["mates"] = KpiSvg + """<circle class="f" cx="9" cy="8" r="3.5"/><path class="f" d="M2.5 20a6.5 6.5 0 0 1 13 0z"/><path d="M15.5 4.7a3.5 3.5 0 0 1 0 6.6M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>""",
         ["sum"] = KpiSvg + """<circle class="f" cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>""",
+        ["ranked"] = KpiSvg + """<rect class="f" x="9" y="7" width="6" height="13.5" rx="1"/><rect x="3" y="12" width="6" height="8.5" rx="1"/><rect x="15" y="14.5" width="6" height="6" rx="1"/><path d="m12 2.5.9 1.8 2 .3-1.4 1.4.3 2-1.8-.9-1.8.9.3-2-1.4-1.4 2-.3z"/></svg>""",
         ["ammo"] = KpiSvg + """<path class="f" d="M5 10.5a2 2 0 0 1 4 0V20H5zM10 8.5a2 2 0 0 1 4 0V20h-4zM15 10.5a2 2 0 0 1 4 0V20h-4z"/><path d="M4 20h16"/></svg>""",
         ["food"] = KpiSvg + """<path class="f" d="M12 7.5c-2-1.6-7-1.2-7 4.8 0 4 2.9 8.2 5 8.2 1 0 1.4-.5 2-.5s1 .5 2 .5c2.1 0 5-4.2 5-8.2 0-6-5-6.4-7-4.8z"/><path d="M12 7.5c0-2 1-3.5 3-4.3"/></svg>""",
         ["cannons"] = KpiSvg + """<circle class="f" cx="8" cy="16" r="4"/><path d="m10.5 13 8-6.5 2.2 3-8.4 6"/><path d="M4 20h8"/></svg>""",
