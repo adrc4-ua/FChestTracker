@@ -139,20 +139,6 @@ Yes, between matches and without losing your data. Change it in *Settings → Up
 Open an [issue](../../issues) saying what happens and, if you can, attach the `errors.log` file from `%APPDATA%\FCT`.
 </details>
 
-<details>
-<summary><b>For developers</b></summary>
-
-Build with the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) by double-clicking `build.bat` (it makes `dist\FCT.exe`), or open `FCT.slnx`. What changed in each version is in the [CHANGELOG](CHANGELOG.md) (in Spanish).
-
-```
-FCT.exe --once              analyze the finished replays and quit
-FCT.exe --demos <folder>    another replays folder
-FCT.exe --data <folder>     another data folder
-FCT.exe --licenses          license and third-party notices
-FCT.exe --uninstall         remove FCT from Windows (your data stays)
-```
-</details>
-
 ## License and credits
 
 **Fortnite Chest Tracker** · Copyright © 2026 Adrián Ruiz. Free software under the [GPL-3.0](LICENSE) license with the attribution terms in [NOTICE.md](NOTICE.md): you can use, change and share it, but if you publish something based on it you must keep this license, credit the author and this repository, and mark your changes. Versions up to 4.4.1 were released under the MIT license.

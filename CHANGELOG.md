@@ -152,7 +152,7 @@ Cambio incompatible en la interfaz de usuario: rediseño visual completo de la a
 
 ## [3.2.0] - 2026-11-12
 
-- Idiomas: la app y el informe quedan en español (de España) e inglés. Los demás idiomas se añaden con un archivo JSON por idioma (`src/Localization/Languages/`), que se genera con `dotnet run tools/i18n.cs -- <código>`.
+- Idiomas: la app y el informe quedan en español (de España) e inglés.
 - Compañeros: clasificación unificada con selector (más cofres vistos, mejor media, récord, victorias juntos y la tabla con todos).
 - Textos revisados: tono neutro y español de España («Te damos la bienvenida», «Haz clic», «destruidos»).
 

@@ -139,20 +139,6 @@ Sí, entre partida y partida y sin perder tus datos. Lo cambias en *Configuraci�
 Abre un [issue](../../issues) contando qué pasa y, si puedes, adjunta el archivo `errors.log` de `%APPDATA%\FCT`.
 </details>
 
-<details>
-<summary><b>Para desarrolladores</b></summary>
-
-Compila con el [SDK de .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) haciendo doble clic en `build.bat` (genera `dist\FCT.exe`), o abre `FCT.slnx`. Los cambios de cada versión están en el [CHANGELOG](CHANGELOG.md).
-
-```
-FCT.exe --once              analiza las repeticiones terminadas y se cierra
-FCT.exe --demos <carpeta>   otra carpeta de repeticiones
-FCT.exe --data <carpeta>    otra carpeta de datos
-FCT.exe --licenses          licencia y avisos de terceros
-FCT.exe --uninstall         quita FCT de Windows (tus datos se quedan)
-```
-</details>
-
 ## Licencia y créditos
 
 **Fortnite Chest Tracker** · Copyright © 2026 Adrián Ruiz. Software libre con licencia [GPL-3.0](LICENSE) y las condiciones de atribución de [NOTICE.md](NOTICE.md): puedes usarlo, modificarlo y compartirlo, pero si publicas algo basado en él debes mantener esta licencia, mencionar al autor y este repositorio e indicar tus cambios. Las versiones hasta la 4.4.1 se publicaron con licencia MIT.

@@ -36,7 +36,7 @@
     <EmbeddedResource Include="..\NOTICE.md" LogicalName="FCT.NOTICE.md" />
     <EmbeddedResource Include="..\LICENSE" LogicalName="FCT.LICENSE" />
     <EmbeddedResource Include="..\THIRD_PARTY_NOTICES.md" LogicalName="FCT.THIRD_PARTY_NOTICES.md" />
-    <!-- Languages besides Spanish and English: one file per language (see Localization/Languages/README.md). -->
+    <!-- Languages besides Spanish and English: one JSON file per language. -->
     <EmbeddedResource Include="Localization\Languages\*.json" LogicalName="FCT.lang.%(Filename).json" />
     <!-- fortnite-api.com key to look up the player's total matches (estimate of the chests before FCT). It comes from
          the FORTNITE_API_KEY environment variable (a GitHub secret in the release build); empty = typed by hand. -->
