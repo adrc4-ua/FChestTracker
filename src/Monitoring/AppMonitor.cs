@@ -608,7 +608,8 @@ public sealed class AppMonitor
         var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
             : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
             : _notice ?? _displayWarning;
-        Changed?.Invoke(new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false, ScreenFigures.Stats(view.Matches, shownLive))
+        Changed?.Invoke(new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false,
+            ScreenFigures.Stats(view.Matches, shownLive) with { EarlierMatches = _earlier.Matches(view.Matches) })
         {
             Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
         });

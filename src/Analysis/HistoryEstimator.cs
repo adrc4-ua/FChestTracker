@@ -36,7 +36,11 @@ public static class HistoryEstimator
     /// <param name="RoundedDown">The average is rounded down (no replays, or at the replay limit).</param>
     /// <param name="Waiting">New matches still to play before it is calculated.</param>
     /// <param name="Provisional">While waiting: the estimate with the replays' average alone (null without replays).</param>
-    public sealed record Result(int? Chests, int Replays, int SeasonReplays, int NewMatches, double? Average, bool RoundedDown, int Waiting, int? Provisional);
+    public sealed record Result(int? Chests, int Replays, int SeasonReplays, int NewMatches, double? Average, bool RoundedDown, int Waiting, int? Provisional)
+    {
+        /// <summary>The season's matches FCT has no replay of (total − this season's replays): the ones before FCT.</summary>
+        public int Missing { get; init; }
+    }
 
     /// <param name="matches">Matches of the profile, as counted (own chests, with the chosen extra kinds).</param>
     /// <param name="totalMatches">The player's matches this season according to the stats.</param>
@@ -55,7 +59,7 @@ public static class HistoryEstimator
 
         if (manualAverage is double typed && typed >= 0)
         {
-            return new Result(Times(typed), replays.Count, seasonReplays, 0, typed, false, 0, null);
+            return new Result(Times(typed), replays.Count, seasonReplays, 0, typed, false, 0, null) { Missing = missing };
         }
 
         var rounded = replays.Count == 0 || replays.Count >= ReplayCap;
@@ -64,10 +68,10 @@ public static class HistoryEstimator
         if (fresh.Count < sample)
         {
             double? sofar = replays.Count > 0 ? Round((double)replays.Sum(m => m.OwnChests) / replays.Count) : null;
-            return new Result(null, replays.Count, seasonReplays, fresh.Count, sofar, rounded, sample - fresh.Count, sofar is double s ? Times(s) : null);
+            return new Result(null, replays.Count, seasonReplays, fresh.Count, sofar, rounded, sample - fresh.Count, sofar is double s ? Times(s) : null) { Missing = missing };
         }
         var all = replays.Concat(fresh).ToList();
         var average = Round((double)all.Sum(m => m.OwnChests) / all.Count);
-        return new Result(Times(average), replays.Count, seasonReplays, fresh.Count, average, rounded, 0, null);
+        return new Result(Times(average), replays.Count, seasonReplays, fresh.Count, average, rounded, 0, null) { Missing = missing };
     }
 }

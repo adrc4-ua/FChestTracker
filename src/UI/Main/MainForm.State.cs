@@ -104,7 +104,7 @@ public sealed partial class MainForm
         _bestDayCaption.Text = stats.BestDay is { } day ? $"{L.T("Mejor día", "Best day")} · {day:dd/MM}" : L.T("Mejor día", "Best day");
         _average.Text = stats.Matches > 0 ? stats.Average.ToString("0.0", L.Culture) : "—";
         _bestMatch.Text = stats.Matches > 0 ? L.N(stats.BestMatch) : "—";
-        _matches.Text = L.N(stats.HistoryMatches);
+        _matches.Text = L.N(stats.HistoryMatches + stats.EarlierMatches); // with those before FCT, like the chests total
         _treasures.Text = L.N(stats.Treasures);
 
         _week.SetDays(stats.LastDays);

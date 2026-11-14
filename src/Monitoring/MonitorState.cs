@@ -35,6 +35,9 @@ public sealed record ChestStats(int Matches, double Average, int BestMatch, int 
     /// <summary>Every match in the saved history, also those whose replay Fortnite has already deleted.</summary>
     public int HistoryMatches { get; init; }
 
+    /// <summary>Matches before FCT, from the estimate of the earlier chests (added to the matches shown).</summary>
+    public int EarlierMatches { get; init; }
+
     /// <summary>Local date of the oldest saved match (null when there is none).</summary>
     public DateTime? HistorySince { get; init; }
 

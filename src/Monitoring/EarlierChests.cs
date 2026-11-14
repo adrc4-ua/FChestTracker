@@ -26,6 +26,20 @@ internal sealed class EarlierChests
 
     public HistoryEstimate? Estimate => _settings.Read(c => c.Estimates.GetValueOrDefault(ShownKey ?? ""));
 
+    /// <summary>
+    /// Matches before FCT for the profile on screen: those of its season total (from the stats or typed) that FCT has no
+    /// replay of. Counted as soon as the estimate is chosen (first start or Recalculate), without waiting for the
+    /// average; 0 without an estimate ("start from zero", or only a typed number of chests).
+    /// </summary>
+    public int Matches(IReadOnlyList<MatchRecord> matches)
+    {
+        // asked before the first match: still filed under "" until its average can be worked out
+        var estimate = _settings.Read(c => c.Estimates.GetValueOrDefault(ShownKey ?? "") ?? c.Estimates.GetValueOrDefault(""));
+        return estimate is { TotalMatches: > 0 }
+            ? HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage).Missing
+            : 0;
+    }
+
     /// <summary>What the estimate would give with this season total, with the matches counted right now.</summary>
     public HistoryEstimator.Result Preview(int totalMatches, int sample, double? manualAverage) =>
         HistoryEstimator.Compute(_shownMatches, totalMatches, DateTime.UtcNow, sample, manualAverage);
