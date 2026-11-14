@@ -18,7 +18,7 @@ internal static class Win32
     public static readonly IntPtr IDC_ARROW = new(32512);
 
     public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_ERASEBKGND = 0x0014, WM_SETCURSOR = 0x0020,
-        WM_MOUSEACTIVATE = 0x0021, WM_NCHITTEST = 0x0084, WM_TIMER = 0x0113, WM_LBUTTONDOWN = 0x0201, WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
+        WM_MOUSEACTIVATE = 0x0021, WM_NCHITTEST = 0x0084, WM_TIMER = 0x0113, WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
     public const int HTCLIENT = 1, MA_NOACTIVATE = 3, GWL_EXSTYLE = -20;
     public const uint SRCCOPY = 0x00CC0020;
 
@@ -163,8 +163,6 @@ internal static class Win32
     [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
-    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hwnd);
-    [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr hwnd);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetClassNameW(IntPtr hwnd, System.Text.StringBuilder name, int size);
     [DllImport("user32.dll")] public static extern IntPtr MonitorFromRect(ref RECT rect, uint flags);
     [DllImport("user32.dll")] public static extern bool GetMonitorInfoW(IntPtr monitor, ref MONITORINFO info);
