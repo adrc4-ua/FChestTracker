@@ -10,8 +10,8 @@ namespace FCT.Analysis;
 /// sends their prize id ("DelilahPrize:dpid_item3") with an animated chest, so they are named here.</item>
 /// <item>Treasure gizmos: the five gizmos, in every week. The replay does not say which one was received.</item>
 /// </list>
-/// Names are the official English ones (also used by the Spanish game for these items). Weeks 3 and 4 only list the
-/// vehicle announced so far; week 5 is not announced yet.
+/// Names are the official English ones (also used by the Spanish game for these items). Weeks 3 to 5 come from the
+/// files of the game as leaked (ShiinaBR, Fortnite.gg), marked unconfirmed until they are in the game.
 /// </summary>
 public static class Prizes
 {
@@ -22,12 +22,22 @@ public static class Prizes
     /// <param name="Announced">False when only reported by the community, not yet in the game.</param>
     public sealed record Prize(string Name, Kind Type, int Week, string? Id = null, bool Announced = true);
 
-    /// <summary>Start (local date) of each week of the event; it ends on <see cref="End"/>.</summary>
+    /// <summary>
+    /// Start of each week of the event (UTC). The prizes change on Sundays at 9 PM Eastern Time (Monday 2:00 UTC, 3:00 in
+    /// Spain); the event ends on <see cref="End"/>.
+    /// </summary>
     public static readonly DateTime[] WeekStarts =
     {
-        new(2026, 11, 1), new(2026, 11, 7), new(2026, 11, 14), new(2026, 11, 21), new(2026, 11, 28),
+        new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc), new(2026, 11, 9, 2, 0, 0, DateTimeKind.Utc), new(2026, 11, 16, 2, 0, 0, DateTimeKind.Utc),
+        new(2026, 11, 23, 2, 0, 0, DateTimeKind.Utc), new(2026, 11, 30, 2, 0, 0, DateTimeKind.Utc),
     };
-    public static readonly DateTime End = new(2026, 12, 5);
+    public static readonly DateTime End = new(2026, 12, 5, 0, 0, 0, DateTimeKind.Utc);
+
+    /// <summary>When a week (1–5) starts, in local time.</summary>
+    public static DateTime StartOf(int week) => WeekStarts[week - 1].ToLocalTime();
+
+    /// <summary>When a week (1–5) ends (the next one starts), in local time.</summary>
+    public static DateTime EndOf(int week) => (week < WeekStarts.Length ? WeekStarts[week] : End).ToLocalTime();
 
     public static readonly Prize[] All =
     {
@@ -52,23 +62,36 @@ public static class Prizes
         new("So Kawaii", Kind.LoadingScreen, 2, "DelilahPrize:dpid_item2"),
         new("Cadillac CT5-V Blackwing", Kind.Vehicle, 2, "DelilahPrize:dpid_item3"),
         new("London", Kind.JamTrack, 2, "DelilahPrize:dpid_item4"),
-        // Weeks 3 and 4: the gold car of the week, as reported (the rest of the week is not known yet)
+        // Weeks 3 to 5, as leaked from the game's files (same slots as week 2)
+        new("Solid Gold Miku", Kind.Outfit, 3, Announced: false),
+        new("Miku's Takarabako", Kind.BackBling, 3, "DelilahPrize:dpid_item1", Announced: false),
+        new("May Fortune Find You", Kind.LoadingScreen, 3, "DelilahPrize:dpid_item2", Announced: false),
         new("Chevrolet Corvette ZR1", Kind.Vehicle, 3, "DelilahPrize:dpid_item3", Announced: false),
+        new("PPPP", Kind.JamTrack, 3, "DelilahPrize:dpid_item4", Announced: false),
+        new("Solid Gold Kasane Teto", Kind.Outfit, 4, Announced: false),
+        new("Rogue Wave and Tidewalker", Kind.BackBling, 4, "DelilahPrize:dpid_item1", Announced: false),
+        new("Oscar's Wraps", Kind.LoadingScreen, 4, "DelilahPrize:dpid_item2", Announced: false),
         new("Lamborghini Urus SE", Kind.Vehicle, 4, "DelilahPrize:dpid_item3", Announced: false),
+        new("Sea Shanty", Kind.JamTrack, 4, "DelilahPrize:dpid_item4", Announced: false),
+        new("Solid Gold Captain X", Kind.Outfit, 5, Announced: false),
+        new("Roasted Meat", Kind.BackBling, 5, "DelilahPrize:dpid_item1", Announced: false),
+        new("Jones and the Straw Hats", Kind.LoadingScreen, 5, "DelilahPrize:dpid_item2", Announced: false),
+        new("G-Wagon", Kind.Vehicle, 5, "DelilahPrize:dpid_item3", Announced: false),
+        new("I Follow Rivers", Kind.JamTrack, 5, "DelilahPrize:dpid_item4", Announced: false),
     };
 
-    /// <summary>Week of the event (1–5) of a local date, or 0 outside the event.</summary>
-    public static int WeekOf(DateTime local)
+    /// <summary>Week of the event (1–5) at a moment (local or UTC time), or 0 outside the event.</summary>
+    public static int WeekOf(DateTime when)
     {
-        var d = local.Date;
-        if (d < WeekStarts[0] || d >= End)
+        var utc = when.Kind == DateTimeKind.Utc ? when : when.ToUniversalTime();
+        if (utc < WeekStarts[0] || utc >= End)
         {
             return 0;
         }
         var week = 0;
         for (var i = 0; i < WeekStarts.Length; i++)
         {
-            if (d >= WeekStarts[i]) week = i + 1;
+            if (utc >= WeekStarts[i]) week = i + 1;
         }
         return week;
     }

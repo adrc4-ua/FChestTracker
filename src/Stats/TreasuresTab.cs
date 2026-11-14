@@ -106,10 +106,10 @@ internal static class TreasuresTab
             .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(name => name.Key, name => name.Count(), StringComparer.OrdinalIgnoreCase);
         int Got(Prizes.Prize prize) => obtained.GetValueOrDefault(Prizes.Shown(prize));
-        var today = DateTime.Now.Date;
-        var current = Prizes.WeekOf(today);
-        DateTime WeekEnd(int week) => week < Prizes.WeekStarts.Length ? Prizes.WeekStarts[week] : Prizes.End;
-        string Dates(int week) => $"{ShortDay(Prizes.WeekStarts[week - 1])} – {ShortDay(WeekEnd(week).AddDays(-1))}";
+        var now = DateTime.Now;
+        var current = Prizes.WeekOf(now);
+        // local dates: a week changing at 3:00 in the morning ends on the day the next one starts
+        string Dates(int week) => $"{ShortDay(Prizes.StartOf(week).Date)} – {ShortDay(Prizes.EndOf(week).AddTicks(-1).Date)}";
         var notYet = L.T("Premios aún no anunciados.", "Prizes not announced yet.");
 
         string Tile(Prizes.Prize prize)
@@ -120,7 +120,7 @@ internal static class TreasuresTab
         }
 
         var meta = current > 0
-            ? $"{L.F("Semana {0}", "Week {0}", current)} · {Dates(current)} · {L.F("quedan {0}", "{0} left", L.Count((WeekEnd(current) - today).Days, "día", "días", "day", "days"))}"
+            ? $"{L.F("Semana {0}", "Week {0}", current)} · {Dates(current)} · {L.F("quedan {0}", "{0} left", L.Count((int)Math.Ceiling((Prizes.EndOf(current) - now).TotalDays), "día", "días", "day", "days"))}"
             : L.T("Evento del 1 de noviembre al 5 de diciembre", "Event from November 1 to December 5");
         var card = new StringBuilder("<div class=\"sheet hunt\">");
         var thisWeek = current > 0 ? Prizes.All.Where(p => p.Week == current).ToList() : new List<Prizes.Prize>();

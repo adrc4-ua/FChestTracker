@@ -102,7 +102,7 @@ public sealed class AppMonitor
         {
             var key = Profiles.Current(_data, Config)?.Key;
             return _data.Matches.ToList()
-                .Where(m => (key == null || Profiles.Key(m) == key) && Profiles.IsSupportedVersion(m))
+                .Where(m => (key == null || Profiles.Key(m) == key) && Profiles.IsEventMatch(m))
                 .GroupBy(Profiles.Day)
                 .OrderByDescending(day => day.Key)
                 .Select(day => (day.Key, day.Count()))

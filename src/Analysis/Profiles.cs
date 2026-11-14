@@ -58,9 +58,12 @@ public static class Profiles
         return played == default || played >= FirstCountedDayUtc;
     }
 
-    /// <summary>Counts for the figures: a supported version and not before the "count from" date of the settings.</summary>
+    /// <summary>Counts for the treasure hunt: a supported version and one of its modes (<see cref="EventModes"/>).</summary>
+    public static bool IsEventMatch(MatchRecord? match) => IsSupportedVersion(match) && EventModes.Counts(match!.Playlist);
+
+    /// <summary>Counts for the figures: a match of the hunt, not before the "count from" date of the settings.</summary>
     public static bool Counted(MatchRecord match, Config config) =>
-        IsSupportedVersion(match) && (config.CountFrom == null || Day(match) >= config.CountFrom.Value.Date);
+        IsEventMatch(match) && (config.CountFrom == null || Day(match) >= config.CountFrom.Value.Date);
 
     /// <summary>The match as the settings count it (extra kinds, teammates' chests); see <see cref="MatchRecord.WithExtras"/>.</summary>
     public static MatchRecord? Adjust(MatchRecord? match, Config config) =>
@@ -77,7 +80,7 @@ public static class Profiles
         var profiles = new List<Profile>();
         foreach (var account in data.Matches.GroupBy(Key))
         {
-            var counted = account.Where(m => config == null ? IsSupportedVersion(m) : Counted(m, config)).ToList();
+            var counted = account.Where(m => config == null ? IsEventMatch(m) : Counted(m, config)).ToList();
             if (counted.Count == 0)
             {
                 continue;
