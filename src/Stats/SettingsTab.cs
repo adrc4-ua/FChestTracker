@@ -49,7 +49,7 @@ internal static class SettingsTab
                + Link(AppInfo.RepoUrl, "GitHub")
                + Link(AppInfo.RepoUrl + "/releases", L.T("Novedades", "What's new"))
                + Link(AppInfo.IssuesUrl, L.T("Informar de un problema", "Report a problem"))
-               + Link(AppInfo.RepoUrl + "/blob/main/NOTICE.md", $"© 2026 Adrián Ruiz · GPL-3.0 · {L.T("sin garantía", "no warranty")}")
+               + Link(AppInfo.RepoUrl + "/blob/main/NOTICE.md", $"GPL-3.0 · {L.T("sin garantía", "no warranty")}")
                + "</div></div>";
     }
 
