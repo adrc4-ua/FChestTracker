@@ -16,7 +16,7 @@ internal static class TreasuresTab
         if (treasures.Count == 0)
         {
             html.Append($"<div class=\"sheet\"><div class=\"void void-big\"><div class=\"star\">★</div>{L.T("Aún no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
-            var (available, weeks) = Hunt(treasures);
+            var (available, weeks) = Hunt(treasures, page.Config.PrizeMarks);
             return html.Append(available).Append(weeks).ToString();
         }
 
@@ -27,7 +27,7 @@ internal static class TreasuresTab
             html.Append($"<div class=\"alert\"><span class=\"alert-ico\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("sin abrir un cofre", "other than from a chest")}</b>: {sources}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
         }
         html.Append(Figures(treasures, page.Matches.Count));
-        var (now, allWeeks) = Hunt(treasures);
+        var (now, allWeeks) = Hunt(treasures, page.Config.PrizeMarks);
         html.Append("<div class=\"pair-row\">").Append(now).Append(Sources(treasures)).Append("</div>").Append(allWeeks);
         html.Append(Section(L.T("Tesoros obtenidos", "Treasures obtained"), L.Count(treasures.Count, "tesoro", "tesoros", "treasure", "treasures"), Table(treasures), "fit"));
         return html.ToString();
@@ -100,7 +100,7 @@ internal static class TreasuresTab
     /// The hunt as it is now: this week's rewards as tiles (the ones obtained in gold), what any week can give, and a
     /// button that opens the five weeks (returned apart, as they span the whole width under the row).
     /// </summary>
-    private static (string Now, string Weeks) Hunt(List<(MatchRecord m, TreasureFind f)> treasures)
+    private static (string Now, string Weeks) Hunt(List<(MatchRecord m, TreasureFind f)> treasures, IReadOnlyDictionary<string, bool> marks)
     {
         var obtained = treasures.Select(t => Prizes.Describe(t.f, LocalStart(t.m)).Name)
             .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
@@ -135,9 +135,9 @@ internal static class TreasuresTab
         card.Append($"<div class=\"everyweek\"><span class=\"everyweek-lbl\">{L.T("Todas las semanas", "Every week")}</span>");
         foreach (var prize in Prizes.All.Where(p => p.Week == 0))
         {
-            var count = Got(prize);
-            // what any week can give: lit when obtained, without a count (the figures above have the totals)
-            card.Append($"<span class=\"token{(count > 0 ? " token-got" : "")}\"><i>{PageIcons.Of(prize)}</i>{Esc(Prizes.Shown(prize))}</span>");
+            // what any week can give, muted; only the shop access lights up once obtained (gizmos come all the time)
+            var lit = prize.Type == Prizes.Kind.ShopAccess && Got(prize) > 0;
+            card.Append($"<span class=\"token{(lit ? " token-got" : "")}\"><i>{PageIcons.Of(prize)}</i>{Esc(Prizes.Shown(prize))}</span>");
         }
         card.Append("</div>")
             .Append($"<button class=\"weeks-btn\" type=\"button\" aria-expanded=\"false\" aria-controls=\"weeks\" data-open=\"{Esc(L.T("Ver todas las semanas", "See every week"))}\" data-close=\"{Esc(L.T("Ocultar las semanas", "Hide the weeks"))}\">{L.T("Ver todas las semanas", "See every week")}</button>")
@@ -151,8 +151,11 @@ internal static class TreasuresTab
                 ? $"<p class=\"note\">{notYet}</p>"
                 : "<ul>" + string.Concat(prizes.Select(p =>
                 {
+                    // struck off once obtained, or by hand (the player's mark wins either way)
                     var count = Got(p);
-                    return $"<li class=\"{(count > 0 ? "got" : "")}\"><i>{PageIcons.Of(p)}</i><span>{Esc(Prizes.Shown(p))}</span>{(count > 0 ? $"<b>×{count}</b>" : "")}</li>";
+                    var struck = marks.TryGetValue(p.Name, out var mark) ? mark : count > 0;
+                    return $"<li class=\"mark{(struck ? " struck" : "")}\" data-prize=\"{Esc(p.Name)}\" role=\"button\" tabindex=\"0\" aria-pressed=\"{(struck ? "true" : "false")}\">"
+                           + $"<i>{PageIcons.Of(p)}</i><span>{Esc(Prizes.Shown(p))}</span>{(count > 0 ? $"<b>×{count}</b>" : "")}</li>";
                 })) + "</ul>";
             var isNow = week == current;
             weeks.Append($"<div class=\"week{(isNow ? " week-now" : "")}\"><div class=\"week-head\"><b>{L.F("Semana {0}", "Week {0}", week)}</b>")

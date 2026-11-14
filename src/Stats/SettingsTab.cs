@@ -31,7 +31,7 @@ internal static class SettingsTab
                 + Toggle("food", "food", config.CountFoodBoxes, L.T("Cajas de comida", "Food boxes"))
                 + Toggle("cannons", "cannons", config.CountLootCannons, L.T("Cañones de botín", "Loot cannons"))))
             .Append("</div>");
-        return html.Append("<div class=\"toast\" role=\"status\" aria-live=\"polite\" hidden></div>").ToString();
+        return html.ToString();
     }
 
     /// <summary>Shown (by the script) when the page is a file: where to open it to change anything.</summary>

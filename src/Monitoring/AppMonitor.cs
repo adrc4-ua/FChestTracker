@@ -268,6 +268,10 @@ public sealed class AppMonitor
             }
             return true;
         }
+        if (key == "mark")
+        {
+            return MarkPrize(value);
+        }
         var on = value == "1";
         Action<Config>? change = key switch
         {
@@ -284,6 +288,19 @@ public sealed class AppMonitor
             return false;
         }
         ChangeShown(change);
+        return true;
+    }
+
+    /// <summary>A prize of the weekly lists struck off or brought back on the stats page: "1|name" or "0|name".</summary>
+    private bool MarkPrize(string value)
+    {
+        var parts = value.Split('|', 2);
+        if (parts.Length != 2 || parts[0] is not ("1" or "0") || !Prizes.All.Any(p => p.Week > 0 && p.Name == parts[1]))
+        {
+            return false;
+        }
+        var (struck, name) = (parts[0] == "1", parts[1]);
+        ChangeShown(c => c.PrizeMarks[name] = struck); // rewritten so the next reload keeps it
         return true;
     }
 

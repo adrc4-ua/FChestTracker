@@ -95,7 +95,8 @@ public static class StatsPage
                 L.Count(page.Matches.Count(m => m.Teammates is { Count: > 0 }), "partida en equipo", "partidas en equipo", "team match", "team matches")) + mates.Html);
         }
         AddPane(html, "ajustes", SettingsTab.Build(config));
-        html.Append("</main></div><script>").Append(Script).Append("</script></body></html>");
+        // "Saved" / "Could not save", for any tab (settings, struck-off prizes)
+        html.Append("</main></div><div class=\"toast\" role=\"status\" aria-live=\"polite\" hidden></div><script>").Append(Script).Append("</script></body></html>");
         return html.ToString();
     }
 

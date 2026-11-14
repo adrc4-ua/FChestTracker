@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Tachar premios en las semanas** (Estadísticas → Tesoros → Ver todas las semanas): toca un premio para tacharlo o destacharlo. Los que consigues se tachan solos, y siempre puedes cambiarlos a mano; se guardan con tu configuración. El botón de las semanas y los premios de «Todas las semanas» van ahora en gris: solo el Pirate Shop Access se ilumina si lo consigues.
 - **Abrir FCT a mano siempre muestra su ventana**, aunque Fortnite esté abierto (minimizado o en segundo plano). Solo arranca escondido en la bandeja cuando lo abre Fortnite o se reinicia tras una actualización.
 - **Contar también partidas clasificatorias** (desactivado por defecto), en Configuración de la app y de la web.
 - **Los ajustes se comparten entre la app y la web**: compañeros, sumar sus cofres, clasificatorias, cajas de munición y de comida, cañones de botín e idioma. Lo que cambies en un sitio cambia en el otro; la ventana de Configuración y una página abierta se actualizan solas.

@@ -97,6 +97,28 @@
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2600);
   };
   const ping = () => fetch('/api/ping', { cache: 'no-store' });
+  if (served) doc.documentElement.classList.add('served');
+
+  // ---- Weekly prizes: struck off by hand (obtained ones come struck off; the player's mark wins) ------------------------
+  // Saved in the app's settings when FCT serves the page; opened as a file they only show.
+  const save = (key, value) => fetch('/api/ajuste', {
+    method: 'POST',
+    headers: { 'X-FCT': '1', 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: encodeURIComponent(key) + '=' + encodeURIComponent(value),
+  }).then(reply => reply.json()).then(answer => { if (!answer.ok) throw new Error(); });
+  for (const item of doc.querySelectorAll('.week li.mark')) {
+    const flip = () => {
+      if (!served) return;
+      const struck = !item.classList.contains('struck');
+      const show = on => { item.classList.toggle('struck', on); item.setAttribute('aria-pressed', String(on)); };
+      show(struck);
+      save('mark', (struck ? '1' : '0') + '|' + item.dataset.prize).catch(() => { show(!struck); say(body.dataset.failed, true); });
+    };
+    item.addEventListener('click', flip);
+    item.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); flip(); }
+    });
+  }
   const controls = [...doc.querySelectorAll('[data-key]')];
   if (!served) {
     controls.forEach(control => { control.disabled = true; });

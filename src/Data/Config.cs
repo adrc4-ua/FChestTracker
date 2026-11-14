@@ -115,6 +115,12 @@ public sealed class Config
     /// <summary>Ranked Battle Royale counts too (off by default: only the modes of the event, see EventModes).</summary>
     public bool CountRanked { get; set; }
 
+    /// <summary>
+    /// Prizes of the weekly lists the player struck off (true) or brought back (false) by hand, by name. Without an entry a
+    /// prize is struck off once obtained.
+    /// </summary>
+    public Dictionary<string, bool> PrizeMarks { get; set; } = new();
+
     /// <summary>The same settings for the stats page: the app and the page share every one of them.</summary>
     public Config ForStatsPage() => (Config)MemberwiseClone();
 

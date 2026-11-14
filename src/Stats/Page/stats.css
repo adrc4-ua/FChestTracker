@@ -273,10 +273,11 @@ td.foot-note{text-align:center;padding:14px 16px}
 .hunt-note{margin:0}
 .everyweek{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .everyweek-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px}
-.token{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12.5px;background:var(--bg2);border:1px solid var(--line2);color:var(--ink);white-space:nowrap}
-.token i{display:flex;color:var(--gold)}
+.token{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:12.5px;background:var(--bg2);border:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.token i{display:flex;color:var(--faint)}
 .token i svg{width:14px;height:14px}
 .token-got{color:var(--gold-hi);background:var(--gold-soft);border-color:var(--gold-line)}
+.token-got i{color:var(--gold)}
 .weeks-sec{margin-top:16px}
 .weeks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .week{padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid rgba(232,176,75,.14);min-width:0}
@@ -289,13 +290,20 @@ td.foot-note{text-align:center;padding:14px 16px}
 .week li i{display:flex;color:var(--gold)}
 .week li i svg{width:16px;height:16px}
 .week li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.week li.got span{color:var(--gold-hi);font-weight:600}
+.week li.mark{cursor:pointer;border-radius:6px;margin:-2px -4px;padding:2px 4px;transition:background .15s}
+.week li.mark:hover{background:rgba(255,255,255,.04)}
+.week li.mark:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.week li.struck span{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--gold);text-decoration-thickness:2px}
+.week li.struck i{color:var(--faint)}
+.week li.struck b{color:var(--faint)}
+html:not(.served) .week li.mark{cursor:default}
+html:not(.served) .week li.mark:hover{background:none}
 .week li b{color:var(--gold);font-size:12px}
 .week p.note{margin:2px 0}
-.weeks-btn{appearance:none;font:inherit;font-size:13px;font-weight:600;color:var(--gold-hi);background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:10px;padding:6px 14px;margin-top:14px;cursor:pointer}
+.weeks-btn{appearance:none;font:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:6px 14px;margin-top:14px;cursor:pointer}
 .weeks-btn::after{content:" ▾"}
 .weeks-btn[aria-expanded="true"]::after{content:" ▴"}
-.weeks-btn:hover{background:rgba(232,176,75,.18)}
+.weeks-btn:hover{background:rgba(255,255,255,.06)}
 .weeks-btn:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
 
 /* ---- Settings ------------------------------------------------------------------------------------------------------------------------ */
