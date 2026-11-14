@@ -45,6 +45,7 @@ public static class NativeOverlay
     private static POINT _still; // where the held pointer last was: the game pins it when play resumes
     private static int _stillReports, _stillTravel;
     private static POINT? _waitForMove; // given back with the pointer pinned: not held again until it moves
+    private static IntPtr _focusBeforeDrag; // the window that had the focus before a drag took it (the game, usually)
     private static OverlayButton _hover, _pressed;
     private static POINT _grab; // where the pointer took the overlay to drag it, relative to it
     private static uint _mouseEvery;
@@ -305,6 +306,9 @@ public static class NativeOverlay
                 return 1;
             case WM_MOUSEACTIVATE:
                 return MA_NOACTIVATE; // a click never takes the focus from the game
+            case WM_LBUTTONDOWN when !_locked && ButtonAt((short)((long)lParam & 0xFFFF), (short)(((long)lParam >> 16) & 0xFFFF)) == OverlayButton.None:
+                FocusForDrag(window);
+                return 0;
             case WM_PAINT:
                 var hdc = BeginPaint(window, out var paint);
                 try
@@ -554,10 +558,36 @@ public static class NativeOverlay
         }
     }
 
+    /// <summary>
+    /// A drag of the unlocked overlay takes the focus for as long as it lasts: the game reads the mouse itself (raw input)
+    /// while it is in front, and would turn the camera or the character with the drag. Losing the focus, it also forgets
+    /// the button held. Given back on release (<see cref="ReturnFocus"/>).
+    /// </summary>
+    private static void FocusForDrag(IntPtr window)
+    {
+        var front = GetForegroundWindow();
+        if (front == window || !SetForegroundWindow(window))
+        {
+            return;
+        }
+        _focusBeforeDrag = front;
+    }
+
+    private static void ReturnFocus()
+    {
+        var previous = _focusBeforeDrag;
+        _focusBeforeDrag = IntPtr.Zero;
+        if (previous != IntPtr.Zero && IsWindow(previous) && GetForegroundWindow() == _window)
+        {
+            SetForegroundWindow(previous);
+        }
+    }
+
     private static void EndDrag(IntPtr window)
     {
         _dragging = false;
         _pressed = OverlayButton.None;
+        ReturnFocus();
         if (GetWindowRect(window, out var moved))
         {
             _moved?.Invoke(moved.Left, moved.Top);
@@ -693,6 +723,7 @@ public static class NativeOverlay
             _mouseEvery = 0;
             _dragging = false;
             _pressed = OverlayButton.None;
+            ReturnFocus();
             Hold(window, false, pinned: false);
             Listen(false);
             Hover(window, OverlayButton.None);
