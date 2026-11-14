@@ -72,7 +72,13 @@ internal static class OverviewTab
         var today = DateTime.Now.Date;
         var days = Enumerable.Range(-29, 30).Select(offset => today.AddDays(offset)).ToList();
         var chests = days.Select(day => matches.Where(m => LocalStart(m).Date == day).Sum(m => m.ChestsOpened)).ToList();
-        var meta = $"{L.T("Últimos 30 días", "Last 30 days")} · {L.Count(chests.Sum(), "cofre", "cofres", "chest", "chests")} · {L.Count(chests.Count(c => c > 0), "día jugado", "días jugados", "day played", "days played")}";
+        var played = chests.Where(c => c > 0).ToList();
+        var meta = $"{L.T("Últimos 30 días", "Last 30 days")} · {L.Count(chests.Sum(), "cofre", "cofres", "chest", "chests")} · {L.Count(played.Count, "día jugado", "días jugados", "day played", "days played")}";
+        if (played.Count > 0)
+        {
+            // the dashed line's legend, out of the chart so it never sits on the curve
+            meta += $" · <span class=\"c-key\" aria-hidden=\"true\"></span>{L.T("media", "average")} <b>{played.Average().ToString("0", L.Culture)}</b> {L.T("por día jugado", "per day played")}";
+        }
         return Section(L.T("Evolución de cofres", "Chests over time"), meta, $"<div class=\"sheet sheet-pad\">{ChestCurve.Build(days, chests)}</div>");
     }
 

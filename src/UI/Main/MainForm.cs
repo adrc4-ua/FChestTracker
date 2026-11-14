@@ -105,8 +105,8 @@ public sealed partial class MainForm : ThemedForm
         // ---- this week
         var week = new Card { Location = new Point(GridLeft, WeekY), Size = new Size(ColumnWidth, WeekHeight) };
         Controls.Add(week);
-        week.Controls.Add(new SectionTitle { Text = L.T("Esta semana", "This week"), Location = new Point(12, 7), Size = new Size(150, 20) });
-        _weekNote = FitLabel.Add(week, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(ColumnWidth - 14 - 110, 9), new Size(110, 16), ContentAlignment.MiddleRight);
+        week.Controls.Add(new SectionTitle { Text = L.T("Esta semana", "This week"), Location = new Point(12, 7), Size = new Size(110, 20) });
+        _weekNote = FitLabel.Add(week, "", 7.75f, FontStyle.Regular, Theme.Muted, new Point(ColumnWidth - 14 - 140, 9), new Size(140, 16), ContentAlignment.MiddleRight);
         _week = new DailyChart { Location = new Point(8, 30), Size = new Size(ColumnWidth - 16, WeekHeight - 36), Font = Theme.Text(8f) };
         week.Controls.Add(_week);
 
@@ -365,9 +365,13 @@ public sealed partial class MainForm : ThemedForm
     {
         var card = new Card { Location = new Point(RightX + column * (TileWidth + TileGap), GridTop + row * (TileHeight + TileGap)), Size = new Size(TileWidth, TileHeight), Radius = 14 };
         Controls.Add(card);
-        caption = FitLabel.Add(card, title, 8f, FontStyle.Bold, Theme.Muted, new Point(11, 8), new Size(TileWidth - 11 - 32, 15));
-        card.Controls.Add(new IconTile { IconSvg = icon, Location = new Point(TileWidth - 9 - 20, 7), Size = new Size(20, 20) });
-        return FitLabel.Add(card, "—", 15f, FontStyle.Bold, Theme.GoldBase, new Point(8, 26), new Size(TileWidth - 16, 25), figure: true, gold: true);
+        // title and figure start on the same line, with the same margin as the icon on the right; neither label reaches
+        // the icon's column (a see-through label repaints what is under it)
+        const int Margin = 12, Icon = 20, Gap = 4;
+        var iconX = TileWidth - Margin - Icon;
+        caption = FitLabel.Add(card, title, 8f, FontStyle.Bold, Theme.Muted, new Point(Margin - 1, 9), new Size(iconX - Gap - (Margin - 1), 15));
+        card.Controls.Add(new IconTile { IconSvg = icon, Location = new Point(iconX, 9), Size = new Size(Icon, Icon) });
+        return FitLabel.Add(card, "—", 15f, FontStyle.Bold, Theme.GoldBase, new Point(Margin, 24), new Size(iconX - Gap - Margin, 25), figure: true, gold: true);
     }
 
     /// <summary>A button like an entry of the page's menu: icon and text on the left.</summary>

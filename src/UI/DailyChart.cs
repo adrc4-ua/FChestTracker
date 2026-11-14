@@ -167,7 +167,7 @@ public sealed class DailyChart : Control
         private static Pen RoundPen(Color color, float width) =>
             new(color, width) { LineJoin = LineJoin.Round, StartCap = LineCap.Round, EndCap = LineCap.Round };
 
-        /// <summary>The average of the days played, dashed, with its text above on the left.</summary>
+        /// <summary>The average of the days played, dashed (its figure is in the card's header, so it never sits on the curve).</summary>
         private void Average()
         {
             var played = _days.Where(d => d.Chests > 0).ToList();
@@ -179,8 +179,6 @@ public sealed class DailyChart : Control
             var y = Y(average);
             using var dashes = new Pen(Color.FromArgb(115, Theme.GoldHi), 1f) { DashPattern = new[] { 3f, 3f } };
             _g.DrawLine(dashes, _plot.Left, y, _plot.Right, y);
-            var text = L.F("media {0}", "avg {0}", L.N((int)Math.Round(average)));
-            Write(text, _figureFont, Theme.GoldHi, _plot.Left + 4f, Math.Max(0, y - Measure(text, _figureFont).Height - 2f));
         }
 
         /// <summary>A light gold dot per day so far (today white) ringed in the card's colour, its figure always above it.</summary>

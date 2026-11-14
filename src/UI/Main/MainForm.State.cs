@@ -109,7 +109,10 @@ public sealed partial class MainForm
 
         _week.SetDays(stats.LastDays);
         var weekChests = stats.LastDays.Sum(d => d.Chests);
-        _weekNote.Text = weekChests > 0 ? L.Count(weekChests, "cofre", "cofres", "chest", "chests") : "";
+        var played = stats.LastDays.Where(d => d.Chests > 0).ToList(); // the chart's dashed line: the days played (two or more)
+        _weekNote.Text = weekChests == 0 ? ""
+            : played.Count < 2 ? L.Count(weekChests, "cofre", "cofres", "chest", "chests")
+            : $"{L.Count(weekChests, "cofre", "cofres", "chest", "chests")} · {L.F("media {0}", "avg {0}", L.N((int)Math.Round(played.Average(d => d.Chests))))}";
     }
 
     /// <summary>The team card; without team data (teammates off) it hides and the window shrinks back.</summary>

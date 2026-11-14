@@ -30,7 +30,7 @@ internal static class ChestCurve
         if (playedDays.Count > 0)
         {
             var average = playedDays.Average();
-            html.Append($"<span class=\"c-avg\" style=\"top:{Down(Y(average))}\"><i>{Esc(L.T("media por día jugado", "avg per day played"))} {average.ToString("0", L.Culture)}</i></span>");
+            html.Append($"<span class=\"c-avg\" style=\"top:{Down(Y(average))}\"></span>"); // its figure is in the section's legend
         }
 
         var points = chests.Select((value, i) => (X: X(i), Y: Y(value))).ToList();
