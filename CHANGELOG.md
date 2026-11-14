@@ -4,23 +4,36 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+## [5.6.0] - 2026-11-14
+
 - **Detalles de la última partida en la ventana**: tu Top (o Victoria), eliminaciones, tesoros obtenidos y cuánto duró, a su tamaño normal (antes el texto se encogía para caber). En Estadísticas, «Últimas partidas» muestra también la duración.
 - **Tiempos con su unidad en todas partes**: duraciones como «18 min» y momentos de la partida como «3:51 min».
 - **Gráfico de la semana más legible**: la escala y los días en un gris más claro.
 - **README**: el principal pasa a estar en inglés (el español sigue en [README.es.md](README.es.md)), con botones para cambiar de idioma arriba; nueva sección sobre la exactitud (los cofres se cuentan todos; algún artilugio de tesoro puede escaparse) y capturas al día.
 - **Los cofres enterrados cuentan como cofres normales** en las estadísticas (Cofres, origen de cada tesoro y «Dónde consigo mis tesoros»). Esa última lista muestra siempre los cofres que dan tesoros, también los cofres de espíritu aunque aún no te hayan dado ninguno.
 - **Tachar premios en las semanas** (Estadísticas → Tesoros → Ver todas las semanas): toca un premio para tacharlo o destacharlo. Los que consigues se tachan solos, y siempre puedes cambiarlos a mano; se guardan con tu configuración. El botón de las semanas y los premios de «Todas las semanas» van ahora en gris: solo el Pirate Shop Access se ilumina si lo consigues.
+
+## [5.5.0] - 2026-11-14
+
 - **Abrir FCT a mano siempre muestra su ventana**, aunque Fortnite esté abierto (minimizado o en segundo plano). Solo arranca escondido en la bandeja cuando lo abre Fortnite o se reinicia tras una actualización.
 - **Contar también partidas clasificatorias** (desactivado por defecto), en Configuración de la app y de la web.
 - **Los ajustes se comparten entre la app y la web**: compañeros, sumar sus cofres, clasificatorias, cajas de munición y de comida, cañones de botín e idioma. Lo que cambies en un sitio cambia en el otro; la ventana de Configuración y una página abierta se actualizan solas.
 - **Solo cuentan los modos del evento**: Battle Royale con construcción y Construcción Cero, en solitario, dúos, tríos o escuadrones. Las partidas de otros modos (Clasificatoria, Recarga, Blitz, modos temporales, Creativo…) se guardan igual pero no suman cofres, partidas ni tesoros, ni en la ventana, ni en el overlay, ni en las estadísticas.
 - **Tesoros de las semanas 3 a 5** (según las filtraciones, marcados «sin confirmar» hasta que salgan en el juego): Miku, Kasane Teto y Capitán X de oro macizo con sus mochilas, pistas, pantallas de carga y coches dorados. Las semanas cambian a la hora exacta (domingo 21:00 ET, lunes 03:00 en España), no por días.
+
+## [5.4.0] - 2026-11-14
+
 - **Overlay sin cursor en partida**: el overlay ya no hace aparecer ni parpadear el puntero sobre Fortnite. Deja pasar el ratón al juego y solo lo retiene cuando el puntero está libre (menús, Esc, mapa, escritorio) encima de su candado y su ✕, o de todo él si está desbloqueado; así sus clics no llegan al juego ni a la ventana de debajo, también en modo ventana. El candado y la ✕ se iluminan al pasar, y el overlay se pinta de una vez, sin destellos.
-- **Overlay**: se oculta cuando Fortnite queda fuera de la vista aunque Windows no lo marque como minimizado: Win + D, o ventanas que lo tapen casi entero (el 80 %), una o varias juntas, tengan o no el foco y se hayan abierto desde la pantalla que sea. La barra de tareas y sus menús, el selector de Alt + Tab, las capas transparentes (como las de la tarjeta gráfica), las ventanas «siempre encima» y las herramientas de captura (Win + Mayús + S, Recortes, ShareX, Lightshot…) no cuentan: hacer una captura ya no lo oculta. Reacciona también cuando una ventana aparece, se va o se mueve. Si Fortnite está en Pantalla completa (exclusiva), donde ninguna ventana puede verse encima, FCT lo avisa con una notificación y en su ventana.
-- **Pantalla de tesoros más fiable**: los fuegos artificiales dorados y los localizadores se reconocen aunque la tarjeta aún esté apareciendo o brillando; las capturas empiezan antes y son más seguidas (la pantalla a veces dura solo 2 o 3 segundos) y se combinan tarjeta a tarjeta. Como el juego junta en una sola tarjeta los tesoros iguales, cuando hay menos tarjetas que tesoros se nombra con seguridad el primer artilugio de la partida y el resto queda como «Artilugio».
-- **Estadísticas**: el aviso de que FCT está cerrado sale en el menú lateral, debajo de la última sección; en Compañeros la media también se muestra como mínimo (≥); en «Tesoros disponibles actualmente», la fila «Todas las semanas» ya no lleva un contador por artilugio (los totales siguen arriba). En Resumen, «Últimas partidas» muestra 5 (caben enteras en una pantalla 1920×1080 sin barra de desplazamiento), «Últimos tesoros» se desplaza fila a fila sin dejar ninguna cortada y las columnas guardan la misma separación que las tarjetas de arriba.
-- **Partidas de antes de FCT en la ventana**: si al empezar o al recalcular eliges contar las partidas antiguas (con el total de la temporada buscado o escrito a mano), la cifra de Partidas suma las de esa temporada que FCT no tiene en repeticiones, igual que el total de cofres suma los estimados. Con «empezar de cero» no se suma nada.
+- **Overlay reactivo ante ventanas**: se oculta cuando Fortnite queda fuera de la vista aunque Windows no lo marque como minimizado: Win + D, o ventanas que lo tapen casi entero (el 80 %), una o varias juntas, tengan o no el foco y se hayan abierto desde la pantalla que sea. La barra de tareas y sus menús, el selector de Alt + Tab, las capas transparentes (como las de la tarjeta gráfica), las ventanas «siempre encima» y las herramientas de captura (Win + Mayús + S, Recortes, ShareX, Lightshot…) no cuentan: hacer una captura ya no lo oculta. Reacciona también cuando una ventana aparece, se va o se mueve.
+
+## [5.3.0] - 2026-11-14
+
+- **Aviso de pantalla completa exclusiva**: si Fortnite está en Pantalla completa (exclusiva), donde ninguna ventana puede verse encima, FCT lo avisa con una notificación del sistema y con un mensaje en la ventana de la aplicación.
 - **Limpieza de versiones anteriores**: si abres una versión nueva con una anterior aún abierta, FCT cierra la vieja y ocupa su lugar en vez de decir que ya está abierto. Además, la primera vez que se abre cada versión borra lo que dejaron las anteriores (desde la 1.0.0): copias antiguas de FCT en marcha y sus exes (donde apuntaba el inicio con Fortnite, el último que se usó o junto al nuevo, como un `FCT (1).exe` descargado), restos de actualizaciones, entradas de inicio con otros nombres y archivos temporales. Solo toca exes que sean de FCT y de una versión anterior; tus datos, copias de seguridad y la carpeta de la 1.0.0 no se tocan.
+- **Partidas de antes de FCT en la ventana**: si al empezar o al recalcular eliges contar las partidas antiguas (con el total de la temporada buscado o escrito a mano), la cifra de Partidas suma las de esa temporada que FCT no tiene en repeticiones, igual que el total de cofres suma los estimados. Con «empezar de cero» no se suma nada.
+- **Pantalla de tesoros más fiable**: los fuegos artificiales dorados y los localizadores se reconocen aunque la tarjeta aún esté apareciendo o brillando; las capturas empiezan antes y son más seguidas (la pantalla a veces dura solo 2 o 3 segundos) y se combinan tarjeta a tarjeta. Como el juego junta en una sola tarjeta los tesoros iguales, cuando hay menos tarjetas que tesoros se nombra con seguridad el primer artilugio de la partida y el resto queda como «Artilugio».
+- **Estadísticas afinadas**: el aviso de que FCT está cerrado sale en el menú lateral, debajo de la última sección; en Compañeros la media también se muestra como mínimo (≥); en «Tesoros disponibles actualmente», la fila «Todas las semanas» ya no lleva un contador por artilugio (los totales siguen arriba). En Resumen, «Últimas partidas» muestra 5 (caben enteras en una pantalla 1920×1080 sin barra de desplazamiento), «Últimos tesoros» se desplaza fila a fila sin dejar ninguna cortada y las columnas guardan la misma separación que las tarjetas de arriba.
+
 ## [5.2.1] - 2026-11-13
 
 - **Overlay**: eliminación de los atajos de teclado globales; la visibilidad y bloqueo se gestionan exclusivamente desde el botón nativo de la ventana principal y el icono de candado.
@@ -237,7 +250,11 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
-[Sin publicar]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.2.1...HEAD
+[Sin publicar]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.6.0...HEAD
+[5.6.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.5.0...v5.6.0
+[5.5.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.4.0...v5.5.0
+[5.4.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.3.0...v5.4.0
+[5.3.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.2.1...v5.3.0
 [5.2.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.0.0...v5.1.0
