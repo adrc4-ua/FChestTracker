@@ -73,17 +73,17 @@ public sealed partial class SettingsForm : ThemedForm
         _cannons.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountLootCannons = _cannons.Checked));
 
         // ---- right column: updates (three pills)
-        var updates = Card(this, RightX, Header + 185, RightWidth, 116, 14);
+        var updates = Card(this, RightX, Header + 185, RightWidth, 130, 14);
         Title(updates, L.T("Actualizaciones", "Updates"));
         var pillWidth = (RightWidth - 26 - 2 * 6) / 3;
         for (var i = 0; i < UpdateChoices.Length; i++)
         {
             var index = i;
-            _updateButtons[i] = Button(UpdateChoices[i].Label, new Point(13 + i * (pillWidth + 6), 36), new Size(pillWidth, 34), 10);
+            _updateButtons[i] = Button(UpdateChoices[i].Label, new Point(13 + i * (pillWidth + 6), 39), new Size(pillWidth, 34), 10);
             _updateButtons[i].Click += (_, _) => ShowUpdateMode(index, save: true);
             updates.Controls.Add(_updateButtons[i]);
         }
-        _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 80), new Size(RightWidth - 26, 18), ContentAlignment.MiddleCenter);
+        _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 87), new Size(RightWidth - 26, 18), ContentAlignment.MiddleCenter);
         ShowUpdateMode(Math.Max(0, Array.FindIndex(UpdateChoices, c => c.Mode == config.UpdateMode)), save: false);
 
         var folder = Card(this, LeftX, Header + 373, LeftWidth, 94, 14);
@@ -145,7 +145,7 @@ public sealed partial class SettingsForm : ThemedForm
     /// <summary>The OBS page: its address with a copy button, and whether it is on.</summary>
     private void ObsCard()
     {
-        var card = Card(this, RightX, Header + 310, RightWidth, 157, 14);
+        var card = Card(this, RightX, Header + 324, RightWidth, 143, 14);
         Title(card, L.T("Overlay para OBS", "Overlay for OBS"), 92);
         var url = ObsServer.Url;
         var on = url != null;
@@ -174,7 +174,7 @@ public sealed partial class SettingsForm : ThemedForm
                 ? L.F("En OBS, añade una fuente «Navegador» con esta dirección. Fondo transparente. Se actualiza sola mientras {0} está abierto.",
                     "In OBS, add a \"Browser\" source with this address. Transparent background. It updates by itself while {0} is open.", AppInfo.ShortName)
                 : L.F("Otro programa usa el puerto; reinicia {0} para probar de nuevo.", "Another program uses the port; restart {0} to try again.", AppInfo.ShortName),
-            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 78), new Size(RightWidth - 26, 63));
+            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 79), new Size(RightWidth - 26, 48));
     }
 
     /// <summary>
