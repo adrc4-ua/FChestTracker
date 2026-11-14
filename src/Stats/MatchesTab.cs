@@ -85,7 +85,7 @@ internal static class MatchesTab
             html.Append(RowOpen(match))
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}</td><td>{mode}</td><td class=\"ac\">{Place(match)}</td>")
                 .Append(withKills ? $"<td class=\"ac\">{Eliminations(match)}</td>" : "")
-                .Append($"<td><div class=\"count\"><span class=\"count-bar\"><i style=\"width:{Css(100.0 * own / largest)}\"></i></span><b>{own}</b></div></td>");
+                .Append($"<td class=\"ac\"><div class=\"count\"><span class=\"count-bar\"><i style=\"width:{Css(100.0 * own / largest)}\"></i></span><b>{own}</b></div></td>");
             if (withTeam)
             {
                 html.Append(squad != null

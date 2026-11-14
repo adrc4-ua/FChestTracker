@@ -85,7 +85,7 @@ internal static class ChestsTab
             var average = (double)mode.Chests / mode.Matches;
             var gems = mode.Treasures > 0 ? $"<span class=\"gems\">{Num(mode.Treasures)}{PageIcons.SmallGem}</span>" : Dash;
             table.Append($"<tr><td><span class=\"pill pill-mode\">{Esc(mode.Name)}</span></td><td class=\"ac\">{Num(mode.Matches)}</td>")
-                .Append($"<td><div class=\"count\"><span class=\"count-bar\"><i style=\"width:{Css(100.0 * average / bestAverage)}\"></i></span><b>{average.ToString("0.0", L.Culture)}</b></div></td>")
+                .Append($"<td class=\"ac\"><div class=\"count\"><span class=\"count-bar\"><i style=\"width:{Css(100.0 * average / bestAverage)}\"></i></span><b>{average.ToString("0.0", L.Culture)}</b></div></td>")
                 .Append($"<td class=\"ac\">{Num(mode.Best)}</td><td class=\"ac\">{Num(mode.Chests)}</td><td class=\"ac\">{gems}</td></tr>");
         }
         table.Append("</tbody></table></div>");

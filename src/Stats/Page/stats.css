@@ -194,7 +194,8 @@ tfoot td{border-bottom:0;border-top:1px solid var(--line)}
 table.short th,table.short td{padding:9px 14px}
 td.ac .count{justify-content:center}
 th.ac button{justify-content:center}
-th button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+th button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;position:relative}
+th[aria-sort] button::after{position:absolute;left:100%;margin-left:4px} /* the sort arrow never moves its title off centre */
 th button:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
 th[aria-sort]{color:var(--gold-hi)}
 th[aria-sort="descending"] button::after{content:"▾"}
