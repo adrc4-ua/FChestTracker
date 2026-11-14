@@ -127,6 +127,14 @@ public sealed class Config
         return page;
     }
 
+    // ---- Earlier versions ------------------------------------------------------------------------------------------------------
+
+    /// <summary>Version that already cleared what earlier ones left (see <see cref="FCT.App.Leftovers"/>): once per version.</summary>
+    public string? CleanedFor { get; set; }
+
+    /// <summary>The exe that ran last: an older copy there goes away when a newer one opens.</summary>
+    public string? LastExe { get; set; }
+
     // ---- Defaults that changed ------------------------------------------------------------------------------------------------
 
     /// <summary>Generation of defaults: 2 turned on start with Fortnite, the overlay and the teammates.</summary>

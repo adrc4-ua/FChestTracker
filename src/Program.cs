@@ -37,7 +37,7 @@ internal static class Program
 
         using var instance = new SingleInstance(dataDir);
         var tool = options.OverlayPreview != null || options.Diagnose != null;
-        if (!tool && !instance.TryTake(options.AfterUpdate ? TimeSpan.FromSeconds(20) : TimeSpan.Zero))
+        if (!tool && !instance.TryTake(options.AfterUpdate ? TimeSpan.FromSeconds(20) : TimeSpan.Zero) && !TakeOverFromOlder(instance, defaultFolder))
         {
             if (!options.Auto) // opened with Fortnite while already open: nothing to say
             {
@@ -54,6 +54,16 @@ internal static class Program
         if (options.Diagnose != null)
         {
             return CommandLineTools.Diagnose(store, options.Diagnose);
+        }
+
+        // before the history is loaded: an older copy still open must not write to it afterwards
+        if (OperatingSystem.IsWindows() && !options.Once)
+        {
+            Leftovers.CleanOnce(config, store, defaultFolder);
+            if (defaultFolder && AppInfo.ExePath is { } exe)
+            {
+                config.LastExe = exe;
+            }
         }
 
         LowerPriority();
@@ -82,6 +92,16 @@ internal static class Program
             }
         }
         return RunWindow(args, options, firstRun, store, config, data, tracker, instance, dataDir);
+    }
+
+    /// <summary>
+    /// The FCT already open is an older version (a newer exe was downloaded and opened): it is closed and this one takes
+    /// its place. Only for the normal data folder, never from a test one.
+    /// </summary>
+    private static bool TakeOverFromOlder(SingleInstance instance, bool defaultFolder)
+    {
+        var eligible = defaultFolder || Environment.GetEnvironmentVariable("FCT_TEST_CLEANUP") == "1";
+        return eligible && OperatingSystem.IsWindows() && OlderCopies.EndRunning() && instance.TryTake(TimeSpan.FromSeconds(5));
     }
 
     private static int RunWatcher(string[] args)

@@ -19,8 +19,8 @@ internal static class StartupEntries
     /// <summary>Run entry of the fallback standby.</summary>
     public const string StandbyEntry = AppInfo.ShortName;
 
-    /// <summary>Run entries FCT ever wrote ("FortniteChestTracker" was a development name).</summary>
-    public static readonly string[] AllRunEntries = { StandbyEntry, "FortniteChestTracker" };
+    /// <summary>Run entries FCT ever wrote ("FortniteChestTracker" was a development name, "ChestCounter" the first one).</summary>
+    public static readonly string[] AllRunEntries = { StandbyEntry, "FortniteChestTracker", "ChestCounter" };
 
     private static string TaskName => Environment.GetEnvironmentVariable("FCT_TASK_NAME") is { Length: > 0 } test ? test : AppInfo.Name;
 
@@ -64,6 +64,14 @@ internal static class StartupEntries
         {
             try { File.Delete(definition); } catch (IOException) { } catch (UnauthorizedAccessException) { }
         }
+    }
+
+    /// <summary>The exe the registered task starts; null without a task.</summary>
+    public static string? TaskExe()
+    {
+        var (code, registered) = Schtasks($"/Query /TN \"{TaskName}\" /XML");
+        var command = code == 0 ? System.Text.RegularExpressions.Regex.Match(registered, "<Command>([^<]+)</Command>") : null;
+        return command is { Success: true } ? System.Net.WebUtility.HtmlDecode(command.Groups[1].Value).Trim('"') : null;
     }
 
     public static void DeleteTask()
@@ -177,6 +185,28 @@ internal static class StartupEntries
         {
             return false;
         }
+    }
+
+    /// <summary>The exes FCT's Run entries start (each command begins with the quoted exe).</summary>
+    public static List<string> RunEntryExes()
+    {
+        var exes = new List<string>();
+        try
+        {
+            using var run = Registry.CurrentUser.OpenSubKey(RunKey);
+            foreach (var name in AllRunEntries)
+            {
+                if (run?.GetValue(name) is string command && command.Contains("--standby", StringComparison.OrdinalIgnoreCase)
+                    && command.StartsWith('"') && command.IndexOf('"', 1) is var end and > 1)
+                {
+                    exes.Add(command[1..end]);
+                }
+            }
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or SecurityException or IOException)
+        {
+        }
+        return exes;
     }
 
     /// <summary>
