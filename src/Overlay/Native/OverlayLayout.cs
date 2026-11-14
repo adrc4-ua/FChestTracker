@@ -27,6 +27,10 @@ internal sealed class OverlayLayout
     public int Width, Height;
     public RECT Lock, Close;
 
+    /// <summary>The button at a point of the overlay (relative to it).</summary>
+    public OverlayButton ButtonAt(int x, int y, bool withClose) =>
+        Lock.Contains(x, y) ? OverlayButton.Lock : withClose && Close.Contains(x, y) ? OverlayButton.Close : OverlayButton.None;
+
     public static string Title => L.T("COFRES", "CHESTS");
 
     /// <summary>The badge without its leading dot (the pill already shows the state).</summary>
@@ -99,3 +103,6 @@ internal sealed class OverlayLayout
     /// <summary>The stats as one block: the columns plus the same gap between each two.</summary>
     public int StatsWidth(Func<int, int> px) => StatWidths.Sum() + Math.Max(0, StatWidths.Length - 1) * px(StatGap);
 }
+
+/// <summary>The overlay's buttons.</summary>
+internal enum OverlayButton { None, Lock, Close }

@@ -22,14 +22,15 @@ internal sealed class OverlayPainter
     private readonly OverlayLayout _at;
     private readonly OverlayView _view;
     private readonly bool _locked, _withClose;
+    private readonly OverlayButton _hover;
 
     // where things go (from the layout)
     private readonly int _left, _right, _headY, _numbersY, _totalY, _chipLeft, _chipTop, _statsY;
     private readonly float _blockLeft;
 
-    private OverlayPainter(IntPtr hdc, RECT client, OverlayInk ink, OverlayLayout layout, OverlayView view, bool locked, bool withClose)
+    private OverlayPainter(IntPtr hdc, RECT client, OverlayInk ink, OverlayLayout layout, OverlayView view, bool locked, bool withClose, OverlayButton hover)
     {
-        (_hdc, _client, _ink, _at, _view, _locked, _withClose) = (hdc, client, ink, layout, view, locked, withClose);
+        (_hdc, _client, _ink, _at, _view, _locked, _withClose, _hover) = (hdc, client, ink, layout, view, locked, withClose, hover);
         var px = ink.Px;
         _left = px(Stripe) + px(Pad);
         _right = client.Right - px(Pad);
@@ -43,8 +44,10 @@ internal sealed class OverlayPainter
         _blockLeft = (px(Stripe) + client.Right - layout.StatsWidth(px)) / 2f;
     }
 
-    public static void Paint(IntPtr hdc, RECT client, OverlayInk ink, OverlayLayout layout, OverlayView view, bool locked, bool withClose) =>
-        new OverlayPainter(hdc, client, ink, layout, view, locked, withClose).Paint();
+    /// <param name="hover">The button under a free pointer, lit in gold (the overlay never sets a cursor of its own).</param>
+    public static void Paint(IntPtr hdc, RECT client, OverlayInk ink, OverlayLayout layout, OverlayView view, bool locked, bool withClose,
+        OverlayButton hover = OverlayButton.None) =>
+        new OverlayPainter(hdc, client, ink, layout, view, locked, withClose, hover).Paint();
 
     private int Px(int length) => _ink.Px(length);
     private float ColumnLeft(int i) => _blockLeft + _at.StatWidths.Take(i).Sum() + i * Px(StatGap);
@@ -166,12 +169,12 @@ internal sealed class OverlayPainter
         // Segoe MDL2 Assets: E72E closed padlock, E785 open padlock, E8BB close
         const uint Glyph = DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX;
         SelectObject(_hdc, _ink.IconFont);
-        SetTextColor(_hdc, _locked ? OverlayInk.Faint : OverlayInk.Champagne);
+        SetTextColor(_hdc, _hover == OverlayButton.Lock ? OverlayInk.Gold : _locked ? OverlayInk.Faint : OverlayInk.Champagne);
         var lockBox = _at.Lock;
         DrawTextW(_hdc, _locked ? "" : "", -1, ref lockBox, Glyph);
         if (_withClose)
         {
-            SetTextColor(_hdc, OverlayInk.Champagne);
+            SetTextColor(_hdc, _hover == OverlayButton.Close ? OverlayInk.Gold : OverlayInk.Champagne);
             var closeBox = _at.Close;
             DrawTextW(_hdc, "", -1, ref closeBox, Glyph);
         }

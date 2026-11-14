@@ -9,20 +9,16 @@ internal static class Win32
     public const uint WS_POPUP = 0x80000000;
     public const uint WS_EX_TOPMOST = 0x00000008, WS_EX_TRANSPARENT = 0x00000020, WS_EX_TOOLWINDOW = 0x00000080, WS_EX_LAYERED = 0x00080000,
         WS_EX_NOACTIVATE = 0x08000000;
-    public const int GWL_EXSTYLE = -20;
     public const uint LWA_ALPHA = 0x2, CURSOR_SHOWING = 0x1;
     public const uint WM_INPUT = 0x00FF, RID_INPUT = 0x10000003, RIM_TYPEMOUSE = 0, RIDEV_REMOVE = 0x1, RIDEV_INPUTSINK = 0x100;
-    public const ushort MOUSE_MOVE_ABSOLUTE = 0x1;
-    public const int HTCLIENT = 1, HTCAPTION = 2, HTTRANSPARENT = -1;
+    public const ushort MOUSE_MOVE_ABSOLUTE = 0x1, RI_MOUSE_LEFT_BUTTON_DOWN = 0x1, RI_MOUSE_LEFT_BUTTON_UP = 0x2, RI_MOUSE_RIGHT_BUTTON_UP = 0x8;
     public const int SW_HIDE = 0, SW_SHOWNOACTIVATE = 4;
     public const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10, SWP_FRAMECHANGED = 0x20;
     public static readonly IntPtr HWND_TOPMOST = new(-1);
-    public static readonly IntPtr IDC_SIZEALL = new(32646), IDC_HAND = new(32649);
+    public static readonly IntPtr IDC_ARROW = new(32512);
 
-    public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_SETCURSOR = 0x0020, WM_NCHITTEST = 0x0084,
-        WM_NCLBUTTONDOWN = 0x00A1, WM_NCRBUTTONDOWN = 0x00A4, WM_NCRBUTTONUP = 0x00A5, WM_TIMER = 0x0113, WM_LBUTTONDOWN = 0x0201,
-        WM_LBUTTONUP = 0x0202, WM_RBUTTONDOWN = 0x0204, WM_MOVING = 0x0216, WM_ENTERSIZEMOVE = 0x0231, WM_EXITSIZEMOVE = 0x0232,
-        WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
+    public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_TIMER = 0x0113, WM_DPICHANGED = 0x02E0,
+        WM_PRINTCLIENT = 0x0318;
 
     public const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTONEAREST = 2;
     public const int DWMWA_CLOAKED = 14;
@@ -34,9 +30,6 @@ internal static class Win32
     public const uint CLEARTYPE_NATURAL_QUALITY = 6;
 
     public static uint Rgb(byte r, byte g, byte b) => (uint)(r | (g << 8) | (b << 16));
-
-    public static int LowWord(IntPtr value) => (short)((long)value & 0xFFFF);
-    public static int HighWord(IntPtr value) => (short)(((long)value >> 16) & 0xFFFF);
 
     // ---- structures -----------------------------------------------------------------------------------------------------
     public delegate IntPtr WndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
@@ -151,17 +144,13 @@ internal static class Win32
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int DrawTextW(IntPtr hdc, string text, int count, ref RECT rect, uint format);
     [DllImport("user32.dll")] public static extern UIntPtr SetTimer(IntPtr hwnd, UIntPtr id, uint ms, IntPtr proc);
     [DllImport("user32.dll")] public static extern bool KillTimer(IntPtr hwnd, UIntPtr id);
-    [DllImport("user32.dll")] public static extern IntPtr GetWindowLongPtrW(IntPtr hwnd, int index);
-    [DllImport("user32.dll")] public static extern IntPtr SetWindowLongPtrW(IntPtr hwnd, int index, IntPtr value);
     [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint key, byte alpha, uint flags);
     [DllImport("user32.dll")] public static extern bool GetCursorInfo(ref CURSORINFO info);
     [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT point);
-    [DllImport("user32.dll")] public static extern bool GetClipCursor(out RECT rect);
     [DllImport("user32.dll", SetLastError = true)] public static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] devices, uint count, uint size);
     [DllImport("user32.dll")] public static extern uint GetRawInputData(IntPtr input, uint command, out RAWMOUSEINPUT data, ref uint size, uint headerSize);
     [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] public static extern IntPtr LoadCursorW(IntPtr instance, IntPtr name);
-    [DllImport("user32.dll")] public static extern IntPtr SetCursor(IntPtr cursor);
     [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
