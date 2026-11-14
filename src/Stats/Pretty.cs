@@ -57,21 +57,27 @@ public static class Pretty
         return match.TotalPlayers > 0 ? L.F("{0} de {1}", "{0} of {1}", ordinal, match.TotalPlayers) : ordinal;
     }
 
-    /// <summary>Replay seconds as m:ss.</summary>
+    // Times, the same everywhere (app, page, console): a moment of a match as "3:51 min", a length as "18 min".
+
+    /// <summary>A moment of the match (replay seconds) as "m:ss min".</summary>
     public static string Clock(float seconds)
     {
         var whole = (int)seconds;
-        return $"{whole / 60}:{whole % 60:00}";
+        return $"{whole / 60}:{whole % 60:00} min";
     }
 
-    /// <summary>When and from where a treasure came: "a las 7:16 · Cofre raro", or "hacia las 5:04 · Cofre raro (probable)".</summary>
+    /// <summary>How long something lasted, in whole minutes ("18 min"; under a minute, "1 min"); null when unknown.</summary>
+    public static string? Minutes(int? seconds) =>
+        seconds is { } s && s > 0 ? $"{Math.Max(1, (int)Math.Round(s / 60.0, MidpointRounding.AwayFromZero))} min" : null;
+
+    /// <summary>When and from where a treasure came: "a los 7:16 min · Cofre raro", or "hacia los 5:04 min · Cofre raro (probable)".</summary>
     public static string Obtained(TreasureFind find)
     {
         if (find.ObtainedAtSeconds is not { } at)
         {
             return L.T("momento y origen desconocidos", "time and source unknown");
         }
-        var prefix = find.TimeExact ? L.T("a las", "at") : L.T("hacia las", "around");
+        var prefix = find.TimeExact ? L.T("a los", "at") : L.T("hacia los", "around");
         var source = find.SourceCertain ? find.SourceLabel : $"{find.SourceLabel} ({Likely})";
         return $"{prefix} {Clock(at)} · {source}";
     }

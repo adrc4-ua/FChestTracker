@@ -38,10 +38,11 @@ internal static class MatchesTab
     {
         var html = new StringBuilder("<div class=\"sheet scrollx\"><table class=\"short\"><thead><tr>")
             .Append($"<th>{L.T("Fecha", "Date")}</th><th>{L.T("Modo", "Mode")}</th><th class=\"ac\">{L.T("Puesto", "Placement")}</th>")
-            .Append($"<th class=\"ac\">{L.T("Elim.", "Elims")}</th><th class=\"ac\">{L.T("Cofres", "Chests")}</th><th class=\"ac\">{L.T("Tesoros", "Treasures")}</th></tr></thead><tbody>");
+            .Append($"<th class=\"ac\">{L.T("Elim.", "Elims")}</th><th class=\"ac\">{L.T("Duración", "Length")}</th>")
+            .Append($"<th class=\"ac\">{L.T("Cofres", "Chests")}</th><th class=\"ac\">{L.T("Tesoros", "Treasures")}</th></tr></thead><tbody>");
         if (matches.Count == 0)
         {
-            html.Append(NoMatches(6));
+            html.Append(NoMatches(7));
         }
         foreach (var match in matches)
         {
@@ -49,6 +50,7 @@ internal static class MatchesTab
             html.Append(RowOpen(match))
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}</td><td class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</td>")
                 .Append($"<td class=\"ac\">{Place(match)}</td><td class=\"ac\">{Eliminations(match)}</td>")
+                .Append($"<td class=\"ac nowrap\">{Pretty.Minutes(match.DurationSeconds) ?? Dash}</td>")
                 .Append($"<td class=\"ac\"><b>{Num(match.ChestsOpened)}</b></td><td class=\"ac\">{gems}</td></tr>");
         }
         return html.Append("</tbody></table></div>").ToString();

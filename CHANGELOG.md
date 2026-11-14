@@ -4,6 +4,9 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Detalles de la última partida en la ventana**: tu Top (o Victoria), eliminaciones, tesoros obtenidos y cuánto duró, a su tamaño normal (antes el texto se encogía para caber). En Estadísticas, «Últimas partidas» muestra también la duración.
+- **Tiempos con su unidad en todas partes**: duraciones como «18 min» y momentos de la partida como «3:51 min».
+- **Gráfico de la semana más legible**: la escala y los días en un gris más claro.
 - **README**: el principal pasa a estar en inglés (el español sigue en [README.es.md](README.es.md)), con botones para cambiar de idioma arriba; nueva sección sobre la exactitud (los cofres se cuentan todos; algún artilugio de tesoro puede escaparse) y capturas al día.
 - **Los cofres enterrados cuentan como cofres normales** en las estadísticas (Cofres, origen de cada tesoro y «Dónde consigo mis tesoros»). Esa última lista muestra siempre los cofres que dan tesoros, también los cofres de espíritu aunque aún no te hayan dado ninguno.
 - **Tachar premios en las semanas** (Estadísticas → Tesoros → Ver todas las semanas): toca un premio para tacharlo o destacharlo. Los que consigues se tachan solos, y siempre puedes cambiarlos a mano; se guardan con tu configuración. El botón de las semanas y los premios de «Todas las semanas» van ahora en gris: solo el Pirate Shop Access se ilumina si lo consigues.

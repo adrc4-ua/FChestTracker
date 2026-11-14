@@ -69,27 +69,24 @@ public sealed partial class MainForm
             : L.T("Aún no hay partidas: ¡a jugar!", "No matches yet: go play!");
     }
 
-    /// <summary>"3rd of 100 · 4 elim. · 1 treasure · 2 destroyed".</summary>
+    /// <summary>"Top 3 · 4 elim. · 1 tesoro · 18 min" (a win is "Victoria"); short enough to fit the strip at its size.</summary>
     private static string Details(LastMatchSummary match)
     {
         var parts = new List<string>();
-        if (match.Placement is { } place)
+        if (match.Placement is { } place and > 0)
         {
-            parts.Add(match.Players is { } players ? $"{L.Ordinal(place)} {L.T("de", "of")} {players}" : L.Ordinal(place));
+            parts.Add(place == 1 ? L.T("Victoria", "Victory") : $"Top {place}");
         }
         if (match.Eliminations is { } eliminations)
         {
-            parts.Add(L.F("{0} elim.", "{0} elim.", eliminations));
+            parts.Add(L.F("{0} elim.", "{0} elims", eliminations));
         }
-        if (match.Treasures > 0)
+        parts.Add(L.Count(match.Treasures, "tesoro", "tesoros", "treasure", "treasures"));
+        if (Pretty.Minutes(match.DurationSeconds) is { } minutes)
         {
-            parts.Add(L.Count(match.Treasures, "tesoro", "tesoros", "treasure", "treasures"));
+            parts.Add(minutes);
         }
-        if (match.Destroyed > 0)
-        {
-            parts.Add(L.F("{0} destruido(s)", "{0} destroyed", match.Destroyed));
-        }
-        return parts.Count > 0 ? string.Join("  ·  ", parts) : L.T("Sin más detalles", "No more details");
+        return string.Join(" · ", parts);
     }
 
     /// <summary>The six figures and the week. Today's title carries today's matches (from the overlay's first row).</summary>

@@ -35,7 +35,7 @@ internal static class ScreenFigures
             HistoryMatches = matches.Count,
             HistorySince = matches.Count == 0 ? null : matches.Min(Day),
             LastMatch = Latest(matches) is { } last
-                ? new LastMatchSummary(last.ChestsOpened, last.Chests.Count(c => c.Destroyed), last.TreasureFinds.Count, last.Placement, last.TotalPlayers, last.Eliminations)
+                ? new LastMatchSummary(last.ChestsOpened, last.Chests.Count(c => c.Destroyed), last.TreasureFinds.Count, last.Placement, last.TotalPlayers, last.Eliminations, last.DurationSeconds)
                 : null,
         };
     }

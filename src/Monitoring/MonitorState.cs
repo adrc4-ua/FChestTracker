@@ -49,7 +49,7 @@ public sealed record ChestStats(int Matches, double Average, int BestMatch, int 
 public sealed record DayChests(DateTime Day, int Chests, bool Future = false);
 
 /// <summary>The latest match: chests (broken ones included), how many of them were broken, treasures, place and eliminations.</summary>
-public sealed record LastMatchSummary(int Chests, int Destroyed, int Treasures, int? Placement, int? Players, int? Eliminations);
+public sealed record LastMatchSummary(int Chests, int Destroyed, int Treasures, int? Placement, int? Players, int? Eliminations, int? DurationSeconds = null);
 
 /// <summary>
 /// The squad card. <paramref name="Unknown"/>: the match was read before teammates were recorded, so there is

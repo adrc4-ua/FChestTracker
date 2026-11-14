@@ -120,7 +120,7 @@ public sealed class DailyChart : Control
                 var y = (float)Math.Round(Y(level)) + 0.5f;
                 _g.DrawLine(guide, _plot.Left, y, _plot.Right, y);
                 var size = Measure(L.N(level), _axisFont);
-                Write(L.N(level), _axisFont, Theme.Faint, axisWidth - size.Width, y - size.Height / 2f);
+                Write(L.N(level), _axisFont, Theme.Muted, axisWidth - size.Width, y - size.Height / 2f);
             }
         }
 
@@ -223,7 +223,7 @@ public sealed class DailyChart : Control
                 }
                 var font = isToday ? _todayFont : _dayFont;
                 var width = Measure(name, font).Width;
-                Write(name, font, isToday ? Theme.GoldBase : Theme.Faint, Math.Clamp(X(i) - width / 2f, 0f, _chart.Width - width), _plot.Bottom + 5f);
+                Write(name, font, isToday ? Theme.GoldBase : Theme.Muted, Math.Clamp(X(i) - width / 2f, 0f, _chart.Width - width), _plot.Bottom + 5f);
             }
         }
 
