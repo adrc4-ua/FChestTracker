@@ -20,7 +20,8 @@ internal static class Win32
     public static readonly IntPtr IDC_SIZEALL = new(32646), IDC_HAND = new(32649);
 
     public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_SETCURSOR = 0x0020, WM_NCHITTEST = 0x0084,
-        WM_NCRBUTTONUP = 0x00A5, WM_TIMER = 0x0113, WM_LBUTTONUP = 0x0202, WM_MOVING = 0x0216, WM_ENTERSIZEMOVE = 0x0231, WM_EXITSIZEMOVE = 0x0232,
+        WM_NCLBUTTONDOWN = 0x00A1, WM_NCRBUTTONDOWN = 0x00A4, WM_NCRBUTTONUP = 0x00A5, WM_TIMER = 0x0113, WM_LBUTTONDOWN = 0x0201,
+        WM_LBUTTONUP = 0x0202, WM_RBUTTONDOWN = 0x0204, WM_MOVING = 0x0216, WM_ENTERSIZEMOVE = 0x0231, WM_EXITSIZEMOVE = 0x0232,
         WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
 
     public const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTONEAREST = 2;
@@ -155,6 +156,7 @@ internal static class Win32
     [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint key, byte alpha, uint flags);
     [DllImport("user32.dll")] public static extern bool GetCursorInfo(ref CURSORINFO info);
     [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT point);
+    [DllImport("user32.dll")] public static extern bool GetClipCursor(out RECT rect);
     [DllImport("user32.dll", SetLastError = true)] public static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] devices, uint count, uint size);
     [DllImport("user32.dll")] public static extern uint GetRawInputData(IntPtr input, uint command, out RAWMOUSEINPUT data, ref uint size, uint headerSize);
     [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);

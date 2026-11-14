@@ -16,7 +16,10 @@ namespace FCT.Overlay;
 public static class NativeOverlay
 {
     private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004;
-    private const int GameTimer = 3, GameTimerMs = 2000, MouseTimer = 4, MouseTimerMs = 100;
+    private const int GameTimer = 3, GameTimerMs = 2000, MouseTimer = 4;
+
+    /// <summary>How often the pointer is looked at: often near the overlay (so it answers the click at once), seldom far.</summary>
+    private const uint MouseNearMs = 40, MouseFarMs = 160;
 
     private static Thread? _thread;
     private static IntPtr _window;
@@ -35,7 +38,9 @@ public static class NativeOverlay
     private static int _keptWidth;
     private static GameWindows _game = new(null);
     private static readonly MouseGate _mouse = new();
+    private static readonly Func<int, int, bool> Usable = (x, y) => !_locked || OnButton(x, y); // locked: only its buttons
     private static bool _dragging;
+    private static uint _mouseEvery;
     private static WndProc? _procedure; // kept alive while the window lives
     private static WinEventProc? _eventProcedure;
     private static readonly List<IntPtr> _eventHooks = new();
@@ -260,9 +265,16 @@ public static class NativeOverlay
                 var (x, y) = (LowWord(lParam) - box.Left, HighWord(lParam) - box.Top);
                 return OnButton(x, y) ? HTCLIENT : _locked ? HTTRANSPARENT : HTCAPTION;
             }
+            case WM_SETCURSOR when !_offscreen && !_mouse.Taking:
+                // just given back to the game (the style change is on its way): never the overlay's cursor
+                SetCursor(IntPtr.Zero);
+                return 1;
             case WM_SETCURSOR when ((long)lParam & 0xFFFF) == HTCLIENT:
                 SetCursor(LoadCursorW(IntPtr.Zero, IDC_HAND));
                 return 1;
+            case WM_LBUTTONDOWN or WM_RBUTTONDOWN or WM_NCLBUTTONDOWN or WM_NCRBUTTONDOWN:
+                _mouse.PressedOnOverlay = true; // a click or a drag on the overlay: it keeps the mouse until released
+                return DefWindowProcW(window, message, wParam, lParam);
             case WM_LBUTTONUP:
                 if (_close != null && _layout.Close.Contains(LowWord(lParam), HighWord(lParam)))
                 {
@@ -307,13 +319,17 @@ public static class NativeOverlay
             case WM_INPUT:
                 if (MouseMove(lParam) is var (dx, dy) && _mouse.Moved(dx, dy))
                 {
-                    LetMouseThrough(window, true); // the game pinned the pointer: give the mouse back
+                    ApplyMouse(window); // the game pinned the pointer: give the mouse back
                 }
                 return DefWindowProcW(window, message, wParam, lParam);
             case WM_TIMER when (long)wParam == MouseTimer:
-                if (!_dragging && GetWindowRect(window, out var place) && _mouse.Update(place))
+                if (!_dragging && GetWindowRect(window, out var place))
                 {
-                    LetMouseThrough(window, !_mouse.Taking);
+                    if (_mouse.Update(place, Usable))
+                    {
+                        ApplyMouse(window);
+                    }
+                    WatchPointer(window, _mouse.Taking || _mouse.Near ? MouseNearMs : MouseFarMs);
                 }
                 return 0;
             case WM_TIMER when (long)wParam == GameTimer:
@@ -445,16 +461,37 @@ public static class NativeOverlay
         // the pointer is only watched while it is on screen; hidden, it gives the mouse back
         if (show)
         {
-            SetTimer(window, (UIntPtr)MouseTimer, MouseTimerMs, IntPtr.Zero);
+            WatchPointer(window, MouseFarMs);
         }
         else
         {
             KillTimer(window, (UIntPtr)MouseTimer);
+            _mouseEvery = 0;
             if (_mouse.Release())
             {
-                LetMouseThrough(window, true);
+                ApplyMouse(window);
             }
         }
+    }
+
+    /// <summary>Looks at the pointer every <paramref name="ms"/> (the timer is only reset when that changes).</summary>
+    private static void WatchPointer(IntPtr window, uint ms)
+    {
+        if (ms != _mouseEvery)
+        {
+            _mouseEvery = ms;
+            SetTimer(window, (UIntPtr)MouseTimer, ms, IntPtr.Zero);
+        }
+    }
+
+    /// <summary>Makes the window follow <see cref="MouseGate.Taking"/>, hiding the overlay's cursor first when the game pinned it.</summary>
+    private static void ApplyMouse(IntPtr window)
+    {
+        if (_mouse.TakeHideCursor() && !_mouse.Taking)
+        {
+            SetCursor(IntPtr.Zero); // still the overlay's, and the pinned pointer will not move for the game to set its own
+        }
+        LetMouseThrough(window, !_mouse.Taking);
     }
 
     /// <summary>
