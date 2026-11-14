@@ -13,12 +13,13 @@ internal static class Win32
     public const uint WM_INPUT = 0x00FF, RID_INPUT = 0x10000003, RIM_TYPEMOUSE = 0, RIDEV_REMOVE = 0x1, RIDEV_INPUTSINK = 0x100;
     public const ushort MOUSE_MOVE_ABSOLUTE = 0x1, RI_MOUSE_LEFT_BUTTON_DOWN = 0x1, RI_MOUSE_LEFT_BUTTON_UP = 0x2, RI_MOUSE_RIGHT_BUTTON_UP = 0x8;
     public const int SW_HIDE = 0, SW_SHOWNOACTIVATE = 4;
-    public const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10, SWP_FRAMECHANGED = 0x20;
+    public const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOZORDER = 0x4, SWP_NOREDRAW = 0x8, SWP_NOACTIVATE = 0x10, SWP_FRAMECHANGED = 0x20;
     public static readonly IntPtr HWND_TOPMOST = new(-1);
     public static readonly IntPtr IDC_ARROW = new(32512);
 
-    public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_ERASEBKGND = 0x0014, WM_TIMER = 0x0113,
-        WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
+    public const uint WM_DESTROY = 0x0002, WM_PAINT = 0x000F, WM_CLOSE = 0x0010, WM_ERASEBKGND = 0x0014, WM_SETCURSOR = 0x0020,
+        WM_MOUSEACTIVATE = 0x0021, WM_NCHITTEST = 0x0084, WM_TIMER = 0x0113, WM_DPICHANGED = 0x02E0, WM_PRINTCLIENT = 0x0318;
+    public const int HTCLIENT = 1, MA_NOACTIVATE = 3, GWL_EXSTYLE = -20;
     public const uint SRCCOPY = 0x00CC0020;
 
     public const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTONEAREST = 2;
@@ -152,6 +153,10 @@ internal static class Win32
     [DllImport("user32.dll")] public static extern uint GetRawInputData(IntPtr input, uint command, out RAWMOUSEINPUT data, ref uint size, uint headerSize);
     [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] public static extern IntPtr LoadCursorW(IntPtr instance, IntPtr name);
+    [DllImport("user32.dll")] public static extern IntPtr SetCursor(IntPtr cursor);
+    [DllImport("user32.dll")] public static extern IntPtr GetWindowLongPtrW(IntPtr hwnd, int index);
+    [DllImport("user32.dll")] public static extern IntPtr SetWindowLongPtrW(IntPtr hwnd, int index, IntPtr value);
+    [DllImport("user32.dll")] public static extern bool GetClipCursor(out RECT rect);
     [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();

@@ -9,9 +9,11 @@ namespace FCT.Overlay;
 /// <summary>
 /// The in-game overlay: a small always-on-top window on its own thread, drawn with GDI so it stays sharp and cheap. It
 /// has no timer for the figures (it repaints when told to) and only shows while a window of the game is open. Its
-/// padlock locks it in place. The mouse always goes through it, so the cursor is always the game's and the overlay can
-/// never show one the game hides; while the pointer is free over it (a menu, Esc, the map) it reads the mouse itself to
-/// work its padlock and ✕, to be dragged when unlocked and hidden with a right click (<see cref="MouseGate"/>).
+/// padlock locks it in place. The mouse goes through it, so the cursor is the game's and the overlay never shows one the
+/// game hides. Only while the pointer is free (a menu, Esc, the map, the desktop) over a part of it that can be used (its
+/// padlock and ✕; all of it when unlocked) does it hold the mouse, so what is done there reaches the overlay alone, not
+/// the game or the window below (<see cref="MouseGate"/>). It reads the mouse itself to work its buttons, to be dragged
+/// when unlocked and hidden with a right click.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public static class NativeOverlay
@@ -39,7 +41,10 @@ public static class NativeOverlay
     private static int _keptWidth;
     private static GameWindows _game = new(null);
     private static readonly MouseGate _mouse = new();
-    private static bool _listening, _dragging;
+    private static bool _listening, _dragging, _holding;
+    private static POINT _still; // where the held pointer last was: the game pins it when play resumes
+    private static int _stillReports, _stillTravel;
+    private static POINT? _waitForMove; // given back with the pointer pinned: not held again until it moves
     private static OverlayButton _hover, _pressed;
     private static POINT _grab; // where the pointer took the overlay to drag it, relative to it
     private static uint _mouseEvery;
@@ -276,9 +281,9 @@ public static class NativeOverlay
                 }
                 return 0;
             case WM_INPUT:
-                if (ReadMouse(lParam) is var (buttons, moved))
+                if (ReadMouse(lParam) is var (buttons, dx, dy, moved))
                 {
-                    OnMouse(window, buttons, moved);
+                    OnMouse(window, buttons, dx, dy, moved);
                 }
                 return DefWindowProcW(window, message, wParam, lParam);
             case WM_TIMER when (long)wParam == MouseTimer:
@@ -293,6 +298,13 @@ public static class NativeOverlay
                 return 0;
             case WM_ERASEBKGND:
                 return 1; // painted whole below, in one go: never a bare background first
+            case WM_NCHITTEST:
+                return HTCLIENT; // only asked while it holds the mouse (otherwise it is transparent to it)
+            case WM_SETCURSOR:
+                SetCursor(LoadCursorW(IntPtr.Zero, IDC_ARROW)); // the same arrow as the game's menus and the desktop
+                return 1;
+            case WM_MOUSEACTIVATE:
+                return MA_NOACTIVATE; // a click never takes the focus from the game
             case WM_PAINT:
                 var hdc = BeginPaint(window, out var paint);
                 try
@@ -353,31 +365,122 @@ public static class NativeOverlay
         {
             return;
         }
-        var free = _mouse.FreeOver(place, out var at);
+        var free = Free(place, out var at);
+        Decide(window, place, at, free);
         var clicking = _pressed != OverlayButton.None && (GetAsyncKeyState(0x01) & 0x8000) != 0; // a click on a button, not yet released
-        Listen(free || clicking);
-        Hover(window, free ? ButtonAt(at.X - place.Left, at.Y - place.Top) : OverlayButton.None);
-        WatchPointer(window, free || _mouse.Near ? MouseNearMs : MouseFarMs);
+        Listen(free || _holding || clicking);
+        Hover(window, _holding ? ButtonAt(at.X - place.Left, at.Y - place.Top) : OverlayButton.None);
+        WatchPointer(window, free || _holding || _mouse.Near ? MouseNearMs : MouseFarMs);
         if (OverlayLog.On && (_mouse.Near || _listening))
         {
             OverlayLog.Write("look", at, place, _mouse.LastCursor, MouseState(free));
         }
     }
 
+    /// <summary>
+    /// Whether the pointer is free over the overlay. While the overlay holds the mouse the cursor on screen is its own, so
+    /// it says nothing of the game's: then the pointer counts as free until it leaves or the game pins it.
+    /// </summary>
+    private static bool Free(RECT place, out POINT at)
+    {
+        if (!_holding)
+        {
+            var free = _mouse.FreeOver(place, out at);
+            if (_waitForMove is { } pinned && (pinned.X != at.X || pinned.Y != at.Y))
+            {
+                _waitForMove = null;
+            }
+            return free;
+        }
+        GetCursorPos(out at);
+        return place.Contains(at.X, at.Y);
+    }
+
+    /// <summary>Holds the mouse while the pointer is free over a usable part (the buttons; all of it unlocked), else lets it through.</summary>
+    private static void Decide(IntPtr window, RECT place, POINT at, bool free)
+    {
+        if (_dragging || _pressed != OverlayButton.None)
+        {
+            return; // a drag or a click on the overlay keeps it until released
+        }
+        var usable = place.Contains(at.X, at.Y) && (!_locked || ButtonAt(at.X - place.Left, at.Y - place.Top) != OverlayButton.None);
+        if (_holding && !usable)
+        {
+            Hold(window, false, pinned: false);
+        }
+        else if (!_holding && usable && free && _waitForMove == null)
+        {
+            Hold(window, true, pinned: false);
+        }
+    }
+
+    /// <summary>
+    /// Holds the mouse (clicks reach the overlay alone, with the arrow cursor) or lets it through. Let through because the
+    /// game pinned the pointer: the arrow still on screen is hidden at once (the pinned pointer will not move for the game
+    /// to set its own), and the mouse is not held again until the pointer moves. Nothing is repainted.
+    /// </summary>
+    private static void Hold(IntPtr window, bool hold, bool pinned)
+    {
+        if (hold == _holding)
+        {
+            return;
+        }
+        _holding = hold;
+        _stillReports = _stillTravel = 0;
+        GetCursorPos(out _still);
+        if (!hold && pinned)
+        {
+            SetCursor(IntPtr.Zero);
+            _waitForMove = _still;
+        }
+        var style = (long)GetWindowLongPtrW(window, GWL_EXSTYLE);
+        var wanted = hold ? style & ~(long)WS_EX_TRANSPARENT : style | WS_EX_TRANSPARENT;
+        if (wanted != style)
+        {
+            SetWindowLongPtrW(window, GWL_EXSTYLE, (IntPtr)wanted);
+            SetWindowPos(window, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOREDRAW | SWP_FRAMECHANGED);
+        }
+        if (!hold)
+        {
+            Hover(window, OverlayButton.None);
+        }
+    }
+
+    /// <summary>
+    /// The mouse moves and the held pointer does not: the game pinned it (play resumed). Not when the pointer is pushed
+    /// against the edge of its area, where a free pointer cannot move either.
+    /// </summary>
+    private static bool PinnedByGame(POINT at, int dx, int dy)
+    {
+        if (at.X != _still.X || at.Y != _still.Y)
+        {
+            _still = at;
+            _stillReports = _stillTravel = 0;
+            return false;
+        }
+        if (GetClipCursor(out var area) && (at.X <= area.Left || at.X >= area.Right - 1 || at.Y <= area.Top || at.Y >= area.Bottom - 1))
+        {
+            return false;
+        }
+        _stillReports++;
+        _stillTravel += Math.Abs(dx) + Math.Abs(dy);
+        return _stillReports >= 8 && _stillTravel >= 96;
+    }
+
     private static long _loggedMove;
 
     /// <summary>The overlay's mouse state, for the diagnostic log.</summary>
     private static string MouseState(bool free) =>
-        $"free {free} listen {_listening} hover {_hover} pressed {_pressed} drag {_dragging} locked {_locked}";
+        $"free {free} hold {_holding} listen {_listening} hover {_hover} pressed {_pressed} drag {_dragging} locked {_locked}";
 
     /// <summary>A raw mouse report while listening: a click on a button, a drag, a right click, or just a move.</summary>
-    private static void OnMouse(IntPtr window, ushort buttons, bool moved)
+    private static void OnMouse(IntPtr window, ushort buttons, int dx, int dy, bool moved)
     {
         if (!GetWindowRect(window, out var place))
         {
             return;
         }
-        var free = _mouse.FreeOver(place, out var at); // the same steady reading as the timer's: never acts in play
+        var free = Free(place, out var at); // the same steady reading as the timer's: never acts in play
         if (OverlayLog.On && (buttons != 0 || Environment.TickCount64 - _loggedMove >= 50))
         {
             _loggedMove = Environment.TickCount64;
@@ -399,13 +502,23 @@ public static class NativeOverlay
             return;
         }
 
+        if (_holding && moved && _pressed == OverlayButton.None && PinnedByGame(at, dx, dy))
+        {
+            Hold(window, false, pinned: true); // play resumed with the pointer on the overlay
+            free = false;
+        }
+        if (moved)
+        {
+            Decide(window, place, at, free); // at once, not at the next look: the click right after must reach it
+        }
+
         var (x, y) = (at.X - place.Left, at.Y - place.Top);
-        var under = free ? ButtonAt(x, y) : OverlayButton.None;
+        var under = _holding ? ButtonAt(x, y) : OverlayButton.None;
         if (moved)
         {
             Hover(window, under);
         }
-        if ((buttons & RI_MOUSE_LEFT_BUTTON_DOWN) != 0 && free)
+        if ((buttons & RI_MOUSE_LEFT_BUTTON_DOWN) != 0 && _holding)
         {
             _pressed = under;
             if (under == OverlayButton.None && !_locked)
@@ -430,11 +543,11 @@ public static class NativeOverlay
                 SetLocked(window, !_locked, notify: true);
             }
         }
-        if ((buttons & RI_MOUSE_RIGHT_BUTTON_UP) != 0 && free && under == OverlayButton.None && !_locked)
+        if ((buttons & RI_MOUSE_RIGHT_BUTTON_UP) != 0 && _holding && under == OverlayButton.None && !_locked)
         {
             SetVisible(window, false); // right click on an unlocked overlay hides it
         }
-        if (!free && !_dragging && _pressed == OverlayButton.None)
+        if (!free && !_holding && !_dragging && _pressed == OverlayButton.None)
         {
             Listen(false); // left it, or the game hid the pointer
             Hover(window, OverlayButton.None);
@@ -579,6 +692,8 @@ public static class NativeOverlay
             KillTimer(window, (UIntPtr)MouseTimer);
             _mouseEvery = 0;
             _dragging = false;
+            _pressed = OverlayButton.None;
+            Hold(window, false, pinned: false);
             Listen(false);
             Hover(window, OverlayButton.None);
         }
@@ -636,8 +751,8 @@ public static class NativeOverlay
         UpdateWindow(window); // one repaint per change
     }
 
-    /// <summary>A raw mouse report: its button changes, and whether it moves (an absolute device, a pen… always counts).</summary>
-    private static (ushort Buttons, bool Moved)? ReadMouse(IntPtr report)
+    /// <summary>A raw mouse report: its button changes, its movement (relative devices) and whether it moves at all.</summary>
+    private static (ushort Buttons, int Dx, int Dy, bool Moved)? ReadMouse(IntPtr report)
     {
         var size = (uint)Marshal.SizeOf<RAWMOUSEINPUT>();
         if (GetRawInputData(report, RID_INPUT, out var input, ref size, (uint)Marshal.SizeOf<RAWINPUTHEADER>()) == uint.MaxValue
@@ -645,8 +760,9 @@ public static class NativeOverlay
         {
             return null;
         }
-        var moved = (input.usFlags & MOUSE_MOVE_ABSOLUTE) != 0 || input.lLastX != 0 || input.lLastY != 0;
-        return ((ushort)(input.ulButtons & 0xFFFF), moved);
+        var absolute = (input.usFlags & MOUSE_MOVE_ABSOLUTE) != 0;
+        var moved = absolute || input.lLastX != 0 || input.lLastY != 0;
+        return ((ushort)(input.ulButtons & 0xFFFF), absolute ? 0 : input.lLastX, absolute ? 0 : input.lLastY, moved);
     }
 
     /// <summary>Paints the whole overlay in memory and copies it in one go: no flash of a half-drawn card on screen.</summary>
