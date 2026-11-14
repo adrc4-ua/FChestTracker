@@ -9,13 +9,14 @@ namespace FCT.Overlay;
 /// <summary>
 /// The in-game overlay: a small always-on-top window on its own thread, drawn with GDI so it stays sharp and cheap. It
 /// has no timer for the figures (it repaints when told to) and only shows while a window of the game is open. Its
-/// padlock locks it (locked = the mouse goes through it, except its buttons).
+/// padlock locks it (locked = the mouse goes through it, except its buttons). On screen it lets the mouse through to the
+/// game unless the pointer is really free over it (<see cref="MouseGate"/>), so it never shows a cursor the game hides.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public static class NativeOverlay
 {
     private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004;
-    private const int GameTimer = 3, GameTimerMs = 2000;
+    private const int GameTimer = 3, GameTimerMs = 2000, MouseTimer = 4, MouseTimerMs = 100;
 
     private static Thread? _thread;
     private static IntPtr _window;
@@ -33,6 +34,8 @@ public static class NativeOverlay
     private static OverlayLayout _layout = new();
     private static int _keptWidth;
     private static GameWindows _game = new(null);
+    private static readonly MouseGate _mouse = new();
+    private static bool _dragging;
     private static WndProc? _procedure; // kept alive while the window lives
     private static WinEventProc? _eventProcedure;
     private static readonly List<IntPtr> _eventHooks = new();
@@ -173,11 +176,17 @@ public static class NativeOverlay
         {
             throw new InvalidOperationException("RegisterClassEx failed");
         }
-        _window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, windowClass.lpszClassName, L.T("Cofres", "Chests"), WS_POPUP,
+        // layered + transparent: the mouse goes through it to the game (an off-screen preview needs neither)
+        var passThrough = _offscreen ? 0 : WS_EX_LAYERED | WS_EX_TRANSPARENT;
+        _window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | passThrough, windowClass.lpszClassName, L.T("Cofres", "Chests"), WS_POPUP,
             x ?? _ink.Px(24), y ?? _ink.Px(24), _ink.Px(OverlayLayout.MinWidth), _ink.Px(90), IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
         if (_window == IntPtr.Zero)
         {
             throw new InvalidOperationException("CreateWindowEx failed");
+        }
+        if (!_offscreen)
+        {
+            SetLayeredWindowAttributes(_window, 0, 255, LWA_ALPHA); // fully opaque: layered only for the pass-through
         }
 
         // the scale of the monitor it is on, not of the main one (with two screens the text took the other's size)
@@ -193,7 +202,7 @@ public static class NativeOverlay
         }
         if (_visible && _gameOpen)
         {
-            ShowWindow(_window, SW_SHOWNOACTIVATE);
+            Show(_window, true);
         }
         ready.Set();
 
@@ -276,7 +285,11 @@ public static class NativeOverlay
             case WM_MOVING when !_offscreen && lParam != IntPtr.Zero:
                 KeepOnItsScreen(lParam);
                 return 1;
+            case WM_ENTERSIZEMOVE:
+                _dragging = true;
+                return 0;
             case WM_EXITSIZEMOVE:
+                _dragging = false;
                 if (GetWindowRect(window, out var moved))
                 {
                     _moved?.Invoke(moved.Left, moved.Top);
@@ -289,6 +302,12 @@ public static class NativeOverlay
                     _ink.SetScale((int)((long)wParam & 0xFFFF) / 96f);
                     _keptWidth = 0;
                     Relayout(window);
+                }
+                return 0;
+            case WM_TIMER when (long)wParam == MouseTimer:
+                if (!_dragging && GetWindowRect(window, out var place) && _mouse.Update(place))
+                {
+                    LetMouseThrough(window, !_mouse.Taking);
                 }
                 return 0;
             case WM_TIMER when (long)wParam == GameTimer:
@@ -412,6 +431,35 @@ public static class NativeOverlay
         else
         {
             ShowWindow(window, SW_HIDE);
+        }
+        if (_offscreen)
+        {
+            return;
+        }
+        // the pointer is only watched while it is on screen; hidden, it gives the mouse back
+        if (show)
+        {
+            SetTimer(window, (UIntPtr)MouseTimer, MouseTimerMs, IntPtr.Zero);
+        }
+        else
+        {
+            KillTimer(window, (UIntPtr)MouseTimer);
+            if (_mouse.Release())
+            {
+                LetMouseThrough(window, true);
+            }
+        }
+    }
+
+    /// <summary>Through: the mouse (and its cursor) belongs to the window below. Otherwise the overlay takes it.</summary>
+    private static void LetMouseThrough(IntPtr window, bool through)
+    {
+        var style = (long)GetWindowLongPtrW(window, GWL_EXSTYLE);
+        var wanted = through ? style | WS_EX_TRANSPARENT : style & ~(long)WS_EX_TRANSPARENT;
+        if (wanted != style)
+        {
+            SetWindowLongPtrW(window, GWL_EXSTYLE, (IntPtr)wanted);
+            SetWindowPos(window, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         }
     }
 
