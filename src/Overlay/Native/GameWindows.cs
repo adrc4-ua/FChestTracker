@@ -4,8 +4,8 @@ namespace FCT.Overlay.Native;
 
 /// <summary>
 /// Whether a window of the game is open and in sight on some screen, and which process it belongs to (a new process is
-/// a new launch of Fortnite). In sight: not minimized, and not hidden behind the desktop or another big window on its
-/// own screen (in windowed fullscreen Windows never reports the game as minimized: it only stops being in front).
+/// a new launch of Fortnite). In sight: not minimized, and not mostly covered by the desktop or by other windows above it
+/// (in windowed fullscreen Windows never reports the game as minimized: it only stops being in front).
 /// </summary>
 internal sealed class GameWindows
 {
@@ -58,47 +58,122 @@ internal sealed class GameWindows
         return found && !Covered(gameWindow, Process, own);
     }
 
-    /// <summary>
-    /// The game is out of sight: what has the focus on its screen is the desktop (Win + D) or a window over most of
-    /// the game's window (another app brought up with Alt + Tab; the switcher itself does not count). Measured on the game's own window, so it
-    /// holds in windowed fullscreen and in a plain window alike (a minimized game is already out: Windows reports it).
-    /// A window on another screen, one beside the game or small (a notification, a chat in a corner), FCT itself and
-    /// the taskbar or Start menu leave the game in sight.
-    /// </summary>
-    /// <summary>How much of the game's window the window in focus must cover for the game to count as hidden.</summary>
+    /// <summary>How much of the game's window must be covered for the game to count as out of sight.</summary>
     private const int CoveredPercent = 80;
 
+    /// <summary>Points looked at over the game's window to measure how much of it is covered (columns × rows).</summary>
+    private const int Columns = 32, Rows = 18;
+
+    /// <summary>
+    /// The game is out of sight: the desktop is in front (Win + D), or the windows above it, whoever has the focus and
+    /// whichever screen they were opened from, cover most of its window on its screen (all of them together). Measured
+    /// on the game's own window, so it holds in windowed fullscreen and in a plain window alike (a minimized game is
+    /// already out: Windows reports it).
+    /// </summary>
     private static bool Covered(IntPtr game, uint gameProcess, uint own)
     {
-        var front = GetForegroundWindow();
-        if (front == IntPtr.Zero || front == game || GetWindowThreadProcessId(front, out var pid) == 0 || pid == gameProcess || pid == own)
+        if (DesktopInFront())
+        {
+            return true;
+        }
+        var info = new MONITORINFO { cbSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf<MONITORINFO>() };
+        if (!GetWindowRect(game, out var window) || !GetMonitorInfoW(MonitorFromWindow(game, MONITOR_DEFAULTTONEAREST), ref info))
         {
             return false;
         }
-        var kind = new System.Text.StringBuilder(64);
-        GetClassNameW(front, kind, kind.Capacity);
-        if (kind.ToString() is "Progman" or "WorkerW")
-        {
-            return true; // the desktop (Win + D): it spans every screen, so it counts wherever it is
-        }
-        var screen = MonitorFromWindow(game, MONITOR_DEFAULTTONEAREST);
-        if (MonitorFromWindow(front, MONITOR_DEFAULTTONEAREST) != screen || IsIconic(front))
+        // the part of the game's window on its screen (in a window it may stick out)
+        var screen = info.rcMonitor;
+        var area = new RECT(Math.Max(window.Left, screen.Left), Math.Max(window.Top, screen.Top), Math.Min(window.Right, screen.Right), Math.Min(window.Bottom, screen.Bottom));
+        if (area.Width <= 0 || area.Height <= 0)
         {
             return false;
         }
-        switch (kind.ToString())
+
+        // top-level windows come front to back: those before the game's are above it
+        var above = new List<RECT>();
+        var reached = false;
+        EnumWindows((other, _) =>
         {
-            case "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "NotifyIconOverflowWindow" or "Windows.UI.Core.CoreWindow"
-                or "XamlExplorerHostIslandWindow" or "MultitaskingViewFrame" or "TaskSwitcherWnd" or "ForegroundStaging":
-                return false; // taskbar, tray, Start and notification panels, and the Alt + Tab / Win + Tab switchers
-        }
-        if (!GetWindowRect(front, out var box) || !GetWindowRect(game, out var area) || area.Width <= 0 || area.Height <= 0)
+            if (other == game)
+            {
+                reached = true;
+                return false;
+            }
+            if (Hides(other, gameProcess, own, out var box) && box.Right > area.Left && box.Left < area.Right && box.Bottom > area.Top && box.Top < area.Bottom)
+            {
+                above.Add(box);
+            }
+            return true;
+        }, IntPtr.Zero);
+        if (!reached || above.Count == 0)
         {
             return false;
         }
-        long width = Math.Max(0, Math.Min(box.Right, area.Right) - Math.Max(box.Left, area.Left));
-        long height = Math.Max(0, Math.Min(box.Bottom, area.Bottom) - Math.Max(box.Top, area.Top));
-        return width * height * 100 >= (long)area.Width * area.Height * CoveredPercent;
+
+        var visible = 0;
+        for (var row = 0; row < Rows; row++)
+        {
+            var y = area.Top + (2 * row + 1) * area.Height / (2 * Rows);
+            for (var column = 0; column < Columns; column++)
+            {
+                var x = area.Left + (2 * column + 1) * area.Width / (2 * Columns);
+                if (!above.Exists(box => box.Contains(x, y)))
+                {
+                    visible++;
+                }
+            }
+        }
+        return visible * 100 <= Columns * Rows * (100 - CoveredPercent);
+    }
+
+    /// <summary>The desktop has the focus (Win + D): it spans every screen, so the game is out of sight wherever it is.</summary>
+    private static bool DesktopInFront() => ClassOf(GetForegroundWindow()) is "Progman" or "WorkerW";
+
+    /// <summary>
+    /// A window above the game that hides what is under it, with its place. Not: hidden, minimized or cloaked windows,
+    /// FCT's and the game's own, windows the mouse goes through or nearly invisible ones (overlays like a graphics
+    /// driver's, spanning the whole screen), and the shell's: taskbar, its menus and panels, Start, and the Alt + Tab /
+    /// Win + Tab switchers.
+    /// </summary>
+    private static bool Hides(IntPtr window, uint gameProcess, uint own, out RECT box)
+    {
+        box = default;
+        if (!IsWindowVisible(window) || IsIconic(window) || GetWindowThreadProcessId(window, out var pid) == 0 || pid == own || pid == gameProcess)
+        {
+            return false;
+        }
+        if (DwmGetWindowAttribute(window, DWMWA_CLOAKED, out var cloaked, sizeof(int)) == 0 && cloaked != 0)
+        {
+            return false;
+        }
+        var style = (long)GetWindowLongPtrW(window, GWL_EXSTYLE);
+        if ((style & WS_EX_TRANSPARENT) != 0)
+        {
+            return false;
+        }
+        if ((style & WS_EX_LAYERED) != 0 && GetLayeredWindowAttributes(window, out _, out var alpha, out var how) && (how & LWA_ALPHA) != 0 && alpha < 64)
+        {
+            return false;
+        }
+        switch (ClassOf(window))
+        {
+            case "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "NotifyIconOverflowWindow" or "TopLevelWindowForOverflowXamlIsland"
+                or "Xaml_WindowedPopupClass" or "#32768" or "Windows.UI.Core.CoreWindow" or "XamlExplorerHostIslandWindow"
+                or "MultitaskingViewFrame" or "TaskSwitcherWnd" or "ForegroundStaging" or "Progman" or "WorkerW":
+                return false;
+        }
+        return GetWindowRect(window, out box) && box.Width > 0 && box.Height > 0;
+    }
+
+    private static string ClassOf(IntPtr window)
+    {
+        if (window == IntPtr.Zero)
+        {
+            return "";
+        }
+        var name = new System.Text.StringBuilder(64);
+        GetClassNameW(window, name, name.Capacity);
+        return name.ToString();
     }
 
     /// <summary>

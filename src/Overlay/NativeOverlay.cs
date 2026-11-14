@@ -19,7 +19,7 @@ namespace FCT.Overlay;
 public static class NativeOverlay
 {
     private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004;
-    private const int GameTimer = 3, GameTimerMs = 2000, MouseTimer = 4;
+    private const int GameTimer = 3, GameTimerMs = 1000, MouseTimer = 4, SoonTimer = 5, SoonMs = 120;
 
     /// <summary>How often the pointer is looked at: often near the overlay (so it answers the click at once), seldom far.</summary>
     private const uint MouseNearMs = 40, MouseFarMs = 160;
@@ -247,8 +247,23 @@ public static class NativeOverlay
     /// </summary>
     private static void FollowTheGame()
     {
-        _eventProcedure = (_, _, _, _, _, _, _) => GameChanged(_window);
-        foreach (var (first, last) in new[] { (EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND), (EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND) })
+        _eventProcedure = (_, kind, _, item, child, _, _) =>
+        {
+            if (kind is EVENT_SYSTEM_FOREGROUND or EVENT_SYSTEM_MINIMIZESTART or EVENT_SYSTEM_MINIMIZEEND)
+            {
+                GameChanged(_window);
+            }
+            else if (item == OBJID_WINDOW && child == 0)
+            {
+                SetTimer(_window, (UIntPtr)SoonTimer, SoonMs, IntPtr.Zero); // a window appeared, went or moved: look once they settle
+            }
+        };
+        var events = new[]
+        {
+            (EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND), (EVENT_SYSTEM_MOVESIZEEND, EVENT_SYSTEM_MOVESIZEEND),
+            (EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND), (EVENT_OBJECT_SHOW, EVENT_OBJECT_HIDE), (EVENT_OBJECT_CLOAKED, EVENT_OBJECT_UNCLOAKED),
+        };
+        foreach (var (first, last) in events)
         {
             var hook = SetWinEventHook(first, last, IntPtr.Zero, _eventProcedure, 0, 0, WINEVENT_OUTOFCONTEXT);
             if (hook != IntPtr.Zero)
@@ -288,6 +303,10 @@ public static class NativeOverlay
                 return DefWindowProcW(window, message, wParam, lParam);
             case WM_TIMER when (long)wParam == MouseTimer:
                 LookAtPointer(window);
+                return 0;
+            case WM_TIMER when (long)wParam == SoonTimer:
+                KillTimer(window, (UIntPtr)SoonTimer);
+                GameChanged(window);
                 return 0;
             case WM_TIMER when (long)wParam == GameTimer:
             case WM_APP_RECHECK:

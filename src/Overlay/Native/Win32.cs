@@ -24,7 +24,10 @@ internal static class Win32
 
     public const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTONEAREST = 2;
     public const int DWMWA_CLOAKED = 14;
-    public const uint EVENT_SYSTEM_FOREGROUND = 0x0003, EVENT_SYSTEM_MINIMIZESTART = 0x0016, EVENT_SYSTEM_MINIMIZEEND = 0x0017, WINEVENT_OUTOFCONTEXT = 0;
+    public const uint EVENT_SYSTEM_FOREGROUND = 0x0003, EVENT_SYSTEM_MOVESIZEEND = 0x000B, EVENT_SYSTEM_MINIMIZESTART = 0x0016,
+        EVENT_SYSTEM_MINIMIZEEND = 0x0017, EVENT_OBJECT_SHOW = 0x8002, EVENT_OBJECT_HIDE = 0x8003, EVENT_OBJECT_CLOAKED = 0x8017,
+        EVENT_OBJECT_UNCLOAKED = 0x8018, WINEVENT_OUTOFCONTEXT = 0;
+    public const int OBJID_WINDOW = 0;
 
     // ---- GDI ------------------------------------------------------------------------------------------------------------
     public const int TRANSPARENT = 1, LOGPIXELSY = 90;
@@ -147,6 +150,7 @@ internal static class Win32
     [DllImport("user32.dll")] public static extern UIntPtr SetTimer(IntPtr hwnd, UIntPtr id, uint ms, IntPtr proc);
     [DllImport("user32.dll")] public static extern bool KillTimer(IntPtr hwnd, UIntPtr id);
     [DllImport("user32.dll")] public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint key, byte alpha, uint flags);
+    [DllImport("user32.dll")] public static extern bool GetLayeredWindowAttributes(IntPtr hwnd, out uint key, out byte alpha, out uint flags);
     [DllImport("user32.dll")] public static extern bool GetCursorInfo(ref CURSORINFO info);
     [DllImport("user32.dll")] public static extern bool GetCursorPos(out POINT point);
     [DllImport("user32.dll", SetLastError = true)] public static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] devices, uint count, uint size);
